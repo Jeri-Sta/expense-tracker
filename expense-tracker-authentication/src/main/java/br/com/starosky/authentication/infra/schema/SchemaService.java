@@ -31,8 +31,8 @@ public class SchemaService {
     @Value("${spring.datasource.password}")
     String datasourcePassword;
 
-    @Value("${security.internal-api-key}")
-    private String internalAuthSecret;
+    @Value("${security.internal-operations-key}")
+    private String internalOperationsKey;
 
     public SchemaService(JdbcTemplate jdbcTemplate, GroupService groupService) {
         this.jdbcTemplate = jdbcTemplate;
@@ -84,7 +84,7 @@ public class SchemaService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-Internal-Auth", internalAuthSecret);
+        headers.set("X-Internal-Operations", internalOperationsKey);
 
         HttpEntity<TenantDto> request = new HttpEntity<>(dto, headers);
 

@@ -20,6 +20,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/authentication/**").permitAll() // Libera rota de autenticação
                         .pathMatchers("/expense-tracker/tenants/migrate").permitAll()
+                        .pathMatchers("/expense-tracker/general-info").permitAll()
                         .anyExchange().authenticated()        // Bloqueia o resto
                 );
         http.addFilterBefore(customAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION);

@@ -1,11 +1,6 @@
 package br.com.starosky.gateway.security;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -18,6 +13,8 @@ public class CustomAuthenticationFilter implements WebFilter {
 
     @Value("${security.internal-api-key}")
     private String internalAuthSecret;
+    @Value("${security.internal-operations-key}")
+    private String internalOperationsKey;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -30,6 +27,12 @@ public class CustomAuthenticationFilter implements WebFilter {
                 .mutate()
                 .header("X-Internal-Auth", internalAuthSecret)
                 .build();
+
+        // Se for comunicação entre serviços, passa
+        String internalOperations = request.getHeaders().getFirst("X-Internal-Operations");
+        if (internalOperations != null && internalOperations.equals(internalOperationsKey)) {
+            return chain.filter(exchange.mutate().request(request).build());
+        }
 
         // Aqui você pode validar o token (JWT, etc)
         // Se quiser passar informações adiante, adicione no exchange.getAttributes()

@@ -6,13 +6,18 @@ import br.com.starosky.authentication.infra.schema.SchemaService;
 import br.com.starosky.authentication.infra.service.UserDetailsImpl;
 import br.com.starosky.authentication.user.model.AccessDTO;
 import br.com.starosky.authentication.user.model.AuthenticationDTO;
+import br.com.starosky.authentication.user.model.GeneralInfoInputDto;
 import br.com.starosky.authentication.user.model.UserEntity;
 import br.com.starosky.authentication.user.model.UserInputDto;
 import br.com.starosky.authentication.user.repository.UserRepository;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
 import lombok.experimental.FieldDefaults;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,18 +25,27 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-@Setter(onMethod_ = @Autowired)
 public class UserService {
 
+    @Autowired
     JwtUtils jwtUtils;
+    @Autowired
     AuthenticationManager authenticationManager;
+    @Autowired
     UserRepository repository;
+    @Autowired
     BCryptPasswordEncoder passwordEncoder;
+    @Autowired
     SchemaService schemaService;
+    @Autowired
     GroupService groupService;
+
+    @Value("${security.internal-operations-key}")
+    String internalOperationsKey;
 
     public AccessDTO login(AuthenticationDTO authDTO) {
         try {
@@ -68,12 +82,28 @@ public class UserService {
                 return ResponseEntity.badRequest().body("Owner user was not found.");
             }
 
-            repository.save(user);
-
             if (data.getOwnerEmail() == null) {
                 schemaService.createSchemaForEmail(user.getEmail());
+                setPaymentDay(user.getSchemaName(), data.getPaymentDay());
             }
+            repository.save(user);
         }
         return ResponseEntity.ok().build();
+    }
+
+    private void setPaymentDay(@NotBlank String schemaName, Integer paymentDay) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        GeneralInfoInputDto dto = new GeneralInfoInputDto();
+        dto.setSchemaName(schemaName);
+        dto.setPaymentDay(paymentDay);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-Internal-Operations", internalOperationsKey);
+
+        HttpEntity<GeneralInfoInputDto> request = new HttpEntity<>(dto, headers);
+
+        restTemplate.postForEntity("http://localhost:8083/expense-tracker/general-info", request, Void.class);
     }
 }

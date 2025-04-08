@@ -45,3 +45,4 @@ eureka:
 
 security:
   internal-api-key: b6484c64-e80f-4f89-9aeb-0b99403c7bce
+  internal-operations-key: ab6151e6-9a6a-4db9-aa86-157d044acd43
