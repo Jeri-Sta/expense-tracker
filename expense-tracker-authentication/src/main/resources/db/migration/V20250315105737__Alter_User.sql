@@ -1,0 +1,1 @@
+alter table users add column schema_name varchar(100) NOT NULL;

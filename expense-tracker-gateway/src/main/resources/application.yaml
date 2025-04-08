@@ -1,0 +1,30 @@
+spring:
+  jwtSecret: MbxOksa8BHgdAhR80Y3pEYvS5M+MnF2sheFDqprkTqQ4odqoszJLW1ikw64/nT/dTvlgrcBTq7HfK1B9Gai2h5A==
+  jwtExpirationMs: 900000
+
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+server:
+  port: 8083
+
+devtools:
+  restart:
+    enabled: true
+
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+security:
+  internal-api-key: b6484c64-e80f-4f89-9aeb-0b99403c7bce
