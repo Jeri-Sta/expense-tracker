@@ -4,13 +4,8 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
-  jwtSecret: ${JWT_SECRET}
-
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
 
   flyway:
     locations: classpath:db/migration
@@ -18,8 +13,6 @@ spring:
     enabled: false
     baseline-description: "start"
     baseline-version: 1
-    user: ${POSTGRES_USER}
-    password: {POSTGRES_PASSWORD}
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -34,13 +27,6 @@ eureka:
   instance:
     leaseRenewalIntervalInSeconds: 1
     leaseExpirationDurationInSeconds: 2
-  client:
-    service-url:
-      defaultZone: ${EUREKA_SERVER_URL}
-
-security:
-  internal-api-key: ${INTERNAL_API_KEY}
-  internal-operations-key: ${INTERNAL_OPERATIONS_KEY}
 
 server:
   port: 8082

@@ -1,0 +1,15 @@
+spring:
+  jwtSecret: ${JWT_SECRET}
+
+  redis:
+    url: ${REDIS_URL}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
+
+security:
+  internal-api-key: ${INTERNAL_API_KEY}
+  internal-operations-key: ${INTERNAL_OPERATIONS_KEY}
+  frontend-url: ${FRONTEND_URL}

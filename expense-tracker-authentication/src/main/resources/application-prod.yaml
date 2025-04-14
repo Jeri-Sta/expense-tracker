@@ -1,0 +1,23 @@
+spring:
+  jwtSecret: ${JWT_SECRET}
+
+  redis:
+    url: ${REDIS_URL}
+
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+  flyway:
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
+
+security:
+  internal-api-key: ${INTERNAL_API_KEY}
+  internal-operations-key: ${INTERNAL_OPERATIONS_KEY}
