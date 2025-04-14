@@ -1,0 +1,19 @@
+# Etapa de build
+FROM eclipse-temurin:17-jdk-alpine as build
+WORKDIR /app
+
+# Copia tudo do projeto, inclusive os módulos
+COPY . .
+
+# Compila apenas o módulo do eureka-server e suas dependências
+RUN ./mvnw clean package -DskipTests -pl expense-tracker-eureka-server -am
+
+# Etapa de runtime
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+
+# Copia o JAR gerado do módulo específico
+COPY --from=build /app/expense-tracker-eureka-server/target/*.jar app.jar
+
+EXPOSE 8761
+ENTRYPOINT ["java", "-jar", "app.jar"]

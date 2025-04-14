@@ -1,3 +1,46 @@
 spring:
+  application:
+    name: authentication
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  jwtSecret: ${JWT_SECRET}
+  jwtExpirationMs: 3600000
+
+  redis:
+    url: ${REDIS_URL}
+
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: "org.hibernate.dialect.PostgreSQLDialect"
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: false
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+server:
+  port: 8084
+
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
+
+security:
+  internal-api-key: ${INTERNAL_API_KEY}
+  internal-operations-key: ${INTERNAL_OPERATIONS_KEY}

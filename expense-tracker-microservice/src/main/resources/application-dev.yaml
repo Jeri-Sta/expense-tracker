@@ -1,44 +1,20 @@
 spring:
-  application:
-    name: expense-tracker
-
   jwtSecret: MbxOksa8BHgdAhR80Y3pEYvS5M+MnF2sheFDqprkTqQ4odqoszJLW1ikw64/nT/dTvlgrcBTq7HfK1B9Gai2h5A==
 
   datasource:
     url: jdbc:postgresql://localhost:5432/expense-tracker
     username: postgres
     password: postgres
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: none
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
 
   flyway:
-    locations: classpath:db/migration
-    baseline-on-migrate: true
-    enabled: false
     user: postgres
     password: postgres
-    baseline-description: "start"
-    baseline-version: 1
-
-server:
-  port: 8082
 
 devtools:
   restart:
     enabled: true
 
 eureka:
-  instance:
-    leaseRenewalIntervalInSeconds: 1
-    leaseExpirationDurationInSeconds: 2
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/

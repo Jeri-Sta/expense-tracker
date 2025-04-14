@@ -1,9 +1,5 @@
 spring:
-  application:
-    name: authentication
-
   jwtSecret: MbxOksa8BHgdAhR80Y3pEYvS5M+MnF2sheFDqprkTqQ4odqoszJLW1ikw64/nT/dTvlgrcBTq7HfK1B9Gai2h5A==
-  jwtExpirationMs: 3600000
 
   redis:
     host: localhost
@@ -15,29 +11,12 @@ spring:
     url: jdbc:postgresql://localhost:5432/expense-tracker
     username: postgres
     password: postgres
-    driver-class-name: org.postgresql.Driver
 
-    jpa:
-      database-platform: "org.hibernate.dialect.PostgreSQLDialect"
-      show-sql: false
-      hibernate:
-        ddl-auto: none
-      properties:
-        hibernate:
-          format_sql: true
-
-    flyway:
-      enabled: false
-      user: postgres
-      password: postgres
-
-server:
-  port: 8084
+  flyway:
+    user: postgres
+    password: postgres
 
 eureka:
-  instance:
-    leaseRenewalIntervalInSeconds: 1
-    leaseExpirationDurationInSeconds: 2
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
