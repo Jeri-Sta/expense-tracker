@@ -9,6 +9,8 @@ import br.com.starosky.authentication.user.model.AuthenticationDTO;
 import br.com.starosky.authentication.user.model.GeneralInfoInputDto;
 import br.com.starosky.authentication.user.model.UserEntity;
 import br.com.starosky.authentication.user.model.UserInputDto;
+import br.com.starosky.authentication.user.model.UserSessionEntity;
+import br.com.starosky.authentication.user.repository.UserRedisRepository;
 import br.com.starosky.authentication.user.repository.UserRepository;
 import jakarta.validation.constraints.NotBlank;
 import lombok.experimental.FieldDefaults;
@@ -27,6 +29,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
+
 @Service
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class UserService {
@@ -43,6 +47,8 @@ public class UserService {
     SchemaService schemaService;
     @Autowired
     GroupService groupService;
+    @Autowired
+    UserRedisRepository redisRepository;
 
     @Value("${security.internal-operations-key}")
     String internalOperationsKey;
@@ -57,6 +63,7 @@ public class UserService {
             schemaService.migrateSchema(userEntity.getSchemaName());
 
             String token = jwtUtils.generateTokenFromUserDetailsImpl(userAuthenticate, userEntity.getSchemaName());
+            saveSessions(userEntity, token);
 
             return new AccessDTO(token, userAuthenticate.getEmail());
         } catch (BadCredentialsException e) {
@@ -105,5 +112,16 @@ public class UserService {
         HttpEntity<GeneralInfoInputDto> request = new HttpEntity<>(dto, headers);
 
         restTemplate.postForEntity("http://localhost:8083/expense-tracker/general-info", request, Void.class);
+    }
+
+    private void saveSessions(UserEntity user, String token) {
+        UserSessionEntity userSessionEntity = new UserSessionEntity();
+        userSessionEntity.setId(user.getId());
+        userSessionEntity.setEmail(user.getEmail());
+        userSessionEntity.setToken(token);
+        userSessionEntity.setPassword(user.getPassword());
+        userSessionEntity.setName(user.getName());
+        userSessionEntity.setTtl(3600L);
+        redisRepository.save(userSessionEntity);
     }
 }

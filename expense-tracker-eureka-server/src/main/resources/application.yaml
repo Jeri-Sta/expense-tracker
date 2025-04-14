@@ -1,18 +1,3 @@
 spring:
-  application:
-    name: expense-tracker-eureka-server
-
-  security:
-    user:
-      name: "admin"
-      password: "admin"
-
-server:
-  port: 8761
-
-eureka:
-  server:
-    enableSelfPreservation: true
-  client:
-    register-with-eureka: false
-    fetch-registry: false
+  profiles:
+    active: dev

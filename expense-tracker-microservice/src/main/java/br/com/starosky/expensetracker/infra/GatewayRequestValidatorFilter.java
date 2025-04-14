@@ -18,6 +18,9 @@ public class GatewayRequestValidatorFilter extends OncePerRequestFilter {
 
     @Value("${security.internal-api-key}")
     private String internalAuthSecret;
+    @Value("${security.internal-operations-key}")
+    private String internalOperationsKey;
+
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -31,6 +34,15 @@ public class GatewayRequestValidatorFilter extends OncePerRequestFilter {
         if (!internalAuthSecret.equals(header)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
+        }
+
+        if (request.getRequestURI().equals("/tenants/migrate") || request.getRequestURI().equals("/general-info")) {
+            String operationsHeader = request.getHeader("X-Internal-Operations");
+
+            if (!operationsHeader.equals(internalOperationsKey)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
         }
 
         String token = request.getHeader("Authorization");

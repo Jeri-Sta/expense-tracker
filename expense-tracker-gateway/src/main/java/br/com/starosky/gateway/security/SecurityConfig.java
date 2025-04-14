@@ -2,6 +2,7 @@ package br.com.starosky.gateway.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -21,6 +22,7 @@ public class SecurityConfig {
                         .pathMatchers("/authentication/**").permitAll() // Libera rota de autenticação
                         .pathMatchers("/expense-tracker/tenants/migrate").permitAll()
                         .pathMatchers("/expense-tracker/general-info").permitAll()
+                        .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyExchange().authenticated()        // Bloqueia o resto
                 );
         http.addFilterBefore(customAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
