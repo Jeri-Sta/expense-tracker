@@ -5,6 +5,9 @@ WORKDIR /app
 # Copia tudo do projeto, inclusive os módulos
 COPY . .
 
+# Dá permissão de execução ao mvnw
+RUN chmod +x ./mvnw
+
 # Compila apenas o módulo do eureka-server e suas dependências
 RUN ./mvnw clean package -DskipTests -pl expense-tracker-eureka-server -am
 
