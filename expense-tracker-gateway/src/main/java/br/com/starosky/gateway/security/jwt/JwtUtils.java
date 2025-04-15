@@ -11,16 +11,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Date;
 
 @Component
 public class JwtUtils {
 
     @Value("${spring.jwtSecret}")
     private String jwtSecret;
-
-    @Value("${spring.jwtExpirationMs}")
-    private int jwtExpirationMs;
 
     private Key getSigninKey() {
         byte[] decodedKey = Decoders.BASE64.decode(jwtSecret);
