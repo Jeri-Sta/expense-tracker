@@ -40,7 +40,7 @@ jobs:
             echo "APP_ID=${{ secrets.AUTHENTICATION_APP_ID }}" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.service }}" == "expense-tracker-eureka-server" ]; then
             echo "APP_ID=${{ secrets.EUREKA_SERVER_APP_ID }}" >> $GITHUB_ENV
-            echo "START_COMMAND=SPRING_PROFILES_ACTIVE=prod java -jar expense-tracker-eureka-server-0.0.1-SNAPSHOT.jar >> $GITHUB_ENV
+            echo "START_COMMAND=SPRING_PROFILES_ACTIVE=prod java -jar expense-tracker-eureka-server-0.0.1-SNAPSHOT.jar" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.service }}" == "expense-tracker-gateway" ]; then
             echo "APP_ID=${{ secrets.GATEWAY_APP_ID }}" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.service }}" == "expense-tracker-microservice" ]; then
