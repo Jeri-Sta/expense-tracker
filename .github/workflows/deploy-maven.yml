@@ -58,11 +58,12 @@ jobs:
           JAR_NAME=$(basename $(ls deploy/*.jar))
           cat <<EOF > deploy/squarecloud.config
           MEMORY=512
+          MAIN=$JAR_NAME
           VERSION=recommended
           DISPLAY_NAME=${{ env.SERVICE_NAME }}
           AUTORESTART=true
           SUBDOMAIN=${{ env.SERVICE_NAME }}
-          MAIN=${{ env.START_COMMAND }}
+          START=${{ env.START_COMMAND }}
           EOF
 
       - name: Zip for Square Cloud
