@@ -50,7 +50,7 @@ jobs:
       - name: Prepare deploy folder
         run: |
           mkdir deploy
-          cp ${{ env.SERVICE_NAME }}/target/*.jar deploy/
+          cp ${{ env.SERVICE_NAME }}/target/* deploy/
 
       - name: Create squarecloud.config
         run: |
