@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: Expense-Tracker
+
+  jwtExpirationMs: 3600000
+  jwtSecret: MbxOksa8BHgdAhR80Y3pEYvS5M+MnF2sheFDqprkTqQ4odqoszJLW1ikw64/nT/dTvlgrcBTq7HfK1B9Gai2h5A==
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/expense_tracker
+    username: postgres
+    password: postgres
+
+  flyway:
+    user: postgres
+    password: postgres
+
+  jpa:
+    database-platform: "org.hibernate.dialect.PostgreSQLDialect"
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
