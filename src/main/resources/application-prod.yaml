@@ -1,0 +1,16 @@
+server:
+  port: 80
+  address: 0.0.0.0
+
+spring:
+  docker:
+    compose:
+      enabled: false
+
+  datasource:
+    url: jdbc:postgresql://aws-0-sa-east-1.pooler.supabase.com:5432/postgres?sslmode=require
+    username: postgres.ibqkwdpmqcpsxzktkimw
+    password: JsRZMoH5WYJUy6p1
+
+cors:
+  allowed-origin: https://expense-tracker.squareweb.app

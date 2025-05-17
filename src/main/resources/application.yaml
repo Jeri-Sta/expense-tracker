@@ -1,19 +1,19 @@
 spring:
   application:
     name: Expense-Tracker
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
 
   jwtExpirationMs: 3600000
   jwtSecret: MbxOksa8BHgdAhR80Y3pEYvS5M+MnF2sheFDqprkTqQ4odqoszJLW1ikw64/nT/dTvlgrcBTq7HfK1B9Gai2h5A==
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/expense_tracker
-    username: postgres
-    password: postgres
 
   flyway:
-    user: postgres
-    password: postgres
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 
   jpa:
     database-platform: "org.hibernate.dialect.PostgreSQLDialect"
