@@ -2,7 +2,12 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/expense_tracker
     username: postgres
-    password: postgres
+    password: admin
+
+  docker:
+    compose:
+      enabled: false
 
 cors:
-  allowed-origin: http://localhost:3000
+  allowed-origin: http://localhost:4200
+
