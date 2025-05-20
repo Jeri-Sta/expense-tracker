@@ -15,6 +15,10 @@ public class IncomeMapper implements Mapper<IncomeEntity, IncomeInputDto, Income
         output.setName(input.getName());
         output.setValue(input.getValue());
         output.setIncomeDate(input.getIncomeDate());
+        output.setCreatedAt(input.getCreatedAt());
+        output.setUpdatedAt(input.getUpdatedAt());
+        output.setCreatedBy(input.getCreatedBy());
+        output.setLastModifiedBy(input.getLastModifiedBy());
         return output;
     }
 
@@ -25,6 +29,10 @@ public class IncomeMapper implements Mapper<IncomeEntity, IncomeInputDto, Income
         entity.setName(input.getName());
         entity.setValue(input.getValue());
         entity.setIncomeDate(input.getIncomeDate());
+        entity.setCreatedAt(input.getCreatedAt());
+        entity.setUpdatedAt(input.getUpdatedAt());
+        entity.setCreatedBy(input.getCreatedBy());
+        entity.setLastModifiedBy(input.getLastModifiedBy());
         return entity;
     }
 }

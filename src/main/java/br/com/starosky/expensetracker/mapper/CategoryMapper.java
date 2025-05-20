@@ -15,6 +15,11 @@ public class CategoryMapper implements Mapper<CategoryEntity, CategoryInputDto, 
         categoryOutputDto.setName(input.getName());
         categoryOutputDto.setColor(input.getColor());
         categoryOutputDto.setFixedExpense(input.isFixedExpense());
+        categoryOutputDto.setCreatedAt(input.getCreatedAt());
+        categoryOutputDto.setUpdatedAt(input.getUpdatedAt());
+        categoryOutputDto.setCreatedBy(input.getCreatedBy());
+        categoryOutputDto.setLastModifiedBy(input.getLastModifiedBy());
+
         return categoryOutputDto;
     }
 
@@ -25,6 +30,10 @@ public class CategoryMapper implements Mapper<CategoryEntity, CategoryInputDto, 
         categoryEntity.setName(input.getName());
         categoryEntity.setColor(input.getColor());
         categoryEntity.setFixedExpense(input.isFixedExpense());
+        categoryEntity.setCreatedAt(input.getCreatedAt());
+        categoryEntity.setUpdatedAt(input.getUpdatedAt());
+        categoryEntity.setCreatedBy(input.getCreatedBy());
+        categoryEntity.setLastModifiedBy(input.getLastModifiedBy());
         return categoryEntity;
     }
 }

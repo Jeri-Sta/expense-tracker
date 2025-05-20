@@ -14,6 +14,10 @@ public class BankMapper implements Mapper<BankEntity, BankInputDto, BankOutputDt
         bankOutputDto.setId(input.getId());
         bankOutputDto.setName(input.getName());
         bankOutputDto.setBalance(input.getBalance());
+        bankOutputDto.setCreatedAt(input.getCreatedAt());
+        bankOutputDto.setUpdatedAt(input.getUpdatedAt());
+        bankOutputDto.setCreatedBy(input.getCreatedBy());
+        bankOutputDto.setLastModifiedBy(input.getLastModifiedBy());
         return bankOutputDto;
     }
 
@@ -23,6 +27,10 @@ public class BankMapper implements Mapper<BankEntity, BankInputDto, BankOutputDt
         bankEntity.setId(input.getId());
         bankEntity.setName(input.getName());
         bankEntity.setBalance(input.getBalance());
+        bankEntity.setCreatedAt(input.getCreatedAt());
+        bankEntity.setUpdatedAt(input.getUpdatedAt());
+        bankEntity.setCreatedBy(input.getCreatedBy());
+        bankEntity.setLastModifiedBy(input.getLastModifiedBy());
         return bankEntity;
     }
 }

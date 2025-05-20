@@ -24,6 +24,10 @@ public class CardMapper implements Mapper<CardEntity, CardInputDto, CardOutputDt
         cardOutputDto.setLimit(input.getLimit());
         cardOutputDto.setClosingDay(input.getClosingDay());
         cardOutputDto.setBank(bankDto);
+        cardOutputDto.setCreatedAt(input.getCreatedAt());
+        cardOutputDto.setUpdatedAt(input.getUpdatedAt());
+        cardOutputDto.setCreatedBy(input.getCreatedBy());
+        cardOutputDto.setLastModifiedBy(input.getLastModifiedBy());
 
         return cardOutputDto;
     }
@@ -38,6 +42,10 @@ public class CardMapper implements Mapper<CardEntity, CardInputDto, CardOutputDt
         cardEntity.setLimit(input.getLimit());
         cardEntity.setClosingDay(input.getClosingDay());
         cardEntity.setBank(bankEntity);
+        cardEntity.setCreatedAt(input.getCreatedAt());
+        cardEntity.setUpdatedAt(input.getUpdatedAt());
+        cardEntity.setCreatedBy(input.getCreatedBy());
+        cardEntity.setLastModifiedBy(input.getLastModifiedBy());
 
         return cardEntity;
     }

@@ -65,6 +65,10 @@ public class ExpenseMapper implements Mapper<ExpenseEntity, ExpenseInputDto, Exp
         expenseOutputDto.setExpenseDate(input.getExpenseDate());
         expenseOutputDto.setInstallments(input.getInstallments());
         expenseOutputDto.setInstallmentsRegisters(installmentsRegistersDto);
+        expenseOutputDto.setCreatedAt(input.getCreatedAt());
+        expenseOutputDto.setUpdatedAt(input.getUpdatedAt());
+        expenseOutputDto.setCreatedBy(input.getCreatedBy());
+        expenseOutputDto.setLastModifiedBy(input.getLastModifiedBy());
 
         return expenseOutputDto;
     }
@@ -91,6 +95,10 @@ public class ExpenseMapper implements Mapper<ExpenseEntity, ExpenseInputDto, Exp
             categoryEntity.setId(input.getCategory().getId());
         }
         expenseEntity.setCategory(categoryEntity);
+        expenseEntity.setCreatedAt(input.getCreatedAt());
+        expenseEntity.setUpdatedAt(input.getUpdatedAt());
+        expenseEntity.setCreatedBy(input.getCreatedBy());
+        expenseEntity.setLastModifiedBy(input.getLastModifiedBy());
 
         return expenseEntity;
     }
