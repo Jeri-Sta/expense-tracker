@@ -1,0 +1,82 @@
+// Specific styles for transactions component
+.p-datatable {
+  .p-datatable-header {
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+  }
+
+  .p-datatable-thead > tr > th {
+    background: var(--surface-section);
+  }
+
+  .p-datatable-tbody > tr {
+    &:hover {
+      background: var(--surface-hover);
+    }
+  }
+}
+
+.text-green-600 {
+  color: #059669 !important;
+}
+
+.text-red-600 {
+  color: #dc2626 !important;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.ng-dirty.ng-invalid {
+  border-color: #f87171 !important;
+}
+
+// Responsive improvements
+@media (max-width: 768px) {
+  .p-datatable {
+    .p-datatable-wrapper {
+      overflow-x: auto;
+    }
+  }
+
+  .flex.gap-2 {
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .p-button {
+      width: 100%;
+    }
+  }
+}
+
+// Dialog responsive
+.p-dialog {
+  @media (max-width: 640px) {
+    width: 95vw !important;
+    margin: 1rem;
+  }
+}
+
+// Category dropdown custom styling
+.p-dropdown-item {
+  .flex.align-items-center {
+    gap: 0.5rem;
+  }
+}
+
+// Transaction type tags
+.p-tag {
+  font-weight: 600;
+}
+
+// Custom button spacing
+.flex.gap-1 {
+  gap: 0.25rem;
+}

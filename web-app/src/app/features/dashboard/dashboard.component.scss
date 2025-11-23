@@ -1,0 +1,531 @@
+.dashboard {
+  padding: 1rem;
+  min-height: 100vh;
+  background: var(--surface-ground);
+
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+  }
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+
+  ::ng-deep .p-progress-spinner-circle {
+    stroke: var(--primary-500);
+  }
+}
+
+// KPI Cards
+.kpi-card {
+  transition: all 0.3s ease;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-card);
+  position: relative;
+  overflow: hidden;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-500) 0%, var(--primary-600) 100%);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .text-green-600 {
+    color: #22c55e !important;
+  }
+
+  .text-red-600 {
+    color: #ef4444 !important;
+  }
+
+  .text-blue-600 {
+    color: #3b82f6 !important;
+  }
+
+  .text-orange-600 {
+    color: #f97316 !important;
+  }
+}
+
+// Chart Cards
+.chart-card, .data-card {
+  transition: all 0.3s ease;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-card);
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+.chart-header, .card-header {
+  background: var(--surface-section);
+  border-bottom: 1px solid var(--surface-border);
+
+  h5 {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+  }
+}
+
+.chart-content, .card-content {
+  background: var(--surface-card);
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; // Prevent chart overflow
+
+  p-chart {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    
+    ::ng-deep {
+      canvas {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      
+      .p-chart {
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden;
+      }
+    }
+  }
+}
+
+// Specific chart container fixes
+.chart-wrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  
+  p-chart {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    
+    ::ng-deep {
+      .p-chart {
+        width: 100% !important;
+        height: 100% !important;
+        
+        canvas {
+          width: 100% !important;
+          height: 100% !important;
+          max-width: 100% !important;
+          max-height: 100% !important;
+          object-fit: contain;
+        }
+      }
+    }
+  }
+}
+
+// Specific fixes for horizontal bar chart (Top Categorias)
+.chart-card .chart-content:has(p-chart[type="bar"]) {
+  .chart-wrapper {
+    padding: 10px;
+    
+    ::ng-deep {
+      .p-chart canvas {
+        padding: 5px;
+      }
+    }
+  }
+}
+
+.chart-card {
+  overflow: hidden;
+  
+  .chart-content {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    
+    ::ng-deep {
+      .p-chart {
+        position: relative;
+        width: 100% !important;
+        height: 100% !important;
+        
+        canvas {
+          width: 100% !important;
+          height: 100% !important;
+          max-width: 100% !important;
+          max-height: 100% !important;
+          object-fit: contain;
+        }
+      }
+    }
+  }
+}
+
+// Chart Responsiveness
+@media (max-width: 1200px) {
+  .chart-content {
+    min-height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-content {
+    min-height: 200px;
+    padding: 1rem !important;
+  }
+
+  .chart-header, .card-header {
+    padding: 1rem !important;
+  }
+}
+
+// Transaction List Styling
+.transaction-list {
+  max-height: 400px;
+  overflow-y: auto;
+
+  .transaction-item {
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    margin-bottom: 0.5rem;
+
+    &:hover {
+      background: var(--surface-hover) !important;
+      border-color: var(--primary-200);
+      transform: translateX(4px);
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    i {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-100);
+      border-radius: 50%;
+      font-size: 0.875rem;
+    }
+
+    .font-semibold {
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .text-sm {
+      font-size: 0.875rem;
+      line-height: 1.2;
+    }
+  }
+}
+
+// Recurring List Styling
+.recurring-list {
+  max-height: 400px;
+  overflow-y: auto;
+
+  .recurring-item {
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    margin-bottom: 0.5rem;
+
+    &:hover {
+      background: var(--surface-hover) !important;
+      border-color: var(--primary-200);
+      transform: translateX(4px);
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    i {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-100);
+      border-radius: 50%;
+      font-size: 0.875rem;
+    }
+
+    .font-semibold {
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .text-sm {
+      font-size: 0.875rem;
+      line-height: 1.2;
+    }
+
+    .text-xs {
+      font-size: 0.75rem;
+      line-height: 1.2;
+    }
+  }
+}
+
+// Category Stats
+.category-stat-card {
+  border: 1px solid var(--surface-border);
+  transition: all 0.3s ease;
+  background: var(--surface-card);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-300);
+  }
+
+  i {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-100);
+    border-radius: 50%;
+    font-size: 1rem;
+  }
+
+  .font-semibold {
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .font-bold {
+    font-weight: 700;
+  }
+
+  .text-lg {
+    font-size: 1.125rem;
+  }
+
+  .text-sm {
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+}
+
+// Color Classes
+.text-green-600 {
+  color: #22c55e !important;
+}
+
+.text-red-600 {
+  color: #ef4444 !important;
+}
+
+.text-blue-600 {
+  color: #3b82f6 !important;
+}
+
+.text-orange-600 {
+  color: #f97316 !important;
+}
+
+.text-purple-600 {
+  color: #9333ea !important;
+}
+
+.text-yellow-600 {
+  color: #eab308 !important;
+}
+
+.text-pink-600 {
+  color: #ec4899 !important;
+}
+
+.text-indigo-600 {
+  color: #6366f1 !important;
+}
+
+// Utility Classes
+.hover\:surface-hover:hover {
+  background-color: var(--surface-hover) !important;
+}
+
+.border-round-lg {
+  border-radius: 12px;
+}
+
+.shadow-2 {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+// Mobile Optimizations
+@media (max-width: 576px) {
+  .dashboard {
+    padding: 0.25rem;
+  }
+
+  .kpi-card {
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .chart-card, .data-card {
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .chart-wrapper {
+    height: 250px !important;
+    
+    // Specific height for Top Categorias chart
+    &:has(p-chart[type="bar"]) {
+      height: 300px !important;
+      padding: 5px;
+    }
+  }
+
+  .chart-content {
+    min-height: 200px !important;
+    padding: 0.5rem !important;
+  }
+
+  .chart-header, .card-header {
+    padding: 0.75rem !important;
+  }
+
+  .transaction-item, .recurring-item {
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .category-stat-card {
+    &:hover {
+      transform: none;
+    }
+  }
+
+  // Simplify layout for mobile
+  .grid {
+    margin: 0;
+  }
+
+  .col-12 {
+    padding: 0.25rem;
+  }
+}
+
+// Tablet Optimizations
+@media (min-width: 577px) and (max-width: 992px) {
+  .chart-wrapper {
+    height: 300px !important;
+    
+    // Specific height for Top Categorias chart on tablet
+    &:has(p-chart[type="bar"]) {
+      height: 350px !important;
+    }
+  }
+  
+  .chart-content {
+    min-height: 250px !important;
+    padding: 0.75rem !important;
+  }
+}
+
+// Dark Theme Adjustments
+.dark {
+  .kpi-card, .chart-card, .data-card, .category-stat-card {
+    border-color: var(--surface-border);
+    
+    &:hover {
+      border-color: var(--primary-400);
+    }
+  }
+
+  .transaction-item, .recurring-item {
+    &:hover {
+      border-color: var(--primary-400);
+    }
+  }
+
+  // Ensure proper contrast for icons in dark mode
+  .transaction-item i, .recurring-item i, .category-stat-card i {
+    background: var(--surface-200);
+    color: var(--text-color);
+  }
+}
+
+// Scrollbar Styling
+.transaction-list, .recurring-list {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--surface-100);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--surface-300);
+    border-radius: 3px;
+    
+    &:hover {
+      background: var(--surface-400);
+    }
+  }
+}
+
+// Animation Classes
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}

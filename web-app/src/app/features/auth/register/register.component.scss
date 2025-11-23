@@ -1,0 +1,17 @@
+@import '../login/login.component.scss';
+
+// Additional styles for register form
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+.auth-card {
+  max-width: 500px; // Wider for register form
+}

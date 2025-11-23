@@ -1,0 +1,147 @@
+<div class="layout-wrapper">
+  <!-- Top Navigation Bar -->
+  <div class="layout-topbar">
+    <div class="topbar-content">
+      <!-- Left Side - Logo & Menu Button -->
+      <div class="topbar-left">
+        <button 
+          type="button" 
+          class="sidebar-toggle-btn p-link" 
+          (click)="toggleSidebar()"
+          pButton
+          icon="pi pi-bars"
+          [text]="true"
+        ></button>
+        
+        <div class="app-logo">
+          <i class="pi pi-wallet text-primary text-2xl mr-2"></i>
+          <span class="app-title">Expense Tracker</span>
+        </div>
+      </div>
+      
+      <!-- Right Side - Page Info & User Menu -->
+      <div class="topbar-right">
+        <div class="page-info">
+          <i [class]="getPageIcon()" class="text-primary mr-2"></i>
+          <span class="page-title">{{ getPageTitle() }}</span>
+        </div>
+        
+        <button 
+          type="button" 
+          class="user-menu-btn p-link ml-3" 
+          (click)="logout()"
+          pButton
+          icon="pi pi-sign-out"
+          label="Sair"
+          [outlined]="true"
+          size="small"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Navigation -->
+  <p-sidebar 
+    [(visible)]="sidebarVisible" 
+    position="left"
+    [modal]="true"
+    [dismissible]="true"
+    styleClass="layout-sidebar"
+  >
+    <ng-template pTemplate="header">
+      <div class="sidebar-navigation">
+        <div class="sidebar-header">
+          <i class="pi pi-wallet text-primary text-2xl"></i>
+          <span class="sidebar-title">Menu Principal</span>
+        </div>
+      </div>
+    </ng-template>
+    
+    <div class="sidebar-navigation">
+      <div class="sidebar-content">
+        <!-- Navigation Menu -->
+        <nav class="sidebar-nav">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a 
+                routerLink="/dashboard" 
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{exact: true}"
+                class="nav-link"
+                (click)="sidebarVisible = false"
+              >
+                <i class="pi pi-chart-line nav-icon"></i>
+                <span class="nav-label">Dashboard</span>
+              </a>
+            </li>
+            
+            <li class="nav-item">
+              <a 
+                routerLink="/transactions" 
+                routerLinkActive="active"
+                class="nav-link"
+                (click)="sidebarVisible = false"
+              >
+                <i class="pi pi-credit-card nav-icon"></i>
+                <span class="nav-label">Transações</span>
+              </a>
+            </li>
+            
+            <li class="nav-item">
+              <a 
+                routerLink="/categories" 
+                routerLinkActive="active"
+                class="nav-link"
+                (click)="sidebarVisible = false"
+              >
+                <i class="pi pi-tags nav-icon"></i>
+                <span class="nav-label">Categorias</span>
+              </a>
+            </li>
+            
+            <li class="nav-item">
+              <a 
+                routerLink="/recurring-transactions" 
+                routerLinkActive="active"
+                class="nav-link"
+                (click)="sidebarVisible = false"
+              >
+                <i class="pi pi-refresh nav-icon"></i>
+                <span class="nav-label">Recorrências</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+          <button 
+            type="button" 
+            class="logout-btn p-link w-full" 
+            (click)="logout()"
+            pButton
+            icon="pi pi-sign-out"
+            label="Sair da Conta"
+            severity="secondary"
+            [outlined]="true"
+          ></button>
+        </div>
+      </div>
+    </div>
+  </p-sidebar>
+
+  <!-- Main Content Area -->
+  <div class="layout-main" [class.sidebar-open]="sidebarVisible">
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  
+  <!-- Overlay for mobile -->
+  <div class="layout-overlay" 
+       [class.overlay-visible]="sidebarVisible" 
+       (click)="sidebarVisible = false"
+       (keydown.escape)="sidebarVisible = false"
+       tabindex="-1">
+  </div>
+</div>

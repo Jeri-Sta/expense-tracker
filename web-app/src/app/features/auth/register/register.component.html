@@ -1,0 +1,134 @@
+<div class="auth-container">
+  <p-card class="auth-card">
+    <ng-template pTemplate="header">
+      <div class="auth-header">
+        <i class="pi pi-wallet" style="font-size: 2rem; color: var(--primary-color);"></i>
+        <h1>Criar Conta</h1>
+        <p>Preencha os dados para criar sua conta</p>
+      </div>
+    </ng-template>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="firstName">Nome <span class="required-asterisk">*</span></label>
+          <input
+            id="firstName"
+            type="text"
+            pInputText
+            formControlName="firstName"
+            placeholder="Seu nome"
+            [class.ng-invalid]="firstName?.invalid && firstName?.touched"
+            class="w-full"
+          />
+          <small 
+            class="error-message" 
+            *ngIf="firstName?.invalid && firstName?.touched"
+          >
+            <span *ngIf="firstName?.errors?.['required']">Nome é obrigatório</span>
+            <span *ngIf="firstName?.errors?.['maxlength']">Nome deve ter no máximo 50 caracteres</span>
+          </small>
+        </div>
+
+        <div class="form-field">
+          <label for="lastName">Sobrenome <span class="required-asterisk">*</span></label>
+          <input
+            id="lastName"
+            type="text"
+            pInputText
+            formControlName="lastName"
+            placeholder="Seu sobrenome"
+            [class.ng-invalid]="lastName?.invalid && lastName?.touched"
+            class="w-full"
+          />
+          <small 
+            class="error-message" 
+            *ngIf="lastName?.invalid && lastName?.touched"
+          >
+            <span *ngIf="lastName?.errors?.['required']">Sobrenome é obrigatório</span>
+            <span *ngIf="lastName?.errors?.['maxlength']">Sobrenome deve ter no máximo 50 caracteres</span>
+          </small>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="email">Email <span class="required-asterisk">*</span></label>
+        <input
+          id="email"
+          type="email"
+          pInputText
+          formControlName="email"
+          placeholder="seu@email.com"
+          [class.ng-invalid]="email?.invalid && email?.touched"
+          class="w-full"
+        />
+        <small 
+          class="error-message" 
+          *ngIf="email?.invalid && email?.touched"
+        >
+          <span *ngIf="email?.errors?.['required']">Email é obrigatório</span>
+          <span *ngIf="email?.errors?.['email']">Email inválido</span>
+        </small>
+      </div>
+
+      <div class="form-field">
+        <label for="password">Senha <span class="required-asterisk">*</span></label>
+        <p-password
+          id="password"
+          formControlName="password"
+          placeholder="Digite sua senha"
+          [toggleMask]="true"
+          [feedback]="true"
+          styleClass="w-full"
+          [class.ng-invalid]="password?.invalid && password?.touched"
+        ></p-password>
+        <small 
+          class="error-message" 
+          *ngIf="password?.invalid && password?.touched"
+        >
+          <span *ngIf="password?.errors?.['required']">Senha é obrigatória</span>
+          <span *ngIf="password?.errors?.['minlength']">Senha deve ter pelo menos 8 caracteres</span>
+        </small>
+      </div>
+
+      <div class="form-field">
+        <label for="confirmPassword">Confirmar Senha <span class="required-asterisk">*</span></label>
+        <p-password
+          id="confirmPassword"
+          formControlName="confirmPassword"
+          placeholder="Confirme sua senha"
+          [toggleMask]="true"
+          [feedback]="false"
+          styleClass="w-full"
+          [class.ng-invalid]="confirmPassword?.invalid && confirmPassword?.touched"
+        ></p-password>
+        <small 
+          class="error-message" 
+          *ngIf="confirmPassword?.invalid && confirmPassword?.touched"
+        >
+          <span *ngIf="confirmPassword?.errors?.['required']">Confirmação de senha é obrigatória</span>
+          <span *ngIf="confirmPassword?.errors?.['passwordMismatch']">As senhas não coincidem</span>
+        </small>
+      </div>
+
+      <button
+        type="submit"
+        pButton
+        label="Criar Conta"
+        icon="pi pi-user-plus"
+        [loading]="isLoading"
+        [disabled]="registerForm.invalid"
+        class="w-full auth-button"
+      ></button>
+    </form>
+
+    <p-divider align="center">
+      <span class="divider-text">ou</span>
+    </p-divider>
+
+    <div class="auth-footer">
+      <p>Já tem uma conta?</p>
+      <a routerLink="/auth/login" class="link">Fazer login</a>
+    </div>
+  </p-card>
+</div>

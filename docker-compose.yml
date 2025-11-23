@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: expense-tracker-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: expense_tracker
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database-setup/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - expense-tracker-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: expense-tracker-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - expense-tracker-network
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+      target: development
+    container_name: expense-tracker-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: admin
+      DB_PASSWORD: admin123
+      DB_NAME: expense_tracker
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - expense-tracker-network
+
+  web:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile
+      target: development
+    container_name: expense-tracker-web
+    restart: unless-stopped
+    ports:
+      - "4200:4200"
+    environment:
+      NODE_ENV: development
+      API_URL: http://localhost:3000
+    volumes:
+      - ./web-app:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    networks:
+      - expense-tracker-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  expense-tracker-network:
+    driver: bridge

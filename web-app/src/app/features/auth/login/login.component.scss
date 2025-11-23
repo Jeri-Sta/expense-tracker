@@ -1,0 +1,157 @@
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--surface-0) 0%, var(--surface-50) 100%);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  background: var(--surface-50);
+}
+
+.auth-header {
+  text-align: center;
+  padding: 2rem 1rem 1rem;
+  
+  h1 {
+    margin: 1rem 0 0.5rem;
+    color: var(--text-color);
+    font-size: 1.75rem;
+    font-weight: 600;
+  }
+  
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+  }
+}
+
+.auth-form {
+  padding: 0 1rem;
+}
+
+.form-field {
+  margin-bottom: 1.5rem;
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+  
+  // Garantir que o campo de senha tenha a mesma largura do email
+  ::ng-deep p-password {
+    width: 100%;
+    
+    .p-password {
+      width: 100%;
+      
+      .p-inputtext {
+        width: 100%;
+      }
+    }
+  }
+  
+  // Garantir que todos os inputs tenham largura completa
+  input,
+  ::ng-deep .p-inputtext {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+// Garantir que o campo de senha tenha a mesma largura do email
+::ng-deep .password-field {
+  width: 100% !important;
+  display: block;
+  
+  .p-password {
+    width: 100% !important;
+    display: block;
+    
+    .p-inputwrapper {
+      width: 100% !important;
+      display: block;
+    }
+    
+    .p-inputtext {
+      width: 100% !important;
+      box-sizing: border-box;
+    }
+  }
+}
+
+.auth-button {
+  height: 3rem;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+.divider-text {
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+  padding: 0 1rem;
+  background: var(--surface-50);
+}
+
+.auth-footer {
+  text-align: center;
+  padding: 1rem;
+  
+  p {
+    margin: 0 0 0.5rem;
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+  }
+  
+  .link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.error-message {
+  color: #EF4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.required-asterisk {
+  color: #EF4444;
+  margin-left: 0.25rem;
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 0.5rem;
+  }
+  
+  .auth-card {
+    max-width: 100%;
+  }
+  
+  .auth-header {
+    padding: 1.5rem 1rem 1rem;
+    
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+}

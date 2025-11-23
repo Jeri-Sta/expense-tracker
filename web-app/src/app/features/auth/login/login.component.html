@@ -1,0 +1,72 @@
+<div class="auth-container">
+  <p-card class="auth-card">
+    <ng-template pTemplate="header">
+      <div class="auth-header">
+        <i class="pi pi-wallet" style="font-size: 2rem; color: var(--primary-color);"></i>
+        <h1>Personal Expense Tracker</h1>
+        <p>Faça login para acessar sua conta</p>
+      </div>
+    </ng-template>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-field">
+        <label for="email">Email <span class="required-asterisk">*</span></label>
+        <input
+          id="email"
+          type="email"
+          pInputText
+          formControlName="email"
+          placeholder="Digite seu email"
+          [class.ng-invalid]="email?.invalid && email?.touched"
+          class="w-full"
+        />
+        <small 
+          class="error-message" 
+          *ngIf="email?.invalid && email?.touched"
+        >
+          <span *ngIf="email?.errors?.['required']">Email é obrigatório</span>
+          <span *ngIf="email?.errors?.['email']">Email inválido</span>
+        </small>
+      </div>
+
+      <div class="form-field">
+        <label for="password">Senha <span class="required-asterisk">*</span></label>
+        <p-password
+          id="password"
+          formControlName="password"
+          placeholder="Digite sua senha"
+          [toggleMask]="true"
+          [feedback]="false"
+          class="password-field w-full"
+          [class.ng-invalid]="password?.invalid && password?.touched"
+        ></p-password>
+        <small 
+          class="error-message" 
+          *ngIf="password?.invalid && password?.touched"
+        >
+          <span *ngIf="password?.errors?.['required']">Senha é obrigatória</span>
+          <span *ngIf="password?.errors?.['minlength']">Senha deve ter pelo menos 6 caracteres</span>
+        </small>
+      </div>
+
+      <button
+        type="submit"
+        pButton
+        label="Entrar"
+        icon="pi pi-sign-in"
+        [loading]="isLoading"
+        [disabled]="loginForm.invalid"
+        class="w-full auth-button"
+      ></button>
+    </form>
+
+    <p-divider align="center">
+      <span class="divider-text">ou</span>
+    </p-divider>
+
+    <div class="auth-footer">
+      <p>Não tem uma conta?</p>
+      <a routerLink="/auth/register" class="link">Criar conta</a>
+    </div>
+  </p-card>
+</div>

@@ -1,0 +1,53 @@
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { BaseEntity } from '../../../common/entities/base.entity';
+import { TransactionType } from '../../../common/enums';
+import { User } from '../../users/entities/user.entity';
+import { Category } from '../../categories/entities/category.entity';
+
+@Entity('transactions')
+export class Transaction extends BaseEntity {
+  @Column('decimal', { precision: 10, scale: 2 })
+  amount: number;
+
+  @Column()
+  description: string;
+
+  @Column({
+    type: 'enum',
+    enum: TransactionType,
+  })
+  type: TransactionType;
+
+  @Column({ type: 'date' })
+  transactionDate: Date;
+
+  @Column({ type: 'varchar', length: 7 }) // Format: YYYY-MM
+  competencyPeriod: string;
+
+  @Column({ type: 'jsonb', nullable: true })
+  metadata: Record<string, any>;
+
+  @Column({ nullable: true })
+  notes: string;
+
+  @Column({ default: false })
+  isRecurring: boolean;
+
+  @Column({ nullable: true })
+  recurringTransactionId: string;
+
+  // Relationships
+  @ManyToOne(() => User, (user) => user.transactions)
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @Column()
+  userId: string;
+
+  @ManyToOne(() => Category, (category) => category.transactions, { nullable: true })
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
+
+  @Column({ nullable: true })
+  categoryId: string;
+}
