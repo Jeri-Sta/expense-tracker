@@ -8,19 +8,74 @@
   <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
     <div class="mb-2 md:mb-0">
       <h2 class="text-2xl font-bold text-color m-0">Dashboard Financeiro</h2>
-      <p class="text-color-secondary m-0">Visão geral das suas finanças</p>
+      <p class="text-color-secondary m-0">{{ isCurrentMonth ? 'Visão geral das suas finanças' : getSelectedMonthName() + ' de ' + selectedYear }}</p>
     </div>
-    <div class="flex gap-2 align-items-center">
-      <label for="year" class="font-semibold">Ano:</label>
-      <p-dropdown
-        id="year"
-        [(ngModel)]="selectedYear"
-        [options]="getYearOptions()"
-        placeholder="Selecione o ano"
-        (onChange)="onYearChange()"
-        styleClass="w-full"
-        [style]="{'min-width': '120px'}"
-      ></p-dropdown>
+    
+    <!-- Navigation and Controls -->
+    <div class="flex flex-column sm:flex-row gap-3 align-items-center">
+      <!-- Month Navigation -->
+      <div class="flex align-items-center gap-2">
+        <p-button 
+          icon="pi pi-chevron-left" 
+          [rounded]="true" 
+          [text]="true"
+          size="small"
+          (onClick)="navigateToPreviousMonth()"
+          pTooltip="Mês anterior"
+        ></p-button>
+        
+        <div class="flex gap-2">
+          <p-dropdown
+            [(ngModel)]="selectedYear"
+            [options]="getYearOptions()"
+            placeholder="Ano"
+            (onChange)="onYearChange()"
+            styleClass="w-full"
+            [style]="{'min-width': '100px'}"
+          ></p-dropdown>
+          
+          <p-dropdown
+            [(ngModel)]="selectedMonth"
+            [options]="getMonthOptions()"
+            placeholder="Mês"
+            (onChange)="onMonthChange()"
+            styleClass="w-full"
+            [style]="{'min-width': '120px'}"
+          ></p-dropdown>
+        </div>
+        
+        <p-button 
+          icon="pi pi-chevron-right" 
+          [rounded]="true" 
+          [text]="true"
+          size="small"
+          (onClick)="navigateToNextMonth()"
+          pTooltip="Próximo mês"
+        ></p-button>
+        
+        <p-button 
+          icon="pi pi-home" 
+          [rounded]="true" 
+          [text]="true"
+          size="small"
+          (onClick)="navigateToCurrentMonth()"
+          pTooltip="Voltar ao mês atual"
+          [disabled]="isCurrentMonth"
+        ></p-button>
+      </div>
+      
+      <!-- Projection Toggle -->
+      <div class="flex align-items-center gap-2">
+        <label for="projectionToggle" class="text-sm font-semibold">Incluir Projeções:</label>
+        <p-toggleButton 
+          id="projectionToggle"
+          [(ngModel)]="includeProjections"
+          onLabel="Sim" 
+          offLabel="Não"
+          (onChange)="onProjectionToggle()"
+          [style]="{'min-width': '80px'}"
+        ></p-toggleButton>
+      </div>
     </div>
   </div>
 
@@ -32,9 +87,12 @@
           <i class="pi pi-arrow-up text-green-600 text-2xl"></i>
         </div>
         <div class="text-green-600 font-bold text-xl mb-1">
-          {{ formatCurrency(currentStats.totalIncome) }}
+          {{ formatCurrency(includeProjections ? getTotalProjectedIncome() : currentStats.totalIncome) }}
         </div>
-        <div class="text-color-secondary font-semibold">Receitas do Mês</div>
+        <div class="text-color-secondary font-semibold">Receitas {{ isCurrentMonth ? 'do Mês' : 'de ' + getSelectedMonthName() }}</div>
+        <div *ngIf="includeProjections && currentStats.hasProjections" class="text-xs text-blue-600 mt-1">
+          + {{ formatCurrency(currentStats.projectedIncome) }} projetado
+        </div>
       </div>
     </div>
     
@@ -44,9 +102,12 @@
           <i class="pi pi-arrow-down text-red-600 text-2xl"></i>
         </div>
         <div class="text-red-600 font-bold text-xl mb-1">
-          {{ formatCurrency(currentStats.totalExpenses) }}
+          {{ formatCurrency(includeProjections ? getTotalProjectedExpenses() : currentStats.totalExpenses) }}
         </div>
-        <div class="text-color-secondary font-semibold">Despesas do Mês</div>
+        <div class="text-color-secondary font-semibold">Despesas {{ isCurrentMonth ? 'do Mês' : 'de ' + getSelectedMonthName() }}</div>
+        <div *ngIf="includeProjections && currentStats.hasProjections" class="text-xs text-orange-600 mt-1">
+          + {{ formatCurrency(currentStats.projectedExpenses) }} projetado
+        </div>
       </div>
     </div>
     
@@ -56,21 +117,27 @@
           <i class="pi pi-wallet" [class]="getBalanceClass() + ' text-2xl'"></i>
         </div>
         <div [class]="getBalanceClass() + ' font-bold text-xl mb-1'">
-          {{ formatCurrency(currentStats.balance) }}
+          {{ formatCurrency(includeProjections ? getTotalProjectedBalance() : currentStats.balance) }}
         </div>
-        <div class="text-color-secondary font-semibold">Saldo do Mês</div>
+        <div class="text-color-secondary font-semibold">Saldo {{ isCurrentMonth ? 'do Mês' : 'de ' + getSelectedMonthName() }}</div>
+        <div *ngIf="includeProjections && currentStats.hasProjections" [class]="'text-xs mt-1 ' + getProjectionClass(currentStats.projectedBalance)">
+          {{ currentStats.projectedBalance >= 0 ? '+' : '' }} {{ formatCurrency(currentStats.projectedBalance) }} projetado
+        </div>
       </div>
     </div>
     
     <div class="col-12 sm:col-6 lg:col-3">
       <div class="kpi-card surface-card shadow-2 border-round-lg p-3 text-center">
         <div class="flex align-items-center justify-content-center mb-2">
-          <i [class]="'pi pi-arrow-up-right ' + getGrowthClass() + ' text-2xl'"></i>
+          <i class="pi pi-list text-blue-600 text-2xl"></i>
         </div>
-        <div [class]="getGrowthClass() + ' font-bold text-xl mb-1'">
-          {{ currentStats.monthlyGrowth.toFixed(1) }}%
+        <div class="text-blue-600 font-bold text-xl mb-1">
+          {{ includeProjections ? (currentStats.transactionCount + currentStats.projectedTransactionCount) : currentStats.transactionCount }}
         </div>
-        <div class="text-color-secondary font-semibold">Crescimento Mensal</div>
+        <div class="text-color-secondary font-semibold">Transações</div>
+        <div *ngIf="includeProjections && currentStats.hasProjections" class="text-xs text-blue-600 mt-1">
+          + {{ currentStats.projectedTransactionCount }} projetadas
+        </div>
       </div>
     </div>
   </div>

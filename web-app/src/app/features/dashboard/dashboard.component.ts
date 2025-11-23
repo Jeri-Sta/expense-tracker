@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { TransactionService, MonthlyStats } from '../../core/services/transaction.service';
+import { DashboardService } from '../../core/services/dashboard.service';
 import { CategoryService, Category } from '../../core/services/category.service';
 import { RecurringTransactionService, RecurringTransaction } from '../../core/services/recurring-transaction.service';
 import { MessageService } from 'primeng/api';
-import { TransactionType } from '../../shared/types/common.types';
 
 interface DashboardStats {
   totalIncome: number;
@@ -12,6 +12,11 @@ interface DashboardStats {
   transactionCount: number;
   averageTransaction: number;
   monthlyGrowth: number;
+  projectedIncome: number;
+  projectedExpenses: number;
+  projectedBalance: number;
+  projectedTransactionCount: number;
+  hasProjections: boolean;
 }
 
 interface CategoryStats {
@@ -39,7 +44,12 @@ export class DashboardComponent implements OnInit {
     balance: 0,
     transactionCount: 0,
     averageTransaction: 0,
-    monthlyGrowth: 0
+    monthlyGrowth: 0,
+    projectedIncome: 0,
+    projectedExpenses: 0,
+    projectedBalance: 0,
+    projectedTransactionCount: 0,
+    hasProjections: false
   };
   
   // Chart data
@@ -62,7 +72,16 @@ export class DashboardComponent implements OnInit {
   
   // Date range for analysis
   selectedYear = new Date().getFullYear();
+  selectedMonth = new Date().getMonth() + 1;
   availableYears: number[] = [];
+  
+  // Projection settings
+  showProjections = true;
+  includeProjections = true;
+  
+  // Navigation mode
+  isCurrentMonth = true;
+  navigationDate: Date = new Date();
   
   // Chart responsive options
   responsiveOptions: any[] = [
@@ -84,14 +103,16 @@ export class DashboardComponent implements OnInit {
   ];
 
   constructor(
-    private transactionService: TransactionService,
-    private categoryService: CategoryService,
-    private recurringTransactionService: RecurringTransactionService,
-    private messageService: MessageService
+    private readonly transactionService: TransactionService,
+    private readonly dashboardService: DashboardService,
+    private readonly categoryService: CategoryService,
+    private readonly recurringTransactionService: RecurringTransactionService,
+    private readonly messageService: MessageService
   ) {}
 
   ngOnInit(): void {
     this.initializeYears();
+    this.updateNavigationStatus();
     this.loadDashboardData();
     this.setupChartOptions();
   }
@@ -106,23 +127,50 @@ export class DashboardComponent implements OnInit {
 
   loadDashboardData(): void {
     this.loading = true;
-    Promise.all([
-      this.loadMonthlyStats(),
-      this.loadCurrentMonthStats(),
-      this.loadCategoryStats(),
-      this.loadRecentTransactions(),
-      this.loadUpcomingRecurring()
-    ]).then(() => {
-      this.loading = false;
-    }).catch((error) => {
-      console.error('Error loading dashboard data:', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'Erro ao carregar dados do dashboard'
+    
+    if (this.isCurrentMonth) {
+      // Load comprehensive dashboard data for current view
+      this.dashboardService.getDashboard(this.selectedYear).subscribe({
+        next: (dashboardData) => {
+          this.updateCurrentStatsFromDashboard(dashboardData.currentMonth);
+          this.updateChartsFromYearlyData(dashboardData.yearlyOverview);
+          this.recentTransactions = dashboardData.recentTransactions;
+          this.updateCategoryData(dashboardData.topCategories);
+          this.loadUpcomingRecurring(); // Still load recurring transactions
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading dashboard data:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Erro ao carregar dados do dashboard'
+          });
+          this.loading = false;
+        }
       });
-      this.loading = false;
-    });
+    } else {
+      // Load specific month data
+      this.dashboardService.getMonthlyStats(this.selectedYear, this.selectedMonth).subscribe({
+        next: (monthlyData) => {
+          this.updateCurrentStatsFromDashboard(monthlyData.stats);
+          this.recentTransactions = monthlyData.recentTransactions;
+          this.updateCategoryData(monthlyData.topCategories);
+          // Load yearly trend for context
+          this.loadYearlyTrend();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading monthly data:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Erro ao carregar dados mensais'
+          });
+          this.loading = false;
+        }
+      });
+    }
   }
 
   async loadMonthlyStats(): Promise<void> {
@@ -530,6 +578,55 @@ export class DashboardComponent implements OnInit {
   }
 
   onYearChange(): void {
+    this.updateNavigationStatus();
+    this.loadDashboardData();
+  }
+
+  onMonthChange(): void {
+    this.updateNavigationStatus();
+    this.loadDashboardData();
+  }
+
+  onProjectionToggle(): void {
+    this.loadDashboardData();
+  }
+
+  updateNavigationStatus(): void {
+    const current = new Date();
+    this.isCurrentMonth = 
+      this.selectedYear === current.getFullYear() && 
+      this.selectedMonth === (current.getMonth() + 1);
+    
+    this.navigationDate = new Date(this.selectedYear, this.selectedMonth - 1, 1);
+  }
+
+  navigateToPreviousMonth(): void {
+    if (this.selectedMonth === 1) {
+      this.selectedMonth = 12;
+      this.selectedYear--;
+    } else {
+      this.selectedMonth--;
+    }
+    this.updateNavigationStatus();
+    this.loadDashboardData();
+  }
+
+  navigateToNextMonth(): void {
+    if (this.selectedMonth === 12) {
+      this.selectedMonth = 1;
+      this.selectedYear++;
+    } else {
+      this.selectedMonth++;
+    }
+    this.updateNavigationStatus();
+    this.loadDashboardData();
+  }
+
+  navigateToCurrentMonth(): void {
+    const current = new Date();
+    this.selectedYear = current.getFullYear();
+    this.selectedMonth = current.getMonth() + 1;
+    this.updateNavigationStatus();
     this.loadDashboardData();
   }
 
@@ -633,5 +730,119 @@ export class DashboardComponent implements OnInit {
 
   getExpenseCategoryOptions() {
     return this.expenseCategoryOptions;
+  }
+
+  // New helper methods for projections and navigation
+  updateCurrentStatsFromDashboard(monthStats: any): void {
+    this.currentStats = {
+      totalIncome: monthStats.totalIncome || 0,
+      totalExpenses: monthStats.totalExpenses || 0,
+      balance: monthStats.balance || 0,
+      transactionCount: monthStats.transactionCount || 0,
+      averageTransaction: monthStats.transactionCount > 0 
+        ? (monthStats.totalIncome + monthStats.totalExpenses) / monthStats.transactionCount 
+        : 0,
+      monthlyGrowth: 0, // Will be calculated separately
+      projectedIncome: monthStats.projectedIncome || 0,
+      projectedExpenses: monthStats.projectedExpenses || 0,
+      projectedBalance: monthStats.projectedBalance || 0,
+      projectedTransactionCount: monthStats.projectedTransactionCount || 0,
+      hasProjections: monthStats.hasProjections || false
+    };
+  }
+
+  updateChartsFromYearlyData(yearlyData: any[]): void {
+    if (!yearlyData || yearlyData.length === 0) return;
+    
+    // Update monthly trend chart
+    const months = yearlyData.map(s => this.getMonthName(s.period));
+    const incomeData = yearlyData.map(s => s.totalIncome + (this.includeProjections ? s.projectedIncome : 0));
+    const expenseData = yearlyData.map(s => s.totalExpenses + (this.includeProjections ? s.projectedExpenses : 0));
+    const balanceData = yearlyData.map(s => (s.totalIncome - s.totalExpenses) + (this.includeProjections ? (s.projectedIncome - s.projectedExpenses) : 0));
+    
+    this.monthlyTrendData = {
+      labels: months,
+      datasets: [
+        {
+          label: 'Receitas',
+          data: incomeData,
+          borderColor: '#10B981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Despesas',
+          data: expenseData,
+          borderColor: '#EF4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Saldo',
+          data: balanceData,
+          borderColor: '#3B82F6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.4,
+          fill: false,
+          type: 'line'
+        }
+      ]
+    };
+    
+    // Update income vs expense chart
+    const totalIncome = yearlyData.reduce((sum, s) => sum + s.totalIncome + (this.includeProjections ? s.projectedIncome : 0), 0);
+    const totalExpenses = yearlyData.reduce((sum, s) => sum + s.totalExpenses + (this.includeProjections ? s.projectedExpenses : 0), 0);
+    
+    this.incomeVsExpenseData = {
+      labels: ['Receitas', 'Despesas'],
+      datasets: [{
+        data: [totalIncome, totalExpenses],
+        backgroundColor: ['#10B981', '#EF4444'],
+        borderColor: ['#059669', '#DC2626'],
+        borderWidth: 2
+      }]
+    };
+  }
+
+  updateCategoryData(categoriesData: any[]): void {
+    this.topCategories = categoriesData || [];
+    this.updateCategoryCharts();
+  }
+
+  loadYearlyTrend(): void {
+    this.transactionService.getStatsWithProjections(this.selectedYear).subscribe({
+      next: (stats) => {
+        this.updateChartsFromYearlyData(stats);
+      },
+      error: (error) => {
+        console.error('Error loading yearly trend:', error);
+      }
+    });
+  }
+
+  getSelectedMonthName(): string {
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    return months[this.selectedMonth - 1];
+  }
+
+  getTotalProjectedIncome(): number {
+    return this.currentStats.totalIncome + this.currentStats.projectedIncome;
+  }
+
+  getTotalProjectedExpenses(): number {
+    return this.currentStats.totalExpenses + this.currentStats.projectedExpenses;
+  }
+
+  getTotalProjectedBalance(): number {
+    return this.currentStats.balance + this.currentStats.projectedBalance;
+  }
+
+  getProjectionClass(value: number): string {
+    return value >= 0 ? 'text-blue-600' : 'text-orange-600';
   }
 }

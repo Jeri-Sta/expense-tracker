@@ -10,14 +10,190 @@
       </div>
       <div class="flex gap-2">
         <p-button 
+          label="Filtros de Projeção" 
+          icon="pi pi-filter" 
+          [text]="true"
+          size="small"
+          (onClick)="toggleProjectionFilters()"
+          [badge]="showProjectionFilters ? 'ON' : 'OFF'"
+          badgeClass="p-badge-info"
+        ></p-button>
+        <p-button 
+          label="Gerenciar Projeções" 
+          icon="pi pi-cog" 
+          [text]="true"
+          size="small"
+          (onClick)="toggleProjectionManager()"
+          [badge]="showProjectionManager ? 'ON' : 'OFF'"
+          badgeClass="p-badge-warning"
+        ></p-button>
+        <p-button 
+          label="Nova Projeção" 
+          icon="pi pi-clock" 
+          [outlined]="true"
+          size="small"
+          (onClick)="openProjectionDialog()"
+          styleClass="p-button-info"
+        ></p-button>
+        <p-button 
           label="Nova Transação" 
           icon="pi pi-plus" 
           size="small"
-          (click)="openTransactionDialog()"
+          (onClick)="openTransactionDialog()"
           styleClass="p-button-primary"
         ></p-button>
       </div>
     </div>
+    
+    <!-- Projection Filters Panel -->
+    <p-panel 
+      *ngIf="showProjectionFilters"
+      header="Filtros de Projeção"
+      [toggleable]="false"
+      styleClass="mb-3"
+    >
+      <form [formGroup]="filterForm" class="grid">
+        <div class="col-12 md:col-3">
+          <label for="includeProjections" class="block text-sm font-medium mb-2">Incluir Projeções</label>
+          <p-toggleButton 
+            id="includeProjections"
+            formControlName="includeProjections"
+            onLabel="Sim" 
+            offLabel="Não"
+            (onChange)="onProjectionFilterChange()"
+          ></p-toggleButton>
+        </div>
+        
+        <div class="col-12 md:col-3">
+          <label for="onlyProjections" class="block text-sm font-medium mb-2">Apenas Projeções</label>
+          <p-toggleButton 
+            id="onlyProjections"
+            formControlName="onlyProjections"
+            onLabel="Sim" 
+            offLabel="Não"
+            (onChange)="onProjectionFilterChange()"
+          ></p-toggleButton>
+        </div>
+        
+        <div class="col-12 md:col-3">
+          <label for="projectionSource" class="block text-sm font-medium mb-2">Fonte da Projeção</label>
+          <p-dropdown 
+            id="projectionSource"
+            formControlName="projectionSource"
+            [options]="projectionSources"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Todas as fontes"
+            (onChange)="onProjectionFilterChange()"
+            styleClass="w-full"
+          ></p-dropdown>
+        </div>
+        
+        <div class="col-12 md:col-3">
+          <label for="minConfidence" class="block text-sm font-medium mb-2">Confiança Mínima (%)</label>
+          <p-inputNumber 
+            id="minConfidence"
+            formControlName="minConfidence"
+            [min]="0"
+            [max]="100"
+            placeholder="0-100"
+            (onInput)="onProjectionFilterChange()"
+            styleClass="w-full"
+          ></p-inputNumber>
+        </div>
+      </form>
+    </p-panel>
+    
+    <!-- Projection Management Panel -->
+    <p-panel 
+      *ngIf="showProjectionManager"
+      header="Gerenciamento de Projeções"
+      [toggleable]="false"
+      styleClass="mb-3"
+    >
+      <div class="grid">
+        <div class="col-12 md:col-4">
+          <div class="card border-1 surface-border p-3 h-full">
+            <div class="text-center mb-3">
+              <i class="pi pi-refresh text-blue-500 text-4xl mb-2"></i>
+              <h5 class="m-0">Gerar Projeções</h5>
+            </div>
+            <p class="text-sm text-600 mb-3">
+              Cria automaticamente projeções baseadas nas suas transações recorrentes para os próximos 6 meses.
+            </p>
+            <p-button 
+              label="Gerar Projeções" 
+              icon="pi pi-plus-circle"
+              (onClick)="generateProjectionsFromRecurring()"
+              [loading]="loading"
+              styleClass="w-full p-button-success"
+              size="small"
+            ></p-button>
+          </div>
+        </div>
+        
+        <div class="col-12 md:col-4">
+          <div class="card border-1 surface-border p-3 h-full">
+            <div class="text-center mb-3">
+              <i class="pi pi-calendar-times text-orange-500 text-4xl mb-2"></i>
+              <h5 class="m-0">Limpar Antigas</h5>
+            </div>
+            <p class="text-sm text-600 mb-3">
+              Remove projeções de períodos passados que já não são mais relevantes.
+            </p>
+            <p-button 
+              label="Limpar Antigas" 
+              icon="pi pi-trash"
+              (onClick)="cleanupOldProjections()"
+              [loading]="loading"
+              styleClass="w-full p-button-warning"
+              size="small"
+            ></p-button>
+          </div>
+        </div>
+        
+        <div class="col-12 md:col-4">
+          <div class="card border-1 surface-border p-3 h-full">
+            <div class="text-center mb-3">
+              <i class="pi pi-times-circle text-red-500 text-4xl mb-2"></i>
+              <h5 class="m-0">Remover Todas</h5>
+            </div>
+            <p class="text-sm text-600 mb-3">
+              Remove completamente todas as projeções existentes no sistema.
+            </p>
+            <p-button 
+              label="Remover Todas" 
+              icon="pi pi-ban"
+              (onClick)="cleanupAllProjections()"
+              [loading]="loading"
+              styleClass="w-full p-button-danger"
+              size="small"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-4 p-3 border-1 surface-border border-round">
+        <h6 class="text-blue-600 mt-0 mb-2">
+          <i class="pi pi-info-circle mr-2"></i>
+          Informações sobre Projeções
+        </h6>
+        <ul class="text-sm text-600 m-0 pl-3">
+          <li class="mb-1">
+            <strong>Projeções Automáticas:</strong> Baseadas em transações recorrentes ativas
+          </li>
+          <li class="mb-1">
+            <strong>Nível de Confiança:</strong> Indica a probabilidade da projeção se realizar
+          </li>
+          <li class="mb-1">
+            <strong>Período Padrão:</strong> 6 meses à frente a partir do mês seguinte
+          </li>
+          <li>
+            <strong>Atualização:</strong> Recomendamos regenerar mensalmente para manter a precisão
+          </li>
+        </ul>
+      </div>
+    </p-panel>
   </div>
 
   <!-- Transactions Table -->
@@ -45,12 +221,39 @@
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-transaction>
-        <tr>
-          <td>{{ transaction.transactionDate | date:'dd/MM/yyyy' }}</td>
+        <tr [class]="getProjectionClass(transaction)">
+          <td>
+            <div class="flex align-items-center gap-2">
+              <span>{{ transaction.transactionDate | date:'dd/MM/yyyy' }}</span>
+              <i 
+                *ngIf="isProjectedTransaction(transaction)"
+                [class]="'pi ' + getProjectionIcon(transaction) + ' text-blue-500'"
+                [pTooltip]="getProjectionTooltip(transaction)"
+                class="text-xs"
+              ></i>
+            </div>
+          </td>
           <td>
             <div class="flex flex-column">
-              <span class="font-semibold">{{ transaction.description }}</span>
+              <div class="flex align-items-center gap-2">
+                <span class="font-semibold">{{ transaction.description }}</span>
+                <p-tag 
+                  *ngIf="isProjectedTransaction(transaction)"
+                  value="PROJEÇÃO"
+                  severity="info"
+                  [style]="{'font-size': '0.7rem', 'padding': '0.2rem 0.4rem'}"
+                ></p-tag>
+              </div>
               <span class="text-sm text-600" *ngIf="transaction.notes">{{ transaction.notes }}</span>
+              <div 
+                *ngIf="isProjectedTransaction(transaction) && transaction.confidenceScore"
+                class="text-xs mt-1"
+              >
+                <span>Confiança: </span>
+                <span [style]="{'color': getConfidenceColor(transaction.confidenceScore)}">
+                  {{ transaction.confidenceScore }}%
+                </span>
+              </div>
             </div>
           </td>
           <td>
@@ -247,6 +450,67 @@
           class="w-full"
         ></textarea>
       </div>
+
+      <!-- Projection Settings -->
+      <p-panel 
+        header="Configurações de Projeção"
+        [toggleable]="true"
+        [collapsed]="!isProjectedFormEnabled()"
+        styleClass="mb-4"
+      >
+        <!-- Is Projected Toggle -->
+        <div class="field mb-3">
+          <div class="flex align-items-center">
+            <p-toggleButton 
+              id="isProjected"
+              formControlName="isProjected"
+              onLabel="Transação Projetada" 
+              offLabel="Transação Real"
+              (onChange)="onProjectedToggle()"
+              styleClass="mr-3"
+            ></p-toggleButton>
+            <small class="text-600">
+              Transações projetadas são estimativas para planejamento futuro
+            </small>
+          </div>
+        </div>
+
+        <!-- Projection Source -->
+        <div class="field mb-3" *ngIf="isProjectedFormEnabled()">
+          <label for="formProjectionSource" class="block text-sm font-medium mb-2">
+            Fonte da Projeção
+          </label>
+          <p-dropdown
+            id="formProjectionSource"
+            formControlName="projectionSource"
+            [options]="projectionSources"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione a fonte"
+            styleClass="w-full"
+          ></p-dropdown>
+        </div>
+
+        <!-- Confidence Score -->
+        <div class="field mb-3" *ngIf="isProjectedFormEnabled()">
+          <label for="confidenceScore" class="block text-sm font-medium mb-2">
+            Nível de Confiança (%)
+          </label>
+          <p-inputNumber 
+            id="confidenceScore"
+            formControlName="confidenceScore"
+            [min]="0"
+            [max]="100"
+            placeholder="80"
+            mode="decimal"
+            [step]="5"
+            styleClass="w-full"
+          ></p-inputNumber>
+          <small class="text-600">
+            Indica o quão provável é esta transação acontecer (0-100%)
+          </small>
+        </div>
+      </p-panel>
 
       <div class="flex justify-content-end gap-2 mt-4">
         <p-button 

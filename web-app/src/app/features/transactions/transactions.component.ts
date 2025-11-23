@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { TransactionService, Transaction, CreateTransactionDto, UpdateTransactionDto, TransactionFilters } from '../../core/services/transaction.service';
+import { TransactionService, Transaction, CreateTransactionDto, UpdateTransactionDto, TransactionFilters, ProjectionFilters } from '../../core/services/transaction.service';
 import { CategoryService, Category } from '../../core/services/category.service';
 import { TransactionType } from '../../core/types/common.types';
 import { environment } from '../../../environments/environment';
@@ -40,10 +40,19 @@ export class TransactionsComponent implements OnInit {
   ];
   
   // Current filters
-  currentFilters: TransactionFilters = {
+  currentFilters: ProjectionFilters = {
     page: 1,
     limit: 10
   };
+  
+  // Projection settings
+  showProjectionFilters = false;
+  showProjectionManager = false;
+  projectionSources = [
+    { label: 'Transações Recorrentes', value: 'recurring' },
+    { label: 'Manual', value: 'manual' },
+    { label: 'Inteligência Artificial', value: 'ai' }
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -132,7 +141,10 @@ export class TransactionsComponent implements OnInit {
       categoryId: ['', Validators.required],
       transactionDate: [new Date(), Validators.required],
       competencyMonth: [new Date(), Validators.required],
-      notes: ['', Validators.maxLength(500)]
+      notes: ['', Validators.maxLength(500)],
+      isProjected: [false],
+      projectionSource: ['manual'],
+      confidenceScore: [80, [Validators.min(0), Validators.max(100)]]
     });
 
     this.filterForm = this.fb.group({
@@ -141,7 +153,11 @@ export class TransactionsComponent implements OnInit {
       startDate: [''],
       endDate: [''],
       competencyMonth: [''],
-      search: ['']
+      search: [''],
+      includeProjections: [true],
+      onlyProjections: [false],
+      projectionSource: [''],
+      minConfidence: ['']
     });
   }
 
@@ -190,7 +206,17 @@ export class TransactionsComponent implements OnInit {
       this.currentFilters.limit = this.currentFilters.limit || this.rows;
     }
     
-    this.transactionService.getTransactions(this.currentFilters).subscribe({
+    // Check if we have projection-specific filters
+    const hasProjectionFilters = this.currentFilters.includeProjections !== undefined || 
+                                  this.currentFilters.onlyProjections || 
+                                  this.currentFilters.projectionSource || 
+                                  this.currentFilters.minConfidence;
+    
+    const serviceCall = hasProjectionFilters 
+      ? this.transactionService.getTransactionsWithProjectionFilters(this.currentFilters)
+      : this.transactionService.getTransactions(this.currentFilters);
+    
+    serviceCall.subscribe({
       next: (response) => {
         // Verificar se a resposta tem a estrutura esperada
         if (response && response.data && Array.isArray(response.data)) {
@@ -242,7 +268,11 @@ export class TransactionsComponent implements OnInit {
       startDate: filterValues.startDate || undefined,
       endDate: filterValues.endDate || undefined,
       competencyMonth: filterValues.competencyMonth || undefined,
-      search: filterValues.search || undefined
+      search: filterValues.search || undefined,
+      includeProjections: filterValues.includeProjections,
+      onlyProjections: filterValues.onlyProjections,
+      projectionSource: filterValues.projectionSource || undefined,
+      minConfidence: filterValues.minConfidence || undefined
     };
     
     this.first = 0;
@@ -257,6 +287,180 @@ export class TransactionsComponent implements OnInit {
     };
     this.first = 0;
     this.loadTransactions();
+  }
+
+  toggleProjectionFilters(): void {
+    this.showProjectionFilters = !this.showProjectionFilters;
+  }
+
+  onProjectionFilterChange(): void {
+    this.applyFilters();
+  }
+
+  // Projection helper methods
+  isProjectedTransaction(transaction: Transaction): boolean {
+    return transaction.isProjected === true;
+  }
+
+  getProjectionIcon(transaction: Transaction): string {
+    if (!this.isProjectedTransaction(transaction)) return '';
+    
+    switch (transaction.projectionSource) {
+      case 'recurring':
+        return 'pi-refresh';
+      case 'manual':
+        return 'pi-user';
+      case 'ai':
+        return 'pi-sparkles';
+      default:
+        return 'pi-clock';
+    }
+  }
+
+  getProjectionTooltip(transaction: Transaction): string {
+    if (!this.isProjectedTransaction(transaction)) return '';
+    
+    let tooltip = `Transação Projetada (${this.getProjectionSourceLabel(transaction.projectionSource)})`;
+    if (transaction.confidenceScore) {
+      tooltip += `\nConfiança: ${transaction.confidenceScore}%`;
+    }
+    return tooltip;
+  }
+
+  getProjectionSourceLabel(source?: string): string {
+    switch (source) {
+      case 'recurring':
+        return 'Recorrente';
+      case 'manual':
+        return 'Manual';
+      case 'ai':
+        return 'IA';
+      default:
+        return 'Desconhecida';
+    }
+  }
+
+  getProjectionClass(transaction: Transaction): string {
+    if (!this.isProjectedTransaction(transaction)) return '';
+    
+    const baseClass = 'projection-indicator';
+    const sourceClass = transaction.projectionSource ? `projection-${transaction.projectionSource}` : '';
+    return `${baseClass} ${sourceClass}`;
+  }
+
+  getConfidenceColor(confidenceScore?: number): string {
+    if (!confidenceScore) return '#6B7280';
+    
+    if (confidenceScore >= 80) return '#10B981'; // High confidence - green
+    if (confidenceScore >= 60) return '#F59E0B'; // Medium confidence - yellow
+    return '#EF4444'; // Low confidence - red
+  }
+
+  // Projection Management Methods
+  toggleProjectionManager(): void {
+    this.showProjectionManager = !this.showProjectionManager;
+  }
+
+  generateProjectionsFromRecurring(): void {
+    const currentDate = new Date();
+    const startPeriod = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 2).padStart(2, '0')}`;
+    const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 7, 0); // 6 months ahead
+    const endPeriod = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}`;
+
+    const generateDto = {
+      startPeriod,
+      endPeriod,
+      overrideExisting: true,
+      defaultConfidence: 85
+    };
+
+    this.loading = true;
+    this.transactionService.generateProjections(generateDto).subscribe({
+      next: (result) => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: `${result.generated} projeções geradas para o período ${result.period}`
+        });
+        this.loadTransactions(); // Refresh the list
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Error generating projections:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao gerar projeções automáticas'
+        });
+      }
+    });
+  }
+
+  cleanupOldProjections(): void {
+    const currentDate = new Date();
+    const endPeriod = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+
+    this.confirmationService.confirm({
+      message: 'Tem certeza que deseja limpar todas as projeções até o mês atual? Esta ação não pode ser desfeita.',
+      header: 'Confirmar Limpeza',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.loading = true;
+        this.transactionService.cleanupProjections(undefined, endPeriod).subscribe({
+          next: (result) => {
+            this.loading = false;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: `${result.deleted} projeções removidas`
+            });
+            this.loadTransactions(); // Refresh the list
+          },
+          error: (error) => {
+            this.loading = false;
+            console.error('Error cleaning projections:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro',
+              detail: 'Erro ao limpar projeções'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  cleanupAllProjections(): void {
+    this.confirmationService.confirm({
+      message: 'Tem certeza que deseja remover TODAS as projeções? Esta ação não pode ser desfeita.',
+      header: 'Confirmar Remoção Total',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.loading = true;
+        this.transactionService.cleanupProjections().subscribe({
+          next: (result) => {
+            this.loading = false;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: `${result.deleted} projeções removidas`
+            });
+            this.loadTransactions(); // Refresh the list
+          },
+          error: (error) => {
+            this.loading = false;
+            console.error('Error cleaning all projections:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro',
+              detail: 'Erro ao remover todas as projeções'
+            });
+          }
+        });
+      }
+    });
   }
 
   onLazyLoad(event: any): void {
@@ -282,7 +486,10 @@ export class TransactionsComponent implements OnInit {
       type: 'expense',
       transactionDate: new Date(),
       competencyMonth: new Date(),
-      amount: 0
+      amount: 0,
+      isProjected: false,
+      projectionSource: 'manual',
+      confidenceScore: 80
     });
     this.transactionDialog = true;
   }
@@ -298,11 +505,53 @@ export class TransactionsComponent implements OnInit {
       type: transaction.type,
       categoryId: transaction.category.id,
       transactionDate: new Date(transaction.transactionDate),
-      competencyMonth: new Date(transaction.competencyMonth),
-      notes: transaction.notes || ''
+      competencyMonth: new Date(transaction.competencyPeriod),
+      notes: transaction.notes || '',
+      isProjected: transaction.isProjected || false,
+      projectionSource: transaction.projectionSource || 'manual',
+      confidenceScore: transaction.confidenceScore || 80
     });
     
     this.transactionDialog = true;
+  }
+
+  openProjectionDialog(): void {
+    this.selectedTransaction = {} as Transaction;
+    this.editMode = false;
+    this.submitted = false;
+    
+    // Set form for projection with future date
+    const futureDate = new Date();
+    futureDate.setMonth(futureDate.getMonth() + 1);
+    
+    this.transactionForm.reset({
+      type: 'expense',
+      transactionDate: futureDate,
+      competencyMonth: futureDate,
+      amount: 0,
+      isProjected: true,
+      projectionSource: 'manual',
+      confidenceScore: 80,
+      description: '',
+      notes: ''
+    });
+    this.transactionDialog = true;
+  }
+
+  isProjectedFormEnabled(): boolean {
+    return this.transactionForm.get('isProjected')?.value === true;
+  }
+
+  onProjectedToggle(): void {
+    const isProjected = this.transactionForm.get('isProjected')?.value;
+    
+    if (isProjected) {
+      // Enable projection fields with default values
+      this.transactionForm.patchValue({
+        projectionSource: 'manual',
+        confidenceScore: 80
+      });
+    }
   }
 
   deleteTransaction(transaction: Transaction): void {

@@ -5,6 +5,7 @@ import { Transaction } from './entities/transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionsFilterDto } from './dto/transactions-filter.dto';
+import { ProjectionFiltersDto } from './dto/projection-filters.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
 
 export interface PaginatedResult<T> {
@@ -38,7 +39,7 @@ export class TransactionsService {
     return this.mapToResponseDto(await this.findOneWithRelations(savedTransaction.id));
   }
 
-  async findAll(userId: string, filterDto: TransactionsFilterDto): Promise<PaginatedResult<TransactionResponseDto>> {
+  async findAll(userId: string, filterDto: TransactionsFilterDto | ProjectionFiltersDto): Promise<PaginatedResult<TransactionResponseDto>> {
     const queryBuilder = this.createFilteredQuery(userId, filterDto);
     
     // Add pagination
@@ -169,7 +170,7 @@ export class TransactionsService {
     });
   }
 
-  private createFilteredQuery(userId: string, filterDto: TransactionsFilterDto): SelectQueryBuilder<Transaction> {
+  private createFilteredQuery(userId: string, filterDto: TransactionsFilterDto | ProjectionFiltersDto): SelectQueryBuilder<Transaction> {
     const queryBuilder = this.transactionsRepository
       .createQueryBuilder('transaction')
       .leftJoinAndSelect('transaction.category', 'category')
@@ -197,6 +198,26 @@ export class TransactionsService {
 
     if (filterDto.search) {
       queryBuilder.andWhere('transaction.description ILIKE :search', { search: `%${filterDto.search}%` });
+    }
+
+    // Projection filters - check if this is a ProjectionFiltersDto
+    if ('includeProjections' in filterDto) {
+      if (filterDto.onlyProjections === true) {
+        queryBuilder.andWhere('transaction.isProjected = :isProjected', { isProjected: true });
+      } else if (filterDto.includeProjections === false) {
+        queryBuilder.andWhere('transaction.isProjected = :isProjected', { isProjected: false });
+      }
+      // If includeProjections is true or undefined, show both
+
+      if (filterDto.minConfidence !== undefined) {
+        queryBuilder.andWhere('(transaction.confidenceScore >= :minConfidence OR transaction.isProjected = false)', 
+          { minConfidence: filterDto.minConfidence });
+      }
+
+      if (filterDto.projectionSource) {
+        queryBuilder.andWhere('transaction.projectionSource = :projectionSource', 
+          { projectionSource: filterDto.projectionSource });
+      }
     }
 
     return queryBuilder;
@@ -244,6 +265,9 @@ export class TransactionsService {
       notes: transaction.notes,
       metadata: transaction.metadata,
       isRecurring: transaction.isRecurring,
+      isProjected: transaction.isProjected ?? false,
+      projectionSource: transaction.projectionSource,
+      confidenceScore: transaction.confidenceScore ? Number(transaction.confidenceScore) : undefined,
       createdAt: transaction.createdAt,
       updatedAt: transaction.updatedAt,
       category: transaction.category ? {

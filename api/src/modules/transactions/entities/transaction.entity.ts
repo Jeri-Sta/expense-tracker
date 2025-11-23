@@ -36,6 +36,16 @@ export class Transaction extends BaseEntity {
   @Column({ nullable: true })
   recurringTransactionId: string;
 
+  // Projection fields
+  @Column({ default: false })
+  isProjected: boolean;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  projectionSource: string; // 'recurring' | 'manual' | 'ai'
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  confidenceScore: number; // 0-100 confidence level
+
   // Relationships
   @ManyToOne(() => User, (user) => user.transactions)
   @JoinColumn({ name: 'userId' })

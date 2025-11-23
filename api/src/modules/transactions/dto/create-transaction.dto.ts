@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsEnum, IsNumber, IsString, IsDateString, IsOptional, IsUUID, Min } from 'class-validator';
+import { IsNotEmpty, IsEnum, IsNumber, IsString, IsDateString, IsOptional, IsUUID, Min, IsBoolean, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { TransactionType } from '../../../common/enums';
 
@@ -66,4 +66,34 @@ export class CreateTransactionDto {
   })
   @IsOptional()
   metadata?: Record<string, any>;
+
+  @ApiProperty({
+    description: 'Whether this is a projected transaction',
+    required: false,
+    default: false
+  })
+  @IsBoolean()
+  @IsOptional()
+  isProjected?: boolean;
+
+  @ApiProperty({
+    description: 'Source of the projection',
+    enum: ['recurring', 'manual', 'ai'],
+    required: false
+  })
+  @IsString()
+  @IsOptional()
+  projectionSource?: string;
+
+  @ApiProperty({
+    description: 'Confidence score for projections (0-100)',
+    minimum: 0,
+    maximum: 100,
+    required: false
+  })
+  @IsNumber({}, { message: 'Confidence score must be a number' })
+  @Min(0)
+  @Max(100)
+  @IsOptional()
+  confidenceScore?: number;
 }

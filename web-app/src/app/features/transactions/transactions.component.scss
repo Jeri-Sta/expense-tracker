@@ -24,6 +24,58 @@
   color: #dc2626 !important;
 }
 
+// Projection indicators
+.projection-indicator {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 2px;
+  }
+  
+  &.projection-recurring::before {
+    background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+  }
+  
+  &.projection-manual::before {
+    background: linear-gradient(135deg, #10B981, #059669);
+  }
+  
+  &.projection-ai::before {
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  }
+}
+
+// Projection filters panel
+.p-panel.projection-filters {
+  .p-panel-header {
+    background: var(--blue-50);
+    color: var(--blue-900);
+  }
+  
+  .p-panel-content {
+    padding: 1rem;
+  }
+}
+
+// Confidence indicators
+.confidence-high {
+  color: #10B981 !important;
+}
+
+.confidence-medium {
+  color: #F59E0B !important;
+}
+
+.confidence-low {
+  color: #EF4444 !important;
+}
+
 .field {
   margin-bottom: 1rem;
 }

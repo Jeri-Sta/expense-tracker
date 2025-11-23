@@ -19,6 +19,9 @@ import { TagModule } from 'primeng/tag';
 import { BadgeModule } from 'primeng/badge';
 import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { PanelModule } from 'primeng/panel';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { TooltipModule } from 'primeng/tooltip';
 
 // Components
 import { TransactionsComponent } from './transactions.component';
@@ -50,7 +53,10 @@ import { TransactionsRoutingModule } from './transactions-routing.module';
     TagModule,
     BadgeModule,
     CardModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    PanelModule,
+    ToggleButtonModule,
+    TooltipModule
   ]
 })
 export class TransactionsModule { }

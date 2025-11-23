@@ -10,6 +10,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { ChartModule } from 'primeng/chart';
 import { DropdownModule } from 'primeng/dropdown';
 import { DividerModule } from 'primeng/divider';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { TooltipModule } from 'primeng/tooltip';
 
 // Components
 import { DashboardComponent } from './dashboard.component';
@@ -32,7 +34,9 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
     ProgressBarModule,
     ChartModule,
     DropdownModule,
-    DividerModule
+    DividerModule,
+    ToggleButtonModule,
+    TooltipModule
   ]
 })
 export class DashboardModule { }

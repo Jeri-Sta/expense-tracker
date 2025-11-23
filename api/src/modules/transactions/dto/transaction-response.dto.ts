@@ -30,6 +30,15 @@ export class TransactionResponseDto {
   isRecurring: boolean;
 
   @ApiProperty()
+  isProjected: boolean;
+
+  @ApiProperty({ required: false })
+  projectionSource?: string;
+
+  @ApiProperty({ required: false })
+  confidenceScore?: number;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()

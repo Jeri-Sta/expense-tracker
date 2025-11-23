@@ -20,9 +20,12 @@ import {
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { TransactionsService, PaginatedResult } from './transactions.service';
+import { ProjectionsService, ProjectionResult } from './projections.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionsFilterDto } from './dto/transactions-filter.dto';
+import { ProjectionFiltersDto } from './dto/projection-filters.dto';
+import { GenerateProjectionsDto } from './dto/generate-projections.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
 import { User } from '../users/entities/user.entity';
 
@@ -31,7 +34,10 @@ import { User } from '../users/entities/user.entity';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService) {}
+  constructor(
+    private readonly transactionsService: TransactionsService,
+    private readonly projectionsService: ProjectionsService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new transaction' })
@@ -143,5 +149,90 @@ export class TransactionsController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<void> {
     return this.transactionsService.remove(id, user.id);
+  }
+
+  // Projection endpoints
+  @Post('projections/generate')
+  @ApiOperation({ summary: 'Generate projections from recurring transactions' })
+  @ApiResponse({
+    status: 201,
+    description: 'Projections generated successfully',
+  })
+  generateProjections(
+    @GetUser() user: User,
+    @Body() generateDto: GenerateProjectionsDto,
+  ): Promise<ProjectionResult> {
+    return this.projectionsService.generateRecurringProjections(user.id, generateDto);
+  }
+
+  @Get('projections/monthly/:year/:month')
+  @ApiOperation({ summary: 'Get monthly projections' })
+  @ApiResponse({
+    status: 200,
+    description: 'Monthly projections retrieved successfully',
+  })
+  getMonthlyProjections(
+    @GetUser() user: User,
+    @Param('year') year: string,
+    @Param('month') month: string,
+  ): Promise<TransactionResponseDto[]> {
+    return this.projectionsService.getMonthlyProjections(
+      user.id,
+      Number.parseInt(year, 10),
+      Number.parseInt(month, 10),
+    );
+  }
+
+  @Get('projections/stats/:year')
+  @ApiOperation({ summary: 'Get yearly stats with projections' })
+  @ApiResponse({
+    status: 200,
+    description: 'Yearly stats with projections retrieved successfully',
+  })
+  @ApiQuery({ name: 'month', required: false, description: 'Specific month (1-12)' })
+  getStatsWithProjections(
+    @GetUser() user: User,
+    @Param('year') year: string,
+    @Query('month') month?: string,
+  ) {
+    const targetMonth = month ? Number.parseInt(month, 10) : undefined;
+    return this.projectionsService.getMonthlyStatsWithProjections(
+      user.id,
+      Number.parseInt(year, 10),
+      targetMonth,
+    );
+  }
+
+  @Delete('projections/cleanup')
+  @ApiOperation({ summary: 'Clean up projections' })
+  @ApiResponse({
+    status: 200,
+    description: 'Projections cleaned up successfully',
+  })
+  @ApiQuery({ name: 'startPeriod', required: false, description: 'Start period (YYYY-MM)' })
+  @ApiQuery({ name: 'endPeriod', required: false, description: 'End period (YYYY-MM)' })
+  cleanupProjections(
+    @GetUser() user: User,
+    @Query('startPeriod') startPeriod?: string,
+    @Query('endPeriod') endPeriod?: string,
+  ): Promise<{ deleted: number }> {
+    return this.projectionsService.cleanupProjections(user.id, startPeriod, endPeriod)
+      .then(deleted => ({ deleted }));
+  }
+
+  @Get('projections/filter')
+  @ApiOperation({ summary: 'Get transactions with projection filtering' })
+  @ApiResponse({
+    status: 200,
+    description: 'Filtered transactions retrieved successfully',
+  })
+  @ApiQuery({ name: 'includeProjections', required: false, description: 'Include projected transactions' })
+  @ApiQuery({ name: 'onlyProjections', required: false, description: 'Only projected transactions' })
+  @ApiQuery({ name: 'minConfidence', required: false, description: 'Minimum confidence score' })
+  findWithProjectionFilters(
+    @GetUser() user: User,
+    @Query() filterDto: ProjectionFiltersDto,
+  ): Promise<PaginatedResult<TransactionResponseDto>> {
+    return this.transactionsService.findAll(user.id, filterDto);
   }
 }

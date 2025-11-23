@@ -19,6 +19,26 @@ export interface TransactionFilters {
   sortOrder?: 'ASC' | 'DESC';
 }
 
+export interface ProjectionFilters extends TransactionFilters {
+  includeProjections?: boolean;
+  onlyProjections?: boolean;
+  projectionSource?: 'recurring' | 'manual' | 'ai';
+  minConfidence?: number;
+}
+
+export interface GenerateProjectionsDto {
+  startPeriod: string;
+  endPeriod: string;
+  overrideExisting?: boolean;
+  defaultConfidence?: number;
+}
+
+export interface ProjectionResult {
+  generated: number;
+  period: string;
+  projections: Transaction[];
+}
+
 export interface BaseEntity {
   id: string;
   createdAt: Date;
@@ -41,9 +61,13 @@ export interface Transaction extends BaseEntity {
   type: TransactionType;
   category: Category;
   transactionDate: string;
-  competencyMonth: string;
+  competencyPeriod: string;
   notes?: string;
   metadata?: Record<string, any>;
+  isProjected?: boolean;
+  projectionSource?: string;
+  confidenceScore?: number;
+  isRecurring?: boolean;
 }
 
 export interface CreateTransactionDto {
@@ -84,6 +108,34 @@ export interface MonthlyStats {
   totalExpenses: number;
   balance: number;
   transactionCount: number;
+}
+
+export interface MonthlyStatsWithProjections {
+  period: string;
+  totalIncome: number;
+  totalExpenses: number;
+  balance: number;
+  projectedIncome: number;
+  projectedExpenses: number;
+  projectedBalance: number;
+  hasProjections: boolean;
+  transactionCount: number;
+  projectedTransactionCount: number;
+}
+
+export interface DashboardStats {
+  currentMonth: MonthlyStatsWithProjections;
+  yearlyOverview: MonthlyStatsWithProjections[];
+  recentTransactions: Transaction[];
+  topCategories: any[];
+}
+
+export interface MonthlyNavigationStats {
+  year: number;
+  month: number;
+  stats: MonthlyStatsWithProjections;
+  recentTransactions: Transaction[];
+  topCategories: any[];
 }
 
 @Injectable({
@@ -155,5 +207,48 @@ export class TransactionService {
       params, 
       responseType: 'blob' 
     });
+  }
+
+  // Projection methods
+  generateProjections(dto: GenerateProjectionsDto): Observable<ProjectionResult> {
+    return this.http.post<ProjectionResult>(`${this.apiUrl}/projections/generate`, dto);
+  }
+
+  getMonthlyProjections(year: number, month: number): Observable<Transaction[]> {
+    return this.http.get<Transaction[]>(`${this.apiUrl}/projections/monthly/${year}/${month}`);
+  }
+
+  getStatsWithProjections(year: number, month?: number): Observable<MonthlyStatsWithProjections[]> {
+    let params = new HttpParams();
+    if (month) {
+      params = params.set('month', month.toString());
+    }
+    return this.http.get<MonthlyStatsWithProjections[]>(`${this.apiUrl}/projections/stats/${year}`, { params });
+  }
+
+  cleanupProjections(startPeriod?: string, endPeriod?: string): Observable<{deleted: number}> {
+    let params = new HttpParams();
+    if (startPeriod) params = params.set('startPeriod', startPeriod);
+    if (endPeriod) params = params.set('endPeriod', endPeriod);
+    
+    return this.http.delete<{deleted: number}>(`${this.apiUrl}/projections/cleanup`, { params });
+  }
+
+  getTransactionsWithProjectionFilters(filters?: ProjectionFilters): Observable<PaginatedResponse<Transaction>> {
+    let params = new HttpParams();
+    
+    if (filters) {
+      for (const [key, value] of Object.entries(filters)) {
+        if (value !== undefined && value !== null && value !== '') {
+          if (value instanceof Date) {
+            params = params.set(key, value.toISOString().split('T')[0]);
+          } else {
+            params = params.set(key, value.toString());
+          }
+        }
+      }
+    }
+
+    return this.http.get<PaginatedResponse<Transaction>>(`${this.apiUrl}/projections/filter`, { params });
   }
 }
