@@ -59,7 +59,10 @@ export class InstallmentPlan extends BaseEntity {
   @Column()
   userId: string;
 
-  @OneToMany(() => Installment, (installment) => installment.installmentPlan)
+  @OneToMany(() => Installment, (installment) => installment.installmentPlan, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE',
+  })
   installments: Installment[];
 
   // Virtual properties

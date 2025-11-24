@@ -5,7 +5,8 @@ import { Transaction } from '../transactions/entities/transaction.entity';
 import { RecurringTransaction } from '../recurring-transactions/entities/recurring-transaction.entity';
 import { GenerateProjectionsDto } from '../transactions/dto/generate-projections.dto';
 import { TransactionResponseDto } from '../transactions/dto/transaction-response.dto';
-import { RecurrenceFrequency } from '../../common/enums';
+import { Installment } from '../installments/entities/installment.entity';
+import { RecurrenceFrequency, InstallmentStatus } from '../../common/enums';
 
 export interface ProjectionResult {
   generated: number;
@@ -35,6 +36,8 @@ export class ProjectionsService {
     private readonly transactionsRepository: Repository<Transaction>,
     @InjectRepository(RecurringTransaction)
     private readonly recurringRepository: Repository<RecurringTransaction>,
+    @InjectRepository(Installment)
+    private readonly installmentRepository: Repository<Installment>,
   ) {}
 
   async generateRecurringProjections(
@@ -45,7 +48,7 @@ export class ProjectionsService {
 
     const startDate = new Date(`${generateDto.startPeriod}-01`);
     const endParts = generateDto.endPeriod.split('-');
-    const endDate = new Date(parseInt(endParts[0]), parseInt(endParts[1]), 0); // Last day of month
+    const endDate = new Date(Number.parseInt(endParts[0]), Number.parseInt(endParts[1]), 0); // Last day of month
 
     // Clean existing projections if requested
     if (generateDto.overrideExisting) {
@@ -231,6 +234,30 @@ export class ProjectionsService {
       },
     });
 
+    // Get installments for the month - use due date for unpaid, paid date for paid
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0);
+
+    // Unpaid installments based on due date
+    const unpaidInstallments = await this.installmentRepository
+      .createQueryBuilder('installment')
+      .leftJoinAndSelect('installment.installmentPlan', 'plan')
+      .where('plan.userId = :userId', { userId })
+      .andWhere('installment.status != :paidStatus', { paidStatus: InstallmentStatus.PAID })
+      .andWhere('installment.dueDate >= :startOfMonth', { startOfMonth })
+      .andWhere('installment.dueDate <= :endOfMonth', { endOfMonth })
+      .getMany();
+
+    // Paid installments based on payment date
+    const paidInstallments = await this.installmentRepository
+      .createQueryBuilder('installment')
+      .leftJoinAndSelect('installment.installmentPlan', 'plan')
+      .where('plan.userId = :userId', { userId })
+      .andWhere('installment.status = :paidStatus', { paidStatus: InstallmentStatus.PAID })
+      .andWhere('installment.paidDate >= :startOfMonth', { startOfMonth })
+      .andWhere('installment.paidDate <= :endOfMonth', { endOfMonth })
+      .getMany();
+
     const realIncome = realTransactions
       .filter(t => t.type === 'income')
       .reduce((sum, t) => sum + Number(t.amount), 0);
@@ -238,6 +265,14 @@ export class ProjectionsService {
     const realExpenses = realTransactions
       .filter(t => t.type === 'expense')
       .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    // Add installment expenses: original amount for unpaid, paid amount for paid
+    const installmentExpenses = [
+      ...unpaidInstallments.map(i => Number(i.originalAmount)),
+      ...paidInstallments.map(i => Number(i.paidAmount || i.originalAmount))
+    ].reduce((sum, amount) => sum + amount, 0);
+
+    const totalRealExpenses = realExpenses + installmentExpenses;
 
     const projectedIncome = projectedTransactions
       .filter(t => t.type === 'income')
@@ -250,13 +285,13 @@ export class ProjectionsService {
     return {
       period: competencyPeriod,
       totalIncome: realIncome,
-      totalExpenses: realExpenses,
-      balance: realIncome - realExpenses,
+      totalExpenses: totalRealExpenses,
+      balance: realIncome - totalRealExpenses,
       projectedIncome,
       projectedExpenses,
       projectedBalance: projectedIncome - projectedExpenses,
       hasProjections: projectedTransactions.length > 0,
-      transactionCount: realTransactions.length,
+      transactionCount: realTransactions.length + unpaidInstallments.length + paidInstallments.length,
       projectedTransactionCount: projectedTransactions.length,
     };
   }

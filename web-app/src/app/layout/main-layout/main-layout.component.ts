@@ -37,30 +37,34 @@ export class MainLayoutComponent implements OnInit {
   }
 
   getPageTitle(): string {
-    switch (this.currentRoute) {
-      case '/dashboard':
+    switch (true) {
+      case this.currentRoute === '/dashboard':
         return 'Dashboard';
-      case '/transactions':
+      case this.currentRoute === '/transactions':
         return 'Transações';
-      case '/categories':
+      case this.currentRoute === '/categories':
         return 'Categorias';
-      case '/recurring-transactions':
+      case this.currentRoute === '/recurring-transactions':
         return 'Transações Recorrentes';
+      case this.currentRoute.startsWith('/installments'):
+        return 'Financiamentos';
       default:
         return 'Expense Tracker';
     }
   }
 
   getPageIcon(): string {
-    switch (this.currentRoute) {
-      case '/dashboard':
+    switch (true) {
+      case this.currentRoute === '/dashboard':
         return 'pi pi-chart-line';
-      case '/transactions':
+      case this.currentRoute === '/transactions':
         return 'pi pi-credit-card';
-      case '/categories':
+      case this.currentRoute === '/categories':
         return 'pi pi-tags';
-      case '/recurring-transactions':
+      case this.currentRoute === '/recurring-transactions':
         return 'pi pi-refresh';
+      case this.currentRoute.startsWith('/installments'):
+        return 'pi pi-calculator';
       default:
         return 'pi pi-home';
     }

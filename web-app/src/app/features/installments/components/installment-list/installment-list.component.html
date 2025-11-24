@@ -1,0 +1,141 @@
+<div class="installment-list-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <i class="pi pi-credit-card"></i>
+          Financiamentos
+        </h1>
+        <p class="page-subtitle">Gerencie seus planos de financiamento e parcelas</p>
+      </div>
+      <p-button 
+        label="Novo Financiamento" 
+        icon="pi pi-plus" 
+        (onClick)="onNewInstallmentPlan()"
+        styleClass="p-button-primary">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content-container" *ngIf="!loading">
+    <div class="installment-grid" *ngIf="installmentPlans.length > 0; else noData">
+      <div class="installment-card" *ngFor="let plan of installmentPlans">
+        <div class="card-header">
+          <div class="title-section">
+            <h3 class="plan-name">{{ plan.name }}</h3>
+            <p-tag 
+              [value]="plan.isActive ? 'Ativo' : 'Inativo'" 
+              [severity]="plan.isActive ? 'success' : 'secondary'">
+            </p-tag>
+          </div>
+          <div class="actions">
+            <p-button 
+              icon="pi pi-eye" 
+              [text]="true" 
+              [rounded]="true"
+              pTooltip="Ver detalhes"
+              (onClick)="onViewDetails(plan.id)">
+            </p-button>
+            <p-button 
+              icon="pi pi-pencil" 
+              [text]="true" 
+              [rounded]="true"
+              pTooltip="Editar"
+              (onClick)="onEdit(plan.id)">
+            </p-button>
+            <p-button 
+              icon="pi pi-trash" 
+              [text]="true" 
+              [rounded]="true"
+              severity="danger"
+              pTooltip="Excluir"
+              (onClick)="onDelete(plan)">
+            </p-button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Progress Bar -->
+          <div class="progress-section">
+            <div class="progress-info">
+              <span class="progress-text">
+                {{ plan.paidInstallments }} de {{ plan.totalInstallments }} parcelas pagas
+              </span>
+              <span class="progress-percentage">
+                {{ plan.completionPercentage.toFixed(1) }}%
+              </span>
+            </div>
+            <p-progressBar 
+              [value]="plan.completionPercentage" 
+              [styleClass]="getProgressBarClass(plan.completionPercentage)">
+            </p-progressBar>
+          </div>
+
+          <!-- Financial Info -->
+          <div class="financial-info">
+            <div class="info-row">
+              <div class="info-item">
+                <span class="label">Valor Financiado:</span>
+                <span class="value">{{ formatCurrency(plan.financedAmount) }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Total:</span>
+                <span class="value">{{ formatCurrency(plan.totalAmount) }}</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-item">
+                <span class="label">Juros:</span>
+                <span class="value text-red-500">{{ formatCurrency(plan.totalInterest) }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Pago:</span>
+                <span class="value text-green-500">{{ formatCurrency(plan.totalPaid) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Due Date -->
+          <div class="next-due" *ngIf="plan.nextDueDate">
+            <div class="due-info">
+              <i class="pi pi-calendar"></i>
+              <span class="due-label">Próximo vencimento:</span>
+              <span class="due-date" [class]="getDueDateClass(getDaysUntilDue(plan.nextDueDate))">
+                {{ formatDate(plan.nextDueDate) }}
+                <ng-container *ngIf="getDaysUntilDue(plan.nextDueDate) as days">
+                  ({{ days > 0 ? days + ' dias' : Math.abs(days) + ' dias em atraso' }})
+                </ng-container>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Data State -->
+    <ng-template #noData>
+      <div class="no-data">
+        <div class="no-data-content">
+          <i class="pi pi-credit-card no-data-icon"></i>
+          <h3>Nenhum financiamento encontrado</h3>
+          <p>Comece criando seu primeiro plano de financiamento.</p>
+          <p-button 
+            label="Criar Financiamento" 
+            icon="pi pi-plus" 
+            (onClick)="onNewInstallmentPlan()">
+          </p-button>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-content">
+      <p-progressSpinner></p-progressSpinner>
+      <p>Carregando financiamentos...</p>
+    </div>
+  </div>
+</div>

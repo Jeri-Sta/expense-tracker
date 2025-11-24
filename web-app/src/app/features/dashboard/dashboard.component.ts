@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { TransactionService, MonthlyStats } from '../../core/services/transaction.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { CategoryService, Category } from '../../core/services/category.service';
@@ -70,6 +71,16 @@ export class DashboardComponent implements OnInit {
   upcomingRecurring: RecurringTransaction[] = [];
   topCategories: CategoryStats[] = [];
   
+  // Installments data
+  installmentStats = {
+    totalPlans: 0,
+    totalFinanced: 0,
+    totalPaid: 0,
+    totalRemaining: 0,
+    totalSavings: 0,
+    upcomingPayments: [] as any[]
+  };
+  
   // Date range for analysis
   selectedYear = new Date().getFullYear();
   selectedMonth = new Date().getMonth() + 1;
@@ -103,6 +114,7 @@ export class DashboardComponent implements OnInit {
   ];
 
   constructor(
+    private readonly router: Router,
     private readonly transactionService: TransactionService,
     private readonly dashboardService: DashboardService,
     private readonly categoryService: CategoryService,
@@ -136,6 +148,12 @@ export class DashboardComponent implements OnInit {
           this.updateChartsFromYearlyData(dashboardData.yearlyOverview);
           this.recentTransactions = dashboardData.recentTransactions;
           this.updateCategoryData(dashboardData.topCategories);
+          
+          // Update installment stats
+          if (dashboardData.installments) {
+            this.installmentStats = dashboardData.installments;
+          }
+          
           this.loadUpcomingRecurring(); // Still load recurring transactions
           this.loading = false;
         },
@@ -408,16 +426,16 @@ export class DashboardComponent implements OnInit {
     this.monthlyTrendOptions = {
       responsive: true,
       maintainAspectRatio: false,
-      aspectRatio: 0.6,
+      aspectRatio: 0.7,
       interaction: {
         intersect: false
       },
       layout: {
         padding: {
-          top: 10,
-          right: 10,
-          bottom: 10,
-          left: 10
+          top: 15,
+          right: 15,
+          bottom: 25,
+          left: 15
         }
       },
       plugins: {
@@ -438,7 +456,8 @@ export class DashboardComponent implements OnInit {
           display: true,
           ticks: {
             color: textColor,
-            maxRotation: 45
+            maxRotation: 45,
+            padding: 5
           },
           grid: {
             color: surfaceBorder,
@@ -449,6 +468,7 @@ export class DashboardComponent implements OnInit {
           display: true,
           ticks: {
             color: textColor,
+            padding: 10,
             callback: (value: any) => this.formatCurrency(value)
           },
           grid: {
@@ -643,7 +663,7 @@ export class DashboardComponent implements OnInit {
 
   getMonthName(monthString: string): string {
     const [year, month] = monthString.split('-');
-    const date = new Date(parseInt(year), parseInt(month) - 1);
+    const date = new Date(Number.parseInt(year), Number.parseInt(month) - 1);
     return date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
   }
 
@@ -840,6 +860,25 @@ export class DashboardComponent implements OnInit {
 
   getTotalProjectedBalance(): number {
     return this.currentStats.balance + this.currentStats.projectedBalance;
+  }
+
+  // Installment helper methods
+  getDaysUntilDue(date: string | Date): number {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = new Date(date);
+    dueDate.setHours(0, 0, 0, 0);
+    const diffTime = dueDate.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  getInstallmentProgress(): number {
+    if (this.installmentStats.totalPlans === 0) return 0;
+    return (this.installmentStats.totalPaid / (this.installmentStats.totalFinanced + this.installmentStats.totalPaid)) * 100;
+  }
+
+  navigateToInstallments(): void {
+    this.router.navigate(['/installments']);
   }
 
   getProjectionClass(value: number): string {

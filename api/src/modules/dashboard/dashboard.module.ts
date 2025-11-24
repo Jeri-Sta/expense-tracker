@@ -6,10 +6,12 @@ import { TransactionsModule } from '../transactions/transactions.module';
 import { CategoriesModule } from '../categories/categories.module';
 import { InstallmentsModule } from '../installments/installments.module';
 import { Transaction } from '../transactions/entities/transaction.entity';
+import { InstallmentPlan } from '../installments/entities/installment-plan.entity';
+import { Installment } from '../installments/entities/installment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Transaction]),
+    TypeOrmModule.forFeature([Transaction, InstallmentPlan, Installment]),
     TransactionsModule,
     CategoriesModule,
     InstallmentsModule,

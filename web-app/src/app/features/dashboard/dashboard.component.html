@@ -142,6 +142,120 @@
     </div>
   </div>
 
+  <!-- Installments Summary Section -->
+  <div class="grid mb-4" *ngIf="installmentStats.totalPlans > 0">
+    <div class="col-12">
+      <div class="installments-section surface-card shadow-2 border-round-lg">
+        <div class="section-header p-4 border-bottom-1 surface-border">
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <h3 class="text-lg font-bold text-color m-0">Financiamentos</h3>
+              <p class="text-color-secondary m-0 text-sm">Resumo dos seus financiamentos ativos</p>
+            </div>
+            <p-button 
+              label="Ver Todos" 
+              icon="pi pi-external-link" 
+              [text]="true" 
+              size="small"
+              (onClick)="navigateToInstallments()"
+            ></p-button>
+          </div>
+        </div>
+        
+        <div class="installments-content p-4">
+          <div class="grid">
+            <!-- Financial Summary Cards -->
+            <div class="col-12 md:col-6 lg:col-3">
+              <div class="installment-kpi surface-section border-round p-3 text-center h-full">
+                <i class="pi pi-credit-card text-primary text-2xl mb-2"></i>
+                <div class="text-primary font-bold text-lg">{{ installmentStats.totalPlans }}</div>
+                <div class="text-color-secondary text-sm">Financiamentos Ativos</div>
+              </div>
+            </div>
+            
+            <div class="col-12 md:col-6 lg:col-3">
+              <div class="installment-kpi surface-section border-round p-3 text-center h-full">
+                <i class="pi pi-dollar text-blue-600 text-2xl mb-2"></i>
+                <div class="text-blue-600 font-bold text-lg">{{ formatCurrency(installmentStats.totalFinanced) }}</div>
+                <div class="text-color-secondary text-sm">Total Financiado</div>
+              </div>
+            </div>
+            
+            <div class="col-12 md:col-6 lg:col-3">
+              <div class="installment-kpi surface-section border-round p-3 text-center h-full">
+                <i class="pi pi-check-circle text-green-600 text-2xl mb-2"></i>
+                <div class="text-green-600 font-bold text-lg">{{ formatCurrency(installmentStats.totalPaid) }}</div>
+                <div class="text-color-secondary text-sm">Total Pago</div>
+              </div>
+            </div>
+            
+            <div class="col-12 md:col-6 lg:col-3">
+              <div class="installment-kpi surface-section border-round p-3 text-center h-full">
+                <i class="pi pi-clock text-orange-600 text-2xl mb-2"></i>
+                <div class="text-orange-600 font-bold text-lg">{{ formatCurrency(installmentStats.totalRemaining) }}</div>
+                <div class="text-color-secondary text-sm">Valor Restante</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Progress and Savings Row -->
+          <div class="grid mt-3">
+            <div class="col-12 md:col-6">
+              <div class="progress-section surface-section border-round p-3 h-full">
+                <h4 class="text-base font-bold text-color mb-2">Progresso Geral</h4>
+                <div class="flex align-items-center justify-content-between mb-2">
+                  <span class="text-color-secondary text-sm">Valor pago do total</span>
+                  <span class="font-bold text-color">{{ getInstallmentProgress().toFixed(1) }}%</span>
+                </div>
+                <p-progressBar 
+                  [value]="getInstallmentProgress()"
+                  styleClass="progress-bar-custom">
+                </p-progressBar>
+              </div>
+            </div>
+            
+            <div class="col-12 md:col-6" *ngIf="installmentStats.totalSavings > 0">
+              <div class="savings-section surface-section border-round p-3 h-full">
+                <h4 class="text-base font-bold text-color mb-2">Economia Total</h4>
+                <div class="flex align-items-center justify-content-center">
+                  <i class="pi pi-star-fill text-yellow-500 text-xl mr-2"></i>
+                  <div class="text-green-600 font-bold text-xl">{{ formatCurrency(installmentStats.totalSavings) }}</div>
+                </div>
+                <div class="text-color-secondary text-sm text-center mt-1">Economizado com pagamentos antecipados</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Upcoming Payments -->
+          <div class="upcoming-payments mt-3" *ngIf="installmentStats.upcomingPayments.length > 0">
+            <h4 class="text-base font-bold text-color mb-3">Próximos Vencimentos</h4>
+            <div class="grid">
+              <div class="col-12" *ngFor="let payment of installmentStats.upcomingPayments.slice(0, 3)">
+                <div class="payment-item flex align-items-center justify-content-between surface-hover border-round p-2">
+                  <div class="flex align-items-center gap-3">
+                    <div class="payment-number bg-primary text-white border-circle w-2rem h-2rem flex align-items-center justify-content-center text-sm font-bold">
+                      {{ payment.installmentNumber }}
+                    </div>
+                    <div>
+                      <div class="font-semibold text-color">{{ payment.planName }}</div>
+                      <div class="text-color-secondary text-sm">Vencimento: {{ formatDate(payment.dueDate) }}</div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="font-bold text-color">{{ formatCurrency(payment.amount) }}</div>
+                    <div class="text-color-secondary text-sm">
+                      {{ getDaysUntilDue(payment.dueDate) > 0 ? getDaysUntilDue(payment.dueDate) + ' dias' : 'Vencida' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Main Charts Row -->
   <div class="grid mb-4">
     <!-- Monthly Trend Chart -->
@@ -152,7 +266,7 @@
           <p class="text-color-secondary text-sm m-0">Evolução de receitas, despesas e saldo ao longo do ano</p>
         </div>
         <div class="chart-content p-4">
-          <div class="chart-wrapper" style="position: relative; height: 400px; width: 100%;">
+          <div class="chart-wrapper monthly-trend-chart" style="position: relative; height: 450px; width: 100%;">
             <p-chart 
               type="line" 
               [data]="monthlyTrendData" 

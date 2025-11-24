@@ -128,6 +128,14 @@ export interface DashboardStats {
   yearlyOverview: MonthlyStatsWithProjections[];
   recentTransactions: Transaction[];
   topCategories: any[];
+  installments: {
+    totalPlans: number;
+    totalFinanced: number;
+    totalPaid: number;
+    totalRemaining: number;
+    totalSavings: number;
+    upcomingPayments: any[];
+  };
 }
 
 export interface MonthlyNavigationStats {
@@ -142,9 +150,9 @@ export interface MonthlyNavigationStats {
   providedIn: 'root'
 })
 export class TransactionService {
-  private apiUrl = `${environment.apiUrl}/transactions`;
+  private readonly apiUrl = `${environment.apiUrl}/transactions`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getTransactions(filters?: TransactionFilters): Observable<PaginatedResponse<Transaction>> {
     let params = new HttpParams();

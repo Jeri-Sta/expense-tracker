@@ -1,0 +1,211 @@
+<div class="installment-form-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <i class="pi pi-credit-card"></i>
+          {{ isEditMode ? 'Editar' : 'Novo' }} Financiamento
+        </h1>
+        <p class="page-subtitle">
+          {{ isEditMode ? 'Edite as informações do' : 'Crie um novo plano de' }} financiamento
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-container" *ngIf="!loading">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="pi pi-info-circle"></i>
+            Informações Básicas
+          </h3>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="name">Nome do Financiamento *</label>
+              <input
+                id="name"
+                type="text"
+                pInputText
+                formControlName="name"
+                placeholder="Ex: Financiamento do Carro"
+                [class.ng-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+              />
+              <small class="error-message" *ngIf="getFieldError('name')">
+                {{ getFieldError('name') }}
+              </small>
+            </div>
+
+            <div class="field">
+              <label for="description">Descrição</label>
+              <textarea
+                id="description"
+                pInputTextarea
+                formControlName="description"
+                placeholder="Descrição opcional do financiamento"
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Information -->
+        <div class="form-section" *ngIf="!isEditMode">
+          <h3 class="section-title">
+            <i class="pi pi-dollar"></i>
+            Informações Financeiras
+          </h3>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="financedAmount">Valor Financiado *</label>
+              <p-inputNumber
+                id="financedAmount"
+                formControlName="financedAmount"
+                mode="currency"
+                currency="BRL"
+                locale="pt-BR"
+                placeholder="R$ 0,00"
+                [class.ng-invalid]="form.get('financedAmount')?.invalid && form.get('financedAmount')?.touched"
+              ></p-inputNumber>
+              <small class="error-message" *ngIf="getFieldError('financedAmount')">
+                {{ getFieldError('financedAmount') }}
+              </small>
+            </div>
+
+            <div class="field">
+              <label for="installmentValue">Valor da Parcela *</label>
+              <p-inputNumber
+                id="installmentValue"
+                formControlName="installmentValue"
+                mode="currency"
+                currency="BRL"
+                locale="pt-BR"
+                placeholder="R$ 0,00"
+                [class.ng-invalid]="form.get('installmentValue')?.invalid && form.get('installmentValue')?.touched"
+              ></p-inputNumber>
+              <small class="error-message" *ngIf="getFieldError('installmentValue')">
+                {{ getFieldError('installmentValue') }}
+              </small>
+            </div>
+
+            <div class="field">
+              <label for="totalInstallments">Número de Parcelas *</label>
+              <p-inputNumber
+                id="totalInstallments"
+                formControlName="totalInstallments"
+                placeholder="Ex: 48"
+                [showButtons]="true"
+                [min]="1"
+                [max]="999"
+                [class.ng-invalid]="form.get('totalInstallments')?.invalid && form.get('totalInstallments')?.touched"
+              ></p-inputNumber>
+              <small class="error-message" *ngIf="getFieldError('totalInstallments')">
+                {{ getFieldError('totalInstallments') }}
+              </small>
+            </div>
+
+            <div class="field">
+              <label for="startDate">Data de Início *</label>
+              <p-calendar
+                id="startDate"
+                formControlName="startDate"
+                dateFormat="dd/mm/yy"
+                placeholder="Selecione a data"
+                [class.ng-invalid]="form.get('startDate')?.invalid && form.get('startDate')?.touched"
+              ></p-calendar>
+              <small class="error-message" *ngIf="getFieldError('startDate')">
+                {{ getFieldError('startDate') }}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculation Summary -->
+        <div class="form-section" *ngIf="!isEditMode && form.get('financedAmount')?.value > 0 && form.get('installmentValue')?.value > 0 && form.get('totalInstallments')?.value > 0">
+          <h3 class="section-title">
+            <i class="pi pi-calculator"></i>
+            Resumo dos Cálculos
+          </h3>
+
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="label">Valor Financiado:</span>
+              <span class="value">{{ formatCurrency(form.get('financedAmount')?.value || 0) }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Valor da Parcela:</span>
+              <span class="value">{{ formatCurrency(form.get('installmentValue')?.value || 0) }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Número de Parcelas:</span>
+              <span class="value">{{ form.get('totalInstallments')?.value || 0 }}x</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Total a Pagar:</span>
+              <span class="value highlight">{{ formatCurrency(getTotalAmount()) }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Total de Juros:</span>
+              <span class="value danger">{{ formatCurrency(getTotalInterest()) }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Taxa Efetiva Mensal:</span>
+              <span class="value">{{ getEffectiveInterestRate().toFixed(4) }}% ao mês</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Taxa Total do Período:</span>
+              <span class="value">{{ getSimpleInterestRate().toFixed(2) }}%</span>
+            </div>
+            <div class="summary-item" *ngIf="getTotalInterest() > 0">
+              <span class="label">Custo Adicional:</span>
+              <span class="value danger">
+                +{{ ((getTotalInterest() / form.get('financedAmount')?.value) * 100).toFixed(1) }}%
+              </span>
+            </div>
+          </div>
+          
+          <!-- Explicação dos cálculos -->
+          <div class="calculation-info" style="margin-top: 1rem; padding: 1rem; background: var(--surface-hover); border-radius: 6px; border-left: 3px solid var(--primary-color);">
+            <small style="color: var(--text-color-secondary); line-height: 1.4;">
+              <i class="pi pi-info-circle" style="margin-right: 0.5rem;"></i>
+              <strong>Cálculos automáticos:</strong> Preencha o valor financiado, valor da parcela e número de parcelas. 
+              Todas as taxas e totais são calculados automaticamente para mostrar o real custo do financiamento.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="secondary"
+          [text]="true"
+          (onClick)="onCancel()"
+        ></p-button>
+        <p-button
+          label="{{ isEditMode ? 'Atualizar' : 'Criar' }} Financiamento"
+          icon="pi pi-{{ isEditMode ? 'check' : 'plus' }}"
+          type="submit"
+          [loading]="loading"
+          [disabled]="form.invalid"
+        ></p-button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-content">
+      <p-progressSpinner></p-progressSpinner>
+      <p>{{ isEditMode ? 'Carregando financiamento...' : 'Criando financiamento...' }}</p>
+    </div>
+  </div>
+</div>

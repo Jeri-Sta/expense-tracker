@@ -171,6 +171,25 @@
   }
 }
 
+// Specific fixes for monthly trend chart
+.monthly-trend-chart {
+  min-height: 450px !important;
+  
+  ::ng-deep {
+    .p-chart {
+      height: 100% !important;
+      
+      canvas {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        padding-bottom: 10px;
+      }
+    }
+  }
+}
+
 .chart-card {
   overflow: hidden;
   
@@ -202,6 +221,10 @@
   .chart-content {
     min-height: 250px;
   }
+  
+  .monthly-trend-chart {
+    min-height: 400px !important;
+  }
 }
 
 @media (max-width: 768px) {
@@ -212,6 +235,10 @@
 
   .chart-header, .card-header {
     padding: 1rem !important;
+  }
+  
+  .monthly-trend-chart {
+    min-height: 350px !important;
   }
 }
 
@@ -420,6 +447,12 @@
       height: 300px !important;
       padding: 5px;
     }
+    
+    // Specific height for monthly trend chart on mobile
+    &.monthly-trend-chart {
+      height: 350px !important;
+      min-height: 350px !important;
+    }
   }
 
   .chart-content {
@@ -461,6 +494,12 @@
     // Specific height for Top Categorias chart on tablet
     &:has(p-chart[type="bar"]) {
       height: 350px !important;
+    }
+    
+    // Specific height for monthly trend chart on tablet
+    &.monthly-trend-chart {
+      height: 400px !important;
+      min-height: 400px !important;
     }
   }
   
@@ -528,4 +567,113 @@
 
 .fade-in-up {
   animation: fadeInUp 0.6s ease-out;
+}
+
+// Installments Section Styling
+.installments-section {
+  .section-header {
+    background: linear-gradient(135deg, var(--surface-card) 0%, var(--surface-hover) 100%);
+  }
+
+  .installment-kpi {
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary-200);
+    }
+
+    i {
+      transition: transform 0.3s ease;
+    }
+
+    &:hover i {
+      transform: scale(1.1);
+    }
+  }
+
+  .progress-section, .savings-section {
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border-color: var(--primary-200);
+    }
+  }
+
+  .progress-bar-custom {
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+
+    ::ng-deep .p-progressbar-value {
+      background: linear-gradient(90deg, var(--green-400) 0%, var(--green-600) 100%);
+      transition: width 1s ease;
+    }
+  }
+
+  .payment-item {
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+
+    &:hover {
+      background: var(--surface-hover) !important;
+      border-color: var(--primary-200);
+      transform: translateX(4px);
+    }
+
+    .payment-number {
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-700) 100%);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .upcoming-payments {
+    max-height: 300px;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--surface-100);
+      border-radius: 2px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--surface-300);
+      border-radius: 2px;
+      
+      &:hover {
+        background: var(--surface-400);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .installments-section {
+    .installments-content {
+      padding: 1rem !important;
+    }
+
+    .installment-kpi {
+      margin-bottom: 0.75rem;
+    }
+
+    .section-header {
+      padding: 1rem !important;
+      
+      .flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    }
+  }
 }

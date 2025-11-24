@@ -1,0 +1,266 @@
+.installment-list-container {
+  padding: 2rem;
+  min-height: 100vh;
+  background: var(--surface-ground);
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: var(--surface-card);
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.title-section .page-title {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.title-section .page-title i {
+  color: var(--primary-color);
+}
+
+.title-section .page-subtitle {
+  margin: 0;
+  color: var(--text-color-secondary);
+  font-size: 1rem;
+}
+
+.content-container {
+  background: var(--surface-card);
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+  padding: 2rem;
+}
+
+.installment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.installment-card {
+  background: var(--surface-section);
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.installment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.card-header .title-section {
+  flex: 1;
+}
+
+.card-header .title-section .plan-name {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.card-header .actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.progress-section {
+  margin-bottom: 1.5rem;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.progress-text {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+}
+
+.progress-percentage {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.info-item .label {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.info-item .value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.next-due {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--surface-hover);
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+}
+
+.due-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.due-info i {
+  color: var(--text-color-secondary);
+}
+
+.due-info .due-label {
+  color: var(--text-color-secondary);
+}
+
+.due-info .due-date {
+  font-weight: 600;
+}
+
+.no-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.no-data-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.no-data-icon {
+  font-size: 4rem;
+  color: var(--text-color-secondary);
+  margin-bottom: 1rem;
+}
+
+.no-data-content h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 1.5rem;
+}
+
+.no-data-content p {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-color-secondary);
+  line-height: 1.6;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-content p {
+  margin: 1rem 0 0 0;
+  color: var(--text-color-secondary);
+}
+
+@media (max-width: 768px) {
+  .installment-list-container {
+    padding: 1rem;
+  }
+
+  .page-header {
+    padding: 1.5rem;
+  }
+
+  .content-container {
+    padding: 1.5rem;
+  }
+
+  .installment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .card-header .actions {
+    align-self: flex-end;
+  }
+
+  .info-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+::ng-deep .progress-danger .p-progressbar-value {
+  background: var(--red-500);
+}
+
+::ng-deep .progress-warning .p-progressbar-value {
+  background: var(--orange-500);
+}
+
+::ng-deep .progress-success .p-progressbar-value {
+  background: var(--green-500);
+}

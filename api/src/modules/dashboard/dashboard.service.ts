@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transaction } from '../transactions/entities/transaction.entity';
+import { InstallmentPlan } from '../installments/entities/installment-plan.entity';
+import { Installment } from '../installments/entities/installment.entity';
+import { InstallmentStatus } from '../../common/enums';
 import { ProjectionsService, MonthlyStatsWithProjections } from '../transactions/projections.service';
 
 export interface DashboardStats {
@@ -19,6 +22,14 @@ export interface DashboardStats {
   yearlyOverview: MonthlyStatsWithProjections[];
   recentTransactions: any[];
   topCategories: any[];
+  installments: {
+    totalPlans: number;
+    totalFinanced: number;
+    totalPaid: number;
+    totalRemaining: number;
+    totalSavings: number;
+    upcomingPayments: any[];
+  };
 }
 
 export interface MonthlyNavigationStats {
@@ -34,6 +45,10 @@ export class DashboardService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionsRepository: Repository<Transaction>,
+    @InjectRepository(InstallmentPlan)
+    private readonly installmentPlanRepository: Repository<InstallmentPlan>,
+    @InjectRepository(Installment)
+    private readonly installmentRepository: Repository<Installment>,
     private readonly projectionsService: ProjectionsService,
   ) {}
 
@@ -60,6 +75,9 @@ export class DashboardService {
     // Get top categories for current month
     const topCategories = await this.getTopCategories(userId, targetYear, currentDate.getMonth() + 1);
 
+    // Get installments summary
+    const installments = await this.getInstallmentsSummary(userId);
+
     const currentMonth = currentMonthStats[0] || {
       period: `${targetYear}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`,
       totalIncome: 0,
@@ -78,6 +96,7 @@ export class DashboardService {
       yearlyOverview,
       recentTransactions,
       topCategories,
+      installments,
     };
   }
 
@@ -210,5 +229,61 @@ export class DashboardService {
       projectedTotal: Number(item.projectedtotal) || 0,
       projectedCount: Number(item.projectedcount) || 0,
     }));
+  }
+
+  private async getInstallmentsSummary(userId: string) {
+    // Get all active installment plans
+    const plans = await this.installmentPlanRepository.find({
+      where: { userId, isActive: true },
+      relations: ['installments'],
+    });
+
+    if (!plans.length) {
+      return {
+        totalPlans: 0,
+        totalFinanced: 0,
+        totalPaid: 0,
+        totalRemaining: 0,
+        totalSavings: 0,
+        upcomingPayments: [],
+      };
+    }
+
+    // Calculate totals
+    const totalPlans = plans.length;
+    const totalFinanced = plans.reduce((sum, plan) => sum + Number(plan.financedAmount), 0);
+    const totalPaid = plans.reduce((sum, plan) => sum + Number(plan.totalPaid), 0);
+    const totalRemaining = plans.reduce((sum, plan) => sum + Number(plan.remainingAmount), 0);
+    const totalSavings = plans.reduce((sum, plan) => sum + Number(plan.totalDiscount), 0);
+
+    // Get upcoming payments (next 5 installments due)
+    const today = new Date();
+    const upcomingPayments = await this.installmentRepository
+      .createQueryBuilder('installment')
+      .leftJoinAndSelect('installment.installmentPlan', 'plan')
+      .where('plan.userId = :userId', { userId })
+      .andWhere('installment.status = :status', { status: InstallmentStatus.PENDING })
+      .andWhere('installment.dueDate >= :today', { today })
+      .orderBy('installment.dueDate', 'ASC')
+      .limit(5)
+      .getMany();
+
+    const formattedUpcomingPayments = upcomingPayments.map(installment => ({
+      id: installment.id,
+      installmentNumber: installment.installmentNumber,
+      amount: Number(installment.originalAmount),
+      dueDate: installment.dueDate,
+      planName: installment.installmentPlan.name,
+      planId: installment.installmentPlan.id,
+    }));
+
+    return {
+      totalPlans,
+      totalFinanced,
+      totalPaid,
+      totalRemaining,
+      totalSavings,
+      upcomingPayments: formattedUpcomingPayments,
+    };
   }
 }

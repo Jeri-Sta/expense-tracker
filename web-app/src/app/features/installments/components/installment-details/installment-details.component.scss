@@ -1,0 +1,430 @@
+.installment-details-container {
+  padding: 2rem;
+  min-height: 100vh;
+  background: var(--surface-ground);
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: var(--surface-card);
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.title-section {
+  flex: 1;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+}
+
+.breadcrumb i {
+  font-size: 0.75rem;
+}
+
+.page-title {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.page-subtitle {
+  margin: 0;
+  color: var(--text-color-secondary);
+  font-size: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.summary-section {
+  margin-bottom: 2rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.summary-card {
+  background: var(--surface-card);
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+  padding: 1.5rem;
+}
+
+.summary-card.progress-card,
+.summary-card.next-payment-card {
+  grid-column: span 2;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.progress-content .progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.progress-text {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+}
+
+.progress-percentage {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 1.1rem;
+}
+
+.financial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.financial-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.financial-item .label {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.financial-item .value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.financial-item .value.success {
+  color: var(--green-500);
+}
+
+.financial-item .value.danger {
+  color: var(--red-500);
+}
+
+.financial-item .value.highlight {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+.next-payment-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.payment-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 2rem;
+}
+
+.payment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.installment-number {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+  font-weight: 500;
+}
+
+.payment-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.payment-date {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.days-info {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.installments-section {
+  background: var(--surface-card);
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+  padding: 2rem;
+}
+
+.section-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.payment-form {
+  padding: 1rem 0;
+}
+
+.installment-info {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--surface-section);
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+}
+
+.installment-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+}
+
+.installment-info p {
+  margin: 0.25rem 0;
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 0.875rem;
+}
+
+.payment-summary {
+  background: var(--surface-section);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid var(--surface-border);
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.summary-item.highlight {
+  border-top: 1px solid var(--surface-border);
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-content p {
+  margin: 1rem 0 0 0;
+  color: var(--text-color-secondary);
+}
+
+/* Estilos para inputs do modal de pagamento */
+::ng-deep .p-dialog {
+  .field {
+    .p-inputtext,
+    .p-inputnumber-input,
+    .p-calendar input,
+    .p-textarea {
+      background: var(--surface-0) !important;
+      border: 1px solid var(--surface-300) !important;
+      color: var(--text-color) !important;
+      border-radius: 6px;
+      transition: all 0.2s;
+      
+      &:enabled:focus {
+        outline: 0;
+        outline-offset: 0;
+        box-shadow: 0 0 0 0.2rem var(--primary-200) !important;
+        border-color: var(--primary-500) !important;
+        background: var(--surface-0) !important;
+      }
+      
+      &:enabled:hover {
+        border-color: var(--primary-400) !important;
+        background: var(--surface-0) !important;
+      }
+      
+      &::placeholder {
+        color: var(--text-color-secondary) !important;
+      }
+    }
+    
+    .p-inputnumber {
+      .p-inputnumber-input {
+        background: var(--surface-0) !important;
+        border: 1px solid var(--surface-300) !important;
+        
+        &:enabled:focus {
+          box-shadow: 0 0 0 0.2rem var(--primary-200) !important;
+          border-color: var(--primary-500) !important;
+        }
+      }
+      
+      .p-inputnumber-button {
+        background: var(--surface-100) !important;
+        border: 1px solid var(--surface-300) !important;
+        color: var(--text-color) !important;
+        
+        &:enabled:hover {
+          background: var(--surface-200) !important;
+          border-color: var(--primary-400) !important;
+        }
+      }
+    }
+    
+    .p-calendar {
+      .p-inputtext {
+        background: var(--surface-0) !important;
+      }
+      
+      .p-datepicker-trigger {
+        background: transparent !important;
+        color: var(--text-color-secondary) !important;
+      }
+    }
+  }
+  
+  .field label {
+    font-weight: 600 !important;
+    color: var(--text-color) !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+::ng-deep .progress-danger .p-progressbar-value {
+  background: var(--red-500);
+}
+
+::ng-deep .progress-warning .p-progressbar-value {
+  background: var(--orange-500);
+}
+
+::ng-deep .progress-success .p-progressbar-value {
+  background: var(--green-500);
+}
+
+@media (max-width: 1200px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card.progress-card,
+  .summary-card.next-payment-card {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .installment-details-container {
+    padding: 1rem;
+  }
+
+  .page-header {
+    padding: 1.5rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .installments-section {
+    padding: 1.5rem;
+  }
+
+  .payment-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .financial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,315 @@
+<div class="installment-details-container" *ngIf="installmentPlan && !loading">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <div class="breadcrumb">
+          <p-button
+            icon="pi pi-arrow-left"
+            [text]="true"
+            (onClick)="onBack()"
+            pTooltip="Voltar"
+          ></p-button>
+          <span>Financiamentos</span>
+          <i class="pi pi-angle-right"></i>
+          <span>{{ installmentPlan.name }}</span>
+        </div>
+        <h1 class="page-title">{{ installmentPlan.name }}</h1>
+        <p class="page-subtitle" *ngIf="installmentPlan.description">
+          {{ installmentPlan.description }}
+        </p>
+      </div>
+      <div class="header-actions">
+        <p-button
+          label="Editar"
+          icon="pi pi-pencil"
+          severity="secondary"
+          (onClick)="onEdit()"
+        ></p-button>
+        <p-button
+          label="Excluir"
+          icon="pi pi-trash"
+          severity="danger"
+          [text]="true"
+          (onClick)="onDelete()"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-section">
+    <div class="summary-grid">
+      <!-- Progress Card -->
+      <div class="summary-card progress-card">
+        <div class="card-header">
+          <h3>Progresso do Financiamento</h3>
+          <p-tag 
+            [value]="installmentPlan.isActive ? 'Ativo' : 'Inativo'" 
+            [severity]="installmentPlan.isActive ? 'success' : 'secondary'">
+          </p-tag>
+        </div>
+        <div class="progress-content">
+          <div class="progress-info">
+            <span class="progress-text">
+              {{ installmentPlan.paidInstallments }} de {{ installmentPlan.totalInstallments }} parcelas pagas
+            </span>
+            <span class="progress-percentage">
+              {{ installmentPlan.completionPercentage.toFixed(1) }}%
+            </span>
+          </div>
+          <p-progressBar 
+            [value]="installmentPlan.completionPercentage" 
+            [styleClass]="getProgressBarClass(installmentPlan.completionPercentage)">
+          </p-progressBar>
+        </div>
+      </div>
+
+      <!-- Financial Summary -->
+      <div class="summary-card">
+        <div class="card-header">
+          <h3>Resumo Financeiro</h3>
+        </div>
+        <div class="financial-grid">
+          <div class="financial-item">
+            <span class="label">Valor Financiado</span>
+            <span class="value">{{ formatCurrency(installmentPlan.financedAmount) }}</span>
+          </div>
+          <div class="financial-item">
+            <span class="label">Total do Financiamento</span>
+            <span class="value">{{ formatCurrency(installmentPlan.totalAmount) }}</span>
+          </div>
+          <div class="financial-item">
+            <span class="label">Total de Juros</span>
+            <span class="value danger">{{ formatCurrency(installmentPlan.totalInterest) }}</span>
+          </div>
+          <div class="financial-item">
+            <span class="label">Valor Pago</span>
+            <span class="value success">{{ formatCurrency(installmentPlan.totalPaid) }}</span>
+          </div>
+          <div class="financial-item">
+            <span class="label">Valor Restante</span>
+            <span class="value highlight">{{ formatCurrency(installmentPlan.remainingAmount) }}</span>
+          </div>
+          <div class="financial-item" *ngIf="calculateSavings() > 0">
+            <span class="label">Economia Total</span>
+            <span class="value success">{{ formatCurrency(calculateSavings()) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Payment -->
+      <div class="summary-card next-payment-card" *ngIf="getNextInstallment() as nextInstallment">
+        <div class="card-header">
+          <h3>Próximo Vencimento</h3>
+        </div>
+        <div class="next-payment-content">
+          <div class="payment-info">
+            <div class="payment-details">
+              <span class="installment-number">Parcela {{ nextInstallment.installmentNumber }}</span>
+              <span class="payment-amount">{{ formatCurrency(nextInstallment.originalAmount) }}</span>
+              <span class="payment-date" [class]="getDueDateClass(nextInstallment)">
+                {{ formatDate(nextInstallment.dueDate) }}
+                <span class="days-info">
+                  ({{ getDaysUntilDue(nextInstallment.dueDate) > 0 ? 
+                    getDaysUntilDue(nextInstallment.dueDate) + ' dias' : 
+                    Math.abs(getDaysUntilDue(nextInstallment.dueDate)) + ' dias em atraso' }})
+                </span>
+              </span>
+            </div>
+            <p-button
+              label="Pagar Parcela"
+              icon="pi pi-credit-card"
+              (onClick)="onPayInstallment(nextInstallment)"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Installments Table -->
+  <div class="installments-section">
+    <div class="section-header">
+      <h3>Parcelas do Financiamento</h3>
+    </div>
+
+    <div class="table-container">
+      <p-table
+        [value]="installmentPlan.installments"
+        [paginator]="true"
+        [rows]="12"
+        [responsive]="true"
+        styleClass="p-datatable-striped"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Parcela</th>
+            <th>Vencimento</th>
+            <th>Valor Original</th>
+            <th>Valor Pago</th>
+            <th>Desconto</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-installment>
+          <tr>
+            <td>{{ installment.installmentNumber }}</td>
+            <td>
+              <span [class]="getDueDateClass(installment)">
+                {{ formatDate(installment.dueDate) }}
+              </span>
+              <small class="block" *ngIf="installment.status !== InstallmentStatus.PAID">
+                {{ getDaysUntilDue(installment.dueDate) > 0 ? 
+                  getDaysUntilDue(installment.dueDate) + ' dias' : 
+                  Math.abs(getDaysUntilDue(installment.dueDate)) + ' dias em atraso' }}
+              </small>
+            </td>
+            <td>{{ formatCurrency(installment.originalAmount) }}</td>
+            <td>
+              <span *ngIf="installment.paidAmount; else notPaid">
+                {{ formatCurrency(installment.paidAmount) }}
+                <small class="block" *ngIf="installment.paidDate">
+                  em {{ formatDate(installment.paidDate) }}
+                </small>
+              </span>
+              <ng-template #notPaid>-</ng-template>
+            </td>
+            <td>
+              <span *ngIf="installment.discountAmount > 0; else noDiscount" class="text-green-500">
+                {{ formatCurrency(installment.discountAmount) }}
+              </span>
+              <ng-template #noDiscount>-</ng-template>
+            </td>
+            <td>
+              <p-tag
+                [value]="getStatusLabel(installment.status)"
+                [severity]="getStatusSeverity(installment.status)"
+              ></p-tag>
+            </td>
+            <td>
+              <p-button
+                icon="pi pi-credit-card"
+                size="small"
+                [text]="true"
+                pTooltip="Pagar parcela"
+                (onClick)="onPayInstallment(installment)"
+                [disabled]="installment.status === InstallmentStatus.PAID"
+              ></p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="loading">
+  <div class="loading-content">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Carregando financiamento...</p>
+  </div>
+</div>
+
+<!-- Payment Dialog -->
+<p-dialog
+  header="Pagar Parcela"
+  [(visible)]="paymentDialogVisible"
+  [modal]="true"
+  [style]="{ width: '500px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="payment-form" *ngIf="selectedInstallment">
+    <div class="installment-info">
+      <h4>Parcela {{ selectedInstallment.installmentNumber }}</h4>
+      <p>Vencimento: {{ formatDate(selectedInstallment.dueDate) }}</p>
+      <p>Valor original: {{ formatCurrency(selectedInstallment.originalAmount) }}</p>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="paidAmount">Valor Pago *</label>
+        <p-inputNumber
+          id="paidAmount"
+          [(ngModel)]="paymentForm.paidAmount"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [min]="0.01"
+        ></p-inputNumber>
+      </div>
+
+      <div class="field">
+        <label for="paidDate">Data do Pagamento *</label>
+        <p-calendar
+          id="paidDate"
+          [(ngModel)]="paymentForm.paidDate"
+          dateFormat="dd/mm/yy"
+        ></p-calendar>
+      </div>
+
+      <div class="field">
+        <label for="discountAmount">Desconto Aplicado</label>
+        <p-inputNumber
+          id="discountAmount"
+          [(ngModel)]="paymentForm.discountAmount"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [min]="0"
+        ></p-inputNumber>
+      </div>
+
+      <div class="field">
+        <label for="notes">Observações</label>
+        <textarea
+          id="notes"
+          pInputTextarea
+          [(ngModel)]="paymentForm.notes"
+          placeholder="Observações sobre o pagamento"
+          rows="3"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="payment-summary" *ngIf="paymentForm.paidAmount > 0">
+      <div class="summary-item">
+        <span>Valor original:</span>
+        <span>{{ formatCurrency(selectedInstallment.originalAmount) }}</span>
+      </div>
+      <div class="summary-item" *ngIf="paymentForm.discountAmount && paymentForm.discountAmount > 0">
+        <span>Desconto:</span>
+        <span class="text-green-500">-{{ formatCurrency(paymentForm.discountAmount || 0) }}</span>
+      </div>
+      <div class="summary-item highlight">
+        <span>Valor final:</span>
+        <span>{{ formatCurrency(paymentForm.paidAmount) }}</span>
+      </div>
+      <div class="summary-item" *ngIf="paymentForm.paidAmount < selectedInstallment.originalAmount">
+        <span>Economia:</span>
+        <span class="text-green-500">{{ formatCurrency(selectedInstallment.originalAmount - paymentForm.paidAmount) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-actions">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        [text]="true"
+        (onClick)="onCancelPayment()"
+      ></p-button>
+      <p-button
+        label="Confirmar Pagamento"
+        icon="pi pi-check"
+        (onClick)="onConfirmPayment()"
+        [disabled]="!paymentForm.paidAmount || paymentForm.paidAmount <= 0"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
