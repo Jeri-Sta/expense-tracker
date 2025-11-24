@@ -141,3 +141,13 @@ html, body {
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
+
+// Fix for p-calendar overlay z-index issues in dialogs
+.p-datepicker {
+  z-index: 9999 !important;
+}
+
+// Ensure calendar overlays appear above dialogs globally
+.p-datepicker-panel {
+  z-index: 9999 !important;
+}

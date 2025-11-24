@@ -140,7 +140,7 @@ export class TransactionsComponent implements OnInit {
       type: ['expense' as TransactionType, Validators.required],
       categoryId: ['', Validators.required],
       transactionDate: [new Date(), Validators.required],
-      competencyMonth: [new Date(), Validators.required],
+      competencyPeriod: [new Date(), Validators.required],
       notes: ['', Validators.maxLength(500)],
       isProjected: [false],
       projectionSource: ['manual'],
@@ -152,7 +152,7 @@ export class TransactionsComponent implements OnInit {
       categoryId: [''],
       startDate: [''],
       endDate: [''],
-      competencyMonth: [''],
+      competencyPeriod: [''],
       search: [''],
       includeProjections: [true],
       onlyProjections: [false],
@@ -267,7 +267,7 @@ export class TransactionsComponent implements OnInit {
       categoryId: filterValues.categoryId || undefined,
       startDate: filterValues.startDate || undefined,
       endDate: filterValues.endDate || undefined,
-      competencyMonth: filterValues.competencyMonth || undefined,
+      competencyPeriod: filterValues.competencyPeriod || undefined,
       search: filterValues.search || undefined,
       includeProjections: filterValues.includeProjections,
       onlyProjections: filterValues.onlyProjections,
@@ -485,7 +485,7 @@ export class TransactionsComponent implements OnInit {
     this.transactionForm.reset({
       type: 'expense',
       transactionDate: new Date(),
-      competencyMonth: new Date(),
+      competencyPeriod: new Date(),
       amount: 0,
       isProjected: false,
       projectionSource: 'manual',
@@ -505,7 +505,7 @@ export class TransactionsComponent implements OnInit {
       type: transaction.type,
       categoryId: transaction.category.id,
       transactionDate: new Date(transaction.transactionDate),
-      competencyMonth: new Date(transaction.competencyPeriod),
+      competencyPeriod: new Date(transaction.competencyPeriod),
       notes: transaction.notes || '',
       isProjected: transaction.isProjected || false,
       projectionSource: transaction.projectionSource || 'manual',
@@ -527,7 +527,7 @@ export class TransactionsComponent implements OnInit {
     this.transactionForm.reset({
       type: 'expense',
       transactionDate: futureDate,
-      competencyMonth: futureDate,
+      competencyPeriod: futureDate,
       amount: 0,
       isProjected: true,
       projectionSource: 'manual',
@@ -588,14 +588,30 @@ export class TransactionsComponent implements OnInit {
     if (this.transactionForm.valid) {
       const formValue = this.transactionForm.value;
       
+      // Format competencyPeriod from Date to YYYY-MM string
+      // Use the competencyPeriod field directly (user's choice for which month)
+      const competencyDate = new Date(formValue.competencyPeriod);
+      const competencyPeriod = `${competencyDate.getFullYear()}-${String(competencyDate.getMonth() + 1).padStart(2, '0')}`;
+      
+      // Format transactionDate properly for API
+      const transactionDate = new Date(formValue.transactionDate);
+      const transactionDateStr = transactionDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      
+      console.log('Saving transaction:', {
+        transactionDate: transactionDateStr,
+        competencyPeriod: competencyPeriod,
+        formTransactionDate: formValue.transactionDate,
+        formCompetencyPeriod: formValue.competencyPeriod
+      });
+      
       if (this.editMode) {
         const updateDto: UpdateTransactionDto = {
           description: formValue.description,
           amount: formValue.amount,
           type: formValue.type,
           categoryId: formValue.categoryId,
-          transactionDate: formValue.transactionDate,
-          competencyMonth: formValue.competencyMonth,
+          transactionDate: transactionDateStr,
+          competencyPeriod: competencyPeriod,
           notes: formValue.notes
         };
         
@@ -624,8 +640,8 @@ export class TransactionsComponent implements OnInit {
           amount: formValue.amount,
           type: formValue.type,
           categoryId: formValue.categoryId,
-          transactionDate: formValue.transactionDate,
-          competencyMonth: formValue.competencyMonth,
+          transactionDate: transactionDateStr,
+          competencyPeriod: competencyPeriod,
           notes: formValue.notes
         };
         
@@ -724,6 +740,14 @@ export class TransactionsComponent implements OnInit {
   onTypeChange(): void {
     // Reset category when type changes
     this.transactionForm.patchValue({ categoryId: '' });
+  }
+
+  onTransactionDateChange(): void {
+    // Auto-update competency period when transaction date changes
+    const transactionDate = this.transactionForm.get('transactionDate')?.value;
+    if (transactionDate) {
+      this.transactionForm.patchValue({ competencyPeriod: new Date(transactionDate) });
+    }
   }
 
   formatCurrency(value: number): string {

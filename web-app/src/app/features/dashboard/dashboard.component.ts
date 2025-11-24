@@ -132,7 +132,9 @@ export class DashboardComponent implements OnInit {
   initializeYears(): void {
     const currentYear = new Date().getFullYear();
     this.availableYears = [];
-    for (let year = currentYear; year >= currentYear - 5; year--) {
+    // Allow navigation to future years (current year + 2 years ahead)
+    // and past years (current year - 5 years back)
+    for (let year = currentYear + 2; year >= currentYear - 5; year--) {
       this.availableYears.push(year);
     }
   }
@@ -504,7 +506,7 @@ export class DashboardComponent implements OnInit {
           callbacks: {
             label: (context: any) => {
               const category = this.topCategories[context.dataIndex];
-              return `${category.categoryName}: ${this.formatCurrency(category.amount)} (${category.percentage.toFixed(1)}%)`;
+              return `${category.categoryName}: ${this.formatCurrency(category.amount)} (${(category.percentage || 0).toFixed(1)}%)`;
             }
           }
         }
@@ -827,7 +829,10 @@ export class DashboardComponent implements OnInit {
   }
 
   updateCategoryData(categoriesData: any[]): void {
-    this.topCategories = categoriesData || [];
+    this.topCategories = (categoriesData || []).map(category => ({
+      ...category,
+      percentage: category.percentage || 0
+    }));
     this.updateCategoryCharts();
   }
 

@@ -215,6 +215,8 @@ export class ProjectionsService {
     month: number,
   ): Promise<MonthlyStatsWithProjections> {
     const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
+    
+    this.logger.debug(`Calculating stats for period: ${competencyPeriod}, user: ${userId}`);
 
     // Real transactions
     const realTransactions = await this.transactionsRepository.find({
@@ -224,6 +226,18 @@ export class ProjectionsService {
         isProjected: false,
       },
     });
+    
+    this.logger.debug(`Found ${realTransactions.length} real transactions for ${competencyPeriod}`);
+    if (realTransactions.length > 0) {
+      this.logger.debug('Real transactions:', realTransactions.map(t => ({
+        id: t.id,
+        description: t.description,
+        amount: t.amount,
+        type: t.type,
+        transactionDate: t.transactionDate,
+        competencyPeriod: t.competencyPeriod
+      })));
+    }
 
     // Projected transactions
     const projectedTransactions = await this.transactionsRepository.find({
@@ -233,6 +247,8 @@ export class ProjectionsService {
         isProjected: true,
       },
     });
+    
+    this.logger.debug(`Found ${projectedTransactions.length} projected transactions for ${competencyPeriod}`);
 
     // Get installments for the month - use due date for unpaid, paid date for paid
     const startOfMonth = new Date(year, month - 1, 1);

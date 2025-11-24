@@ -118,6 +118,7 @@
                 dateFormat="dd/mm/yy"
                 placeholder="Selecione a data"
                 [class.ng-invalid]="form.get('startDate')?.invalid && form.get('startDate')?.touched"
+                appendTo="body"
               ></p-calendar>
               <small class="error-message" *ngIf="getFieldError('startDate')">
                 {{ getFieldError('startDate') }}

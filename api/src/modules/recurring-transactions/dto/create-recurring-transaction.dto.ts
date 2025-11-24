@@ -5,7 +5,7 @@ import {
   IsEnum,
   IsOptional,
   IsBoolean,
-  IsDateString,
+  IsISO8601,
   Min,
   Max,
   Length,
@@ -38,9 +38,9 @@ export class CreateRecurringTransactionDto {
   @IsEnum(RecurrenceFrequency)
   readonly frequency: RecurrenceFrequency;
 
-  @ApiProperty({ description: 'Next execution date', type: Date })
-  @IsDateString()
-  readonly nextExecution: Date;
+  @ApiProperty({ description: 'Next execution date', type: String, example: '2025-12-02T00:38:41.995Z' })
+  @IsISO8601()
+  readonly nextExecution: string;
 
   @ApiPropertyOptional({ description: 'Recurrence interval (e.g., every 2 weeks)', example: 1, default: 1 })
   @IsOptional()
@@ -50,10 +50,10 @@ export class CreateRecurringTransactionDto {
   @Type(() => Number)
   readonly interval?: number = 1;
 
-  @ApiPropertyOptional({ description: 'End date for recurrence', type: Date })
+  @ApiPropertyOptional({ description: 'End date for recurrence', type: String, example: '2025-12-31T23:59:59.000Z' })
   @IsOptional()
-  @IsDateString()
-  readonly endDate?: Date;
+  @IsISO8601()
+  readonly endDate?: string;
 
   @ApiPropertyOptional({ description: 'Maximum number of executions', example: 12 })
   @IsOptional()

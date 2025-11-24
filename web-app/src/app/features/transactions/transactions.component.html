@@ -427,12 +427,39 @@
           placeholder="dd/mm/aaaa"
           dateFormat="dd/mm/yy"
           styleClass="w-full"
+          appendTo="body"
+          (onSelect)="onTransactionDateChange()"
         ></p-calendar>
         <small 
           class="text-red-500" 
           *ngIf="submitted && transactionForm.get('transactionDate')?.invalid"
         >
           Data é obrigatória
+        </small>
+      </div>
+
+      <!-- Competency Period -->
+      <div class="field mb-4">
+        <label for="competencyPeriod" class="block text-sm font-medium mb-2">
+          Período de Competência <span class="required-asterisk">*</span>
+        </label>
+        <p-calendar
+          id="competencyPeriod"
+          formControlName="competencyPeriod"
+          placeholder="mm/aaaa"
+          dateFormat="mm/yy"
+          view="month"
+          styleClass="w-full"
+          appendTo="body"
+        ></p-calendar>
+        <small class="text-color-secondary text-xs mt-1 block">
+          Define em qual mês esta transação aparecerá nas estatísticas
+        </small>
+        <small 
+          class="text-red-500" 
+          *ngIf="submitted && transactionForm.get('competencyPeriod')?.invalid"
+        >
+          Período de competência é obrigatório
         </small>
       </div>
 

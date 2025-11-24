@@ -481,10 +481,10 @@
                 </div>
                 <div class="mb-2">
                   <div class="font-bold text-lg">{{ formatCurrency(category.amount) }}</div>
-                  <div class="text-color-secondary text-sm">{{ category.percentage.toFixed(1) }}% do total</div>
+                  <div class="text-color-secondary text-sm">{{ (category.percentage || 0).toFixed(1) }}% do total</div>
                 </div>
                 <p-progressBar 
-                  [value]="category.percentage" 
+                  [value]="category.percentage || 0" 
                   [showValue]="false"
                   [style]="{'height': '6px'}"
                 ></p-progressBar>

@@ -11,7 +11,6 @@ export interface TransactionFilters {
   startDate?: string;
   endDate?: string;
   competencyPeriod?: string;
-  competencyMonth?: string;
   search?: string;
   page?: number;
   limit?: number;
@@ -75,8 +74,8 @@ export interface CreateTransactionDto {
   amount: number;
   type: TransactionType;
   categoryId: string;
-  transactionDate: Date;
-  competencyMonth: Date;
+  transactionDate: string;
+  competencyPeriod: string;
   notes?: string;
   metadata?: Record<string, any>;
 }
@@ -86,8 +85,8 @@ export interface UpdateTransactionDto {
   amount?: number;
   type?: TransactionType;
   categoryId?: string;
-  transactionDate?: Date;
-  competencyMonth?: Date;
+  transactionDate?: string;
+  competencyPeriod?: string;
   notes?: string;
   metadata?: Record<string, any>;
 }

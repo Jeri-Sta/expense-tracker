@@ -116,6 +116,30 @@
   }
 }
 
+// Fix p-calendar overflow in dialog
+::ng-deep .p-dialog {
+  .p-calendar {
+    .p-inputtext {
+      background: var(--surface-0) !important;
+    }
+    
+    .p-datepicker-trigger {
+      background: transparent !important;
+      color: var(--text-color-secondary) !important;
+    }
+  }
+  
+  // Ensure calendar overlay appears above dialog
+  .p-datepicker {
+    z-index: 9999 !important;
+  }
+}
+
+// Global fix for calendar overlay in any dialog
+::ng-deep .p-datepicker {
+  z-index: 9999 !important;
+}
+
 // Category dropdown custom styling
 .p-dropdown-item {
   .flex.align-items-center {

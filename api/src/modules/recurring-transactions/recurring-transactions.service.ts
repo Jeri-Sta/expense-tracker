@@ -27,6 +27,10 @@ export class RecurringTransactionsService {
 
     const recurringTransaction = this.recurringTransactionsRepository.create({
       ...createRecurringTransactionDto,
+      nextExecution: new Date(createRecurringTransactionDto.nextExecution),
+      endDate: createRecurringTransactionDto.endDate 
+        ? new Date(createRecurringTransactionDto.endDate) 
+        : undefined,
       userId,
       executionCount: 0,
       isCompleted: false,
@@ -84,7 +88,16 @@ export class RecurringTransactionsService {
       await this.categoriesService.findOne(updateRecurringTransactionDto.categoryId, userId);
     }
 
-    Object.assign(recurringTransaction, updateRecurringTransactionDto);
+    // Convert string dates to Date objects if provided
+    const updateData: any = { ...updateRecurringTransactionDto };
+    if (updateData.nextExecution) {
+      updateData.nextExecution = new Date(updateData.nextExecution);
+    }
+    if (updateData.endDate) {
+      updateData.endDate = new Date(updateData.endDate);
+    }
+
+    Object.assign(recurringTransaction, updateData);
     await this.recurringTransactionsRepository.save(recurringTransaction);
 
     return this.findOne(id, userId);

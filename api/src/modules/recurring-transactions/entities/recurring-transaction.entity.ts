@@ -27,10 +27,10 @@ export class RecurringTransaction extends BaseEntity {
   @Column({ type: 'int', default: 1 })
   interval: number; // Every X days/weeks/months/years
 
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp' })
   nextExecution: Date;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   endDate: Date;
 
   @Column({ type: 'int', nullable: true })
@@ -39,7 +39,7 @@ export class RecurringTransaction extends BaseEntity {
   @Column({ type: 'int', default: 0 })
   executionCount: number;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   lastExecutedAt: Date;
 
   @Column({ default: false })
