@@ -148,6 +148,11 @@
   color: var(--text-color);
 }
 
+.info-item .value.highlight {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
 .next-due {
   margin-top: 1rem;
   padding: 0.75rem;

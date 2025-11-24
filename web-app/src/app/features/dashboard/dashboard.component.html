@@ -214,14 +214,22 @@
               </div>
             </div>
             
-            <div class="col-12 md:col-6" *ngIf="installmentStats.totalSavings > 0">
+            <div class="col-12 md:col-6">
               <div class="savings-section surface-section border-round p-3 h-full">
-                <h4 class="text-base font-bold text-color mb-2">Economia Total</h4>
+                <h4 class="text-base font-bold text-color mb-2">Desconto Obtido</h4>
                 <div class="flex align-items-center justify-content-center">
-                  <i class="pi pi-star-fill text-yellow-500 text-xl mr-2"></i>
-                  <div class="text-green-600 font-bold text-xl">{{ formatCurrency(installmentStats.totalSavings) }}</div>
+                  <i class="pi pi-star-fill text-yellow-500 text-xl mr-2" *ngIf="installmentStats.totalSavings > 0"></i>
+                  <i class="pi pi-star text-color-secondary text-xl mr-2" *ngIf="installmentStats.totalSavings === 0"></i>
+                  <div 
+                    class="font-bold text-xl"
+                    [class]="installmentStats.totalSavings > 0 ? 'text-green-600' : 'text-color-secondary'"
+                  >
+                    {{ formatCurrency(installmentStats.totalSavings) }}
+                  </div>
                 </div>
-                <div class="text-color-secondary text-sm text-center mt-1">Economizado com pagamentos antecipados</div>
+                <div class="text-color-secondary text-sm text-center mt-1">
+                  {{ installmentStats.totalSavings > 0 ? 'Economizado com pagamentos antecipados' : 'Nenhum desconto aplicado ainda' }}
+                </div>
               </div>
             </div>
           </div>

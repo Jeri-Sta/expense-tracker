@@ -95,6 +95,18 @@
                 <span class="value text-green-500">{{ formatCurrency(plan.totalPaid) }}</span>
               </div>
             </div>
+            <div class="info-row">
+              <div class="info-item">
+                <span class="label">Desconto:</span>
+                <span class="value" [class]="plan.totalDiscount > 0 ? 'text-green-500' : 'text-color-secondary'">
+                  {{ formatCurrency(plan.totalDiscount) }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="label">Restante:</span>
+                <span class="value highlight">{{ formatCurrency(plan.remainingAmount) }}</span>
+              </div>
+            </div>
           </div>
 
           <!-- Next Due Date -->

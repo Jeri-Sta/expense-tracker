@@ -148,6 +148,9 @@ export class InstallmentPlanSummaryDto {
   totalPaid: number;
 
   @ApiProperty()
+  totalDiscount: number;
+
+  @ApiProperty()
   remainingAmount: number;
 
   @ApiProperty()

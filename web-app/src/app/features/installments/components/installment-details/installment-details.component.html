@@ -91,9 +91,17 @@
             <span class="label">Valor Restante</span>
             <span class="value highlight">{{ formatCurrency(installmentPlan.remainingAmount) }}</span>
           </div>
-          <div class="financial-item" *ngIf="calculateSavings() > 0">
-            <span class="label">Economia Total</span>
-            <span class="value success">{{ formatCurrency(calculateSavings()) }}</span>
+          <div class="financial-item">
+            <span class="label">Desconto Obtido</span>
+            <span class="value success" [class.muted]="installmentPlan.totalDiscount === 0">
+              {{ formatCurrency(installmentPlan.totalDiscount) }}
+            </span>
+            <small class="description" *ngIf="installmentPlan.totalDiscount > 0">
+              Economia com pagamentos antecipados
+            </small>
+            <small class="description muted-text" *ngIf="installmentPlan.totalDiscount === 0">
+              Nenhum desconto aplicado ainda
+            </small>
           </div>
         </div>
       </div>
@@ -263,6 +271,10 @@
           locale="pt-BR"
           [min]="0"
         ></p-inputNumber>
+        <small class="field-hint">
+          <i class="pi pi-info-circle mr-1"></i>
+          Valor do desconto por pagamento antecipado. Este valor será somado ao desconto total do financiamento.
+        </small>
       </div>
 
       <div class="field">

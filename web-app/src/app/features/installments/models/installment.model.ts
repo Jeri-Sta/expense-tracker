@@ -59,6 +59,7 @@ export interface InstallmentPlanSummary {
   paidInstallments: number;
   remainingInstallments: number;
   totalPaid: number;
+  totalDiscount: number;
   remainingAmount: number;
   completionPercentage: number;
   nextDueDate?: Date;

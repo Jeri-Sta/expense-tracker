@@ -106,6 +106,7 @@ export class InstallmentsService {
         paidInstallments: plan.paidInstallments,
         remainingInstallments: plan.remainingInstallments,
         totalPaid: plan.totalPaid,
+        totalDiscount: plan.totalDiscount,
         remainingAmount: plan.remainingAmount,
         completionPercentage: plan.completionPercentage,
         nextDueDate: nextInstallment?.dueDate,
