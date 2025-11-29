@@ -4,6 +4,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { RecurringTransactionService, RecurringTransaction, CreateRecurringTransactionDto, UpdateRecurringTransactionDto } from '../../core/services/recurring-transaction.service';
 import { CategoryService, Category } from '../../core/services/category.service';
 import { TransactionType } from '../../core/types/common.types';
+import { normalizeIcon } from '../../shared/utils/icon.utils';
 
 @Component({
   selector: 'app-recurring-transactions',
@@ -11,6 +12,7 @@ import { TransactionType } from '../../core/types/common.types';
   styleUrls: ['./recurring-transactions.component.scss']
 })
 export class RecurringTransactionsComponent implements OnInit {
+  normalizeIcon = normalizeIcon;
   recurringTransactions: RecurringTransaction[] = [];
   categories: Category[] = [];
   loading = false;

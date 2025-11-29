@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { InstallmentPlan } from '../installments/entities/installment-plan.entity';
 import { Installment } from '../installments/entities/installment.entity';
-import { InstallmentStatus } from '../../common/enums';
+import { InstallmentStatus, TransactionType } from '../../common/enums';
 import { ProjectionsService, MonthlyStatsWithProjections } from '../transactions/projections.service';
 
 export interface DashboardStats {
@@ -213,6 +213,7 @@ export class DashboardService {
       .leftJoin('transaction.category', 'category')
       .where('transaction.userId = :userId', { userId })
       .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+      .andWhere('transaction.type = :type', { type: TransactionType.EXPENSE })
       .groupBy('category.id, category.name, category.color, category.icon, transaction.type')
       .orderBy('total', 'DESC')
       .limit(5)

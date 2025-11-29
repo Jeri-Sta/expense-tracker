@@ -317,13 +317,16 @@
           <p class="text-color-secondary text-sm m-0">Top categorias do mês atual</p>
         </div>
         <div class="chart-content p-4">
-          <div class="chart-wrapper" style="position: relative; height: 350px; width: 100%;">
+          <div class="chart-wrapper" style="position: relative; height: 350px; width: 100%;" *ngIf="categoryPieData?.datasets?.[0]?.data?.length > 0">
             <p-chart 
               type="pie" 
               [data]="categoryPieData" 
               [options]="categoryPieOptions"
               [style]="{'height': '100%', 'width': '100%'}"
             ></p-chart>
+          </div>
+          <div class="text-center py-4 text-color-secondary w-full" *ngIf="!categoryPieData?.datasets?.[0]?.data?.length">
+            Nenhum gasto registrado neste período
           </div>
         </div>
       </div>
@@ -337,13 +340,16 @@
           <p class="text-color-secondary text-sm m-0">Maiores gastos por categoria</p>
         </div>
         <div class="chart-content p-4">
-          <div class="chart-wrapper" style="position: relative; height: 400px; width: 100%;">
+          <div class="chart-wrapper" style="position: relative; height: 400px; width: 100%;" *ngIf="expenseCategoryData?.datasets?.[0]?.data?.length > 0">
             <p-chart 
               type="bar" 
               [data]="expenseCategoryData" 
               [options]="expenseCategoryOptions"
               [style]="{'height': '100%', 'width': '100%'}"
             ></p-chart>
+          </div>
+          <div class="text-center py-4 text-color-secondary w-full" *ngIf="!expenseCategoryData?.datasets?.[0]?.data?.length">
+            Nenhum gasto registrado neste período
           </div>
         </div>
       </div>
@@ -353,7 +359,7 @@
   <!-- Data Tables Row -->
   <div class="grid">
     <!-- Recent Transactions -->
-    <div class="col-12 lg:col-7">
+    <div class="col-12 lg:col-6">
       <div class="data-card surface-card shadow-2 border-round-lg">
         <div class="card-header p-4 border-bottom-1 surface-border">
           <div class="flex justify-content-between align-items-center">
@@ -373,25 +379,36 @@
         <div class="card-content p-4">
           <div class="transaction-list" *ngIf="recentTransactions.length > 0">
             <div 
-              class="transaction-item flex justify-content-between align-items-center py-2 px-3 border-round hover:surface-hover cursor-pointer"
+              class="transaction-item flex justify-content-between align-items-center py-3 px-3 border-round hover:surface-hover cursor-pointer border-bottom-1 surface-border"
               *ngFor="let transaction of recentTransactions"
             >
               <div class="flex align-items-center gap-3">
-                <i 
-                  [class]="transaction.category.icon" 
-                  [style.color]="transaction.category.color"
-                  class="text-lg"
-                ></i>
+                <div 
+                  class="flex align-items-center justify-content-center border-circle w-3rem h-3rem"
+                  [style.background-color]="transaction.category.color + '20'"
+                >
+                  <i 
+                    [class]="normalizeIcon(transaction.category.icon)" 
+                    [style.color]="transaction.category.color"
+                    class="text-xl"
+                  ></i>
+                </div>
                 <div>
-                  <div class="font-semibold text-color">{{ transaction.description }}</div>
-                  <div class="text-color-secondary text-sm">
+                  <div class="font-bold text-color text-lg">{{ transaction.description }}</div>
+                  <div class="text-color-secondary text-sm mt-1">
                     {{ transaction.category.name }} • {{ formatDate(transaction.transactionDate) }}
+                  </div>
+                  <div *ngIf="transaction.notes" class="text-color-secondary text-xs mt-1 white-space-nowrap overflow-hidden text-overflow-ellipsis" style="max-width: 200px;">
+                    <i class="pi pi-align-left mr-1" style="font-size: 0.7rem"></i>{{ transaction.notes }}
                   </div>
                 </div>
               </div>
               <div class="text-right">
-                <div [class]="'font-bold ' + (transaction.type === 'income' ? 'text-green-600' : 'text-red-600')">
+                <div [class]="'text-xl font-bold ' + (transaction.type === 'income' ? 'text-green-600' : 'text-red-600')">
                   {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+                </div>
+                <div *ngIf="transaction.isProjected" class="text-xs text-blue-500 mt-1">
+                  <i class="pi pi-clock mr-1"></i>Projetada
                 </div>
               </div>
             </div>
@@ -404,7 +421,7 @@
     </div>
 
     <!-- Upcoming Recurring -->
-    <div class="col-12 lg:col-5">
+    <div class="col-12 lg:col-6">
       <div class="data-card surface-card shadow-2 border-round-lg">
         <div class="card-header p-4 border-bottom-1 surface-border">
           <div class="flex justify-content-between align-items-center">
@@ -424,15 +441,20 @@
         <div class="card-content p-4">
           <div class="recurring-list" *ngIf="upcomingRecurring.length > 0">
             <div 
-              class="recurring-item flex justify-content-between align-items-center py-2 px-3 border-round hover:surface-hover cursor-pointer"
+              class="recurring-item flex justify-content-between align-items-center py-3 px-3 border-round hover:surface-hover cursor-pointer border-bottom-1 surface-border"
               *ngFor="let recurring of upcomingRecurring"
             >
               <div class="flex align-items-center gap-3">
-                <i 
-                  [class]="recurring.category.icon" 
-                  [style.color]="recurring.category.color"
-                  class="text-lg"
-                ></i>
+                <div 
+                  class="flex align-items-center justify-content-center border-circle w-3rem h-3rem"
+                  [style.background-color]="recurring.category.color + '20'"
+                >
+                  <i 
+                    [class]="normalizeIcon(recurring.category.icon)" 
+                    [style.color]="recurring.category.color"
+                    class="text-xl"
+                  ></i>
+                </div>
                 <div>
                   <div class="font-semibold text-color">{{ recurring.description }}</div>
                   <div class="text-color-secondary text-sm">
@@ -462,7 +484,7 @@
   </div>
 
   <!-- Category Stats -->
-  <div class="grid mt-4" *ngIf="topCategories.length > 0">
+  <div class="grid mt-4">
     <div class="col-12">
       <div class="surface-card shadow-2 border-round-lg">
         <div class="card-header p-4 border-bottom-1 surface-border">
@@ -470,21 +492,21 @@
           <p class="text-color-secondary text-sm m-0">Detalhamento dos gastos do mês atual</p>
         </div>
         <div class="card-content p-4">
-          <div class="grid">
+          <div class="grid" *ngIf="topCategories.length > 0">
             <div 
               class="col-12 sm:col-6 lg:col-4 xl:col-3"
               *ngFor="let category of topCategories.slice(0, 8)"
             >
-              <div class="category-stat-card p-3 border-round surface-hover">
+              <div class="category-stat-card p-3 border-round surface-hover h-full">
                 <div class="flex align-items-center gap-3 mb-2">
                   <i 
-                    [class]="category.categoryIcon" 
+                    [class]="normalizeIcon(category.categoryIcon)" 
                     [style.color]="category.categoryColor"
                     class="text-xl"
                   ></i>
-                  <div class="flex-grow-1">
-                    <div class="font-semibold text-color">{{ category.categoryName }}</div>
-                    <div class="text-color-secondary text-sm">{{ category.transactionCount }} transação(ões)</div>
+                  <div class="flex-grow-1 overflow-hidden">
+                    <div class="font-semibold text-color white-space-nowrap overflow-hidden text-overflow-ellipsis" [title]="category.categoryName">{{ category.categoryName }}</div>
+                    <div class="text-color-secondary text-sm white-space-nowrap">{{ category.transactionCount }} transação(ões)</div>
                   </div>
                 </div>
                 <div class="mb-2">
@@ -498,6 +520,9 @@
                 ></p-progressBar>
               </div>
             </div>
+          </div>
+          <div class="text-center py-4 text-color-secondary" *ngIf="topCategories.length === 0">
+            Nenhum gasto registrado neste período
           </div>
         </div>
       </div>

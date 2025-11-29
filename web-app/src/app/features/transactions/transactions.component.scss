@@ -29,27 +29,29 @@
 
 // Projection indicators
 .projection-indicator {
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    left: -8px;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    border-radius: 2px;
+  td:first-child {
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      border-radius: 0 2px 2px 0;
+    }
   }
   
-  &.projection-recurring::before {
+  &.projection-recurring td:first-child::before {
     background: linear-gradient(135deg, $color-primary, darken($color-primary, 15%));
   }
   
-  &.projection-manual::before {
+  &.projection-manual td:first-child::before {
     background: linear-gradient(135deg, $color-success, darken($color-success, 15%));
   }
   
-  &.projection-ai::before {
+  &.projection-ai td:first-child::before {
     background: linear-gradient(135deg, #8B5CF6, #7C3AED);
   }
 }

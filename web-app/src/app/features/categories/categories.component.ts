@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CategoryService, Category, CreateCategoryDto, UpdateCategoryDto } from '../../core/services/category.service';
 import { CategoryType } from '../../core/types/common.types';
+import { normalizeIcon } from '../../shared/utils/icon.utils';
 
 @Component({
   selector: 'app-categories',
@@ -360,23 +361,6 @@ export class CategoriesComponent implements OnInit {
 
   // Método para normalizar ícones antigos
   normalizeIcon(icon: string): string {
-    if (!icon) return 'pi pi-tag';
-    
-    // Se já está no formato correto, retorna como está
-    if (icon.startsWith('pi pi-')) {
-      return icon;
-    }
-    
-    // Se está no formato antigo (pi-nome), converte para o novo formato
-    if (icon.startsWith('pi-')) {
-      return `pi ${icon}`;
-    }
-    
-    // Se não tem prefixo, adiciona
-    if (!icon.startsWith('pi')) {
-      return `pi pi-${icon}`;
-    }
-    
-    return icon;
+    return normalizeIcon(icon);
   }
 }

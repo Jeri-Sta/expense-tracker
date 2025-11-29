@@ -5,6 +5,7 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { CategoryService, Category } from '../../core/services/category.service';
 import { RecurringTransactionService, RecurringTransaction } from '../../core/services/recurring-transaction.service';
 import { MessageService } from 'primeng/api';
+import { normalizeIcon } from '../../shared/utils/icon.utils';
 
 interface DashboardStats {
   totalIncome: number;
@@ -831,7 +832,8 @@ export class DashboardComponent implements OnInit {
   updateCategoryData(categoriesData: any[]): void {
     this.topCategories = (categoriesData || []).map(category => ({
       ...category,
-      percentage: category.percentage || 0
+      amount: Number(category.amount) || 0,
+      percentage: Number(category.percentage) || 0
     }));
     this.updateCategoryCharts();
   }
@@ -888,5 +890,9 @@ export class DashboardComponent implements OnInit {
 
   getProjectionClass(value: number): string {
     return value >= 0 ? 'text-blue-600' : 'text-orange-600';
+  }
+
+  normalizeIcon(icon: string): string {
+    return normalizeIcon(icon);
   }
 }

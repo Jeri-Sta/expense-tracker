@@ -258,7 +258,7 @@
           </td>
           <td>
             <div class="flex align-items-center gap-2" *ngIf="transaction.category">
-              <i [class]="transaction.category.icon" [style.color]="transaction.category.color"></i>
+              <i [class]="normalizeIcon(transaction.category.icon)" [style.color]="transaction.category.color"></i>
               <span>{{ transaction.category.name }}</span>
             </div>
           </td>

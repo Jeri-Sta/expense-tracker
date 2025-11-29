@@ -5,6 +5,7 @@ import { TransactionService, Transaction, CreateTransactionDto, UpdateTransactio
 import { CategoryService, Category } from '../../core/services/category.service';
 import { TransactionType } from '../../core/types/common.types';
 import { environment } from '../../../environments/environment';
+import { normalizeIcon } from '../../shared/utils/icon.utils';
 
 @Component({
   selector: 'app-transactions',
@@ -701,9 +702,13 @@ export class TransactionsComponent implements OnInit {
     return this.getCategoriesByType(currentType).map(cat => ({
       label: cat.name,
       value: cat.id,
-      icon: cat.icon,
+      icon: this.normalizeIcon(cat.icon),
       color: cat.color
     }));
+  }
+
+  normalizeIcon(icon: string): string {
+    return normalizeIcon(icon);
   }
 
   exportTransactions(): void {

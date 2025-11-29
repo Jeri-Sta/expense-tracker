@@ -28,7 +28,7 @@
             <div class="flex-grow-1">
               <div class="flex align-items-center gap-2 mb-2">
                 <i 
-                  [class]="transaction.category.icon" 
+                  [class]="normalizeIcon(transaction.category.icon)" 
                   [style.color]="transaction.category.color"
                   class="text-lg"
                 ></i>
@@ -299,13 +299,13 @@
       >
         <ng-template let-category pTemplate="selectedItem">
           <div class="flex align-items-center gap-2" *ngIf="category">
-            <i [class]="category.icon" [style.color]="category.color"></i>
+            <i [class]="normalizeIcon(category.icon)" [style.color]="category.color"></i>
             <span>{{ category.label }}</span>
           </div>
         </ng-template>
         <ng-template let-category pTemplate="item">
           <div class="flex align-items-center gap-2">
-            <i [class]="category.icon" [style.color]="category.color"></i>
+            <i [class]="normalizeIcon(category.icon)" [style.color]="category.color"></i>
             <span>{{ category.label }}</span>
           </div>
         </ng-template>

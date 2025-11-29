@@ -84,6 +84,11 @@
   }
 }
 
+.data-card .card-content {
+  display: block !important;
+  min-height: auto !important;
+}
+
 .chart-header, .card-header {
   background: var(--surface-section);
   border-bottom: 1px solid var(--surface-border);
@@ -263,7 +268,7 @@
       margin-bottom: 0;
     }
 
-    i {
+    /* i {
       width: 24px;
       height: 24px;
       display: flex;
@@ -272,7 +277,7 @@
       background: var(--surface-100);
       border-radius: 50%;
       font-size: 0.875rem;
-    }
+    } */
 
     .font-semibold {
       font-weight: 600;
@@ -339,6 +344,7 @@
   border: 1px solid var(--surface-border);
   transition: all 0.3s ease;
   background: var(--surface-card);
+  min-width: 200px;
 
   &:hover {
     transform: translateY(-2px);
@@ -527,9 +533,13 @@
   }
 
   // Ensure proper contrast for icons in dark mode
-  .transaction-item i, .recurring-item i, .category-stat-card i {
+  .category-stat-card i {
     background: var(--surface-200);
     color: var(--text-color);
+  }
+
+  .transaction-item i, .recurring-item i {
+    background: transparent;
   }
 }
 
