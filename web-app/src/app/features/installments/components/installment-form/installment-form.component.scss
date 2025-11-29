@@ -1,29 +1,30 @@
+@import 'src/styles/variables';
+@import 'src/styles/mixins';
+
 .installment-form-container {
-  padding: 2rem;
+  padding: $spacing-xl;
   min-height: 100vh;
   background: var(--surface-ground);
 }
 
 .page-header {
-  margin-bottom: 2rem;
-  padding: 2rem;
-  background: var(--surface-card);
-  border-radius: 12px;
-  border: 1px solid var(--surface-border);
+  @include card-base;
+  margin-bottom: $spacing-xl;
+  padding: $spacing-xl;
 }
 
 .header-content .title-section .page-title {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 $spacing-sm 0;
   color: var(--text-color);
   font-size: 2rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-}
 
-.header-content .title-section .page-title i {
-  color: var(--primary-color);
+  i {
+    color: var(--primary-color);
+  }
 }
 
 .header-content .title-section .page-subtitle {
@@ -33,61 +34,59 @@
 }
 
 .form-container {
-  background: var(--surface-card);
-  border-radius: 12px;
-  border: 1px solid var(--surface-border);
-  padding: 2rem;
+  @include card-base;
+  padding: $spacing-xl;
 }
 
 .form-grid {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: $spacing-xl;
 }
 
 .form-section {
   background: var(--surface-section);
-  border-radius: 8px;
-  padding: 1.5rem;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
   border: 1px solid var(--surface-border);
 }
 
 .section-title {
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 $spacing-lg 0;
   color: var(--text-color);
   font-size: 1.25rem;
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: $spacing-sm;
   border-bottom: 1px solid var(--surface-border);
   padding-bottom: 0.75rem;
-}
 
-.section-title i {
-  color: var(--primary-color);
+  i {
+    color: var(--primary-color);
+  }
 }
 
 .field-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  gap: $spacing-lg;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
+  gap: $spacing-sm;
 
-.field label {
-  font-weight: 600;
-  color: var(--text-color);
-  font-size: 0.9rem;
+  label {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.9rem;
+  }
 }
 
 .error-message {
-  color: var(--red-500);
+  color: $color-danger;
   font-size: 0.75rem;
 }
 
@@ -103,45 +102,45 @@
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  gap: $spacing-md;
 }
 
 .summary-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem $spacing-md;
   background: var(--surface-hover);
-  border-radius: 6px;
+  border-radius: $border-radius-sm;
   border: 1px solid var(--surface-border);
-}
 
-.summary-item .label {
-  font-size: 0.875rem;
-  color: var(--text-color-secondary);
-  font-weight: 500;
-}
+  .label {
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
+    font-weight: 500;
+  }
 
-.summary-item .value {
-  font-weight: 600;
-  color: var(--text-color);
-}
+  .value {
+    font-weight: 600;
+    color: var(--text-color);
 
-.summary-item .value.highlight {
-  color: var(--primary-color);
-  font-size: 1.1rem;
-}
+    &.highlight {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+    }
 
-.summary-item .value.danger {
-  color: var(--red-500);
+    &.danger {
+      color: $color-danger;
+    }
+  }
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
+  gap: $spacing-md;
+  margin-top: $spacing-xl;
+  padding-top: $spacing-lg;
   border-top: 1px solid var(--surface-border);
 }
 
@@ -154,11 +153,11 @@
 
 .loading-content {
   text-align: center;
-}
 
-.loading-content p {
-  margin: 1rem 0 0 0;
-  color: var(--text-color-secondary);
+  p {
+    margin: $spacing-md 0 0 0;
+    color: var(--text-color-secondary);
+  }
 }
 
 /* Estilos específicos para inputs do PrimeNG */
@@ -172,7 +171,7 @@
     background: var(--surface-0) !important;
     border: 1px solid var(--surface-300) !important;
     color: var(--text-color) !important;
-    border-radius: 6px;
+    border-radius: $border-radius-sm;
     transition: all 0.2s;
     
     &:enabled:focus {
@@ -252,7 +251,7 @@
   .p-calendar input,
   .p-dropdown,
   .p-textarea {
-    border-color: var(--red-500) !important;
+    border-color: $color-danger !important;
     
     &:enabled:focus {
       box-shadow: 0 0 0 0.2rem var(--red-200) !important;
@@ -263,21 +262,21 @@
 /* Estilos para campos obrigatórios */
 .field.required label::after {
   content: ' *';
-  color: var(--red-500);
+  color: $color-danger;
   font-weight: bold;
 }
 
-@media (max-width: 768px) {
+@include respond-to(md) {
   .installment-form-container {
-    padding: 1rem;
+    padding: $spacing-md;
   }
 
   .page-header {
-    padding: 1.5rem;
+    padding: $spacing-lg;
   }
 
   .form-container {
-    padding: 1.5rem;
+    padding: $spacing-lg;
   }
 
   .field-grid {

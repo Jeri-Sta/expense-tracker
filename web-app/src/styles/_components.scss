@@ -1,0 +1,25 @@
+@import 'variables';
+
+// Custom Scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-50);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-200);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--surface-300);
+}
+
+// Global Component Classes (if any)
+.card {
+  @include card-base;
+}

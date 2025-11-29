@@ -1,12 +1,14 @@
-@import '../login/login.component.scss';
+@import 'variables';
+@import 'mixins';
 
-// Additional styles for register form
+// Note: Base auth styles are in src/styles/_auth.scss
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: $spacing-md;
   
-  @media (max-width: 480px) {
+  @include respond-to(sm) {
     grid-template-columns: 1fr;
     gap: 0;
   }

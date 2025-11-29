@@ -1,3 +1,6 @@
+@import 'variables';
+@import 'mixins';
+
 // Specific styles for transactions component
 .p-datatable {
   .p-datatable-header {
@@ -17,11 +20,11 @@
 }
 
 .text-green-600 {
-  color: #059669 !important;
+  color: $color-success !important;
 }
 
 .text-red-600 {
-  color: #dc2626 !important;
+  color: $color-danger !important;
 }
 
 // Projection indicators
@@ -39,11 +42,11 @@
   }
   
   &.projection-recurring::before {
-    background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+    background: linear-gradient(135deg, $color-primary, darken($color-primary, 15%));
   }
   
   &.projection-manual::before {
-    background: linear-gradient(135deg, #10B981, #059669);
+    background: linear-gradient(135deg, $color-success, darken($color-success, 15%));
   }
   
   &.projection-ai::before {
@@ -54,105 +57,47 @@
 // Projection filters panel
 .p-panel.projection-filters {
   .p-panel-header {
-    background: var(--blue-50);
-    color: var(--blue-900);
+    background: var(--blue-50, #eff6ff); // Fallback to light blue
+    color: var(--blue-900, #1e3a8a); // Fallback to dark blue
   }
   
   .p-panel-content {
-    padding: 1rem;
+    padding: $spacing-md;
   }
 }
 
 // Confidence indicators
 .confidence-high {
-  color: #10B981 !important;
+  color: $color-success !important;
 }
 
 .confidence-medium {
-  color: #F59E0B !important;
+  color: $color-warning !important;
 }
 
 .confidence-low {
-  color: #EF4444 !important;
+  color: $color-danger !important;
 }
 
 .field {
-  margin-bottom: 1rem;
+  margin-bottom: $spacing-md;
 }
 
 .field label {
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: $spacing-xs;
   font-weight: 600;
 }
 
 .ng-dirty.ng-invalid {
-  border-color: #f87171 !important;
+  border-color: $color-danger !important;
 }
 
 // Responsive improvements
-@media (max-width: 768px) {
+@include respond-to(md) {
   .p-datatable {
     .p-datatable-wrapper {
       overflow-x: auto;
     }
   }
-
-  .flex.gap-2 {
-    flex-direction: column;
-    gap: 0.5rem;
-
-    .p-button {
-      width: 100%;
-    }
-  }
-}
-
-// Dialog responsive
-.p-dialog {
-  @media (max-width: 640px) {
-    width: 95vw !important;
-    margin: 1rem;
-  }
-}
-
-// Fix p-calendar overflow in dialog
-::ng-deep .p-dialog {
-  .p-calendar {
-    .p-inputtext {
-      background: var(--surface-0) !important;
-    }
-    
-    .p-datepicker-trigger {
-      background: transparent !important;
-      color: var(--text-color-secondary) !important;
-    }
-  }
-  
-  // Ensure calendar overlay appears above dialog
-  .p-datepicker {
-    z-index: 9999 !important;
-  }
-}
-
-// Global fix for calendar overlay in any dialog
-::ng-deep .p-datepicker {
-  z-index: 9999 !important;
-}
-
-// Category dropdown custom styling
-.p-dropdown-item {
-  .flex.align-items-center {
-    gap: 0.5rem;
-  }
-}
-
-// Transaction type tags
-.p-tag {
-  font-weight: 600;
-}
-
-// Custom button spacing
-.flex.gap-1 {
-  gap: 0.25rem;
 }

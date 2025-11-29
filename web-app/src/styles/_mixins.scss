@@ -1,0 +1,56 @@
+@import 'variables';
+
+// Media Queries
+@mixin respond-to($breakpoint) {
+  @media (max-width: $breakpoint) {
+    @content;
+  }
+}
+
+// Flexbox Helpers
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// Card Style
+@mixin card-base {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+// Input Style
+@mixin input-base {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-sm;
+  border: 1px solid var(--surface-border);
+  background-color: var(--surface-ground);
+  color: var(--text-color);
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
+  }
+}

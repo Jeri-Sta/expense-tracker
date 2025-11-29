@@ -1,10 +1,13 @@
+@import 'variables';
+@import 'mixins';
+
 .dashboard {
-  padding: 1rem;
+  padding: $spacing-md;
   min-height: 100vh;
   background: var(--surface-ground);
 
-  @media (max-width: 768px) {
-    padding: 0.5rem;
+  @include respond-to($breakpoint-md) {
+    padding: $spacing-sm;
   }
 }
 
@@ -28,15 +31,14 @@
 
 // KPI Cards
 .kpi-card {
-  transition: all 0.3s ease;
-  border: 1px solid var(--surface-border);
-  background: var(--surface-card);
+  @include card-base;
   position: relative;
   overflow: hidden;
   min-height: 120px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding: $spacing-md;
 
   &::before {
     content: '';
@@ -54,32 +56,31 @@
   }
 
   .text-green-600 {
-    color: #22c55e !important;
+    color: $color-success !important;
   }
 
   .text-red-600 {
-    color: #ef4444 !important;
+    color: $color-danger !important;
   }
 
   .text-blue-600 {
-    color: #3b82f6 !important;
+    color: $color-primary !important;
   }
 
   .text-orange-600 {
-    color: #f97316 !important;
+    color: $color-warning !important;
   }
 }
 
 // Chart Cards
 .chart-card, .data-card {
-  transition: all 0.3s ease;
-  border: 1px solid var(--surface-border);
-  background: var(--surface-card);
+  @include card-base;
   height: 100%;
+  padding: 0;
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: $shadow-md !important;
   }
 }
 
@@ -161,11 +162,11 @@
 // Specific fixes for horizontal bar chart (Top Categorias)
 .chart-card .chart-content:has(p-chart[type="bar"]) {
   .chart-wrapper {
-    padding: 10px;
+    padding: $spacing-sm;
     
     ::ng-deep {
       .p-chart canvas {
-        padding: 5px;
+        padding: $spacing-xs;
       }
     }
   }
@@ -184,7 +185,7 @@
         height: 100% !important;
         max-width: 100% !important;
         max-height: 100% !important;
-        padding-bottom: 10px;
+        padding-bottom: $spacing-sm;
       }
     }
   }
@@ -217,7 +218,7 @@
 }
 
 // Chart Responsiveness
-@media (max-width: 1200px) {
+@include respond-to(xl) {
   .chart-content {
     min-height: 250px;
   }
@@ -227,14 +228,14 @@
   }
 }
 
-@media (max-width: 768px) {
+@include respond-to(md) {
   .chart-content {
     min-height: 200px;
-    padding: 1rem !important;
+    padding: $spacing-md !important;
   }
 
   .chart-header, .card-header {
-    padding: 1rem !important;
+    padding: $spacing-md !important;
   }
   
   .monthly-trend-chart {
@@ -250,7 +251,7 @@
   .transaction-item {
     transition: all 0.2s ease;
     border: 1px solid transparent;
-    margin-bottom: 0.5rem;
+    margin-bottom: $spacing-sm;
 
     &:hover {
       background: var(--surface-hover) !important;
@@ -293,7 +294,7 @@
   .recurring-item {
     transition: all 0.2s ease;
     border: 1px solid transparent;
-    margin-bottom: 0.5rem;
+    margin-bottom: $spacing-sm;
 
     &:hover {
       background: var(--surface-hover) !important;
@@ -341,7 +342,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-md;
     border-color: var(--primary-300);
   }
 
@@ -377,19 +378,19 @@
 
 // Color Classes
 .text-green-600 {
-  color: #22c55e !important;
+  color: $color-success !important;
 }
 
 .text-red-600 {
-  color: #ef4444 !important;
+  color: $color-danger !important;
 }
 
 .text-blue-600 {
-  color: #3b82f6 !important;
+  color: $color-primary !important;
 }
 
 .text-orange-600 {
-  color: #f97316 !important;
+  color: $color-warning !important;
 }
 
 .text-purple-600 {
@@ -422,9 +423,9 @@
 }
 
 // Mobile Optimizations
-@media (max-width: 576px) {
+@include respond-to(sm) {
   .dashboard {
-    padding: 0.25rem;
+    padding: $spacing-xs;
   }
 
   .kpi-card {
@@ -457,7 +458,7 @@
 
   .chart-content {
     min-height: 200px !important;
-    padding: 0.5rem !important;
+    padding: $spacing-sm !important;
   }
 
   .chart-header, .card-header {
@@ -482,7 +483,7 @@
   }
 
   .col-12 {
-    padding: 0.25rem;
+    padding: $spacing-xs;
   }
 }
 
@@ -656,10 +657,10 @@
   }
 }
 
-@media (max-width: 768px) {
+@include respond-to(md) {
   .installments-section {
     .installments-content {
-      padding: 1rem !important;
+      padding: $spacing-md !important;
     }
 
     .installment-kpi {
@@ -667,12 +668,12 @@
     }
 
     .section-header {
-      padding: 1rem !important;
+      padding: $spacing-md !important;
       
       .flex {
         flex-direction: column;
         align-items: flex-start;
-        gap: 1rem;
+        gap: $spacing-md;
       }
     }
   }

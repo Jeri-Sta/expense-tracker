@@ -1,0 +1,35 @@
+@import 'variables';
+
+// Text Alignment
+.text-center { text-align: center; }
+.text-left   { text-align: left; }
+.text-right  { text-align: right; }
+
+// Sizing
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+
+// Interaction
+.cursor-pointer { cursor: pointer; }
+
+// Semantic Text Colors
+.text-success { color: $color-success !important; }
+.text-danger  { color: $color-danger !important; }
+.text-warning { color: $color-warning !important; }
+.text-info    { color: $color-info !important; }
+.text-primary { color: var(--primary-color) !important; }
+.text-muted   { color: var(--text-color-secondary) !important; }
+
+// Spacing Utilities (Simple version)
+.m-0 { margin: 0 !important; }
+.p-0 { padding: 0 !important; }
+
+.mt-1 { margin-top: $spacing-xs !important; }
+.mt-2 { margin-top: $spacing-sm !important; }
+.mt-3 { margin-top: $spacing-md !important; }
+.mt-4 { margin-top: $spacing-lg !important; }
+
+.mb-1 { margin-bottom: $spacing-xs !important; }
+.mb-2 { margin-bottom: $spacing-sm !important; }
+.mb-3 { margin-bottom: $spacing-md !important; }
+.mb-4 { margin-bottom: $spacing-lg !important; }

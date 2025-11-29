@@ -1,43 +1,42 @@
+@import 'src/styles/variables';
+@import 'src/styles/mixins';
+
 .installment-list-container {
-  padding: 2rem;
+  padding: $spacing-xl;
   min-height: 100vh;
   background: var(--surface-ground);
 }
 
 .page-header {
-  margin-bottom: 2rem;
-  padding: 2rem;
-  background: var(--surface-card);
-  border-radius: 12px;
-  border: 1px solid var(--surface-border);
+  @include card-base;
+  margin-bottom: $spacing-xl;
+  padding: $spacing-xl;
 }
 
 .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 2rem;
-}
+  gap: $spacing-xl;
 
-@media (max-width: 768px) {
-  .header-content {
+  @include respond-to(md) {
     flex-direction: column;
     align-items: flex-start;
   }
 }
 
 .title-section .page-title {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 $spacing-sm 0;
   color: var(--text-color);
   font-size: 2rem;
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-}
+  gap: $spacing-md;
 
-.title-section .page-title i {
-  color: var(--primary-color);
+  i {
+    color: var(--primary-color);
+  }
 }
 
 .title-section .page-subtitle {
@@ -47,65 +46,61 @@
 }
 
 .content-container {
-  background: var(--surface-card);
-  border-radius: 12px;
-  border: 1px solid var(--surface-border);
-  padding: 2rem;
+  @include card-base;
+  padding: $spacing-xl;
 }
 
 .installment-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 1.5rem;
+  gap: $spacing-lg;
 }
 
 .installment-card {
-  background: var(--surface-section);
-  border-radius: 12px;
-  border: 1px solid var(--surface-border);
-  padding: 1.5rem;
+  @include card-base;
+  padding: $spacing-lg;
   transition: all 0.3s ease;
-}
 
-.installment-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
-  gap: 1rem;
-}
+  margin-bottom: $spacing-md;
+  gap: $spacing-md;
 
-.card-header .title-section {
-  flex: 1;
-}
+  .title-section {
+    flex: 1;
 
-.card-header .title-section .plan-name {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-color);
-  line-height: 1.4;
-}
+    .plan-name {
+      margin: 0 0 $spacing-sm 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-color);
+      line-height: 1.4;
+    }
+  }
 
-.card-header .actions {
-  display: flex;
-  gap: 0.25rem;
+  .actions {
+    display: flex;
+    gap: $spacing-xs;
+  }
 }
 
 .progress-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: $spacing-lg;
 }
 
 .progress-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: $spacing-sm;
 }
 
 .progress-text {
@@ -121,63 +116,63 @@
 .info-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-}
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
 
-.info-row:last-child {
-  margin-bottom: 0;
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-}
+  gap: $spacing-xs;
 
-.info-item .label {
-  font-size: 0.75rem;
-  color: var(--text-color-secondary);
-  text-transform: uppercase;
-  font-weight: 500;
-}
+  .label {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
 
-.info-item .value {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
+  .value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-color);
 
-.info-item .value.highlight {
-  color: var(--primary-color);
-  font-weight: 700;
+    &.highlight {
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+  }
 }
 
 .next-due {
-  margin-top: 1rem;
-  padding: 0.75rem;
+  margin-top: $spacing-md;
+  padding: $spacing-md;
   background: var(--surface-hover);
-  border-radius: 8px;
+  border-radius: $border-radius-md;
   border: 1px solid var(--surface-border);
 }
 
 .due-info {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: $spacing-sm;
   font-size: 0.875rem;
-}
 
-.due-info i {
-  color: var(--text-color-secondary);
-}
+  i {
+    color: var(--text-color-secondary);
+  }
 
-.due-info .due-label {
-  color: var(--text-color-secondary);
-}
+  .due-label {
+    color: var(--text-color-secondary);
+  }
 
-.due-info .due-date {
-  font-weight: 600;
+  .due-date {
+    font-weight: 600;
+  }
 }
 
 .no-data {
@@ -190,24 +185,24 @@
 .no-data-content {
   text-align: center;
   max-width: 400px;
-}
 
-.no-data-icon {
-  font-size: 4rem;
-  color: var(--text-color-secondary);
-  margin-bottom: 1rem;
-}
+  .no-data-icon {
+    font-size: 4rem;
+    color: var(--text-color-secondary);
+    margin-bottom: $spacing-md;
+  }
 
-.no-data-content h3 {
-  margin: 0 0 0.5rem 0;
-  color: var(--text-color);
-  font-size: 1.5rem;
-}
+  h3 {
+    margin: 0 0 $spacing-sm 0;
+    color: var(--text-color);
+    font-size: 1.5rem;
+  }
 
-.no-data-content p {
-  margin: 0 0 1.5rem 0;
-  color: var(--text-color-secondary);
-  line-height: 1.6;
+  p {
+    margin: 0 0 $spacing-lg 0;
+    color: var(--text-color-secondary);
+    line-height: 1.6;
+  }
 }
 
 .loading-container {
@@ -219,24 +214,24 @@
 
 .loading-content {
   text-align: center;
+
+  p {
+    margin: $spacing-md 0 0 0;
+    color: var(--text-color-secondary);
+  }
 }
 
-.loading-content p {
-  margin: 1rem 0 0 0;
-  color: var(--text-color-secondary);
-}
-
-@media (max-width: 768px) {
+@include respond-to(md) {
   .installment-list-container {
-    padding: 1rem;
+    padding: $spacing-md;
   }
 
   .page-header {
-    padding: 1.5rem;
+    padding: $spacing-lg;
   }
 
   .content-container {
-    padding: 1.5rem;
+    padding: $spacing-lg;
   }
 
   .installment-grid {
@@ -246,26 +241,26 @@
   .card-header {
     flex-direction: column;
     align-items: flex-start;
-  }
 
-  .card-header .actions {
-    align-self: flex-end;
+    .actions {
+      align-self: flex-end;
+    }
   }
 
   .info-row {
     grid-template-columns: 1fr;
-    gap: 0.5rem;
+    gap: $spacing-sm;
   }
 }
 
 ::ng-deep .progress-danger .p-progressbar-value {
-  background: var(--red-500);
+  background: $color-danger;
 }
 
 ::ng-deep .progress-warning .p-progressbar-value {
-  background: var(--orange-500);
+  background: $color-warning;
 }
 
 ::ng-deep .progress-success .p-progressbar-value {
-  background: var(--green-500);
+  background: $color-success;
 }

@@ -1,6 +1,8 @@
-/* Estilo global para campos obrigatÃ³rios */
+@import 'variables';
+
+/* Estilo global para campos obrigatórios */
 .required-asterisk {
-  color: #EF4444;
-  margin-left: 0.25rem;
+  color: $color-danger;
+  margin-left: $spacing-xs;
   font-weight: bold;
 }

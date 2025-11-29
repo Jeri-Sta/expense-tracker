@@ -1,0 +1,44 @@
+// Global variables for dark theme
+:root {
+  --primary-color: #3B82F6;
+  --primary-color-text: #ffffff;
+  
+  // Surface colors (Dark mode)
+  --surface-0: #1F2937;
+  --surface-50: #374151;
+  --surface-100: #4B5563;
+  --surface-200: #6B7280;
+  --surface-300: #9CA3AF;
+  --surface-400: #D1D5DB;
+  --surface-500: #E5E7EB;
+  --surface-600: #F3F4F6;
+  --surface-700: #F9FAFB;
+  --surface-800: #FFFFFF;
+  --surface-900: #FFFFFF;
+
+  // Gray scale
+  --gray-0: #1F2937;
+  --gray-50: #374151;
+  --gray-100: #4B5563;
+  --gray-200: #6B7280;
+  --gray-300: #9CA3AF;
+  --gray-400: #D1D5DB;
+  --gray-500: #E5E7EB;
+  --gray-600: #F3F4F6;
+  --gray-700: #F9FAFB;
+  --gray-800: #FFFFFF;
+  --gray-900: #FFFFFF;
+
+  // Text colors
+  --text-color: #E5E7EB;
+  --text-color-secondary: #9CA3AF;
+  --border-color: #374151;
+
+  // Component specific variables
+  --surface-ground: #1F2937;
+  --surface-section: #374151;
+  --surface-card: #1F2937;
+  --surface-overlay: #374151;
+  --surface-border: #374151;
+  --surface-hover: rgba(255, 255, 255, 0.05);
+}
