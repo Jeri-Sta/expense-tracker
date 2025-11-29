@@ -149,6 +149,14 @@ export class RecurringTransactionsService {
       },
     });
 
+    // Delete any existing projection for this execution date
+    if (recurringTransaction.nextExecution) {
+      await this.transactionsService.deleteProjection(
+        recurringTransaction.id,
+        recurringTransaction.nextExecution,
+      );
+    }
+
     // Update recurring transaction
     const newExecutionCount = recurringTransaction.executionCount + 1;
     const nextExecution = this.calculateNextExecution(

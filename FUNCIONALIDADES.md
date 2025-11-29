@@ -223,6 +223,16 @@ O **Expense Tracker** é uma aplicação completa de controle financeiro pessoal
   - Data de início
   - Data de fim (opcional)
 
+#### 5.4 Automação e Processamento
+- **Execução Automática**:
+  - Rotina diária (Cron Job) que verifica e processa transações vencidas automaticamente à meia-noite.
+  - Gera a transação real no histórico financeiro sem intervenção do usuário.
+  - Atualiza automaticamente a data da próxima execução.
+- **Gestão Inteligente de Projeções**:
+  - Ao efetivar uma transação recorrente, o sistema verifica se existia uma projeção para aquela data.
+  - Remove automaticamente a projeção correspondente para evitar duplicidade no fluxo de caixa.
+  - Mantém o histórico limpo e consistente.
+
 ---
 
 ### 6. **Sistema de Financiamentos**

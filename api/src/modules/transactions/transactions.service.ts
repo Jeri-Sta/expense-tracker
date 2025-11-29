@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository, SelectQueryBuilder, Between } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -277,6 +277,21 @@ export class TransactionsService {
         icon: transaction.category.icon,
       } : undefined,
     };
+  }
+
+  async deleteProjection(recurringTransactionId: string, date: Date): Promise<void> {
+    // Create date range for the entire day
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    await this.transactionsRepository.delete({
+      recurringTransactionId,
+      isProjected: true,
+      transactionDate: Between(startOfDay, endOfDay),
+    });
   }
 
   private isValidCompetencyPeriod(period: string): boolean {
