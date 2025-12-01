@@ -9,6 +9,7 @@ import { UpdateCardTransactionDto } from './dto/update-card-transaction.dto';
 import { CardTransactionResponseDto, CardTransactionSummaryDto } from './dto/card-transaction-response.dto';
 import { InvoiceResponseDto, UpdateInvoiceStatusDto } from './dto/invoice.dto';
 import { InvoiceStatus } from '../../common/enums';
+import { parseLocalDate } from '../../common/utils/date.utils';
 
 @Injectable()
 export class CardTransactionsService {
@@ -36,7 +37,7 @@ export class CardTransactionsService {
       throw new BadRequestException('Total installments must be at least 2 for installment purchases');
     }
 
-    const transactionDate = new Date(createDto.transactionDate);
+    const transactionDate = parseLocalDate(createDto.transactionDate);
     const baseInvoicePeriod = this.calculateInvoicePeriod(transactionDate, creditCard.closingDay);
 
     if (createDto.isInstallment && createDto.totalInstallments) {
@@ -57,7 +58,7 @@ export class CardTransactionsService {
     const transaction = this.transactionRepository.create({
       description: createDto.description,
       amount: createDto.amount,
-      transactionDate: new Date(createDto.transactionDate),
+      transactionDate: parseLocalDate(createDto.transactionDate),
       invoicePeriod,
       isInstallment: false,
       creditCardId: createDto.creditCardId,
@@ -87,7 +88,7 @@ export class CardTransactionsService {
       const transaction = this.transactionRepository.create({
         description: createDto.description,
         amount: installmentAmount,
-        transactionDate: new Date(createDto.transactionDate),
+        transactionDate: parseLocalDate(createDto.transactionDate),
         invoicePeriod,
         isInstallment: true,
         installmentNumber: i,
@@ -243,7 +244,7 @@ export class CardTransactionsService {
     if (updateDto.transactionDate) {
       const creditCard = transaction.creditCard;
       transaction.invoicePeriod = this.calculateInvoicePeriod(
-        new Date(updateDto.transactionDate),
+        parseLocalDate(updateDto.transactionDate),
         creditCard.closingDay
       );
     }

@@ -7,6 +7,7 @@ import { GenerateProjectionsDto } from '../transactions/dto/generate-projections
 import { TransactionResponseDto } from '../transactions/dto/transaction-response.dto';
 import { Installment } from '../installments/entities/installment.entity';
 import { RecurrenceFrequency, InstallmentStatus } from '../../common/enums';
+import { parseLocalDate } from '../../common/utils/date.utils';
 
 export interface ProjectionResult {
   generated: number;
@@ -96,7 +97,7 @@ export class ProjectionsService {
     confidence: number,
   ): Promise<Transaction[]> {
     const projections: Transaction[] = [];
-    let currentDate = new Date(recurring.nextExecution || startDate);
+    let currentDate = parseLocalDate(recurring.nextExecution || startDate);
 
     // Ensure we start within the projection period
     if (currentDate < startDate) {

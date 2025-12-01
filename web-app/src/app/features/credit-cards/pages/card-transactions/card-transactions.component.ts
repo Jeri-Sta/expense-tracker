@@ -6,6 +6,7 @@ import { CreditCardService } from '../../services/credit-card.service';
 import { CategoryService, Category } from '../../../../core/services/category.service';
 import { CardTransaction, CreateCardTransactionDto, UpdateCardTransactionDto, Invoice, InvoiceStatus } from '../../models/card-transaction.model';
 import { CreditCard } from '../../models/credit-card.model';
+import { parseLocalDate } from '../../../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-card-transactions',
@@ -179,7 +180,7 @@ export class CardTransactionsComponent implements OnInit {
       amount: transaction.isInstallment 
         ? transaction.amount * (transaction.totalInstallments || 1) 
         : transaction.amount,
-      transactionDate: new Date(transaction.transactionDate),
+      transactionDate: parseLocalDate(transaction.transactionDate),
       creditCardId: transaction.creditCardId,
       categoryId: transaction.categoryId || '',
       isInstallment: transaction.isInstallment,

@@ -9,6 +9,7 @@ import { CardTransactionService } from '../credit-cards/services/card-transactio
 import { CardTransaction } from '../credit-cards/models/card-transaction.model';
 import { MessageService } from 'primeng/api';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
+import { parseLocalDate, formatDateToString } from '../../shared/utils/date.utils';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DashboardStats, CategoryStats, InstallmentStats } from '../../shared/types/dashboard.types';
@@ -83,6 +84,10 @@ export class DashboardComponent implements OnInit {
   isCurrentMonth = true;
   navigationDate: Date = new Date();
   
+  // Tab navigation
+  activeTabIndex: number = 0;
+  private readonly TAB_STORAGE_KEY = 'dashboard_active_tab';
+  
   // Chart responsive options
   responsiveOptions: any[] = [
     {
@@ -111,7 +116,29 @@ export class DashboardComponent implements OnInit {
     private readonly creditCardService: CreditCardService,
     private readonly cardTransactionService: CardTransactionService,
     private readonly messageService: MessageService
-  ) {}
+  ) {
+    this.loadActiveTabFromStorage();
+  }
+
+  // Getter to check if there is credit card data to display
+  get hasCardData(): boolean {
+    return this.creditCards.length > 0 || this.cardInstallments.length > 0 || this.cardTransactions.length > 0;
+  }
+
+  // Load active tab index from localStorage
+  private loadActiveTabFromStorage(): void {
+    const savedTab = localStorage.getItem(this.TAB_STORAGE_KEY);
+    if (savedTab !== null) {
+      const tabIndex = Number.parseInt(savedTab, 10);
+      this.activeTabIndex = Number.isNaN(tabIndex) ? 0 : tabIndex;
+    }
+  }
+
+  // Handle tab change and persist to localStorage
+  onTabChange(event: any): void {
+    this.activeTabIndex = event.index;
+    localStorage.setItem(this.TAB_STORAGE_KEY, event.index.toString());
+  }
 
   ngOnInit(): void {
     this.initializeYears();
@@ -206,8 +233,8 @@ export class DashboardComponent implements OnInit {
     
     return new Promise((resolve, reject) => {
       this.transactionService.getTransactions({
-        startDate: startOfMonth.toISOString().split('T')[0],
-        endDate: endOfMonth.toISOString().split('T')[0],
+        startDate: formatDateToString(startOfMonth),
+        endDate: formatDateToString(endOfMonth),
         limit: 1000
       }).subscribe({
         next: (response) => {
@@ -228,8 +255,8 @@ export class DashboardComponent implements OnInit {
     return new Promise((resolve, reject) => {
       Promise.all([
         this.transactionService.getTransactions({
-          startDate: startOfMonth.toISOString().split('T')[0],
-          endDate: endOfMonth.toISOString().split('T')[0],
+          startDate: formatDateToString(startOfMonth),
+          endDate: formatDateToString(endOfMonth),
           limit: 1000
         }).toPromise(),
         this.categoryService.getCategories().toPromise()
@@ -260,7 +287,7 @@ export class DashboardComponent implements OnInit {
         next: (transactions) => {
           this.upcomingRecurring = transactions
             .filter(t => t.isActive && !t.isCompleted && t.nextExecution)
-            .sort((a, b) => new Date(a.nextExecution).getTime() - new Date(b.nextExecution).getTime())
+            .sort((a, b) => parseLocalDate(a.nextExecution).getTime() - parseLocalDate(b.nextExecution).getTime())
             .slice(0, 5);
           resolve();
         },
@@ -773,7 +800,7 @@ export class DashboardComponent implements OnInit {
   getDaysUntilExecution(transaction: RecurringTransaction): number {
     if (!transaction.nextExecution) return 0;
     const today = new Date();
-    const nextExecution = new Date(transaction.nextExecution);
+    const nextExecution = parseLocalDate(transaction.nextExecution);
     const diffTime = nextExecution.getTime() - today.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
@@ -782,7 +809,7 @@ export class DashboardComponent implements OnInit {
     if (!transaction.nextExecution || !transaction.isActive || transaction.isCompleted) {
       return false;
     }
-    return new Date(transaction.nextExecution) < new Date();
+    return parseLocalDate(transaction.nextExecution) < new Date();
   }
 
   // Auxiliary methods for template

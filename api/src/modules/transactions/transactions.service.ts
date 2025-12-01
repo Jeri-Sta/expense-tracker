@@ -7,6 +7,7 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionsFilterDto } from './dto/transactions-filter.dto';
 import { ProjectionFiltersDto } from './dto/projection-filters.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
+import { parseLocalDate } from '../../common/utils/date.utils';
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -32,7 +33,7 @@ export class TransactionsService {
     const transaction = this.transactionsRepository.create({
       ...createTransactionDto,
       userId,
-      transactionDate: new Date(createTransactionDto.transactionDate),
+      transactionDate: parseLocalDate(createTransactionDto.transactionDate),
     });
 
     const savedTransaction = await this.transactionsRepository.save(transaction);
@@ -96,7 +97,7 @@ export class TransactionsService {
     Object.assign(transaction, updateTransactionDto);
     
     if (updateTransactionDto.transactionDate) {
-      transaction.transactionDate = new Date(updateTransactionDto.transactionDate);
+      transaction.transactionDate = parseLocalDate(updateTransactionDto.transactionDate);
     }
 
     const savedTransaction = await this.transactionsRepository.save(transaction);

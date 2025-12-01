@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { RecurringTransaction } from '../../../../core/services/recurring-transaction.service';
 import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
+import { parseLocalDate } from '../../../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-upcoming-recurring-widget',
@@ -36,7 +37,7 @@ export class UpcomingRecurringWidgetComponent {
   getDaysUntilExecution(transaction: RecurringTransaction): number {
     if (!transaction.nextExecution) return 0;
     const today = new Date();
-    const nextExecution = new Date(transaction.nextExecution);
+    const nextExecution = parseLocalDate(transaction.nextExecution);
     const diffTime = nextExecution.getTime() - today.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
@@ -45,7 +46,7 @@ export class UpcomingRecurringWidgetComponent {
     if (!transaction.nextExecution || !transaction.isActive || transaction.isCompleted) {
       return false;
     }
-    return new Date(transaction.nextExecution) < new Date();
+    return parseLocalDate(transaction.nextExecution) < new Date();
   }
 
   getFrequencyLabel(frequency: string): string {

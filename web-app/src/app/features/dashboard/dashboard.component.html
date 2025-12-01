@@ -79,117 +79,126 @@
     </div>
   </div>
 
-  <!-- KPI Cards -->
-  <div class="mb-4">
-    <app-kpi-cards-widget
-      [dashboardData]="currentStats"
-      [showProjections]="includeProjections"
-      [isLoading]="loading"
-      [isCurrentMonth]="isCurrentMonth"
-      [selectedMonthName]="getSelectedMonthName()"
-    ></app-kpi-cards-widget>
-  </div>
+  <!-- Tab Navigation -->
+  <p-tabView [(activeIndex)]="activeTabIndex" (onChange)="onTabChange($event)" styleClass="dashboard-tabs">
+    <!-- Tab: Visão Geral -->
+    <p-tabPanel header="Visão Geral" leftIcon="pi pi-chart-line">
+      <!-- KPI Cards -->
+      <div class="mb-4">
+        <app-kpi-cards-widget
+          [dashboardData]="currentStats"
+          [showProjections]="includeProjections"
+          [isLoading]="loading"
+          [isCurrentMonth]="isCurrentMonth"
+          [selectedMonthName]="getSelectedMonthName()"
+        ></app-kpi-cards-widget>
+      </div>
 
-  <!-- Installments Summary Section -->
-  <div class="grid mb-4" *ngIf="installmentStats.totalPlans > 0">
-    <div class="col-12">
-      <app-financings-summary-widget
-        [installmentStats]="installmentStats"
-        [isLoading]="loading"
-        (navigateToInstallments)="navigateToInstallments()"
-      ></app-financings-summary-widget>
-    </div>
-  </div>
+      <!-- Installments Summary Section -->
+      <div class="grid mb-4" *ngIf="installmentStats.totalPlans > 0">
+        <div class="col-12">
+          <app-financings-summary-widget
+            [installmentStats]="installmentStats"
+            [isLoading]="loading"
+            (navigateToInstallments)="navigateToInstallments()"
+          ></app-financings-summary-widget>
+        </div>
+      </div>
 
-  <!-- Credit Cards Section -->
-  <div class="grid mb-4" *ngIf="creditCards.length > 0 || cardInstallments.length > 0 || cardTransactions.length > 0">
-    <!-- Card Limits Widget -->
-    <div class="col-12 lg:col-6" *ngIf="creditCards.length > 0">
-      <app-card-limits-widget [creditCards]="creditCards"></app-card-limits-widget>
-    </div>
-    
-    <!-- Card Transactions Widget -->
-    <div class="col-12 lg:col-6" *ngIf="cardTransactions.length > 0 || creditCards.length > 0">
-      <app-card-transactions-widget 
-        [transactions]="cardTransactions" 
-        [currentPeriod]="currentCardPeriod"
-      ></app-card-transactions-widget>
-    </div>
-    
-    <!-- Installments Widget -->
-    <div class="col-12 lg:col-6" *ngIf="cardInstallments.length > 0">
-      <app-installments-widget [installments]="cardInstallments"></app-installments-widget>
-    </div>
-  </div>
+      <!-- Main Charts Row -->
+      <div class="grid mb-4">
+        <!-- Monthly Trend Chart -->
+        <div class="col-12 xl:col-8">
+          <app-monthly-trend-chart
+            [chartData]="monthlyTrendData"
+            [chartOptions]="monthlyTrendOptions"
+            [isLoading]="loading"
+          ></app-monthly-trend-chart>
+        </div>
 
-  <!-- Main Charts Row -->
-  <div class="grid mb-4">
-    <!-- Monthly Trend Chart -->
-    <div class="col-12 xl:col-8">
-      <app-monthly-trend-chart
-        [chartData]="monthlyTrendData"
-        [chartOptions]="monthlyTrendOptions"
-        [isLoading]="loading"
-      ></app-monthly-trend-chart>
-    </div>
+        <!-- Income vs Expense Pie -->
+        <div class="col-12 xl:col-4">
+          <app-income-expense-chart
+            [chartData]="incomeVsExpenseData"
+            [chartOptions]="incomeVsExpenseOptions"
+            [isLoading]="loading"
+          ></app-income-expense-chart>
+        </div>
+      </div>
 
-    <!-- Income vs Expense Pie -->
-    <div class="col-12 xl:col-4">
-      <app-income-expense-chart
-        [chartData]="incomeVsExpenseData"
-        [chartOptions]="incomeVsExpenseOptions"
-        [isLoading]="loading"
-      ></app-income-expense-chart>
-    </div>
-  </div>
+      <!-- Secondary Charts Row -->
+      <div class="grid mb-4">
+        <!-- Category Distribution -->
+        <div class="col-12 lg:col-6">
+          <app-category-distribution-chart
+            [chartData]="categoryPieData"
+            [chartOptions]="categoryPieOptions"
+            [isLoading]="loading"
+          ></app-category-distribution-chart>
+        </div>
 
-  <!-- Secondary Charts Row -->
-  <div class="grid mb-4">
-    <!-- Category Distribution -->
-    <div class="col-12 lg:col-6">
-      <app-category-distribution-chart
-        [chartData]="categoryPieData"
-        [chartOptions]="categoryPieOptions"
-        [isLoading]="loading"
-      ></app-category-distribution-chart>
-    </div>
+        <!-- Top Expense Categories -->
+        <div class="col-12 lg:col-6">
+          <app-top-categories-chart
+            [chartData]="expenseCategoryData"
+            [chartOptions]="expenseCategoryOptions"
+            [isLoading]="loading"
+          ></app-top-categories-chart>
+        </div>
+      </div>
 
-    <!-- Top Expense Categories -->
-    <div class="col-12 lg:col-6">
-      <app-top-categories-chart
-        [chartData]="expenseCategoryData"
-        [chartOptions]="expenseCategoryOptions"
-        [isLoading]="loading"
-      ></app-top-categories-chart>
-    </div>
-  </div>
+      <!-- Data Tables Row -->
+      <div class="grid">
+        <!-- Recent Transactions -->
+        <div class="col-12 lg:col-6">
+          <app-recent-transactions-widget
+            [transactions]="recentTransactions"
+            [isLoading]="loading"
+          ></app-recent-transactions-widget>
+        </div>
 
-  <!-- Data Tables Row -->
-  <div class="grid">
-    <!-- Recent Transactions -->
-    <div class="col-12 lg:col-6">
-      <app-recent-transactions-widget
-        [transactions]="recentTransactions"
-        [isLoading]="loading"
-      ></app-recent-transactions-widget>
-    </div>
+        <!-- Upcoming Recurring -->
+        <div class="col-12 lg:col-6">
+          <app-upcoming-recurring-widget
+            [upcomingRecurring]="upcomingRecurring"
+            [isLoading]="loading"
+          ></app-upcoming-recurring-widget>
+        </div>
+      </div>
 
-    <!-- Upcoming Recurring -->
-    <div class="col-12 lg:col-6">
-      <app-upcoming-recurring-widget
-        [upcomingRecurring]="upcomingRecurring"
-        [isLoading]="loading"
-      ></app-upcoming-recurring-widget>
-    </div>
-  </div>
+      <!-- Category Stats -->
+      <div class="grid mt-4">
+        <div class="col-12">
+          <app-category-stats-widget
+            [categoryStats]="topCategories"
+            [isLoading]="loading"
+          ></app-category-stats-widget>
+        </div>
+      </div>
+    </p-tabPanel>
 
-  <!-- Category Stats -->
-  <div class="grid mt-4">
-    <div class="col-12">
-      <app-category-stats-widget
-        [categoryStats]="topCategories"
-        [isLoading]="loading"
-      ></app-category-stats-widget>
-    </div>
-  </div>
+    <!-- Tab: Cartões de Crédito -->
+    <p-tabPanel header="Cartões de Crédito" leftIcon="pi pi-credit-card" *ngIf="hasCardData">
+      <!-- Credit Cards Section -->
+      <div class="grid">
+        <!-- Card Limits Widget -->
+        <div class="col-12 lg:col-6" *ngIf="creditCards.length > 0">
+          <app-card-limits-widget [creditCards]="creditCards"></app-card-limits-widget>
+        </div>
+        
+        <!-- Card Transactions Widget -->
+        <div class="col-12 lg:col-6" *ngIf="cardTransactions.length > 0 || creditCards.length > 0">
+          <app-card-transactions-widget 
+            [transactions]="cardTransactions" 
+            [currentPeriod]="currentCardPeriod"
+          ></app-card-transactions-widget>
+        </div>
+        
+        <!-- Installments Widget -->
+        <div class="col-12 lg:col-6" *ngIf="cardInstallments.length > 0">
+          <app-installments-widget [installments]="cardInstallments"></app-installments-widget>
+        </div>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
 </div>

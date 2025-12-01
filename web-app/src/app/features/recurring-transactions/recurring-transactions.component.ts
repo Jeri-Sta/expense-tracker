@@ -5,6 +5,7 @@ import { RecurringTransactionService, RecurringTransaction, CreateRecurringTrans
 import { CategoryService, Category } from '../../core/services/category.service';
 import { TransactionType } from '../../core/types/common.types';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
+import { parseLocalDate } from '../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-recurring-transactions',
@@ -96,7 +97,7 @@ export class RecurringTransactionsComponent implements OnInit {
         this.recurringTransactions = transactions.sort((a, b) => {
           // Sort by next execution date, then by creation date
           if (a.nextExecution && b.nextExecution) {
-            return new Date(a.nextExecution).getTime() - new Date(b.nextExecution).getTime();
+            return parseLocalDate(a.nextExecution).getTime() - parseLocalDate(b.nextExecution).getTime();
           }
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
@@ -146,8 +147,8 @@ export class RecurringTransactionsComponent implements OnInit {
       categoryId: transaction.category.id,
       frequency: transaction.frequency,
       interval: transaction.interval,
-      nextExecution: new Date(transaction.nextExecution),
-      endDate: transaction.endDate ? new Date(transaction.endDate) : null,
+      nextExecution: parseLocalDate(transaction.nextExecution),
+      endDate: transaction.endDate ? parseLocalDate(transaction.endDate) : null,
       maxExecutions: transaction.maxExecutions || '',
       isActive: transaction.isActive,
       notes: transaction.notes || ''
@@ -383,13 +384,13 @@ export class RecurringTransactionsComponent implements OnInit {
     if (!transaction.nextExecution || !transaction.isActive || transaction.isCompleted) {
       return false;
     }
-    return new Date(transaction.nextExecution) < new Date();
+    return parseLocalDate(transaction.nextExecution) < new Date();
   }
 
   getDaysUntilExecution(transaction: RecurringTransaction): number {
     if (!transaction.nextExecution) return 0;
     const today = new Date();
-    const nextExecution = new Date(transaction.nextExecution);
+    const nextExecution = parseLocalDate(transaction.nextExecution);
     const diffTime = nextExecution.getTime() - today.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }

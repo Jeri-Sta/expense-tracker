@@ -6,6 +6,7 @@ import { CategoryService, Category } from '../../core/services/category.service'
 import { TransactionType } from '../../core/types/common.types';
 import { environment } from '../../../environments/environment';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
+import { parseLocalDate, parseCompetencyPeriod, formatDateToString, formatCompetencyPeriod } from '../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-transactions',
@@ -505,8 +506,8 @@ export class TransactionsComponent implements OnInit {
       amount: transaction.amount,
       type: transaction.type,
       categoryId: transaction.category.id,
-      transactionDate: new Date(transaction.transactionDate),
-      competencyPeriod: new Date(transaction.competencyPeriod),
+      transactionDate: parseLocalDate(transaction.transactionDate),
+      competencyPeriod: parseCompetencyPeriod(transaction.competencyPeriod),
       notes: transaction.notes || '',
       isProjected: transaction.isProjected || false,
       projectionSource: transaction.projectionSource || 'manual',
@@ -589,14 +590,17 @@ export class TransactionsComponent implements OnInit {
     if (this.transactionForm.valid) {
       const formValue = this.transactionForm.value;
       
-      // Format competencyPeriod from Date to YYYY-MM string
-      // Use the competencyPeriod field directly (user's choice for which month)
-      const competencyDate = new Date(formValue.competencyPeriod);
-      const competencyPeriod = `${competencyDate.getFullYear()}-${String(competencyDate.getMonth() + 1).padStart(2, '0')}`;
+      // Format competencyPeriod from Date to YYYY-MM string using local timezone
+      const competencyDate = formValue.competencyPeriod instanceof Date 
+        ? formValue.competencyPeriod 
+        : parseLocalDate(formValue.competencyPeriod);
+      const competencyPeriod = formatCompetencyPeriod(competencyDate);
       
-      // Format transactionDate properly for API
-      const transactionDate = new Date(formValue.transactionDate);
-      const transactionDateStr = transactionDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      // Format transactionDate properly for API using local timezone
+      const transactionDate = formValue.transactionDate instanceof Date 
+        ? formValue.transactionDate 
+        : parseLocalDate(formValue.transactionDate);
+      const transactionDateStr = formatDateToString(transactionDate);
       
       console.log('Saving transaction:', {
         transactionDate: transactionDateStr,

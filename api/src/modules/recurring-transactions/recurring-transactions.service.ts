@@ -8,6 +8,7 @@ import { RecurringTransactionResponseDto } from './dto/recurring-transaction-res
 import { TransactionsService } from '../transactions/transactions.service';
 import { CategoriesService } from '../categories/categories.service';
 import { RecurrenceFrequency } from '../../common/enums';
+import { parseLocalDate, formatDateToString, formatCompetencyPeriod } from '../../common/utils/date.utils';
 
 @Injectable()
 export class RecurringTransactionsService {
@@ -27,9 +28,9 @@ export class RecurringTransactionsService {
 
     const recurringTransaction = this.recurringTransactionsRepository.create({
       ...createRecurringTransactionDto,
-      nextExecution: new Date(createRecurringTransactionDto.nextExecution),
+      nextExecution: parseLocalDate(createRecurringTransactionDto.nextExecution),
       endDate: createRecurringTransactionDto.endDate 
-        ? new Date(createRecurringTransactionDto.endDate) 
+        ? parseLocalDate(createRecurringTransactionDto.endDate) 
         : undefined,
       userId,
       executionCount: 0,
@@ -91,10 +92,10 @@ export class RecurringTransactionsService {
     // Convert string dates to Date objects if provided
     const updateData: any = { ...updateRecurringTransactionDto };
     if (updateData.nextExecution) {
-      updateData.nextExecution = new Date(updateData.nextExecution);
+      updateData.nextExecution = parseLocalDate(updateData.nextExecution);
     }
     if (updateData.endDate) {
-      updateData.endDate = new Date(updateData.endDate);
+      updateData.endDate = parseLocalDate(updateData.endDate);
     }
 
     Object.assign(recurringTransaction, updateData);
@@ -133,14 +134,15 @@ export class RecurringTransactionsService {
       throw new ForbiddenException('Recurring transaction is already completed');
     }
 
-    // Create the actual transaction
+    // Create the actual transaction using the scheduled execution date
+    const executionDate = parseLocalDate(recurringTransaction.nextExecution);
     await this.transactionsService.create(userId, {
       description: `${recurringTransaction.description} (Recurring)`,
       amount: recurringTransaction.amount,
       type: recurringTransaction.type,
       categoryId: recurringTransaction.categoryId,
-      transactionDate: new Date().toISOString().split('T')[0],
-      competencyPeriod: new Date().toISOString().slice(0, 7),
+      transactionDate: formatDateToString(executionDate),
+      competencyPeriod: formatCompetencyPeriod(executionDate),
       notes: `Auto-generated from recurring transaction: ${recurringTransaction.id}`,
       metadata: {
         ...recurringTransaction.metadata,
@@ -201,7 +203,8 @@ export class RecurringTransactionsService {
     frequency: RecurrenceFrequency,
     interval: number,
   ): Date {
-    const next = new Date(currentExecution);
+    // Normalize the current execution date to avoid timezone issues
+    const next = parseLocalDate(currentExecution);
 
     switch (frequency) {
       case RecurrenceFrequency.DAILY:

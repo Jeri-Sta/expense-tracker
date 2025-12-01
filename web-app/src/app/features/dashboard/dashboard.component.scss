@@ -11,6 +11,74 @@
   }
 }
 
+// Dashboard Tabs Styling
+::ng-deep .dashboard-tabs {
+  &.p-tabview {
+    background: transparent;
+    
+    .p-tabview-nav {
+      background: var(--surface-card);
+      border: 1px solid var(--surface-border);
+      border-radius: $border-radius-md $border-radius-md 0 0;
+      padding: $spacing-xs $spacing-sm;
+      gap: $spacing-xs;
+      
+      li {
+        margin-right: $spacing-xs;
+        
+        .p-tabview-nav-link {
+          background: transparent;
+          border: none;
+          border-radius: $border-radius-sm;
+          padding: $spacing-sm $spacing-md;
+          color: var(--text-color-secondary);
+          font-weight: 500;
+          transition: all 0.2s ease;
+          
+          .p-tabview-left-icon {
+            margin-right: $spacing-xs;
+          }
+          
+          &:hover {
+            background: var(--surface-hover);
+            color: var(--text-color);
+          }
+          
+          &:focus {
+            box-shadow: none;
+          }
+        }
+        
+        &.p-highlight .p-tabview-nav-link {
+          background: var(--primary-color);
+          color: var(--primary-color-text);
+          
+          &:hover {
+            background: var(--primary-600);
+          }
+        }
+        
+        &:not(.p-highlight):not(.p-disabled):hover .p-tabview-nav-link {
+          background: var(--surface-hover);
+          color: var(--text-color);
+        }
+      }
+    }
+    
+    .p-tabview-panels {
+      background: var(--surface-card);
+      border: 1px solid var(--surface-border);
+      border-top: none;
+      border-radius: 0 0 $border-radius-md $border-radius-md;
+      padding: $spacing-md;
+      
+      @include respond-to($breakpoint-md) {
+        padding: $spacing-sm;
+      }
+    }
+  }
+}
+
 .loading-overlay {
   position: fixed;
   top: 0;

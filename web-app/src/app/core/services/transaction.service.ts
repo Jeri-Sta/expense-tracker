@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { formatDateToString } from '../../shared/utils/date.utils';
 
 export type TransactionType = 'income' | 'expense';
 
@@ -190,7 +191,7 @@ export class TransactionService {
       for (const [key, value] of Object.entries(filters)) {
         if (value !== undefined && value !== null && value !== '') {
           if (value instanceof Date) {
-            params = params.set(key, value.toISOString().split('T')[0]);
+            params = params.set(key, formatDateToString(value));
           } else {
             params = params.set(key, value.toString());
           }
@@ -232,7 +233,7 @@ export class TransactionService {
       for (const [key, value] of Object.entries(filters)) {
         if (value !== undefined && value !== null && value !== '') {
           if (value instanceof Date) {
-            params = params.set(key, value.toISOString().split('T')[0]);
+            params = params.set(key, formatDateToString(value));
           } else {
             params = params.set(key, value.toString());
           }
@@ -278,7 +279,7 @@ export class TransactionService {
       for (const [key, value] of Object.entries(filters)) {
         if (value !== undefined && value !== null && value !== '') {
           if (value instanceof Date) {
-            params = params.set(key, value.toISOString().split('T')[0]);
+            params = params.set(key, formatDateToString(value));
           } else {
             params = params.set(key, value.toString());
           }

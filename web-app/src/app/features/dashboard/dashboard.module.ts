@@ -14,6 +14,7 @@ import { DividerModule } from 'primeng/divider';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
+import { TabViewModule } from 'primeng/tabview';
 
 // Components
 import { DashboardComponent } from './dashboard.component';
@@ -64,7 +65,8 @@ import { CategoryStatsWidgetComponent } from './components/category-stats-widget
     DividerModule,
     ToggleButtonModule,
     TooltipModule,
-    TagModule
+    TagModule,
+    TabViewModule
   ]
 })
 export class DashboardModule { }
