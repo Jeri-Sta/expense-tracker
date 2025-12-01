@@ -26,6 +26,9 @@ import { CreditCardsRoutingModule } from './credit-cards-routing.module';
 import { CreditCardListComponent } from './pages/credit-card-list/credit-card-list.component';
 import { CardTransactionsComponent } from './pages/card-transactions/card-transactions.component';
 
+// Shared Module
+import { SharedModule } from '../../shared/shared.module';
+
 @NgModule({
   declarations: [
     CreditCardListComponent,
@@ -53,6 +56,7 @@ import { CardTransactionsComponent } from './pages/card-transactions/card-transa
     TableModule,
     CalendarModule,
     CheckboxModule,
+    SharedModule,
   ]
 })
 export class CreditCardsModule { }

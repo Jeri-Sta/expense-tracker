@@ -27,6 +27,9 @@ import {
   InstallmentDetailsComponent,
 } from './components';
 
+// Shared Module
+import { SharedModule } from '../../shared/shared.module';
+
 @NgModule({
   declarations: [
     InstallmentListComponent,
@@ -55,6 +58,7 @@ import {
     TooltipModule,
     DialogModule,
     ConfirmDialogModule,
+    SharedModule,
   ],
 })
 export class InstallmentsModule {}

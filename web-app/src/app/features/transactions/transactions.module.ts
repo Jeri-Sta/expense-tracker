@@ -27,6 +27,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TransactionsComponent } from './transactions.component';
 import { TransactionsRoutingModule } from './transactions-routing.module';
 
+// Shared Module
+import { SharedModule } from '../../shared/shared.module';
+
 @NgModule({
   declarations: [
     TransactionsComponent
@@ -56,7 +59,8 @@ import { TransactionsRoutingModule } from './transactions-routing.module';
     ProgressSpinnerModule,
     PanelModule,
     ToggleButtonModule,
-    TooltipModule
+    TooltipModule,
+    SharedModule
   ]
 })
 export class TransactionsModule { }

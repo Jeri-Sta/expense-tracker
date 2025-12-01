@@ -25,6 +25,9 @@ import { ChipModule } from 'primeng/chip';
 import { RecurringTransactionsComponent } from './recurring-transactions.component';
 import { RecurringTransactionsRoutingModule } from './recurring-transactions-routing.module';
 
+// Shared Module
+import { SharedModule } from '../../shared/shared.module';
+
 @NgModule({
   declarations: [
     RecurringTransactionsComponent
@@ -52,7 +55,8 @@ import { RecurringTransactionsRoutingModule } from './recurring-transactions-rou
     CardModule,
     ProgressSpinnerModule,
     ToggleButtonModule,
-    ChipModule
+    ChipModule,
+    SharedModule
   ]
 })
 export class RecurringTransactionsModule { }

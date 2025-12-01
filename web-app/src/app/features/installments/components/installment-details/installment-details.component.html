@@ -254,9 +254,11 @@
       <div class="field">
         <label for="paidDate">Data do Pagamento *</label>
         <p-calendar
+          appDateMask="date"
           id="paidDate"
           [(ngModel)]="paymentForm.paidDate"
           dateFormat="dd/mm/yy"
+          [showIcon]="true"
           appendTo="body"
         ></p-calendar>
       </div>

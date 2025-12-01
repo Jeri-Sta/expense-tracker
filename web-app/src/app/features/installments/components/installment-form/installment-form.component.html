@@ -113,10 +113,12 @@
             <div class="field">
               <label for="startDate">Data de Início *</label>
               <p-calendar
+                appDateMask="date"
                 id="startDate"
                 formControlName="startDate"
                 dateFormat="dd/mm/yy"
                 placeholder="Selecione a data"
+                [showIcon]="true"
                 [class.ng-invalid]="form.get('startDate')?.invalid && form.get('startDate')?.touched"
                 appendTo="body"
               ></p-calendar>

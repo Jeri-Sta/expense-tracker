@@ -422,11 +422,13 @@
           Data <span class="required-asterisk">*</span>
         </label>
         <p-calendar
+          appDateMask="date"
           id="transactionDate"
           formControlName="transactionDate"
           placeholder="dd/mm/aaaa"
           dateFormat="dd/mm/yy"
           styleClass="w-full"
+          [showIcon]="true"
           appendTo="body"
           (onSelect)="onTransactionDateChange()"
         ></p-calendar>
@@ -444,12 +446,14 @@
           Período de Competência <span class="required-asterisk">*</span>
         </label>
         <p-calendar
+          appDateMask="month"
           id="competencyPeriod"
           formControlName="competencyPeriod"
           placeholder="mm/aaaa"
           dateFormat="mm/yy"
           view="month"
           styleClass="w-full"
+          [showIcon]="true"
           appendTo="body"
         ></p-calendar>
         <small class="text-color-secondary text-xs mt-1 block">

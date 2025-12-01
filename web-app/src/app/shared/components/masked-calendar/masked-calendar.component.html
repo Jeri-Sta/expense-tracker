@@ -1,0 +1,43 @@
+<div class="masked-calendar-container" [ngClass]="styleClass">
+  <div class="p-inputgroup">
+    <p-inputMask
+      #inputMask
+      [mask]="mask"
+      [(ngModel)]="maskedValue"
+      [placeholder]="computedPlaceholder"
+      [slotChar]="computedSlotChar"
+      [disabled]="disabled"
+      [attr.id]="inputId"
+      (onComplete)="onMaskComplete($event)"
+      (onBlur)="onMaskedInputBlur()"
+      styleClass="w-full"
+      [ngClass]="invalidClass"
+      [autoClear]="false"
+    ></p-inputMask>
+    
+    <button 
+      *ngIf="showIcon"
+      type="button" 
+      pButton 
+      icon="pi pi-calendar" 
+      class="p-button-icon-only calendar-button"
+      (click)="toggleCalendar($event)"
+      [disabled]="disabled"
+    ></button>
+  </div>
+  
+  <p-calendar
+    #calendar
+    [(ngModel)]="value"
+    [dateFormat]="dateFormat"
+    [view]="view"
+    [appendTo]="appendTo"
+    [disabled]="disabled"
+    [inline]="false"
+    [touchUI]="false"
+    (onSelect)="onCalendarSelect($event)"
+    (onShow)="onCalendarShow()"
+    (onHide)="onCalendarHide()"
+    [style]="{'position': 'absolute', 'visibility': 'hidden', 'width': '0', 'height': '0'}"
+  ></p-calendar>
+</div>
