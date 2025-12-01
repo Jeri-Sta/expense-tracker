@@ -1,0 +1,39 @@
+export interface DashboardStats {
+  totalIncome: number;
+  totalExpenses: number;
+  balance: number;
+  transactionCount: number;
+  averageTransaction: number;
+  monthlyGrowth: number;
+  projectedIncome: number;
+  projectedExpenses: number;
+  projectedBalance: number;
+  projectedTransactionCount: number;
+  hasProjections: boolean;
+}
+
+export interface CategoryStats {
+  categoryId: string;
+  categoryName: string;
+  categoryColor: string;
+  categoryIcon: string;
+  amount: number;
+  percentage: number;
+  transactionCount: number;
+}
+
+export interface InstallmentStats {
+  totalPlans: number;
+  totalFinanced: number;
+  totalPaid: number;
+  totalRemaining: number;
+  totalSavings: number;
+  upcomingPayments: UpcomingPayment[];
+}
+
+export interface UpcomingPayment {
+  installmentNumber: number;
+  planName: string;
+  dueDate: string;
+  amount: number;
+}

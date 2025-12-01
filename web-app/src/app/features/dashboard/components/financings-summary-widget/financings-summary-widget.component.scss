@@ -1,0 +1,66 @@
+@import 'src/styles/variables';
+@import 'src/styles/mixins';
+
+.installments-section {
+  @include card-base;
+  padding: 0;
+  overflow: hidden;
+  border-radius: $border-radius-lg;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-md !important;
+  }
+
+  .section-header {
+    background: var(--surface-section);
+    border-bottom: 1px solid var(--surface-border);
+
+    h3 {
+      color: var(--text-color);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    p {
+      color: var(--text-color-secondary);
+      font-size: 0.875rem;
+    }
+  }
+
+  .installments-content {
+    background: var(--surface-card);
+  }
+
+  .installment-kpi {
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+    
+    i {
+      display: block;
+    }
+  }
+  
+  .progress-section,
+  .savings-section {
+    transition: background-color 0.2s ease;
+  }
+  
+  .payment-item {
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: var(--surface-hover);
+    }
+  }
+}
+
+:host ::ng-deep {
+  .p-progressbar {
+    background: var(--surface-200);
+    border-radius: $border-radius-sm;
+  }
+}

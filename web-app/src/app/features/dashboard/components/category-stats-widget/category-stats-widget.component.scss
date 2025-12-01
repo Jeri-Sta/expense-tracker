@@ -1,0 +1,55 @@
+@import 'src/styles/variables';
+@import 'src/styles/mixins';
+
+:host {
+  display: block;
+
+  > .surface-card {
+    @include card-base;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+    border-radius: $border-radius-lg;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: $shadow-md !important;
+    }
+  }
+}
+
+.card-header {
+  background: var(--surface-section);
+  border-bottom: 1px solid var(--surface-border);
+
+  h5 {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+  }
+}
+
+.card-content {
+  background: var(--surface-card);
+}
+
+.category-stat-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-sm;
+  }
+}
+
+:host ::ng-deep {
+  .p-progressbar {
+    background: var(--surface-200);
+    border-radius: $border-radius-sm;
+  }
+}

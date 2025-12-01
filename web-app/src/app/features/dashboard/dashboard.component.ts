@@ -11,30 +11,7 @@ import { MessageService } from 'primeng/api';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-
-interface DashboardStats {
-  totalIncome: number;
-  totalExpenses: number;
-  balance: number;
-  transactionCount: number;
-  averageTransaction: number;
-  monthlyGrowth: number;
-  projectedIncome: number;
-  projectedExpenses: number;
-  projectedBalance: number;
-  projectedTransactionCount: number;
-  hasProjections: boolean;
-}
-
-interface CategoryStats {
-  categoryId: string;
-  categoryName: string;
-  categoryColor: string;
-  categoryIcon: string;
-  amount: number;
-  percentage: number;
-  transactionCount: number;
-}
+import { DashboardStats, CategoryStats, InstallmentStats } from '../../shared/types/dashboard.types';
 
 @Component({
   selector: 'app-dashboard',
@@ -84,13 +61,13 @@ export class DashboardComponent implements OnInit {
   currentCardPeriod: string = '';
   
   // Installments data
-  installmentStats = {
+  installmentStats: InstallmentStats = {
     totalPlans: 0,
     totalFinanced: 0,
     totalPaid: 0,
     totalRemaining: 0,
     totalSavings: 0,
-    upcomingPayments: [] as any[]
+    upcomingPayments: []
   };
   
   // Date range for analysis

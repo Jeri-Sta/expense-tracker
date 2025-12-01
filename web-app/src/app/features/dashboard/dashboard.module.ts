@@ -21,13 +21,31 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 import { CardLimitsWidgetComponent } from './components/card-limits-widget/card-limits-widget.component';
 import { InstallmentsWidgetComponent } from './components/installments-widget/installments-widget.component';
 import { CardTransactionsWidgetComponent } from './components/card-transactions-widget/card-transactions-widget.component';
+import { KpiCardsWidgetComponent } from './components/kpi-cards-widget/kpi-cards-widget.component';
+import { FinancingsSummaryWidgetComponent } from './components/financings-summary-widget/financings-summary-widget.component';
+import { MonthlyTrendChartComponent } from './components/charts/monthly-trend-chart/monthly-trend-chart.component';
+import { IncomeExpenseChartComponent } from './components/charts/income-expense-chart/income-expense-chart.component';
+import { CategoryDistributionChartComponent } from './components/charts/category-distribution-chart/category-distribution-chart.component';
+import { TopCategoriesChartComponent } from './components/charts/top-categories-chart/top-categories-chart.component';
+import { RecentTransactionsWidgetComponent } from './components/recent-transactions-widget/recent-transactions-widget.component';
+import { UpcomingRecurringWidgetComponent } from './components/upcoming-recurring-widget/upcoming-recurring-widget.component';
+import { CategoryStatsWidgetComponent } from './components/category-stats-widget/category-stats-widget.component';
 
 @NgModule({
   declarations: [
     DashboardComponent,
     CardLimitsWidgetComponent,
     InstallmentsWidgetComponent,
-    CardTransactionsWidgetComponent
+    CardTransactionsWidgetComponent,
+    KpiCardsWidgetComponent,
+    FinancingsSummaryWidgetComponent,
+    MonthlyTrendChartComponent,
+    IncomeExpenseChartComponent,
+    CategoryDistributionChartComponent,
+    TopCategoriesChartComponent,
+    RecentTransactionsWidgetComponent,
+    UpcomingRecurringWidgetComponent,
+    CategoryStatsWidgetComponent
   ],
   imports: [
     CommonModule,

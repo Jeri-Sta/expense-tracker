@@ -1,0 +1,65 @@
+<div class="grid">
+  <!-- Income KPI Card -->
+  <div class="col-12 sm:col-6 lg:col-3">
+    <div class="kpi-card surface-card shadow-2 border-round-lg p-3 text-center">
+      <div class="flex align-items-center justify-content-center mb-2">
+        <i class="pi pi-arrow-up text-green-600 text-2xl"></i>
+      </div>
+      <div class="text-green-600 font-bold text-xl mb-1">
+        {{ formatCurrency(showProjections ? getTotalProjectedIncome() : dashboardData.totalIncome) }}
+      </div>
+      <div class="text-color-secondary font-semibold">Receitas {{ getMonthLabel() }}</div>
+      <div *ngIf="showProjections && dashboardData.hasProjections" class="text-xs text-blue-600 mt-1">
+        + {{ formatCurrency(dashboardData.projectedIncome) }} projetado
+      </div>
+    </div>
+  </div>
+  
+  <!-- Expenses KPI Card -->
+  <div class="col-12 sm:col-6 lg:col-3">
+    <div class="kpi-card surface-card shadow-2 border-round-lg p-3 text-center">
+      <div class="flex align-items-center justify-content-center mb-2">
+        <i class="pi pi-arrow-down text-red-600 text-2xl"></i>
+      </div>
+      <div class="text-red-600 font-bold text-xl mb-1">
+        {{ formatCurrency(showProjections ? getTotalProjectedExpenses() : dashboardData.totalExpenses) }}
+      </div>
+      <div class="text-color-secondary font-semibold">Despesas {{ getMonthLabel() }}</div>
+      <div *ngIf="showProjections && dashboardData.hasProjections" class="text-xs text-orange-600 mt-1">
+        + {{ formatCurrency(dashboardData.projectedExpenses) }} projetado
+      </div>
+    </div>
+  </div>
+  
+  <!-- Balance KPI Card -->
+  <div class="col-12 sm:col-6 lg:col-3">
+    <div class="kpi-card surface-card shadow-2 border-round-lg p-3 text-center">
+      <div class="flex align-items-center justify-content-center mb-2">
+        <i class="pi pi-wallet" [class]="getBalanceClass() + ' text-2xl'"></i>
+      </div>
+      <div [class]="getBalanceClass() + ' font-bold text-xl mb-1'">
+        {{ formatCurrency(showProjections ? getTotalProjectedBalance() : dashboardData.balance) }}
+      </div>
+      <div class="text-color-secondary font-semibold">Saldo {{ getMonthLabel() }}</div>
+      <div *ngIf="showProjections && dashboardData.hasProjections" [class]="'text-xs mt-1 ' + getProjectionClass(dashboardData.projectedBalance)">
+        {{ dashboardData.projectedBalance >= 0 ? '+' : '' }} {{ formatCurrency(dashboardData.projectedBalance) }} projetado
+      </div>
+    </div>
+  </div>
+  
+  <!-- Transaction Count KPI Card -->
+  <div class="col-12 sm:col-6 lg:col-3">
+    <div class="kpi-card surface-card shadow-2 border-round-lg p-3 text-center">
+      <div class="flex align-items-center justify-content-center mb-2">
+        <i class="pi pi-list text-blue-600 text-2xl"></i>
+      </div>
+      <div class="text-blue-600 font-bold text-xl mb-1">
+        {{ getTotalTransactionCount() }}
+      </div>
+      <div class="text-color-secondary font-semibold">Transações</div>
+      <div *ngIf="showProjections && dashboardData.hasProjections" class="text-xs text-blue-600 mt-1">
+        + {{ dashboardData.projectedTransactionCount }} projetadas
+      </div>
+    </div>
+  </div>
+</div>

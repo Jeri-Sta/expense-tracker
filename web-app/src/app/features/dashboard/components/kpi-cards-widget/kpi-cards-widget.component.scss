@@ -1,0 +1,45 @@
+@import 'src/styles/variables';
+@import 'src/styles/mixins';
+
+.kpi-card {
+  @include card-base;
+  position: relative;
+  overflow: hidden;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: $spacing-md;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-500) 0%, var(--primary-600) 100%);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .text-green-600 {
+    color: $color-success !important;
+  }
+
+  .text-red-600 {
+    color: $color-danger !important;
+  }
+
+  .text-blue-600 {
+    color: $color-primary !important;
+  }
+
+  .text-orange-600 {
+    color: $color-warning !important;
+  }
+}

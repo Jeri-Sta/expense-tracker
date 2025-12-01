@@ -80,187 +80,24 @@
   </div>
 
   <!-- KPI Cards -->
-  <div class="grid mb-4">
-    <div class="col-12 sm:col-6 lg:col-3">
-      <div class="kpi-card surface-card shadow-2 border-round-lg p-3 text-center">
-        <div class="flex align-items-center justify-content-center mb-2">
-          <i class="pi pi-arrow-up text-green-600 text-2xl"></i>
-        </div>
-        <div class="text-green-600 font-bold text-xl mb-1">
-          {{ formatCurrency(includeProjections ? getTotalProjectedIncome() : currentStats.totalIncome) }}
-        </div>
-        <div class="text-color-secondary font-semibold">Receitas {{ isCurrentMonth ? 'do Mês' : 'de ' + getSelectedMonthName() }}</div>
-        <div *ngIf="includeProjections && currentStats.hasProjections" class="text-xs text-blue-600 mt-1">
-          + {{ formatCurrency(currentStats.projectedIncome) }} projetado
-        </div>
-      </div>
-    </div>
-    
-    <div class="col-12 sm:col-6 lg:col-3">
-      <div class="kpi-card surface-card shadow-2 border-round-lg p-3 text-center">
-        <div class="flex align-items-center justify-content-center mb-2">
-          <i class="pi pi-arrow-down text-red-600 text-2xl"></i>
-        </div>
-        <div class="text-red-600 font-bold text-xl mb-1">
-          {{ formatCurrency(includeProjections ? getTotalProjectedExpenses() : currentStats.totalExpenses) }}
-        </div>
-        <div class="text-color-secondary font-semibold">Despesas {{ isCurrentMonth ? 'do Mês' : 'de ' + getSelectedMonthName() }}</div>
-        <div *ngIf="includeProjections && currentStats.hasProjections" class="text-xs text-orange-600 mt-1">
-          + {{ formatCurrency(currentStats.projectedExpenses) }} projetado
-        </div>
-      </div>
-    </div>
-    
-    <div class="col-12 sm:col-6 lg:col-3">
-      <div class="kpi-card surface-card shadow-2 border-round-lg p-3 text-center">
-        <div class="flex align-items-center justify-content-center mb-2">
-          <i class="pi pi-wallet" [class]="getBalanceClass() + ' text-2xl'"></i>
-        </div>
-        <div [class]="getBalanceClass() + ' font-bold text-xl mb-1'">
-          {{ formatCurrency(includeProjections ? getTotalProjectedBalance() : currentStats.balance) }}
-        </div>
-        <div class="text-color-secondary font-semibold">Saldo {{ isCurrentMonth ? 'do Mês' : 'de ' + getSelectedMonthName() }}</div>
-        <div *ngIf="includeProjections && currentStats.hasProjections" [class]="'text-xs mt-1 ' + getProjectionClass(currentStats.projectedBalance)">
-          {{ currentStats.projectedBalance >= 0 ? '+' : '' }} {{ formatCurrency(currentStats.projectedBalance) }} projetado
-        </div>
-      </div>
-    </div>
-    
-    <div class="col-12 sm:col-6 lg:col-3">
-      <div class="kpi-card surface-card shadow-2 border-round-lg p-3 text-center">
-        <div class="flex align-items-center justify-content-center mb-2">
-          <i class="pi pi-list text-blue-600 text-2xl"></i>
-        </div>
-        <div class="text-blue-600 font-bold text-xl mb-1">
-          {{ includeProjections ? (currentStats.transactionCount + currentStats.projectedTransactionCount) : currentStats.transactionCount }}
-        </div>
-        <div class="text-color-secondary font-semibold">Transações</div>
-        <div *ngIf="includeProjections && currentStats.hasProjections" class="text-xs text-blue-600 mt-1">
-          + {{ currentStats.projectedTransactionCount }} projetadas
-        </div>
-      </div>
-    </div>
+  <div class="mb-4">
+    <app-kpi-cards-widget
+      [dashboardData]="currentStats"
+      [showProjections]="includeProjections"
+      [isLoading]="loading"
+      [isCurrentMonth]="isCurrentMonth"
+      [selectedMonthName]="getSelectedMonthName()"
+    ></app-kpi-cards-widget>
   </div>
 
   <!-- Installments Summary Section -->
   <div class="grid mb-4" *ngIf="installmentStats.totalPlans > 0">
     <div class="col-12">
-      <div class="installments-section surface-card shadow-2 border-round-lg">
-        <div class="section-header p-4 border-bottom-1 surface-border">
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <h3 class="text-lg font-bold text-color m-0">Financiamentos</h3>
-              <p class="text-color-secondary m-0 text-sm">Resumo dos seus financiamentos ativos</p>
-            </div>
-            <p-button 
-              label="Ver Todos" 
-              icon="pi pi-external-link" 
-              [text]="true" 
-              size="small"
-              (onClick)="navigateToInstallments()"
-            ></p-button>
-          </div>
-        </div>
-        
-        <div class="installments-content p-4">
-          <div class="grid">
-            <!-- Financial Summary Cards -->
-            <div class="col-12 md:col-6 lg:col-3">
-              <div class="installment-kpi surface-section border-round p-3 text-center h-full">
-                <i class="pi pi-credit-card text-primary text-2xl mb-2"></i>
-                <div class="text-primary font-bold text-lg">{{ installmentStats.totalPlans }}</div>
-                <div class="text-color-secondary text-sm">Financiamentos Ativos</div>
-              </div>
-            </div>
-            
-            <div class="col-12 md:col-6 lg:col-3">
-              <div class="installment-kpi surface-section border-round p-3 text-center h-full">
-                <i class="pi pi-dollar text-blue-600 text-2xl mb-2"></i>
-                <div class="text-blue-600 font-bold text-lg">{{ formatCurrency(installmentStats.totalFinanced) }}</div>
-                <div class="text-color-secondary text-sm">Total Financiado</div>
-              </div>
-            </div>
-            
-            <div class="col-12 md:col-6 lg:col-3">
-              <div class="installment-kpi surface-section border-round p-3 text-center h-full">
-                <i class="pi pi-check-circle text-green-600 text-2xl mb-2"></i>
-                <div class="text-green-600 font-bold text-lg">{{ formatCurrency(installmentStats.totalPaid) }}</div>
-                <div class="text-color-secondary text-sm">Total Pago</div>
-              </div>
-            </div>
-            
-            <div class="col-12 md:col-6 lg:col-3">
-              <div class="installment-kpi surface-section border-round p-3 text-center h-full">
-                <i class="pi pi-clock text-orange-600 text-2xl mb-2"></i>
-                <div class="text-orange-600 font-bold text-lg">{{ formatCurrency(installmentStats.totalRemaining) }}</div>
-                <div class="text-color-secondary text-sm">Valor Restante</div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Progress and Savings Row -->
-          <div class="grid mt-3">
-            <div class="col-12 md:col-6">
-              <div class="progress-section surface-section border-round p-3 h-full">
-                <h4 class="text-base font-bold text-color mb-2">Progresso Geral</h4>
-                <div class="flex align-items-center justify-content-between mb-2">
-                  <span class="text-color-secondary text-sm">Valor pago do total</span>
-                  <span class="font-bold text-color">{{ getInstallmentProgress().toFixed(1) }}%</span>
-                </div>
-                <p-progressBar 
-                  [value]="getInstallmentProgress()"
-                  styleClass="progress-bar-custom">
-                </p-progressBar>
-              </div>
-            </div>
-            
-            <div class="col-12 md:col-6">
-              <div class="savings-section surface-section border-round p-3 h-full">
-                <h4 class="text-base font-bold text-color mb-2">Desconto Obtido</h4>
-                <div class="flex align-items-center justify-content-center">
-                  <i class="pi pi-star-fill text-yellow-500 text-xl mr-2" *ngIf="installmentStats.totalSavings > 0"></i>
-                  <i class="pi pi-star text-color-secondary text-xl mr-2" *ngIf="installmentStats.totalSavings === 0"></i>
-                  <div 
-                    class="font-bold text-xl"
-                    [class]="installmentStats.totalSavings > 0 ? 'text-green-600' : 'text-color-secondary'"
-                  >
-                    {{ formatCurrency(installmentStats.totalSavings) }}
-                  </div>
-                </div>
-                <div class="text-color-secondary text-sm text-center mt-1">
-                  {{ installmentStats.totalSavings > 0 ? 'Economizado com pagamentos antecipados' : 'Nenhum desconto aplicado ainda' }}
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Upcoming Payments -->
-          <div class="upcoming-payments mt-3" *ngIf="installmentStats.upcomingPayments.length > 0">
-            <h4 class="text-base font-bold text-color mb-3">Próximos Vencimentos</h4>
-            <div class="grid">
-              <div class="col-12" *ngFor="let payment of installmentStats.upcomingPayments.slice(0, 3)">
-                <div class="payment-item flex align-items-center justify-content-between surface-hover border-round p-2">
-                  <div class="flex align-items-center gap-3">
-                    <div class="payment-number bg-primary text-white border-circle w-2rem h-2rem flex align-items-center justify-content-center text-sm font-bold">
-                      {{ payment.installmentNumber }}
-                    </div>
-                    <div>
-                      <div class="font-semibold text-color">{{ payment.planName }}</div>
-                      <div class="text-color-secondary text-sm">Vencimento: {{ formatDate(payment.dueDate) }}</div>
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <div class="font-bold text-color">{{ formatCurrency(payment.amount) }}</div>
-                    <div class="text-color-secondary text-sm">
-                      {{ getDaysUntilDue(payment.dueDate) > 0 ? getDaysUntilDue(payment.dueDate) + ' dias' : 'Vencida' }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-financings-summary-widget
+        [installmentStats]="installmentStats"
+        [isLoading]="loading"
+        (navigateToInstallments)="navigateToInstallments()"
+      ></app-financings-summary-widget>
     </div>
   </div>
 
@@ -289,42 +126,20 @@
   <div class="grid mb-4">
     <!-- Monthly Trend Chart -->
     <div class="col-12 xl:col-8">
-      <div class="chart-card surface-card shadow-2 border-round-lg">
-        <div class="chart-header p-4 border-bottom-1 surface-border">
-          <h5 class="font-bold text-color m-0">Tendência Mensal</h5>
-          <p class="text-color-secondary text-sm m-0">Evolução de receitas, despesas e saldo ao longo do ano</p>
-        </div>
-        <div class="chart-content p-4">
-          <div class="chart-wrapper monthly-trend-chart" style="position: relative; height: 450px; width: 100%;">
-            <p-chart 
-              type="line" 
-              [data]="monthlyTrendData" 
-              [options]="monthlyTrendOptions"
-              [style]="{'height': '100%', 'width': '100%'}"
-            ></p-chart>
-          </div>
-        </div>
-      </div>
+      <app-monthly-trend-chart
+        [chartData]="monthlyTrendData"
+        [chartOptions]="monthlyTrendOptions"
+        [isLoading]="loading"
+      ></app-monthly-trend-chart>
     </div>
 
     <!-- Income vs Expense Pie -->
     <div class="col-12 xl:col-4">
-      <div class="chart-card surface-card shadow-2 border-round-lg">
-        <div class="chart-header p-4 border-bottom-1 surface-border">
-          <h5 class="font-bold text-color m-0">Receitas vs Despesas</h5>
-          <p class="text-color-secondary text-sm m-0">Distribuição anual</p>
-        </div>
-        <div class="chart-content p-4">
-          <div class="chart-wrapper" style="position: relative; height: 400px; width: 100%;">
-            <p-chart 
-              type="doughnut" 
-              [data]="incomeVsExpenseData" 
-              [options]="incomeVsExpenseOptions"
-              [style]="{'height': '100%', 'width': '100%'}"
-            ></p-chart>
-          </div>
-        </div>
-      </div>
+      <app-income-expense-chart
+        [chartData]="incomeVsExpenseData"
+        [chartOptions]="incomeVsExpenseOptions"
+        [isLoading]="loading"
+      ></app-income-expense-chart>
     </div>
   </div>
 
@@ -332,48 +147,20 @@
   <div class="grid mb-4">
     <!-- Category Distribution -->
     <div class="col-12 lg:col-6">
-      <div class="chart-card surface-card shadow-2 border-round-lg">
-        <div class="chart-header p-4 border-bottom-1 surface-border">
-          <h5 class="font-bold text-color m-0">Distribuição por Categorias</h5>
-          <p class="text-color-secondary text-sm m-0">Top categorias do mês atual</p>
-        </div>
-        <div class="chart-content p-4">
-          <div class="chart-wrapper" style="position: relative; height: 350px; width: 100%;" *ngIf="categoryPieData?.datasets?.[0]?.data?.length > 0">
-            <p-chart 
-              type="pie" 
-              [data]="categoryPieData" 
-              [options]="categoryPieOptions"
-              [style]="{'height': '100%', 'width': '100%'}"
-            ></p-chart>
-          </div>
-          <div class="text-center py-4 text-color-secondary w-full" *ngIf="!categoryPieData?.datasets?.[0]?.data?.length">
-            Nenhum gasto registrado neste período
-          </div>
-        </div>
-      </div>
+      <app-category-distribution-chart
+        [chartData]="categoryPieData"
+        [chartOptions]="categoryPieOptions"
+        [isLoading]="loading"
+      ></app-category-distribution-chart>
     </div>
 
     <!-- Top Expense Categories -->
     <div class="col-12 lg:col-6">
-      <div class="chart-card surface-card shadow-2 border-round-lg">
-        <div class="chart-header p-4 border-bottom-1 surface-border">
-          <h5 class="font-bold text-color m-0">Top Categorias</h5>
-          <p class="text-color-secondary text-sm m-0">Maiores gastos por categoria</p>
-        </div>
-        <div class="chart-content p-4">
-          <div class="chart-wrapper" style="position: relative; height: 400px; width: 100%;" *ngIf="expenseCategoryData?.datasets?.[0]?.data?.length > 0">
-            <p-chart 
-              type="bar" 
-              [data]="expenseCategoryData" 
-              [options]="expenseCategoryOptions"
-              [style]="{'height': '100%', 'width': '100%'}"
-            ></p-chart>
-          </div>
-          <div class="text-center py-4 text-color-secondary w-full" *ngIf="!expenseCategoryData?.datasets?.[0]?.data?.length">
-            Nenhum gasto registrado neste período
-          </div>
-        </div>
-      </div>
+      <app-top-categories-chart
+        [chartData]="expenseCategoryData"
+        [chartOptions]="expenseCategoryOptions"
+        [isLoading]="loading"
+      ></app-top-categories-chart>
     </div>
   </div>
 
@@ -381,172 +168,28 @@
   <div class="grid">
     <!-- Recent Transactions -->
     <div class="col-12 lg:col-6">
-      <div class="data-card surface-card shadow-2 border-round-lg">
-        <div class="card-header p-4 border-bottom-1 surface-border">
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <h5 class="font-bold text-color m-0">Transações Recentes</h5>
-              <p class="text-color-secondary text-sm m-0">Últimas movimentações</p>
-            </div>
-            <p-button 
-              label="Ver Todas" 
-              icon="pi pi-external-link" 
-              [text]="true"
-              size="small"
-              routerLink="/transactions"
-            ></p-button>
-          </div>
-        </div>
-        <div class="card-content p-4">
-          <div class="transaction-list" *ngIf="recentTransactions.length > 0">
-            <div 
-              class="transaction-item flex justify-content-between align-items-center py-3 px-3 border-round hover:surface-hover cursor-pointer border-bottom-1 surface-border"
-              *ngFor="let transaction of recentTransactions"
-            >
-              <div class="flex align-items-center gap-3">
-                <div 
-                  class="flex align-items-center justify-content-center border-circle w-3rem h-3rem"
-                  [style.background-color]="transaction.category.color + '20'"
-                >
-                  <i 
-                    [class]="normalizeIcon(transaction.category.icon)" 
-                    [style.color]="transaction.category.color"
-                    class="text-xl"
-                  ></i>
-                </div>
-                <div>
-                  <div class="font-bold text-color text-lg">{{ transaction.description }}</div>
-                  <div class="text-color-secondary text-sm mt-1">
-                    {{ transaction.category.name }} • {{ formatDate(transaction.transactionDate) }}
-                  </div>
-                  <div *ngIf="transaction.notes" class="text-color-secondary text-xs mt-1 white-space-nowrap overflow-hidden text-overflow-ellipsis" style="max-width: 200px;">
-                    <i class="pi pi-align-left mr-1" style="font-size: 0.7rem"></i>{{ transaction.notes }}
-                  </div>
-                </div>
-              </div>
-              <div class="text-right">
-                <div [class]="'text-xl font-bold ' + (transaction.type === 'income' ? 'text-green-600' : 'text-red-600')">
-                  {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
-                </div>
-                <div *ngIf="transaction.isProjected" class="text-xs text-blue-500 mt-1">
-                  <i class="pi pi-clock mr-1"></i>Projetada
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="text-center py-4 text-color-secondary" *ngIf="recentTransactions.length === 0">
-            Nenhuma transação encontrada
-          </div>
-        </div>
-      </div>
+      <app-recent-transactions-widget
+        [transactions]="recentTransactions"
+        [isLoading]="loading"
+      ></app-recent-transactions-widget>
     </div>
 
     <!-- Upcoming Recurring -->
     <div class="col-12 lg:col-6">
-      <div class="data-card surface-card shadow-2 border-round-lg">
-        <div class="card-header p-4 border-bottom-1 surface-border">
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <h5 class="font-bold text-color m-0">Próximas Recorrências</h5>
-              <p class="text-color-secondary text-sm m-0">Transações agendadas</p>
-            </div>
-            <p-button 
-              label="Ver Todas" 
-              icon="pi pi-external-link" 
-              [text]="true"
-              size="small"
-              routerLink="/recurring-transactions"
-            ></p-button>
-          </div>
-        </div>
-        <div class="card-content p-4">
-          <div class="recurring-list" *ngIf="upcomingRecurring.length > 0">
-            <div 
-              class="recurring-item flex justify-content-between align-items-center py-3 px-3 border-round hover:surface-hover cursor-pointer border-bottom-1 surface-border"
-              *ngFor="let recurring of upcomingRecurring"
-            >
-              <div class="flex align-items-center gap-3">
-                <div 
-                  class="flex align-items-center justify-content-center border-circle w-3rem h-3rem"
-                  [style.background-color]="recurring.category.color + '20'"
-                >
-                  <i 
-                    [class]="normalizeIcon(recurring.category.icon)" 
-                    [style.color]="recurring.category.color"
-                    class="text-xl"
-                  ></i>
-                </div>
-                <div>
-                  <div class="font-semibold text-color">{{ recurring.description }}</div>
-                  <div class="text-color-secondary text-sm">
-                    {{ formatDate(recurring.nextExecution) }}
-                    <span [class]="isOverdue(recurring) ? 'text-red-600 font-bold' : ''">
-                      ({{ isOverdue(recurring) ? 'Atrasada' : getDaysUntilExecution(recurring) + ' dias' }})
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="text-right">
-                <div [class]="'font-bold ' + (recurring.type === 'income' ? 'text-green-600' : 'text-red-600')">
-                  {{ recurring.type === 'income' ? '+' : '-' }}{{ formatCurrency(recurring.amount) }}
-                </div>
-                <div class="text-xs text-color-secondary">
-                  {{ recurring.frequency }}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="text-center py-4 text-color-secondary" *ngIf="upcomingRecurring.length === 0">
-            Nenhuma recorrência agendada
-          </div>
-        </div>
-      </div>
+      <app-upcoming-recurring-widget
+        [upcomingRecurring]="upcomingRecurring"
+        [isLoading]="loading"
+      ></app-upcoming-recurring-widget>
     </div>
   </div>
 
   <!-- Category Stats -->
   <div class="grid mt-4">
     <div class="col-12">
-      <div class="surface-card shadow-2 border-round-lg">
-        <div class="card-header p-4 border-bottom-1 surface-border">
-          <h5 class="font-bold text-color m-0">Estatísticas por Categoria</h5>
-          <p class="text-color-secondary text-sm m-0">Detalhamento dos gastos do mês atual</p>
-        </div>
-        <div class="card-content p-4">
-          <div class="grid" *ngIf="topCategories.length > 0">
-            <div 
-              class="col-12 sm:col-6 lg:col-4 xl:col-3"
-              *ngFor="let category of topCategories.slice(0, 8)"
-            >
-              <div class="category-stat-card p-3 border-round surface-hover h-full">
-                <div class="flex align-items-center gap-3 mb-2">
-                  <i 
-                    [class]="normalizeIcon(category.categoryIcon)" 
-                    [style.color]="category.categoryColor"
-                    class="text-xl"
-                  ></i>
-                  <div class="flex-grow-1 overflow-hidden">
-                    <div class="font-semibold text-color white-space-nowrap overflow-hidden text-overflow-ellipsis" [title]="category.categoryName">{{ category.categoryName }}</div>
-                    <div class="text-color-secondary text-sm white-space-nowrap">{{ category.transactionCount }} transação(ões)</div>
-                  </div>
-                </div>
-                <div class="mb-2">
-                  <div class="font-bold text-lg">{{ formatCurrency(category.amount) }}</div>
-                  <div class="text-color-secondary text-sm">{{ (category.percentage || 0).toFixed(1) }}% do total</div>
-                </div>
-                <p-progressBar 
-                  [value]="category.percentage || 0" 
-                  [showValue]="false"
-                  [style]="{'height': '6px'}"
-                ></p-progressBar>
-              </div>
-            </div>
-          </div>
-          <div class="text-center py-4 text-color-secondary" *ngIf="topCategories.length === 0">
-            Nenhum gasto registrado neste período
-          </div>
-        </div>
-      </div>
+      <app-category-stats-widget
+        [categoryStats]="topCategories"
+        [isLoading]="loading"
+      ></app-category-stats-widget>
     </div>
   </div>
 </div>
