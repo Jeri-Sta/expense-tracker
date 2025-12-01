@@ -264,6 +264,27 @@
     </div>
   </div>
 
+  <!-- Credit Cards Section -->
+  <div class="grid mb-4" *ngIf="creditCards.length > 0 || cardInstallments.length > 0 || cardTransactions.length > 0">
+    <!-- Card Limits Widget -->
+    <div class="col-12 lg:col-6" *ngIf="creditCards.length > 0">
+      <app-card-limits-widget [creditCards]="creditCards"></app-card-limits-widget>
+    </div>
+    
+    <!-- Card Transactions Widget -->
+    <div class="col-12 lg:col-6" *ngIf="cardTransactions.length > 0 || creditCards.length > 0">
+      <app-card-transactions-widget 
+        [transactions]="cardTransactions" 
+        [currentPeriod]="currentCardPeriod"
+      ></app-card-transactions-widget>
+    </div>
+    
+    <!-- Installments Widget -->
+    <div class="col-12 lg:col-6" *ngIf="cardInstallments.length > 0">
+      <app-installments-widget [installments]="cardInstallments"></app-installments-widget>
+    </div>
+  </div>
+
   <!-- Main Charts Row -->
   <div class="grid mb-4">
     <!-- Monthly Trend Chart -->

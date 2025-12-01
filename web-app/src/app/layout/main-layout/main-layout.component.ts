@@ -48,6 +48,10 @@ export class MainLayoutComponent implements OnInit {
         return 'Transações Recorrentes';
       case this.currentRoute.startsWith('/installments'):
         return 'Financiamentos';
+      case this.currentRoute === '/credit-cards':
+        return 'Cartões de Crédito';
+      case this.currentRoute === '/credit-cards/transactions':
+        return 'Faturas de Cartão';
       default:
         return 'Expense Tracker';
     }
@@ -65,6 +69,10 @@ export class MainLayoutComponent implements OnInit {
         return 'pi pi-refresh';
       case this.currentRoute.startsWith('/installments'):
         return 'pi pi-calculator';
+      case this.currentRoute === '/credit-cards':
+        return 'pi pi-wallet';
+      case this.currentRoute === '/credit-cards/transactions':
+        return 'pi pi-file';
       default:
         return 'pi pi-home';
     }

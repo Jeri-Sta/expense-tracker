@@ -1,0 +1,80 @@
+@import 'variables';
+@import 'mixins';
+
+.credit-card-item {
+  @include card-base;
+  transition: all 0.3s ease;
+  height: 100%;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md !important;
+  }
+}
+
+.card-color-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: $border-radius-sm;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.color-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--surface-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+  
+  &.selected {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-color);
+    
+    i {
+      color: white;
+      font-size: 12px;
+    }
+  }
+}
+
+// Progress bar severity classes
+:host ::ng-deep {
+  .usage-success .p-progressbar-value {
+    background: #10B981 !important;
+  }
+  
+  .usage-warning .p-progressbar-value {
+    background: #F59E0B !important;
+  }
+  
+  .usage-danger .p-progressbar-value {
+    background: #EF4444 !important;
+  }
+  
+  .p-progressbar {
+    background: var(--surface-200);
+    border-radius: $border-radius-sm;
+  }
+}
+
+.field {
+  margin-bottom: $spacing-lg;
+  
+  label {
+    display: block;
+    margin-bottom: $spacing-xs;
+    font-weight: 500;
+  }
+  
+  small {
+    display: block;
+    margin-top: $spacing-xs;
+  }
+}

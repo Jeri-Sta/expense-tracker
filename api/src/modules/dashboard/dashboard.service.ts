@@ -4,8 +4,36 @@ import { Repository } from 'typeorm';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { InstallmentPlan } from '../installments/entities/installment-plan.entity';
 import { Installment } from '../installments/entities/installment.entity';
-import { InstallmentStatus, TransactionType } from '../../common/enums';
+import { CreditCard } from '../credit-cards/entities/credit-card.entity';
+import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
+import { Invoice } from '../card-transactions/entities/invoice.entity';
+import { InstallmentStatus, TransactionType, InvoiceStatus } from '../../common/enums';
 import { ProjectionsService, MonthlyStatsWithProjections } from '../transactions/projections.service';
+
+export interface CreditCardSummary {
+  id: string;
+  name: string;
+  color: string;
+  totalLimit: number;
+  usedLimit: number;
+  availableLimit: number;
+  usagePercentage: number;
+  currentInvoiceAmount: number;
+  currentInvoiceStatus: InvoiceStatus;
+  dueDate?: Date;
+}
+
+export interface CardInstallmentSummary {
+  id: string;
+  description: string;
+  creditCardName: string;
+  creditCardColor: string;
+  currentInstallment: number;
+  totalInstallments: number;
+  remainingInstallments: number;
+  installmentAmount: number;
+  totalRemaining: number;
+}
 
 export interface DashboardStats {
   currentMonth: {
@@ -18,6 +46,7 @@ export interface DashboardStats {
     projectedBalance: number;
     projectedTransactionCount: number;
     hasProjections: boolean;
+    cardExpenses: number;
   };
   yearlyOverview: MonthlyStatsWithProjections[];
   recentTransactions: any[];
@@ -30,6 +59,8 @@ export interface DashboardStats {
     totalSavings: number;
     upcomingPayments: any[];
   };
+  creditCards: CreditCardSummary[];
+  cardInstallments: CardInstallmentSummary[];
 }
 
 export interface MonthlyNavigationStats {
@@ -49,6 +80,12 @@ export class DashboardService {
     private readonly installmentPlanRepository: Repository<InstallmentPlan>,
     @InjectRepository(Installment)
     private readonly installmentRepository: Repository<Installment>,
+    @InjectRepository(CreditCard)
+    private readonly creditCardRepository: Repository<CreditCard>,
+    @InjectRepository(CardTransaction)
+    private readonly cardTransactionRepository: Repository<CardTransaction>,
+    @InjectRepository(Invoice)
+    private readonly invoiceRepository: Repository<Invoice>,
     private readonly projectionsService: ProjectionsService,
   ) {}
 
@@ -78,6 +115,16 @@ export class DashboardService {
     // Get installments summary
     const installments = await this.getInstallmentsSummary(userId);
 
+    // Get credit cards summary
+    const currentPeriod = `${targetYear}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+    const creditCards = await this.getCreditCardsSummary(userId, currentPeriod);
+
+    // Get card installments summary
+    const cardInstallments = await this.getCardInstallmentsSummary(userId, currentPeriod);
+
+    // Get card expenses for current month
+    const cardExpenses = await this.getCardExpensesForPeriod(userId, currentPeriod);
+
     const currentMonth = currentMonthStats[0] || {
       period: `${targetYear}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`,
       totalIncome: 0,
@@ -92,11 +139,18 @@ export class DashboardService {
     };
 
     return {
-      currentMonth,
+      currentMonth: {
+        ...currentMonth,
+        cardExpenses,
+        totalExpenses: currentMonth.totalExpenses + cardExpenses,
+        balance: currentMonth.totalIncome - (currentMonth.totalExpenses + cardExpenses),
+      },
       yearlyOverview,
       recentTransactions,
       topCategories,
       installments,
+      creditCards,
+      cardInstallments,
     };
   }
 
@@ -286,5 +340,156 @@ export class DashboardService {
       totalSavings,
       upcomingPayments: formattedUpcomingPayments,
     };
+  }
+
+  /**
+   * Calcula o limite usado do cartão considerando o valor total das transações parceladas.
+   * Para transações parceladas, soma todas as parcelas restantes (do período atual em diante).
+   * Para transações simples, soma apenas as do período atual.
+   */
+  private async calculateUsedLimitForCard(cardId: string, currentPeriod: string): Promise<number> {
+    // 1. Sum of non-installment transactions in current period
+    const nonInstallmentResult = await this.cardTransactionRepository
+      .createQueryBuilder('transaction')
+      .select('SUM(transaction.amount)', 'total')
+      .where('transaction.creditCardId = :cardId', { cardId })
+      .andWhere('transaction.invoicePeriod = :period', { period: currentPeriod })
+      .andWhere('transaction.isInstallment = :isInstallment', { isInstallment: false })
+      .getRawOne();
+
+    const nonInstallmentTotal = Number(nonInstallmentResult?.total || 0);
+
+    // 2. For installment transactions, get the total remaining value (all installments from current period onwards)
+    const installmentResult = await this.cardTransactionRepository
+      .createQueryBuilder('transaction')
+      .select('SUM(transaction.amount)', 'total')
+      .where('transaction.creditCardId = :cardId', { cardId })
+      .andWhere('transaction.invoicePeriod >= :period', { period: currentPeriod })
+      .andWhere('transaction.isInstallment = :isInstallment', { isInstallment: true })
+      .getRawOne();
+
+    const installmentTotal = Number(installmentResult?.total || 0);
+
+    return nonInstallmentTotal + installmentTotal;
+  }
+
+  private async getCreditCardsSummary(userId: string, currentPeriod: string): Promise<CreditCardSummary[]> {
+    const creditCards = await this.creditCardRepository.find({
+      where: { userId, isActive: true },
+      order: { name: 'ASC' },
+    });
+
+    const summaries: CreditCardSummary[] = [];
+
+    for (const card of creditCards) {
+      // Get current invoice amount
+      const currentInvoiceResult = await this.cardTransactionRepository
+        .createQueryBuilder('transaction')
+        .select('SUM(transaction.amount)', 'total')
+        .where('transaction.creditCardId = :cardId', { cardId: card.id })
+        .andWhere('transaction.invoicePeriod = :period', { period: currentPeriod })
+        .getRawOne();
+
+      const currentInvoiceAmount = Number(currentInvoiceResult?.total || 0);
+
+      // Calculate used limit considering full installment amounts
+      // For installment transactions, we need to count all remaining installments, not just current period
+      const usedLimitResult = await this.calculateUsedLimitForCard(card.id, currentPeriod);
+
+      // Get invoice status
+      const invoice = await this.invoiceRepository.findOne({
+        where: { creditCardId: card.id, period: currentPeriod },
+      });
+
+      const totalLimit = Number(card.totalLimit);
+      const usedLimit = usedLimitResult;
+      const availableLimit = totalLimit - usedLimit;
+      const usagePercentage = totalLimit > 0 ? (usedLimit / totalLimit) * 100 : 0;
+
+      // Calculate due date for current period
+      const [yearStr, monthStr] = currentPeriod.split('-');
+      const year = parseInt(yearStr);
+      const month = parseInt(monthStr) - 1;
+      const dueDate = new Date(year, month, card.dueDay);
+      if (card.dueDay <= card.closingDay) {
+        dueDate.setMonth(dueDate.getMonth() + 1);
+      }
+
+      summaries.push({
+        id: card.id,
+        name: card.name,
+        color: card.color,
+        totalLimit,
+        usedLimit,
+        availableLimit,
+        usagePercentage,
+        currentInvoiceAmount,
+        currentInvoiceStatus: invoice?.status || InvoiceStatus.OPEN,
+        dueDate,
+      });
+    }
+
+    return summaries;
+  }
+
+  private async getCardInstallmentsSummary(userId: string, currentPeriod: string): Promise<CardInstallmentSummary[]> {
+    // Get all parent installment transactions that have remaining installments
+    const installmentTransactions = await this.cardTransactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoinAndSelect('transaction.creditCard', 'creditCard')
+      .where('transaction.userId = :userId', { userId })
+      .andWhere('transaction.isInstallment = :isInstallment', { isInstallment: true })
+      .andWhere('transaction.parentTransactionId IS NULL')
+      .orderBy('transaction.transactionDate', 'DESC')
+      .getMany();
+
+    const summaries: CardInstallmentSummary[] = [];
+
+    for (const transaction of installmentTransactions) {
+      // Find current installment for this period
+      const currentInstallment = await this.cardTransactionRepository.findOne({
+        where: [
+          { id: transaction.id, invoicePeriod: currentPeriod },
+          { parentTransactionId: transaction.id, invoicePeriod: currentPeriod },
+        ],
+      });
+
+      // Count remaining installments
+      const remainingCount = await this.cardTransactionRepository
+        .createQueryBuilder('transaction')
+        .where('(transaction.id = :parentId OR transaction.parentTransactionId = :parentId)', { parentId: transaction.id })
+        .andWhere('transaction.invoicePeriod >= :period', { period: currentPeriod })
+        .getCount();
+
+      if (remainingCount > 0) {
+        const currentInstallmentNumber = currentInstallment?.installmentNumber || 
+          (transaction.totalInstallments! - remainingCount + 1);
+
+        summaries.push({
+          id: transaction.id,
+          description: transaction.description,
+          creditCardName: transaction.creditCard?.name || '',
+          creditCardColor: transaction.creditCard?.color || '#3B82F6',
+          currentInstallment: currentInstallmentNumber,
+          totalInstallments: transaction.totalInstallments!,
+          remainingInstallments: remainingCount,
+          installmentAmount: Number(transaction.amount),
+          totalRemaining: Number(transaction.amount) * remainingCount,
+        });
+      }
+    }
+
+    return summaries;
+  }
+
+  private async getCardExpensesForPeriod(userId: string, period: string): Promise<number> {
+    const result = await this.cardTransactionRepository
+      .createQueryBuilder('transaction')
+      .select('SUM(transaction.amount)', 'total')
+      .where('transaction.userId = :userId', { userId })
+      .andWhere('transaction.invoicePeriod = :period', { period })
+      .getRawOne();
+
+    return Number(result?.total || 0);
   }
 }

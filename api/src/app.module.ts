@@ -15,6 +15,8 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
 import { RecurringTransactionsModule } from './modules/recurring-transactions/recurring-transactions.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { InstallmentsModule } from './modules/installments/installments.module';
+import { CreditCardsModule } from './modules/credit-cards/credit-cards.module';
+import { CardTransactionsModule } from './modules/card-transactions/card-transactions.module';
 
 @Module({
   imports: [
@@ -45,6 +47,8 @@ import { InstallmentsModule } from './modules/installments/installments.module';
     RecurringTransactionsModule,
     DashboardModule,
     InstallmentsModule,
+    CreditCardsModule,
+    CardTransactionsModule,
   ],
 })
 export class AppModule {}

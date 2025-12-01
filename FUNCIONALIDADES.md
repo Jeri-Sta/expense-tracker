@@ -272,13 +272,122 @@ O sistema de financiamentos permite aos usuários gerenciar seus financiamentos 
 
 ---
 
-### 7. **Projeções Financeiras**
+### 7. **Gerenciamento de Cartões de Crédito**
 
-#### 7.1 Visão Geral
+O sistema de cartões de crédito permite aos usuários gerenciar seus cartões, transações parceladas e faturas de forma completa e intuitiva.
+
+#### 7.1 Lista de Cartões de Crédito
+- **Localização**: Menu "Cartões de Crédito"
+- **Layout**: Grid responsivo com cards informativos
+
+##### Card de Cartão de Crédito
+- **Informações exibidas**:
+  - Nome do cartão com cor personalizada
+  - Limite total
+  - Limite utilizado na fatura atual
+  - Limite disponível
+  - Barra de progresso visual de utilização
+  - Dia de fechamento e vencimento da fatura
+  - Percentual de uso
+
+#### 7.2 Criação de Novo Cartão
+- **Formulário**:
+  - **Nome**: Identificação do cartão (ex: "Nubank", "Itaú Black")
+  - **Cor**: Seletor de cores para identificação visual
+  - **Dia de Fechamento**: Dia do mês em que a fatura fecha (1-28)
+  - **Dia de Vencimento**: Dia do mês para pagamento da fatura (1-28)
+  - **Limite Total**: Valor máximo de crédito disponível
+
+- **Validações**:
+  - Nome obrigatório (mínimo 2 caracteres)
+  - Dias de fechamento e vencimento entre 1 e 28
+  - Limite maior que zero
+
+#### 7.3 Gestão de Cartões
+- **Edição**: Modificar qualquer campo do cartão
+- **Exclusão**: Remoção do cartão e todas as transações associadas (com confirmação)
+- **Visualização de Uso**: Acompanhamento em tempo real do limite utilizado
+
+---
+
+### 8. **Transações de Cartão de Crédito (Faturas)**
+
+#### 8.1 Lista de Transações
+- **Localização**: Menu "Faturas de Cartão"
+- **Layout**: Tabela responsiva com filtros avançados
+
+##### Filtros Disponíveis
+- **Por Cartão**: Seletor para filtrar por cartão específico
+- **Por Período/Fatura**: Seletor de mês/ano da fatura
+- **Busca Textual**: Pesquisa na descrição das transações
+
+##### Colunas da Tabela
+- **Data**: Data da transação
+- **Descrição**: Descrição detalhada
+- **Cartão**: Identificação visual do cartão (cor + nome)
+- **Parcela**: X/Y para transações parceladas
+- **Valor**: Valor da parcela ou transação
+- **Fatura**: Período da fatura (MM/YYYY)
+- **Ações**: Botões para editar e excluir
+
+#### 8.2 Criação de Transação
+- **Formulário**:
+  - **Cartão**: Seletor do cartão de crédito
+  - **Descrição**: Descrição da compra
+  - **Valor Total**: Valor da compra (dividido automaticamente se parcelado)
+  - **Data da Transação**: Data da compra
+  - **Parcelamento**: Toggle para ativar parcelamento
+    - Número de parcelas (quando ativado)
+
+- **Cálculo Automático de Fatura**:
+  - O sistema calcula automaticamente em qual fatura a transação será incluída
+  - Se a data da compra for posterior ao dia de fechamento, vai para a próxima fatura
+  - Parcelas futuras são distribuídas automaticamente nas faturas correspondentes
+
+#### 8.3 Transações Parceladas
+- **Comportamento**:
+  - Ao criar uma transação parcelada, o sistema gera automaticamente todas as parcelas
+  - Cada parcela é associada à fatura correspondente
+  - Transação "pai" mantém referência para todas as parcelas "filhas"
+  - Valor dividido igualmente entre as parcelas
+
+- **Visualização**:
+  - Exibição "X/Y" mostrando parcela atual e total
+  - Filtro para ver todas as parcelas de uma compra
+  - Indicador visual para transações parceladas
+
+#### 8.4 Gestão de Faturas
+- **Status da Fatura**:
+  - **Aberta** (Azul): Fatura em andamento, aceita novas transações
+  - **Fechada** (Laranja): Fatura fechada aguardando pagamento
+  - **Paga** (Verde): Fatura quitada
+
+- **Ações de Fatura**:
+  - Alterar status (marcar como paga)
+  - Visualizar total da fatura
+  - Data de fechamento e vencimento
+  - Sumário de transações
+
+#### 8.5 Widgets no Dashboard
+- **Card de Limites de Cartões**:
+  - Resumo de todos os cartões
+  - Barra de progresso por cartão
+  - Total de limite disponível/utilizado
+
+- **Card de Parcelamentos Ativos**:
+  - Lista das transações parceladas em andamento
+  - Progresso de cada parcelamento
+  - Total mensal comprometido com parcelas
+
+---
+
+### 9. **Projeções Financeiras**
+
+#### 9.1 Visão Geral
 - **Objetivo**: Permitir a visualização de transações futuras estimadas baseadas em recorrências ou inserção manual.
 - **Integração**: As projeções são integradas à lista de transações e aos gráficos do dashboard.
 
-#### 7.2 Funcionalidades
+#### 9.2 Funcionalidades
 - **Geração Automática**: Gera projeções futuras baseadas nas transações recorrentes cadastradas.
 - **Inserção Manual**: Possibilidade de criar uma transação futura marcada como "Projeção".
 - **Filtros de Projeção**:
@@ -290,13 +399,13 @@ O sistema de financiamentos permite aos usuários gerenciar seus financiamentos 
 
 ---
 
-### 8. **Segurança e Privacidade**
+### 10. **Segurança e Privacidade**
 
-#### 8.1 Autenticação e Autorização
+#### 10.1 Autenticação e Autorização
 - **JWT Tokens**: Autenticação segura com tokens.
 - **Proteção de Rotas**: Guards no frontend e backend para impedir acesso não autorizado.
 
-#### 8.2 Proteção de Dados
+#### 10.2 Proteção de Dados
 - **Isolamento**: Cada usuário vê apenas seus próprios dados (filtragem por User ID no backend).
 - **Senhas**: Armazenadas com hash seguro.
 
@@ -307,12 +416,14 @@ O sistema de financiamentos permite aos usuários gerenciar seus financiamentos 
 ### Fluxo de Uso Típico
 
 1. **Login**: Acesso com email/senha
-2. **Dashboard**: Visão geral das finanças
+2. **Dashboard**: Visão geral das finanças, limites de cartões e parcelamentos
 3. **Nova Transação**: Registro de receita/despesa
 4. **Categorização**: Organização por categorias
-5. **Financiamentos**: Gestão de dívidas a longo prazo
-6. **Recorrências**: Configuração de contas fixas
-7. **Projeções**: Visualização do futuro financeiro
+5. **Cartões de Crédito**: Cadastro e gestão de cartões
+6. **Faturas**: Registro de compras no cartão e acompanhamento de faturas
+7. **Financiamentos**: Gestão de dívidas a longo prazo
+8. **Recorrências**: Configuração de contas fixas
+9. **Projeções**: Visualização do futuro financeiro
 
 ---
 
@@ -321,11 +432,13 @@ O sistema de financiamentos permite aos usuários gerenciar seus financiamentos 
 | Tela | Descrição | Funcionalidades Principais |
 |------|-----------|---------------------------|
 | **Login/Registro** | Autenticação de usuários | Login, registro |
-| **Dashboard** | Visão geral financeira | KPIs, gráficos, resumos rápidos |
+| **Dashboard** | Visão geral financeira | KPIs, gráficos, resumos rápidos, widgets de cartões |
 | **Transações** | Gestão de movimentações | CRUD, filtros, busca, projeções |
 | **Categorias** | Organização de gastos | Criação, edição, visualização |
 | **Recorrências** | Automação de transações | Agendamento, execução, histórico |
 | **Financiamentos** | Gestão de parcelamentos | CRUD completo, pagamentos, quitação |
+| **Cartões de Crédito** | Gestão de cartões | CRUD, limite, fechamento/vencimento |
+| **Faturas de Cartão** | Transações de cartão | Transações, parcelamento, status de fatura |
 
 ---
 

@@ -252,6 +252,7 @@
 .transaction-list {
   max-height: 400px;
   overflow-y: auto;
+  overflow-x: hidden;
 
   .transaction-item {
     transition: all 0.2s ease;
@@ -295,6 +296,7 @@
 .recurring-list {
   max-height: 400px;
   overflow-y: auto;
+  overflow-x: hidden;
 
   .recurring-item {
     transition: all 0.2s ease;

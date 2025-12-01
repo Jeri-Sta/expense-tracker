@@ -1,11 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { TransactionService, MonthlyStats } from '../../core/services/transaction.service';
+import { TransactionService, MonthlyStats, CreditCardSummary, CardInstallmentSummary } from '../../core/services/transaction.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { CategoryService, Category } from '../../core/services/category.service';
 import { RecurringTransactionService, RecurringTransaction } from '../../core/services/recurring-transaction.service';
+import { CreditCardService } from '../credit-cards/services/credit-card.service';
+import { CardTransactionService } from '../credit-cards/services/card-transaction.service';
+import { CardTransaction } from '../credit-cards/models/card-transaction.model';
 import { MessageService } from 'primeng/api';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 interface DashboardStats {
   totalIncome: number;
@@ -72,6 +77,12 @@ export class DashboardComponent implements OnInit {
   upcomingRecurring: RecurringTransaction[] = [];
   topCategories: CategoryStats[] = [];
   
+  // Credit Cards data
+  creditCards: CreditCardSummary[] = [];
+  cardInstallments: CardInstallmentSummary[] = [];
+  cardTransactions: CardTransaction[] = [];
+  currentCardPeriod: string = '';
+  
   // Installments data
   installmentStats = {
     totalPlans: 0,
@@ -120,6 +131,8 @@ export class DashboardComponent implements OnInit {
     private readonly dashboardService: DashboardService,
     private readonly categoryService: CategoryService,
     private readonly recurringTransactionService: RecurringTransactionService,
+    private readonly creditCardService: CreditCardService,
+    private readonly cardTransactionService: CardTransactionService,
     private readonly messageService: MessageService
   ) {}
 
@@ -127,6 +140,7 @@ export class DashboardComponent implements OnInit {
     this.initializeYears();
     this.updateNavigationStatus();
     this.loadDashboardData();
+    this.loadCreditCardData();
     this.setupChartOptions();
   }
 
@@ -148,9 +162,9 @@ export class DashboardComponent implements OnInit {
       this.dashboardService.getDashboard(this.selectedYear).subscribe({
         next: (dashboardData) => {
           this.updateCurrentStatsFromDashboard(dashboardData.currentMonth);
-          this.updateChartsFromYearlyData(dashboardData.yearlyOverview);
-          this.recentTransactions = dashboardData.recentTransactions;
-          this.updateCategoryData(dashboardData.topCategories);
+          this.updateChartsFromYearlyData(dashboardData.yearlyOverview || []);
+          this.recentTransactions = dashboardData.recentTransactions || [];
+          this.updateCategoryData(dashboardData.topCategories || []);
           
           // Update installment stats
           if (dashboardData.installments) {
@@ -175,8 +189,8 @@ export class DashboardComponent implements OnInit {
       this.dashboardService.getMonthlyStats(this.selectedYear, this.selectedMonth).subscribe({
         next: (monthlyData) => {
           this.updateCurrentStatsFromDashboard(monthlyData.stats);
-          this.recentTransactions = monthlyData.recentTransactions;
-          this.updateCategoryData(monthlyData.topCategories);
+          this.recentTransactions = monthlyData.recentTransactions || [];
+          this.updateCategoryData(monthlyData.topCategories || []);
           // Load yearly trend for context
           this.loadYearlyTrend();
           this.loading = false;
@@ -275,6 +289,96 @@ export class DashboardComponent implements OnInit {
         },
         error: reject
       });
+    });
+  }
+
+  loadCreditCardData(): void {
+    // Use the selected year/month instead of current date
+    const selectedPeriod = `${this.selectedYear}-${String(this.selectedMonth).padStart(2, '0')}`;
+    this.currentCardPeriod = selectedPeriod;
+    
+    forkJoin({
+      cards: this.creditCardService.getAll().pipe(catchError(() => of([]))),
+      transactions: this.cardTransactionService.getAll(undefined, selectedPeriod).pipe(catchError(() => of([]))),
+      allTransactions: this.cardTransactionService.getAll().pipe(catchError(() => of([])))
+    }).subscribe({
+      next: ({ cards, transactions, allTransactions }) => {
+        // Ensure arrays are not undefined
+        const safeCards = cards || [];
+        const safeTransactions = transactions || [];
+        const safeAllTransactions = allTransactions || [];
+        
+        // Store card transactions for the widget
+        this.cardTransactions = safeTransactions;
+        
+        // Calculate credit card summaries - use backend data if available, otherwise calculate locally
+        this.creditCards = safeCards.map(card => {
+          // Use backend calculated values if available
+          let usedLimit = card.usedLimit ?? 0;
+          let availableLimit = card.availableLimit ?? card.totalLimit;
+          
+          // If backend didn't provide values, calculate from transactions
+          // For installments: count all remaining installments (from current period onwards)
+          // For non-installments: only count current period
+          if (card.usedLimit === undefined || card.usedLimit === null) {
+            const cardTransactions = safeTransactions.filter(t => t.creditCardId === card.id);
+            const nonInstallmentTotal = cardTransactions
+              .filter(t => !t.isInstallment)
+              .reduce((sum, t) => sum + t.amount, 0);
+            
+            // For installments, get all transactions from current period onwards
+            const installmentTotal = safeAllTransactions
+              .filter(t => t.creditCardId === card.id && t.isInstallment && t.invoicePeriod >= selectedPeriod)
+              .reduce((sum, t) => sum + t.amount, 0);
+            
+            usedLimit = nonInstallmentTotal + installmentTotal;
+            availableLimit = card.totalLimit - usedLimit;
+          }
+          
+          const usagePercentage = card.totalLimit > 0 ? (usedLimit / card.totalLimit) * 100 : 0;
+          
+          return {
+            id: card.id,
+            name: card.name,
+            color: card.color,
+            totalLimit: card.totalLimit,
+            usedLimit,
+            availableLimit,
+            usagePercentage,
+            currentInvoiceAmount: usedLimit,
+            currentInvoiceStatus: 'OPEN'
+          };
+        });
+        
+        // Calculate installment summaries - show all installments for the selected period
+        // This includes both parent transactions (first installment) and child transactions (subsequent installments)
+        const installmentTransactions = safeTransactions.filter(t => t.isInstallment);
+        this.cardInstallments = installmentTransactions.map(t => {
+          const currentInstallment = t.installmentNumber || 1;
+          const totalInstallments = t.totalInstallments || 1;
+          const remainingInstallments = totalInstallments - currentInstallment;
+          const installmentAmount = t.amount;
+          const totalRemaining = installmentAmount * remainingInstallments;
+          
+          return {
+            id: t.id,
+            description: t.description,
+            creditCardName: t.creditCardName || 'Cartão',
+            creditCardColor: t.creditCardColor || '#6B7280',
+            categoryName: t.categoryName,
+            categoryColor: t.categoryColor,
+            categoryIcon: t.categoryIcon,
+            currentInstallment,
+            totalInstallments,
+            remainingInstallments,
+            installmentAmount,
+            totalRemaining
+          };
+        }).slice(0, 5); // Limit to 5 for display
+      },
+      error: (error) => {
+        console.error('Error loading credit card data:', error);
+      }
     });
   }
 
@@ -384,19 +488,21 @@ export class DashboardComponent implements OnInit {
   }
 
   updateCategoryCharts(): void {
+    const categories = this.topCategories || [];
+    
     // Category pie chart
     this.categoryPieData = {
-      labels: this.topCategories.map(c => c.categoryName),
+      labels: categories.map(c => c.categoryName),
       datasets: [{
-        data: this.topCategories.map(c => c.amount),
-        backgroundColor: this.topCategories.map(c => c.categoryColor),
+        data: categories.map(c => c.amount),
+        backgroundColor: categories.map(c => c.categoryColor),
         borderWidth: 2,
         borderColor: '#ffffff'
       }]
     };
     
     // Expense categories horizontal bar
-    const expenseCategories = this.topCategories.filter(c => c.amount > 0);
+    const expenseCategories = categories.filter(c => c.amount > 0);
     this.expenseCategoryData = {
       labels: expenseCategories.map(c => c.categoryName),
       datasets: [{
@@ -603,11 +709,13 @@ export class DashboardComponent implements OnInit {
   onYearChange(): void {
     this.updateNavigationStatus();
     this.loadDashboardData();
+    this.loadCreditCardData();
   }
 
   onMonthChange(): void {
     this.updateNavigationStatus();
     this.loadDashboardData();
+    this.loadCreditCardData();
   }
 
   onProjectionToggle(): void {
@@ -632,6 +740,7 @@ export class DashboardComponent implements OnInit {
     }
     this.updateNavigationStatus();
     this.loadDashboardData();
+    this.loadCreditCardData();
   }
 
   navigateToNextMonth(): void {
@@ -643,6 +752,7 @@ export class DashboardComponent implements OnInit {
     }
     this.updateNavigationStatus();
     this.loadDashboardData();
+    this.loadCreditCardData();
   }
 
   navigateToCurrentMonth(): void {
@@ -651,6 +761,7 @@ export class DashboardComponent implements OnInit {
     this.selectedMonth = current.getMonth() + 1;
     this.updateNavigationStatus();
     this.loadDashboardData();
+    this.loadCreditCardData();
   }
 
   formatCurrency(value: number): string {

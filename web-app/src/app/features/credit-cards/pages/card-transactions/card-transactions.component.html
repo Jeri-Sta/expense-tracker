@@ -1,0 +1,410 @@
+<div class="card">
+  <!-- Page Header -->
+  <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
+    <div class="mb-2 md:mb-0">
+      <h2 class="text-2xl font-bold text-color m-0">Faturas de Cartão</h2>
+      <p class="text-color-secondary m-0">Gerencie as transações dos seus cartões de crédito</p>
+    </div>
+    <div class="flex gap-2">
+      <p-button 
+        label="Nova Transação" 
+        icon="pi pi-plus" 
+        size="small"
+        (onClick)="openNew()"
+        [disabled]="creditCards.length === 0"
+      ></p-button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-4">
+    <div class="flex flex-column md:flex-row gap-3 align-items-end">
+      <div class="flex-1">
+        <label for="filterPeriod" class="block mb-2 font-medium">Período</label>
+        <p-dropdown 
+          id="filterPeriod"
+          [options]="periodOptions" 
+          [(ngModel)]="selectedPeriod"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione o período"
+          [style]="{'width': '100%'}"
+          (onChange)="onFilterChange()"
+          appendTo="body"
+        ></p-dropdown>
+      </div>
+      <div class="flex-1">
+        <label for="filterCard" class="block mb-2 font-medium">Cartão</label>
+        <p-dropdown 
+          id="filterCard"
+          [options]="creditCards" 
+          [(ngModel)]="selectedCardId"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Todos os cartões"
+          [showClear]="true"
+          [style]="{'width': '100%'}"
+          (onChange)="onFilterChange()"
+          appendTo="body"
+        >
+          <ng-template pTemplate="selectedItem" let-card>
+            <div class="flex align-items-center gap-2" *ngIf="card">
+              <div class="color-dot" [style.background-color]="card.color"></div>
+              <span>{{ card.name }}</span>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="item" let-card>
+            <div class="flex align-items-center gap-2">
+              <div class="color-dot" [style.background-color]="card.color"></div>
+              <span>{{ card.name }}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+      <div>
+        <p-button 
+          icon="pi pi-refresh" 
+          severity="secondary"
+          [text]="true"
+          (onClick)="loadTransactions()"
+          pTooltip="Atualizar"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Period Summary -->
+  <div class="card mb-4 summary-card" *ngIf="!loading && transactions.length > 0">
+    <div class="flex flex-column md:flex-row justify-content-between align-items-start md:align-items-center">
+      <div>
+        <span class="text-color-secondary">Total do período:</span>
+        <span class="text-xl font-bold text-red-500 ml-2">{{ formatCurrency(getTotalForPeriod()) }}</span>
+      </div>
+      <div class="flex gap-2 mt-2 md:mt-0">
+        <p-tag 
+          [value]="transactions.length + ' transação(ões)'"
+          severity="info"
+        ></p-tag>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoice Cards -->
+  <div class="grid mb-4" *ngIf="!loading && invoices.length > 0">
+    <div class="col-12 md:col-6 lg:col-4" *ngFor="let invoice of invoices">
+      <div class="invoice-card surface-card border-round-lg shadow-1 p-3">
+        <div class="flex justify-content-between align-items-start mb-2">
+          <div class="flex align-items-center gap-2">
+            <div class="color-dot-lg" [style.background-color]="invoice.creditCardColor"></div>
+            <span class="font-semibold">{{ invoice.creditCardName }}</span>
+          </div>
+          <p-tag 
+            [value]="getInvoiceStatusLabel(invoice.status)"
+            [severity]="getInvoiceStatusSeverity(invoice.status)"
+          ></p-tag>
+        </div>
+        <div class="text-2xl font-bold mb-2">{{ formatCurrency(invoice.totalAmount) }}</div>
+        <div class="text-sm text-color-secondary mb-3">
+          <span *ngIf="invoice.dueDate">Vencimento: {{ invoice.dueDate | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="flex gap-2" *ngIf="invoice.status !== 'paid'">
+          <p-button 
+            label="Marcar como Paga" 
+            icon="pi pi-check"
+            severity="success"
+            size="small"
+            (onClick)="updateInvoiceStatus(invoice, 'paid')"
+          ></p-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transactions Table -->
+  <p-table 
+    [value]="transactions" 
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    styleClass="p-datatable-sm"
+    *ngIf="transactions.length > 0"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th scope="col">Descrição</th>
+        <th scope="col">Cartão</th>
+        <th scope="col">Categoria</th>
+        <th scope="col">Data</th>
+        <th scope="col" class="text-right">Valor</th>
+        <th scope="col" class="text-center">Parcela</th>
+        <th scope="col" class="text-center">Ações</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-transaction>
+      <tr [class.child-transaction]="transaction.parentTransactionId">
+        <td>
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-replay text-color-secondary" *ngIf="transaction.parentTransactionId" pTooltip="Parcela"></i>
+            {{ transaction.description }}
+          </div>
+        </td>
+        <td>
+          <div class="flex align-items-center gap-2">
+            <div class="color-dot" [style.background-color]="transaction.creditCardColor"></div>
+            <span>{{ transaction.creditCardName }}</span>
+          </div>
+        </td>
+        <td>
+          <div class="flex align-items-center gap-2" *ngIf="transaction.categoryName">
+            <div class="color-dot" [style.background-color]="transaction.categoryColor"></div>
+            <span>{{ transaction.categoryName }}</span>
+          </div>
+          <span class="text-color-secondary" *ngIf="!transaction.categoryName">-</span>
+        </td>
+        <td>{{ transaction.transactionDate | date:'dd/MM/yyyy' }}</td>
+        <td class="text-right font-semibold">{{ formatCurrency(transaction.amount) }}</td>
+        <td class="text-center">
+          <p-tag 
+            *ngIf="transaction.isInstallment"
+            [value]="transaction.installmentLabel"
+            severity="secondary"
+          ></p-tag>
+          <span *ngIf="!transaction.isInstallment">-</span>
+        </td>
+        <td class="text-center">
+          <div class="flex justify-content-center gap-1">
+            <p-button 
+              icon="pi pi-pencil" 
+              severity="secondary"
+              size="small"
+              [text]="true"
+              (onClick)="editTransaction(transaction)"
+              pTooltip="Editar"
+              [disabled]="transaction.parentTransactionId"
+            ></p-button>
+            <p-button 
+              icon="pi pi-trash" 
+              severity="danger"
+              size="small"
+              [text]="true"
+              (onClick)="deleteTransaction(transaction)"
+              pTooltip="Excluir"
+              [disabled]="transaction.parentTransactionId"
+            ></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center py-4">
+          Nenhuma transação encontrada para o período selecionado
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Loading State -->
+  <div class="flex justify-content-center py-8" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <!-- Empty State -->
+  <div class="text-center py-8" *ngIf="!loading && transactions.length === 0 && creditCards.length > 0">
+    <div class="flex flex-column align-items-center gap-3">
+      <i class="pi pi-file text-6xl text-color-secondary"></i>
+      <h3 class="text-color-secondary m-0">Nenhuma transação encontrada</h3>
+      <p class="text-color-secondary mb-4">
+        Não há transações para o período selecionado
+      </p>
+      <p-button 
+        label="Nova Transação" 
+        icon="pi pi-plus"
+        (onClick)="openNew()"
+      ></p-button>
+    </div>
+  </div>
+
+  <!-- No Cards State -->
+  <div class="text-center py-8" *ngIf="!loading && creditCards.length === 0">
+    <div class="flex flex-column align-items-center gap-3">
+      <i class="pi pi-credit-card text-6xl text-color-secondary"></i>
+      <h3 class="text-color-secondary m-0">Nenhum cartão cadastrado</h3>
+      <p class="text-color-secondary mb-4">
+        Cadastre um cartão de crédito para começar a registrar transações
+      </p>
+      <p-button 
+        label="Ir para Cartões" 
+        icon="pi pi-arrow-right"
+        routerLink="/credit-cards"
+      ></p-button>
+    </div>
+  </div>
+</div>
+
+<!-- Transaction Dialog -->
+<p-dialog 
+  [(visible)]="transactionDialog" 
+  [header]="editMode ? 'Editar Transação' : 'Nova Transação'"
+  [modal]="true" 
+  [style]="{width: '500px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="p-fluid"
+>
+  <ng-template pTemplate="content">
+    <form [formGroup]="transactionForm">
+      <!-- Credit Card -->
+      <div class="field">
+        <label for="creditCardId" class="required-field">Cartão</label>
+        <p-dropdown 
+          id="creditCardId"
+          formControlName="creditCardId"
+          [options]="creditCards"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Selecione o cartão"
+          appendTo="body"
+          [class.ng-invalid]="submitted && transactionForm.get('creditCardId')?.invalid"
+        >
+          <ng-template pTemplate="selectedItem" let-card>
+            <div class="flex align-items-center gap-2" *ngIf="card">
+              <div class="color-dot" [style.background-color]="card.color"></div>
+              <span>{{ card.name }}</span>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="item" let-card>
+            <div class="flex align-items-center gap-2">
+              <div class="color-dot" [style.background-color]="card.color"></div>
+              <span>{{ card.name }}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+        <small class="p-error" *ngIf="submitted && transactionForm.get('creditCardId')?.hasError('required')">
+          Cartão é obrigatório
+        </small>
+      </div>
+
+      <!-- Description -->
+      <div class="field">
+        <label for="description" class="required-field">Descrição</label>
+        <input 
+          pInputText 
+          id="description" 
+          formControlName="description"
+          placeholder="Ex: Compra na Amazon"
+          [class.ng-invalid]="submitted && transactionForm.get('description')?.invalid"
+        />
+        <small class="p-error" *ngIf="submitted && transactionForm.get('description')?.hasError('required')">
+          Descrição é obrigatória
+        </small>
+      </div>
+
+      <!-- Amount -->
+      <div class="field">
+        <label for="amount" class="required-field">Valor Total</label>
+        <p-inputNumber 
+          id="amount"
+          formControlName="amount"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [min]="0.01"
+          [class.ng-invalid]="submitted && transactionForm.get('amount')?.invalid"
+        ></p-inputNumber>
+        <small class="p-error" *ngIf="submitted && transactionForm.get('amount')?.hasError('required')">
+          Valor é obrigatório
+        </small>
+      </div>
+
+      <!-- Transaction Date -->
+      <div class="field">
+        <label for="transactionDate" class="required-field">Data da Compra</label>
+        <p-calendar 
+          id="transactionDate"
+          formControlName="transactionDate"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          appendTo="body"
+          [class.ng-invalid]="submitted && transactionForm.get('transactionDate')?.invalid"
+        ></p-calendar>
+      </div>
+
+      <!-- Category -->
+      <div class="field">
+        <label for="categoryId">Categoria</label>
+        <p-dropdown 
+          id="categoryId"
+          formControlName="categoryId"
+          [options]="categories"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Selecione uma categoria"
+          [showClear]="true"
+          appendTo="body"
+        >
+          <ng-template pTemplate="selectedItem" let-category>
+            <div class="flex align-items-center gap-2" *ngIf="category">
+              <div class="color-dot" [style.background-color]="category.color"></div>
+              <span>{{ category.name }}</span>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="item" let-category>
+            <div class="flex align-items-center gap-2">
+              <div class="color-dot" [style.background-color]="category.color"></div>
+              <span>{{ category.name }}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+
+      <!-- Installment Toggle -->
+      <div class="field" *ngIf="!editMode">
+        <div class="flex align-items-center gap-2">
+          <p-checkbox 
+            formControlName="isInstallment"
+            [binary]="true"
+            inputId="isInstallment"
+          ></p-checkbox>
+          <label for="isInstallment">Compra parcelada</label>
+        </div>
+      </div>
+
+      <!-- Total Installments -->
+      <div class="field" *ngIf="transactionForm.get('isInstallment')?.value && !editMode">
+        <label for="totalInstallments" class="required-field">Número de Parcelas</label>
+        <p-dropdown 
+          id="totalInstallments"
+          formControlName="totalInstallments"
+          [options]="installmentOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          appendTo="body"
+        ></p-dropdown>
+        <small class="text-color-secondary">
+          Valor por parcela: {{ formatCurrency((transactionForm.get('amount')?.value || 0) / (transactionForm.get('totalInstallments')?.value || 1)) }}
+        </small>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2">
+      <p-button 
+        label="Cancelar" 
+        severity="secondary"
+        [text]="true"
+        (onClick)="hideDialog()"
+      ></p-button>
+      <p-button 
+        [label]="editMode ? 'Atualizar' : 'Salvar'"
+        icon="pi pi-check"
+        (onClick)="saveTransaction()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>

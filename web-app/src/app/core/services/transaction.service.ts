@@ -123,7 +123,7 @@ export interface MonthlyStatsWithProjections {
 }
 
 export interface DashboardStats {
-  currentMonth: MonthlyStatsWithProjections;
+  currentMonth: MonthlyStatsWithProjections & { cardExpenses?: number };
   yearlyOverview: MonthlyStatsWithProjections[];
   recentTransactions: Transaction[];
   topCategories: any[];
@@ -135,6 +135,36 @@ export interface DashboardStats {
     totalSavings: number;
     upcomingPayments: any[];
   };
+  creditCards?: CreditCardSummary[];
+  cardInstallments?: CardInstallmentSummary[];
+}
+
+export interface CreditCardSummary {
+  id: string;
+  name: string;
+  color: string;
+  totalLimit: number;
+  usedLimit: number;
+  availableLimit: number;
+  usagePercentage: number;
+  currentInvoiceAmount: number;
+  currentInvoiceStatus: string;
+  dueDate?: Date;
+}
+
+export interface CardInstallmentSummary {
+  id: string;
+  description: string;
+  creditCardName: string;
+  creditCardColor: string;
+  categoryName?: string;
+  categoryColor?: string;
+  categoryIcon?: string;
+  currentInstallment: number;
+  totalInstallments: number;
+  remainingInstallments: number;
+  installmentAmount: number;
+  totalRemaining: number;
 }
 
 export interface MonthlyNavigationStats {

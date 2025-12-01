@@ -1,0 +1,230 @@
+<div class="card">
+  <!-- Page Header -->
+  <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
+    <div class="mb-2 md:mb-0">
+      <h2 class="text-2xl font-bold text-color m-0">Cartões de Crédito</h2>
+      <p class="text-color-secondary m-0">Gerencie seus cartões de crédito e acompanhe seus limites</p>
+    </div>
+    <div class="flex gap-2">
+      <p-button 
+        label="Novo Cartão" 
+        icon="pi pi-plus" 
+        size="small"
+        (onClick)="openNew()"
+      ></p-button>
+    </div>
+  </div>
+
+  <!-- Credit Cards Grid -->
+  <div class="grid" *ngIf="!loading && creditCards.length > 0">
+    <div 
+      class="col-12 sm:col-6 lg:col-4 xl:col-3" 
+      *ngFor="let card of creditCards"
+    >
+      <div class="credit-card-item surface-card border-round-lg shadow-2 p-3 h-full">
+        <div class="flex flex-column h-full">
+          <!-- Card Header -->
+          <div class="flex align-items-center justify-content-between mb-3">
+            <div class="flex align-items-center gap-2">
+              <div 
+                class="card-color-indicator"
+                [style.background-color]="card.color"
+              ></div>
+              <span class="font-bold text-lg">{{ card.name }}</span>
+            </div>
+            <i class="pi pi-credit-card text-xl" [style.color]="card.color"></i>
+          </div>
+
+          <!-- Limit Info -->
+          <div class="mb-3">
+            <div class="flex justify-content-between mb-1">
+              <span class="text-color-secondary text-sm">Limite utilizado</span>
+              <span class="font-semibold">{{ formatCurrency(card.usedLimit || 0) }}</span>
+            </div>
+            <p-progressBar 
+              [value]="getUsagePercentage(card)" 
+              [showValue]="false"
+              [style]="{'height': '8px'}"
+              [styleClass]="'usage-' + getUsageSeverity(getUsagePercentage(card))"
+            ></p-progressBar>
+            <div class="flex justify-content-between mt-1">
+              <span class="text-color-secondary text-xs">Disponível: {{ formatCurrency(card.availableLimit || card.totalLimit) }}</span>
+              <span class="text-color-secondary text-xs">{{ getUsagePercentage(card) | number:'1.0-0' }}%</span>
+            </div>
+          </div>
+
+          <!-- Card Details -->
+          <div class="flex-grow-1">
+            <div class="text-sm mb-2">
+              <div class="flex justify-content-between mb-1">
+                <span class="text-color-secondary">Limite Total:</span>
+                <span class="font-semibold">{{ formatCurrency(card.totalLimit) }}</span>
+              </div>
+              <div class="flex justify-content-between mb-1">
+                <span class="text-color-secondary">Fechamento:</span>
+                <span>Dia {{ card.closingDay }}</span>
+              </div>
+              <div class="flex justify-content-between">
+                <span class="text-color-secondary">Vencimento:</span>
+                <span>Dia {{ card.dueDay }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-content-end gap-1 mt-3 pt-2 border-top-1 surface-border">
+            <p-button 
+              icon="pi pi-pencil" 
+              severity="secondary"
+              size="small"
+              [text]="true"
+              (onClick)="editCard(card)"
+              pTooltip="Editar"
+            ></p-button>
+            <p-button 
+              icon="pi pi-trash" 
+              severity="danger"
+              size="small"
+              [text]="true"
+              (onClick)="deleteCard(card)"
+              pTooltip="Excluir"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="flex justify-content-center py-8" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <!-- Empty State -->
+  <div class="text-center py-8" *ngIf="!loading && creditCards.length === 0">
+    <div class="flex flex-column align-items-center gap-3">
+      <i class="pi pi-credit-card text-6xl text-color-secondary"></i>
+      <h3 class="text-color-secondary m-0">Nenhum cartão cadastrado</h3>
+      <p class="text-color-secondary mb-4">
+        Cadastre seu primeiro cartão de crédito para começar a controlar suas despesas
+      </p>
+      <p-button 
+        label="Novo Cartão" 
+        icon="pi pi-plus"
+        (onClick)="openNew()"
+      ></p-button>
+    </div>
+  </div>
+</div>
+
+<!-- Credit Card Dialog -->
+<p-dialog 
+  [(visible)]="cardDialog" 
+  [header]="editMode ? 'Editar Cartão' : 'Novo Cartão'"
+  [modal]="true" 
+  [style]="{width: '450px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="p-fluid"
+>
+  <ng-template pTemplate="content">
+    <form [formGroup]="cardForm">
+      <!-- Name -->
+      <div class="field">
+        <label for="name" class="required-field">Nome do Cartão</label>
+        <input 
+          pInputText 
+          id="name" 
+          formControlName="name"
+          placeholder="Ex: Nubank, Inter, C6 Bank..."
+          [class.ng-invalid]="submitted && cardForm.get('name')?.invalid"
+        />
+        <small class="p-error" *ngIf="submitted && cardForm.get('name')?.hasError('required')">
+          Nome é obrigatório
+        </small>
+      </div>
+
+      <!-- Color -->
+      <div class="field">
+        <label for="color" class="required-field">Cor do Cartão</label>
+        <div class="flex gap-2 flex-wrap">
+          <div 
+            *ngFor="let color of availableColors"
+            class="color-option cursor-pointer"
+            [style.background-color]="color"
+            [class.selected]="cardForm.get('color')?.value === color"
+            (click)="selectColor(color)"
+          >
+            <i class="pi pi-check" *ngIf="cardForm.get('color')?.value === color"></i>
+          </div>
+          <p-colorPicker 
+            formControlName="color"
+            [inline]="false"
+          ></p-colorPicker>
+        </div>
+      </div>
+
+      <!-- Closing Day -->
+      <div class="field">
+        <label for="closingDay" class="required-field">Dia de Fechamento</label>
+        <p-dropdown 
+          id="closingDay"
+          formControlName="closingDay"
+          [options]="daysOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione o dia"
+          [class.ng-invalid]="submitted && cardForm.get('closingDay')?.invalid"
+        ></p-dropdown>
+        <small class="text-color-secondary">Dia em que a fatura fecha</small>
+      </div>
+
+      <!-- Due Day -->
+      <div class="field">
+        <label for="dueDay" class="required-field">Dia de Vencimento</label>
+        <p-dropdown 
+          id="dueDay"
+          formControlName="dueDay"
+          [options]="daysOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione o dia"
+          [class.ng-invalid]="submitted && cardForm.get('dueDay')?.invalid"
+        ></p-dropdown>
+        <small class="text-color-secondary">Dia de vencimento da fatura</small>
+      </div>
+
+      <!-- Total Limit -->
+      <div class="field">
+        <label for="totalLimit" class="required-field">Limite Total</label>
+        <p-inputNumber 
+          id="totalLimit"
+          formControlName="totalLimit"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [min]="0"
+          [class.ng-invalid]="submitted && cardForm.get('totalLimit')?.invalid"
+        ></p-inputNumber>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2">
+      <p-button 
+        label="Cancelar" 
+        severity="secondary"
+        [text]="true"
+        (onClick)="hideDialog()"
+      ></p-button>
+      <p-button 
+        [label]="editMode ? 'Atualizar' : 'Salvar'"
+        icon="pi pi-check"
+        (onClick)="saveCard()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>

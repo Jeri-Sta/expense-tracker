@@ -1,0 +1,55 @@
+@import 'src/styles/variables';
+
+.card-header {
+  background: var(--surface-section);
+  border-bottom: 1px solid var(--surface-border);
+  border-radius: 12px 12px 0 0;
+
+  h5 {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+  }
+}
+
+.summary-row {
+  background: var(--surface-50);
+  border-radius: $border-radius-md;
+  padding: $spacing-md;
+}
+
+.summary-item {
+  border-right: 1px solid var(--surface-border);
+  
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.installments-list {
+  max-height: 350px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--surface-100);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--surface-400);
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--surface-500);
+    }
+  }
+}

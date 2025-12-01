@@ -31,6 +31,10 @@ const routes: Routes = [
       {
         path: 'installments',
         loadChildren: () => import('../../features/installments/installments.module').then(m => m.InstallmentsModule)
+      },
+      {
+        path: 'credit-cards',
+        loadChildren: () => import('../../features/credit-cards/credit-cards.module').then(m => m.CreditCardsModule)
       }
     ]
   }

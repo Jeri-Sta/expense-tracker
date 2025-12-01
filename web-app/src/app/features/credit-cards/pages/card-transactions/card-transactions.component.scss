@@ -1,0 +1,71 @@
+@import 'variables';
+@import 'mixins';
+
+.color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.color-dot-lg {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, var(--surface-card) 0%, var(--surface-50) 100%);
+  border-left: 4px solid var(--primary-color);
+}
+
+.invoice-card {
+  @include card-base;
+  border-left: 4px solid transparent;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.child-transaction {
+  background-color: var(--surface-50);
+  
+  td {
+    font-size: 0.9rem;
+  }
+}
+
+.field {
+  margin-bottom: $spacing-lg;
+  
+  label {
+    display: block;
+    margin-bottom: $spacing-xs;
+    font-weight: 500;
+  }
+  
+  small {
+    display: block;
+    margin-top: $spacing-xs;
+  }
+}
+
+// Responsive adjustments
+@include respond-to($breakpoint-md) {
+  :host ::ng-deep .p-datatable {
+    .p-datatable-thead > tr > th,
+    .p-datatable-tbody > tr > td {
+      padding: $spacing-sm;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// Fix dropdown overlay z-index inside dialog
+:host ::ng-deep {
+  .p-dropdown-panel {
+    z-index: 10001 !important;
+  }
+}

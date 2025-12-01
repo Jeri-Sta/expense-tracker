@@ -5,6 +5,8 @@ import { Transaction } from '../../transactions/entities/transaction.entity';
 import { Category } from '../../categories/entities/category.entity';
 import { RecurringTransaction } from '../../recurring-transactions/entities/recurring-transaction.entity';
 import { InstallmentPlan } from '../../installments/entities/installment-plan.entity';
+import { CreditCard } from '../../credit-cards/entities/credit-card.entity';
+import { CardTransaction } from '../../card-transactions/entities/card-transaction.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -45,6 +47,12 @@ export class User extends BaseEntity {
 
   @OneToMany(() => InstallmentPlan, (installment) => installment.user)
   installmentPlans: InstallmentPlan[];
+
+  @OneToMany(() => CreditCard, (creditCard) => creditCard.user)
+  creditCards: CreditCard[];
+
+  @OneToMany(() => CardTransaction, (cardTransaction) => cardTransaction.user)
+  cardTransactions: CardTransaction[];
 
   // Virtual properties
   get fullName(): string {

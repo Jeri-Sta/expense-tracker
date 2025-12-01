@@ -1,0 +1,51 @@
+@import 'variables';
+@import 'mixins';
+
+.card-header {
+  background: var(--surface-section);
+  border-bottom: 1px solid var(--surface-border);
+  border-radius: $border-radius-lg $border-radius-lg 0 0;
+
+  h5 {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+  }
+}
+
+.card-color-badge {
+  width: 8px;
+  height: 40px;
+  border-radius: $border-radius-sm;
+  flex-shrink: 0;
+}
+
+.cards-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+// Progress bar severity classes
+:host ::ng-deep {
+  .usage-success .p-progressbar-value {
+    background: #10B981 !important;
+  }
+  
+  .usage-warning .p-progressbar-value {
+    background: #F59E0B !important;
+  }
+  
+  .usage-danger .p-progressbar-value {
+    background: #EF4444 !important;
+  }
+  
+  .p-progressbar {
+    background: var(--surface-200);
+    border-radius: $border-radius-sm;
+  }
+}

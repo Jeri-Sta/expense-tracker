@@ -27,3 +27,9 @@ export enum UserRole {
   USER = 'user',
   ADMIN = 'admin',
 }
+
+export enum InvoiceStatus {
+  OPEN = 'open',
+  CLOSED = 'closed',
+  PAID = 'paid',
+}
