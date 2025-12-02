@@ -158,6 +158,11 @@ export class CardTransactionsComponent implements OnInit {
       isInstallment: false,
       totalInstallments: 2
     });
+    
+    // Re-enable fields that were disabled in edit mode
+    this.transactionForm.get('creditCardId')?.enable();
+    this.transactionForm.get('isInstallment')?.enable();
+    
     this.transactionDialog = true;
   }
 
@@ -242,11 +247,18 @@ export class CardTransactionsComponent implements OnInit {
     const formValue = this.transactionForm.getRawValue();
     
     if (this.editMode) {
+      // For installment transactions, divide the total amount by number of installments
+      // because the form shows the total but we need to save the installment amount
+      let amount = formValue.amount;
+      if (this.selectedTransaction.isInstallment && this.selectedTransaction.totalInstallments) {
+        amount = Number((formValue.amount / this.selectedTransaction.totalInstallments).toFixed(2));
+      }
+      
       const updateData: UpdateCardTransactionDto = {
         description: formValue.description,
-        amount: formValue.amount,
+        amount: amount,
         transactionDate: this.formatDate(formValue.transactionDate),
-        categoryId: formValue.categoryId || undefined
+        categoryId: formValue.categoryId ? formValue.categoryId : null
       };
       
       this.cardTransactionService.update(this.selectedTransaction.id, updateData).subscribe({

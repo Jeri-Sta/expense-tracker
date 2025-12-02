@@ -12,6 +12,7 @@ import { ChartModule } from 'primeng/chart';
 import { DropdownModule } from 'primeng/dropdown';
 import { DividerModule } from 'primeng/divider';
 import { ToggleButtonModule } from 'primeng/togglebutton';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { TabViewModule } from 'primeng/tabview';
@@ -64,6 +65,7 @@ import { CategoryStatsWidgetComponent } from './components/category-stats-widget
     DropdownModule,
     DividerModule,
     ToggleButtonModule,
+    SelectButtonModule,
     TooltipModule,
     TagModule,
     TabViewModule

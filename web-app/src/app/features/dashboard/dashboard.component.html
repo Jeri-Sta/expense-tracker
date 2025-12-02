@@ -122,6 +122,13 @@
             [chartData]="incomeVsExpenseData"
             [chartOptions]="incomeVsExpenseOptions"
             [isLoading]="loading"
+            [monthlyIncome]="currentStats.totalIncome"
+            [monthlyExpenses]="currentStats.totalExpenses"
+            [projectedMonthlyIncome]="currentStats.projectedIncome"
+            [projectedMonthlyExpenses]="currentStats.projectedExpenses"
+            [showProjections]="includeProjections"
+            [selectedMonthName]="getSelectedMonthName()"
+            [selectedYear]="selectedYear"
           ></app-income-expense-chart>
         </div>
       </div>

@@ -35,7 +35,7 @@ export interface UpdateCardTransactionDto {
   description?: string;
   amount?: number;
   transactionDate?: string;
-  categoryId?: string;
+  categoryId?: string | null;
 }
 
 export type InvoiceStatus = 'open' | 'closed' | 'paid';

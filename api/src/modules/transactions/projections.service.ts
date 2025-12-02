@@ -6,6 +6,8 @@ import { RecurringTransaction } from '../recurring-transactions/entities/recurri
 import { GenerateProjectionsDto } from '../transactions/dto/generate-projections.dto';
 import { TransactionResponseDto } from '../transactions/dto/transaction-response.dto';
 import { Installment } from '../installments/entities/installment.entity';
+import { CreditCard } from '../credit-cards/entities/credit-card.entity';
+import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
 import { RecurrenceFrequency, InstallmentStatus } from '../../common/enums';
 import { parseLocalDate } from '../../common/utils/date.utils';
 
@@ -26,6 +28,7 @@ export interface MonthlyStatsWithProjections {
   hasProjections: boolean;
   transactionCount: number;
   projectedTransactionCount: number;
+  cardExpenses: number;
 }
 
 @Injectable()
@@ -39,6 +42,10 @@ export class ProjectionsService {
     private readonly recurringRepository: Repository<RecurringTransaction>,
     @InjectRepository(Installment)
     private readonly installmentRepository: Repository<Installment>,
+    @InjectRepository(CreditCard)
+    private readonly creditCardRepository: Repository<CreditCard>,
+    @InjectRepository(CardTransaction)
+    private readonly cardTransactionRepository: Repository<CardTransaction>,
   ) {}
 
   async generateRecurringProjections(
@@ -289,7 +296,10 @@ export class ProjectionsService {
       ...paidInstallments.map(i => Number(i.paidAmount || i.originalAmount))
     ].reduce((sum, amount) => sum + amount, 0);
 
-    const totalRealExpenses = realExpenses + installmentExpenses;
+    // Calculate card expenses based on invoice due date
+    const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(userId, year, month);
+
+    const totalRealExpenses = realExpenses + installmentExpenses + cardExpenses;
 
     const projectedIncome = projectedTransactions
       .filter(t => t.type === 'income')
@@ -310,6 +320,7 @@ export class ProjectionsService {
       hasProjections: projectedTransactions.length > 0,
       transactionCount: realTransactions.length + unpaidInstallments.length + paidInstallments.length,
       projectedTransactionCount: projectedTransactions.length,
+      cardExpenses,
     };
   }
 
@@ -375,5 +386,60 @@ export class ProjectionsService {
         icon: transaction.category.icon,
       } : undefined,
     };
+  }
+
+  /**
+   * Calcula despesas de cartão de crédito baseado na data de vencimento da fatura.
+   * Se o dia de vencimento <= dia de fechamento, a fatura vence no mês seguinte ao período.
+   */
+  private async getCardExpensesByInvoiceDueMonth(userId: string, year: number, month: number): Promise<number> {
+    const creditCards = await this.creditCardRepository.find({
+      where: { userId, isActive: true },
+    });
+
+    if (creditCards.length === 0) {
+      return 0;
+    }
+
+    let totalExpenses = 0;
+
+    for (const card of creditCards) {
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+
+      for (const period of invoicePeriods) {
+        const result = await this.cardTransactionRepository
+          .createQueryBuilder('transaction')
+          .select('SUM(transaction.amount)', 'total')
+          .where('transaction.creditCardId = :cardId', { cardId: card.id })
+          .andWhere('transaction.invoicePeriod = :period', { period })
+          .getRawOne();
+
+        totalExpenses += Number(result?.total || 0);
+      }
+    }
+
+    return totalExpenses;
+  }
+
+  /**
+   * Determina quais períodos de fatura têm vencimento no mês/ano alvo.
+   */
+  private getInvoicePeriodsWithDueDateInMonth(closingDay: number, dueDay: number, targetYear: number, targetMonth: number): string[] {
+    const periods: string[] = [];
+    const dueDateIsNextMonth = dueDay <= closingDay;
+
+    if (dueDateIsNextMonth) {
+      let invoiceMonth = targetMonth - 1;
+      let invoiceYear = targetYear;
+      if (invoiceMonth < 1) {
+        invoiceMonth = 12;
+        invoiceYear -= 1;
+      }
+      periods.push(`${invoiceYear}-${String(invoiceMonth).padStart(2, '0')}`);
+    } else {
+      periods.push(`${targetYear}-${String(targetMonth).padStart(2, '0')}`);
+    }
+
+    return periods;
   }
 }

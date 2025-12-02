@@ -220,7 +220,7 @@ export class CardTransactionsService {
   async update(id: string, userId: string, updateDto: UpdateCardTransactionDto): Promise<CardTransactionResponseDto> {
     const transaction = await this.transactionRepository.findOne({
       where: { id },
-      relations: ['creditCard', 'category'],
+      relations: ['creditCard', 'category', 'childTransactions'],
     });
 
     if (!transaction) {
@@ -238,30 +238,67 @@ export class CardTransactionsService {
 
     const oldInvoicePeriod = transaction.invoicePeriod;
     
-    Object.assign(transaction, updateDto);
-
-    // Recalculate invoice period if transaction date changed
-    if (updateDto.transactionDate) {
-      const creditCard = transaction.creditCard;
-      transaction.invoicePeriod = this.calculateInvoicePeriod(
-        parseLocalDate(updateDto.transactionDate),
-        creditCard.closingDay
+    // Build update object for the parent transaction
+    const updateFields: Partial<CardTransaction> = {};
+    
+    if (updateDto.description !== undefined) {
+      updateFields.description = updateDto.description;
+    }
+    if (updateDto.amount !== undefined) {
+      updateFields.amount = updateDto.amount;
+    }
+    if ('categoryId' in updateDto) {
+      updateFields.categoryId = updateDto.categoryId || null;
+    }
+    if (updateDto.transactionDate !== undefined) {
+      updateFields.transactionDate = parseLocalDate(updateDto.transactionDate);
+      updateFields.invoicePeriod = this.calculateInvoicePeriod(
+        updateFields.transactionDate,
+        transaction.creditCard.closingDay
       );
     }
 
-    const savedTransaction = await this.transactionRepository.save(transaction);
+    // Update parent transaction using repository.update for direct SQL update
+    await this.transactionRepository.update({ id }, updateFields);
+
+    // Update child transactions if this is a parent installment transaction
+    if (transaction.isInstallment && transaction.childTransactions && transaction.childTransactions.length > 0) {
+      // Fields to propagate to child transactions
+      const childUpdateFields: Partial<CardTransaction> = {};
+      
+      if ('categoryId' in updateDto) {
+        childUpdateFields.categoryId = updateDto.categoryId || null;
+      }
+      if (updateDto.description !== undefined) {
+        childUpdateFields.description = updateDto.description;
+      }
+
+      if (Object.keys(childUpdateFields).length > 0) {
+        await this.transactionRepository.update(
+          { parentTransactionId: transaction.id },
+          childUpdateFields
+        );
+      }
+    }
 
     // Update invoice totals
     const creditCard = await this.creditCardRepository.findOne({
       where: { id: transaction.creditCardId },
     });
     
-    if (oldInvoicePeriod !== transaction.invoicePeriod) {
+    const newInvoicePeriod = updateFields.invoicePeriod || transaction.invoicePeriod;
+    if (oldInvoicePeriod !== newInvoicePeriod) {
       await this.updateInvoiceTotal(transaction.creditCardId, oldInvoicePeriod, userId, creditCard!);
     }
-    await this.updateInvoiceTotal(transaction.creditCardId, transaction.invoicePeriod, userId, creditCard!);
+    await this.updateInvoiceTotal(transaction.creditCardId, newInvoicePeriod, userId, creditCard!);
 
-    return this.mapToResponseDto(savedTransaction, transaction.creditCard);
+    // Reload transaction with updated category relation
+    const updatedTransaction = await this.transactionRepository.findOne({
+      where: { id },
+      relations: ['creditCard', 'category', 'childTransactions'],
+    });
+
+    return this.mapToResponseDto(updatedTransaction!, updatedTransaction!.creditCard, updatedTransaction!.childTransactions);
   }
 
   async remove(id: string, userId: string): Promise<void> {
@@ -410,8 +447,8 @@ export class CardTransactionsService {
     let month = txDate.getMonth();
     let year = txDate.getFullYear();
 
-    // If transaction is after closing day, it goes to next month's invoice
-    if (day > closingDay) {
+    // If transaction is on or after closing day, it goes to next month's invoice
+    if (day >= closingDay) {
       month += 1;
       if (month > 11) {
         month = 0;

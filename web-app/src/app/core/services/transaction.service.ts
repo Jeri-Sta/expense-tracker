@@ -121,6 +121,7 @@ export interface MonthlyStatsWithProjections {
   hasProjections: boolean;
   transactionCount: number;
   projectedTransactionCount: number;
+  cardExpenses?: number;
 }
 
 export interface DashboardStats {

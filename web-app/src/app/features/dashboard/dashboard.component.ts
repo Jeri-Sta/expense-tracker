@@ -945,10 +945,17 @@ export class DashboardComponent implements OnInit {
   }
 
   updateCategoryData(categoriesData: any[]): void {
+    // Calculate total for percentage calculation
+    const totalAmount = (categoriesData || []).reduce((sum, cat) => sum + (Number(cat.total) || 0), 0);
+    
     this.topCategories = (categoriesData || []).map(category => ({
-      ...category,
-      amount: Number(category.amount) || 0,
-      percentage: Number(category.percentage) || 0
+      categoryId: category.id,
+      categoryName: category.name || 'Sem categoria',
+      categoryColor: category.color || '#808080',
+      categoryIcon: category.icon || 'category',
+      amount: Number(category.total) || 0,
+      transactionCount: Number(category.count) || 0,
+      percentage: totalAmount > 0 ? ((Number(category.total) || 0) / totalAmount) * 100 : 0
     }));
     this.updateCategoryCharts();
   }

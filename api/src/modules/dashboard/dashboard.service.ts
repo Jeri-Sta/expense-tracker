@@ -122,8 +122,8 @@ export class DashboardService {
     // Get card installments summary
     const cardInstallments = await this.getCardInstallmentsSummary(userId, currentPeriod);
 
-    // Get card expenses for current month
-    const cardExpenses = await this.getCardExpensesForPeriod(userId, currentPeriod);
+    // Get card expenses based on invoice due date (not invoice period)
+    const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(userId, targetYear, currentDate.getMonth() + 1);
 
     const currentMonth = currentMonthStats[0] || {
       period: `${targetYear}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`,
@@ -166,7 +166,7 @@ export class DashboardService {
     const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
     const monthTransactions = await this.getTransactionsForPeriod(userId, competencyPeriod, 20);
 
-    // Get top categories for the month
+    // Get top categories for the month (includes card transaction categories by due date)
     const topCategories = await this.getTopCategories(userId, year, month);
 
     const stats = monthStats[0] || {
@@ -180,6 +180,7 @@ export class DashboardService {
       hasProjections: false,
       transactionCount: 0,
       projectedTransactionCount: 0,
+      cardExpenses: 0,
     };
 
     return {
@@ -251,7 +252,8 @@ export class DashboardService {
   private async getTopCategories(userId: string, year: number, month: number) {
     const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
     
-    const result = await this.transactionsRepository
+    // Get regular transaction categories
+    const transactionResult = await this.transactionsRepository
       .createQueryBuilder('transaction')
       .select([
         'category.id as id',
@@ -269,21 +271,68 @@ export class DashboardService {
       .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
       .andWhere('transaction.type = :type', { type: TransactionType.EXPENSE })
       .groupBy('category.id, category.name, category.color, category.icon, transaction.type')
-      .orderBy('total', 'DESC')
-      .limit(5)
       .getRawMany();
 
-    return result.map(item => ({
-      id: item.id,
-      name: item.name || 'Sem categoria',
-      color: item.color || '#808080',
-      icon: item.icon || 'category',
-      total: Number(item.total) || 0,
-      count: Number(item.count) || 0,
-      type: item.type,
-      projectedTotal: Number(item.projectedtotal) || 0,
-      projectedCount: Number(item.projectedcount) || 0,
-    }));
+    // Get card transaction categories based on invoice due date
+    const cardCategories = await this.getCardExpensesByCategoryForDueMonth(userId, year, month);
+
+    // Merge categories from both sources
+    const categoryMap = new Map<string, {
+      id: string | null;
+      name: string;
+      color: string;
+      icon: string;
+      total: number;
+      count: number;
+      type: string;
+      projectedTotal: number;
+      projectedCount: number;
+    }>();
+
+    // Add regular transaction categories
+    for (const item of transactionResult) {
+      const key = item.id || 'uncategorized';
+      categoryMap.set(key, {
+        id: item.id,
+        name: item.name || 'Sem categoria',
+        color: item.color || '#808080',
+        icon: item.icon || 'category',
+        total: Number(item.total) || 0,
+        count: Number(item.count) || 0,
+        type: item.type,
+        projectedTotal: Number(item.projectedtotal) || 0,
+        projectedCount: Number(item.projectedcount) || 0,
+      });
+    }
+
+    // Merge card transaction categories
+    for (const cardCat of cardCategories) {
+      const key = cardCat.id || 'uncategorized';
+      const existing = categoryMap.get(key);
+      if (existing) {
+        existing.total += cardCat.total;
+        existing.count += cardCat.count;
+      } else {
+        categoryMap.set(key, {
+          id: cardCat.id,
+          name: cardCat.name,
+          color: cardCat.color,
+          icon: cardCat.icon,
+          total: cardCat.total,
+          count: cardCat.count,
+          type: TransactionType.EXPENSE,
+          projectedTotal: 0,
+          projectedCount: 0,
+        });
+      }
+    }
+
+    // Sort by total and limit to top 5
+    const sortedCategories = Array.from(categoryMap.values())
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+
+    return sortedCategories;
   }
 
   private async getInstallmentsSummary(userId: string) {
@@ -491,5 +540,127 @@ export class DashboardService {
       .getRawOne();
 
     return Number(result?.total || 0);
+  }
+
+  /**
+   * Calcula despesas de cartão de crédito baseado na data de vencimento da fatura.
+   * Se o dia de vencimento <= dia de fechamento, a fatura vence no mês seguinte ao período.
+   * Exemplo: Cartão fecha dia 10, vence dia 20 -> fatura de nov vence em nov
+   * Exemplo: Cartão fecha dia 25, vence dia 5 -> fatura de nov vence em dez
+   */
+  async getCardExpensesByInvoiceDueMonth(userId: string, year: number, month: number): Promise<number> {
+    // Get all credit cards for the user
+    const creditCards = await this.creditCardRepository.find({
+      where: { userId, isActive: true },
+    });
+
+    if (creditCards.length === 0) {
+      return 0;
+    }
+
+    let totalExpenses = 0;
+
+    for (const card of creditCards) {
+      // Calculate which invoice period(s) have due date in the target month
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+
+      for (const period of invoicePeriods) {
+        const result = await this.cardTransactionRepository
+          .createQueryBuilder('transaction')
+          .select('SUM(transaction.amount)', 'total')
+          .where('transaction.creditCardId = :cardId', { cardId: card.id })
+          .andWhere('transaction.invoicePeriod = :period', { period })
+          .getRawOne();
+
+        totalExpenses += Number(result?.total || 0);
+      }
+    }
+
+    return totalExpenses;
+  }
+
+  /**
+   * Determina quais períodos de fatura (invoicePeriod) têm vencimento no mês/ano alvo.
+   * Retorna array de períodos no formato YYYY-MM.
+   */
+  private getInvoicePeriodsWithDueDateInMonth(closingDay: number, dueDay: number, targetYear: number, targetMonth: number): string[] {
+    const periods: string[] = [];
+
+    // Se dueDay <= closingDay, a fatura do período X vence no mês X+1
+    // Caso contrário, vence no mesmo mês X
+    const dueDateIsNextMonth = dueDay <= closingDay;
+
+    if (dueDateIsNextMonth) {
+      // A fatura que vence no mês alvo é do mês anterior
+      let invoiceMonth = targetMonth - 1;
+      let invoiceYear = targetYear;
+      if (invoiceMonth < 1) {
+        invoiceMonth = 12;
+        invoiceYear -= 1;
+      }
+      periods.push(`${invoiceYear}-${String(invoiceMonth).padStart(2, '0')}`);
+    } else {
+      // A fatura que vence no mês alvo é do próprio mês
+      periods.push(`${targetYear}-${String(targetMonth).padStart(2, '0')}`);
+    }
+
+    return periods;
+  }
+
+  /**
+   * Obtém despesas de cartão por categoria para um mês específico (baseado na data de vencimento).
+   */
+  async getCardExpensesByCategoryForDueMonth(userId: string, year: number, month: number): Promise<any[]> {
+    const creditCards = await this.creditCardRepository.find({
+      where: { userId, isActive: true },
+    });
+
+    if (creditCards.length === 0) {
+      return [];
+    }
+
+    const categoryTotals = new Map<string, { id: string | null; name: string; color: string; icon: string; total: number; count: number }>();
+
+    for (const card of creditCards) {
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+
+      for (const period of invoicePeriods) {
+        const result = await this.cardTransactionRepository
+          .createQueryBuilder('transaction')
+          .select([
+            'category.id as id',
+            'category.name as name',
+            'category.color as color',
+            'category.icon as icon',
+            'SUM(transaction.amount) as total',
+            'COUNT(transaction.id) as count',
+          ])
+          .leftJoin('transaction.category', 'category')
+          .where('transaction.creditCardId = :cardId', { cardId: card.id })
+          .andWhere('transaction.invoicePeriod = :period', { period })
+          .groupBy('category.id, category.name, category.color, category.icon')
+          .getRawMany();
+
+        for (const item of result) {
+          const key = item.id || 'uncategorized';
+          const existing = categoryTotals.get(key);
+          if (existing) {
+            existing.total += Number(item.total || 0);
+            existing.count += Number(item.count || 0);
+          } else {
+            categoryTotals.set(key, {
+              id: item.id,
+              name: item.name || 'Sem categoria',
+              color: item.color || '#808080',
+              icon: item.icon || 'credit_card',
+              total: Number(item.total || 0),
+              count: Number(item.count || 0),
+            });
+          }
+        }
+      }
+    }
+
+    return Array.from(categoryTotals.values());
   }
 }
