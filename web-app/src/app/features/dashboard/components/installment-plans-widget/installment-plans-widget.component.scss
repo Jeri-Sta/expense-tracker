@@ -1,0 +1,124 @@
+@import 'src/styles/variables';
+@import 'src/styles/mixins';
+
+.installment-plans-widget {
+  @include card-base;
+  padding: 0;
+  overflow: hidden;
+  border-radius: $border-radius-lg;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-md !important;
+  }
+}
+
+.section-header {
+  background: var(--surface-section);
+  border-bottom: 1px solid var(--surface-border);
+
+  h3 {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+  }
+}
+
+.widget-content {
+  min-height: 200px;
+}
+
+.loading-container {
+  @include flex-center;
+  min-height: 200px;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: $spacing-lg;
+
+  @include respond-to($breakpoint-md) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.plan-card {
+  @include card-base;
+  padding: $spacing-lg;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+.plan-name {
+  font-size: 1rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.progress-section {
+  .progress-info {
+    font-size: 0.875rem;
+  }
+}
+
+// Progress bar color classes
+.progress-success {
+  ::ng-deep .p-progressbar-value {
+    background: $color-success !important;
+  }
+}
+
+.progress-warning {
+  ::ng-deep .p-progressbar-value {
+    background: $color-warning !important;
+  }
+}
+
+.progress-danger {
+  ::ng-deep .p-progressbar-value {
+    background: $color-danger !important;
+  }
+}
+
+.financial-summary {
+  background: var(--surface-ground);
+  border-radius: $border-radius-md;
+  padding: $spacing-md;
+  margin: 0 (-$spacing-sm);
+}
+
+.next-due {
+  font-size: 0.875rem;
+}
+
+.empty-state {
+  @include flex-column;
+  @include flex-center;
+  
+  i {
+    opacity: 0.5;
+  }
+}
+
+// Text color utility classes
+.text-danger {
+  color: $color-danger !important;
+}
+
+.text-warning {
+  color: $color-warning !important;
+}
+
+.text-success {
+  color: $color-success !important;
+}

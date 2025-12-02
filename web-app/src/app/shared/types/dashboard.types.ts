@@ -29,6 +29,7 @@ export interface InstallmentStats {
   totalRemaining: number;
   totalSavings: number;
   upcomingPayments: UpcomingPayment[];
+  paidInMonth: PaidInstallment[];
 }
 
 export interface UpcomingPayment {
@@ -36,4 +37,15 @@ export interface UpcomingPayment {
   planName: string;
   dueDate: string;
   amount: number;
+}
+
+export interface PaidInstallment {
+  id: string;
+  planId: string;
+  planName: string;
+  installmentNumber: number;
+  totalInstallments: number;
+  paidAmount: number;
+  paidDate: string;
+  discountAmount: number;
 }

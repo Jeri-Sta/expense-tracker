@@ -14,7 +14,8 @@ export class FinancingsSummaryWidgetComponent {
     totalPaid: 0,
     totalRemaining: 0,
     totalSavings: 0,
-    upcomingPayments: []
+    upcomingPayments: [],
+    paidInMonth: []
   };
   @Input() isLoading = false;
   @Output() navigateToInstallments = new EventEmitter<void>();

@@ -79,32 +79,21 @@
     </div>
   </div>
 
+  <!-- KPI Cards (visible on all tabs) -->
+  <div class="mb-4">
+    <app-kpi-cards-widget
+      [dashboardData]="currentStats"
+      [showProjections]="includeProjections"
+      [isLoading]="loading"
+      [isCurrentMonth]="isCurrentMonth"
+      [selectedMonthName]="getSelectedMonthName()"
+    ></app-kpi-cards-widget>
+  </div>
+
   <!-- Tab Navigation -->
   <p-tabView [(activeIndex)]="activeTabIndex" (onChange)="onTabChange($event)" styleClass="dashboard-tabs">
     <!-- Tab: Visão Geral -->
     <p-tabPanel header="Visão Geral" leftIcon="pi pi-chart-line">
-      <!-- KPI Cards -->
-      <div class="mb-4">
-        <app-kpi-cards-widget
-          [dashboardData]="currentStats"
-          [showProjections]="includeProjections"
-          [isLoading]="loading"
-          [isCurrentMonth]="isCurrentMonth"
-          [selectedMonthName]="getSelectedMonthName()"
-        ></app-kpi-cards-widget>
-      </div>
-
-      <!-- Installments Summary Section -->
-      <div class="grid mb-4" *ngIf="installmentStats.totalPlans > 0">
-        <div class="col-12">
-          <app-financings-summary-widget
-            [installmentStats]="installmentStats"
-            [isLoading]="loading"
-            (navigateToInstallments)="navigateToInstallments()"
-          ></app-financings-summary-widget>
-        </div>
-      </div>
-
       <!-- Main Charts Row -->
       <div class="grid mb-4">
         <!-- Monthly Trend Chart -->
@@ -204,6 +193,30 @@
         <!-- Installments Widget -->
         <div class="col-12 lg:col-6" *ngIf="cardInstallments.length > 0">
           <app-installments-widget [installments]="cardInstallments"></app-installments-widget>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <!-- Tab: Financiamentos -->
+    <p-tabPanel header="Financiamentos" leftIcon="pi pi-wallet" *ngIf="hasFinancingData">
+      <!-- Financings Summary Section -->
+      <div class="grid mb-4">
+        <div class="col-12">
+          <app-financings-summary-widget
+            [installmentStats]="installmentStats"
+            [isLoading]="loading"
+            (navigateToInstallments)="navigateToInstallments()"
+          ></app-financings-summary-widget>
+        </div>
+      </div>
+
+      <!-- Installment Plans List -->
+      <div class="grid">
+        <div class="col-12">
+          <app-installment-plans-widget
+            [installmentPlans]="installmentPlans"
+            [isLoading]="loading"
+          ></app-installment-plans-widget>
         </div>
       </div>
     </p-tabPanel>

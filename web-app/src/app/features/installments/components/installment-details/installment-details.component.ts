@@ -17,7 +17,6 @@ export class InstallmentDetailsComponent implements OnInit {
   paymentForm: PayInstallment = {
     paidAmount: 0,
     paidDate: new Date(),
-    discountAmount: 0,
     notes: '',
   };
 
@@ -74,7 +73,6 @@ export class InstallmentDetailsComponent implements OnInit {
     this.paymentForm = {
       paidAmount: installment.originalAmount,
       paidDate: new Date(),
-      discountAmount: 0,
       notes: '',
     };
     this.paymentDialogVisible = true;

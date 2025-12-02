@@ -212,7 +212,8 @@ export class InstallmentsService {
     // Atualizar a parcela
     installment.paidAmount = payDto.paidAmount;
     installment.paidDate = payDto.paidDate || new Date();
-    installment.discountAmount = payDto.discountAmount || 0;
+    // Calcula o desconto automaticamente como a diferença entre valor original e valor pago
+    installment.discountAmount = Math.max(0, installment.originalAmount - payDto.paidAmount);
     installment.notes = payDto.notes;
     installment.metadata = payDto.metadata;
     installment.status = InstallmentStatus.PAID;
@@ -271,14 +272,61 @@ export class InstallmentsService {
 
     plan.paidInstallments = paidInstallments.length;
     plan.totalPaid = paidInstallments.reduce(
-      (sum, i) => sum + (i.paidAmount || 0),
+      (sum, i) => sum + Number(i.paidAmount || 0),
       0
     );
     plan.totalDiscount = paidInstallments.reduce(
-      (sum, i) => sum + i.discountAmount,
+      (sum, i) => sum + Number(i.discountAmount || 0),
       0
     );
 
     await this.installmentPlanRepository.save(plan);
+  }
+
+  /**
+   * Retorna parcelas pagas em um determinado mês/ano baseado na paidDate
+   * @param userId ID do usuário
+   * @param year Ano
+   * @param month Mês (1-12)
+   * @returns Lista de parcelas pagas no mês com informações do plano
+   */
+  async getPaidInstallmentsForMonth(
+    userId: string,
+    year: number,
+    month: number,
+  ): Promise<{
+    id: string;
+    planId: string;
+    planName: string;
+    installmentNumber: number;
+    totalInstallments: number;
+    paidAmount: number;
+    paidDate: Date;
+    discountAmount: number;
+  }[]> {
+    // Criar range de datas para o mês
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+
+    const paidInstallments = await this.installmentRepository
+      .createQueryBuilder('installment')
+      .leftJoinAndSelect('installment.installmentPlan', 'plan')
+      .where('plan.userId = :userId', { userId })
+      .andWhere('installment.status = :status', { status: InstallmentStatus.PAID })
+      .andWhere('installment.paidDate >= :startDate', { startDate })
+      .andWhere('installment.paidDate <= :endDate', { endDate })
+      .orderBy('installment.paidDate', 'DESC')
+      .getMany();
+
+    return paidInstallments.map(installment => ({
+      id: installment.id,
+      planId: installment.installmentPlan.id,
+      planName: installment.installmentPlan.name,
+      installmentNumber: installment.installmentNumber,
+      totalInstallments: installment.installmentPlan.totalInstallments,
+      paidAmount: Number(installment.paidAmount || 0),
+      paidDate: installment.paidDate,
+      discountAmount: Number(installment.discountAmount || 0),
+    }));
   }
 }

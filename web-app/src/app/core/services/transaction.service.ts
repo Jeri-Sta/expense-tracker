@@ -136,6 +136,7 @@ export interface DashboardStats {
     totalRemaining: number;
     totalSavings: number;
     upcomingPayments: any[];
+    paidInMonth: any[];
   };
   creditCards?: CreditCardSummary[];
   cardInstallments?: CardInstallmentSummary[];
@@ -175,6 +176,15 @@ export interface MonthlyNavigationStats {
   stats: MonthlyStatsWithProjections;
   recentTransactions: Transaction[];
   topCategories: any[];
+  installments: {
+    totalPlans: number;
+    totalFinanced: number;
+    totalPaid: number;
+    totalRemaining: number;
+    totalSavings: number;
+    upcomingPayments: any[];
+    paidInMonth: any[];
+  };
 }
 
 @Injectable({

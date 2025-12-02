@@ -88,7 +88,6 @@ export interface UpdateInstallmentPlan {
 export interface PayInstallment {
   paidAmount: number;
   paidDate?: Date;
-  discountAmount?: number;
   notes?: string;
   metadata?: Record<string, any>;
 }

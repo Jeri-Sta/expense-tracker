@@ -58,6 +58,7 @@ export interface DashboardStats {
     totalRemaining: number;
     totalSavings: number;
     upcomingPayments: any[];
+    paidInMonth: any[];
   };
   creditCards: CreditCardSummary[];
   cardInstallments: CardInstallmentSummary[];
@@ -69,6 +70,15 @@ export interface MonthlyNavigationStats {
   stats: MonthlyStatsWithProjections;
   recentTransactions: any[];
   topCategories: any[];
+  installments: {
+    totalPlans: number;
+    totalFinanced: number;
+    totalPaid: number;
+    totalRemaining: number;
+    totalSavings: number;
+    upcomingPayments: any[];
+    paidInMonth: any[];
+  };
 }
 
 @Injectable()
@@ -112,8 +122,8 @@ export class DashboardService {
     // Get top categories for current month
     const topCategories = await this.getTopCategories(userId, targetYear, currentDate.getMonth() + 1);
 
-    // Get installments summary
-    const installments = await this.getInstallmentsSummary(userId);
+    // Get installments summary (with paid installments for current month)
+    const installments = await this.getInstallmentsSummary(userId, targetYear, currentDate.getMonth() + 1);
 
     // Get credit cards summary
     const currentPeriod = `${targetYear}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
@@ -169,6 +179,9 @@ export class DashboardService {
     // Get top categories for the month (includes card transaction categories by due date)
     const topCategories = await this.getTopCategories(userId, year, month);
 
+    // Get installments summary for the selected month
+    const installments = await this.getInstallmentsSummary(userId, year, month);
+
     const stats = monthStats[0] || {
       period: competencyPeriod,
       totalIncome: 0,
@@ -189,6 +202,7 @@ export class DashboardService {
       stats,
       recentTransactions: monthTransactions,
       topCategories,
+      installments,
     };
   }
 
@@ -335,7 +349,7 @@ export class DashboardService {
     return sortedCategories;
   }
 
-  private async getInstallmentsSummary(userId: string) {
+  private async getInstallmentsSummary(userId: string, year?: number, month?: number) {
     // Get all active installment plans
     const plans = await this.installmentPlanRepository.find({
       where: { userId, isActive: true },
@@ -350,6 +364,7 @@ export class DashboardService {
         totalRemaining: 0,
         totalSavings: 0,
         upcomingPayments: [],
+        paidInMonth: [],
       };
     }
 
@@ -381,6 +396,45 @@ export class DashboardService {
       planId: installment.installmentPlan.id,
     }));
 
+    // Get paid installments for the selected month (if year and month provided)
+    let paidInMonth: {
+      id: string;
+      planId: string;
+      planName: string;
+      installmentNumber: number;
+      totalInstallments: number;
+      paidAmount: number;
+      paidDate: Date;
+      discountAmount: number;
+    }[] = [];
+
+    if (year && month) {
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+
+      const paidInstallments = await this.installmentRepository
+        .createQueryBuilder('installment')
+        .leftJoinAndSelect('installment.installmentPlan', 'plan')
+        .where('plan.userId = :userId', { userId })
+        .andWhere('installment.status = :status', { status: InstallmentStatus.PAID })
+        .andWhere('installment.paidDate >= :startDate', { startDate })
+        .andWhere('installment.paidDate <= :endDate', { endDate })
+        .orderBy('installment.paidDate', 'DESC')
+        .limit(5)
+        .getMany();
+
+      paidInMonth = paidInstallments.map(installment => ({
+        id: installment.id,
+        planId: installment.installmentPlan.id,
+        planName: installment.installmentPlan.name,
+        installmentNumber: installment.installmentNumber,
+        totalInstallments: installment.installmentPlan.totalInstallments,
+        paidAmount: Number(installment.paidAmount || 0),
+        paidDate: installment.paidDate,
+        discountAmount: Number(installment.discountAmount || 0),
+      }));
+    }
+
     return {
       totalPlans,
       totalFinanced,
@@ -388,6 +442,7 @@ export class DashboardService {
       totalRemaining,
       totalSavings,
       upcomingPayments: formattedUpcomingPayments,
+      paidInMonth,
     };
   }
 

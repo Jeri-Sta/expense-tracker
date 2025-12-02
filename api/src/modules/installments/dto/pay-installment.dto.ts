@@ -22,16 +22,6 @@ export class PayInstallmentDto {
   paidDate?: Date;
 
   @ApiProperty({
-    example: 100,
-    description: 'Valor de desconto aplicado',
-    required: false,
-  })
-  @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
-  discountAmount?: number;
-
-  @ApiProperty({
     example: 'Pagamento antecipado com desconto',
     description: 'Observações sobre o pagamento',
     required: false,

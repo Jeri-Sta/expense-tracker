@@ -7,6 +7,8 @@ import { RecurringTransactionService, RecurringTransaction } from '../../core/se
 import { CreditCardService } from '../credit-cards/services/credit-card.service';
 import { CardTransactionService } from '../credit-cards/services/card-transaction.service';
 import { CardTransaction } from '../credit-cards/models/card-transaction.model';
+import { InstallmentService } from '../installments/services';
+import { InstallmentPlanSummary } from '../installments/models';
 import { MessageService } from 'primeng/api';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
 import { parseLocalDate, formatDateToString } from '../../shared/utils/date.utils';
@@ -68,8 +70,10 @@ export class DashboardComponent implements OnInit {
     totalPaid: 0,
     totalRemaining: 0,
     totalSavings: 0,
-    upcomingPayments: []
+    upcomingPayments: [],
+    paidInMonth: []
   };
+  installmentPlans: InstallmentPlanSummary[] = [];
   
   // Date range for analysis
   selectedYear = new Date().getFullYear();
@@ -115,6 +119,7 @@ export class DashboardComponent implements OnInit {
     private readonly recurringTransactionService: RecurringTransactionService,
     private readonly creditCardService: CreditCardService,
     private readonly cardTransactionService: CardTransactionService,
+    private readonly installmentService: InstallmentService,
     private readonly messageService: MessageService
   ) {
     this.loadActiveTabFromStorage();
@@ -125,12 +130,34 @@ export class DashboardComponent implements OnInit {
     return this.creditCards.length > 0 || this.cardInstallments.length > 0 || this.cardTransactions.length > 0;
   }
 
+  // Getter to check if there is financing data to display
+  get hasFinancingData(): boolean {
+    return this.installmentStats.totalPlans > 0;
+  }
+
+  // Get the total number of visible tabs
+  private getVisibleTabCount(): number {
+    let count = 1; // Visão Geral is always visible
+    if (this.hasCardData) count++;
+    if (this.hasFinancingData) count++;
+    return count;
+  }
+
   // Load active tab index from localStorage
   private loadActiveTabFromStorage(): void {
     const savedTab = localStorage.getItem(this.TAB_STORAGE_KEY);
     if (savedTab !== null) {
       const tabIndex = Number.parseInt(savedTab, 10);
       this.activeTabIndex = Number.isNaN(tabIndex) ? 0 : tabIndex;
+    }
+  }
+
+  // Validate and adjust tab index based on visible tabs
+  private validateActiveTabIndex(): void {
+    const maxIndex = this.getVisibleTabCount() - 1;
+    if (this.activeTabIndex > maxIndex) {
+      this.activeTabIndex = 0;
+      localStorage.setItem(this.TAB_STORAGE_KEY, '0');
     }
   }
 
@@ -145,6 +172,7 @@ export class DashboardComponent implements OnInit {
     this.updateNavigationStatus();
     this.loadDashboardData();
     this.loadCreditCardData();
+    this.loadInstallmentPlans();
     this.setupChartOptions();
   }
 
@@ -172,11 +200,15 @@ export class DashboardComponent implements OnInit {
           
           // Update installment stats
           if (dashboardData.installments) {
-            this.installmentStats = dashboardData.installments;
+            this.installmentStats = {
+              ...dashboardData.installments,
+              paidInMonth: dashboardData.installments.paidInMonth || []
+            };
           }
           
           this.loadUpcomingRecurring(); // Still load recurring transactions
           this.loading = false;
+          this.validateActiveTabIndex();
         },
         error: (error) => {
           console.error('Error loading dashboard data:', error);
@@ -195,9 +227,19 @@ export class DashboardComponent implements OnInit {
           this.updateCurrentStatsFromDashboard(monthlyData.stats);
           this.recentTransactions = monthlyData.recentTransactions || [];
           this.updateCategoryData(monthlyData.topCategories || []);
+          
+          // Update installment stats for the selected month
+          if (monthlyData.installments) {
+            this.installmentStats = {
+              ...monthlyData.installments,
+              paidInMonth: monthlyData.installments.paidInMonth || []
+            };
+          }
+          
           // Load yearly trend for context
           this.loadYearlyTrend();
           this.loading = false;
+          this.validateActiveTabIndex();
         },
         error: (error) => {
           console.error('Error loading monthly data:', error);
@@ -296,6 +338,18 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  loadInstallmentPlans(): void {
+    this.installmentService.getAll().subscribe({
+      next: (plans) => {
+        this.installmentPlans = plans.filter(plan => plan.isActive);
+        this.validateActiveTabIndex();
+      },
+      error: (error) => {
+        console.error('Error loading installment plans:', error);
+      }
+    });
+  }
+
   loadCreditCardData(): void {
     // Use the selected year/month instead of current date
     const selectedPeriod = `${this.selectedYear}-${String(this.selectedMonth).padStart(2, '0')}`;
@@ -379,6 +433,8 @@ export class DashboardComponent implements OnInit {
             totalRemaining
           };
         }).slice(0, 5); // Limit to 5 for display
+        
+        this.validateActiveTabIndex();
       },
       error: (error) => {
         console.error('Error loading credit card data:', error);

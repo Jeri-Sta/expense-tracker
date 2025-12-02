@@ -1,0 +1,123 @@
+<div class="installment-plans-widget surface-card shadow-2 border-round-lg">
+  <div class="section-header p-4 border-bottom-1 surface-border">
+    <div class="flex justify-content-between align-items-center">
+      <div>
+        <h3 class="text-lg font-bold text-color m-0">Planos de Financiamento</h3>
+        <p class="text-color-secondary m-0 text-sm">Lista de todos os seus financiamentos ativos</p>
+      </div>
+      <div class="flex gap-2">
+        <p-button 
+          label="Novo" 
+          icon="pi pi-plus" 
+          [text]="true" 
+          size="small"
+          (onClick)="onNewInstallmentPlan()"
+        ></p-button>
+        <p-button 
+          label="Ver Todos" 
+          icon="pi pi-external-link" 
+          [text]="true" 
+          size="small"
+          (onClick)="onViewAll()"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="widget-content p-4">
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading">
+      <p-progressSpinner strokeWidth="4" [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
+    </div>
+
+    <!-- Plans Grid -->
+    <div class="plans-grid" *ngIf="!isLoading && getActivePlans().length > 0">
+      <div class="plan-card surface-section border-round p-3" *ngFor="let plan of getActivePlans()">
+        <div class="plan-header flex justify-content-between align-items-start mb-3">
+          <div class="plan-info">
+            <h4 class="plan-name text-color font-semibold m-0 mb-1">{{ plan.name }}</h4>
+            <p-tag 
+              [value]="plan.isActive ? 'Ativo' : 'Inativo'" 
+              [severity]="plan.isActive ? 'success' : 'secondary'"
+              styleClass="text-xs">
+            </p-tag>
+          </div>
+          <p-button 
+            icon="pi pi-eye" 
+            [text]="true" 
+            [rounded]="true"
+            size="small"
+            pTooltip="Ver detalhes"
+            (onClick)="onViewDetails(plan.id)">
+          </p-button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-section mb-3">
+          <div class="progress-info flex justify-content-between align-items-center mb-2">
+            <span class="text-color-secondary text-sm">
+              {{ plan.paidInstallments }} de {{ plan.totalInstallments }} parcelas
+            </span>
+            <span class="font-semibold text-sm" [ngClass]="getProgressBarClass(plan.completionPercentage)">
+              {{ plan.completionPercentage.toFixed(1) }}%
+            </span>
+          </div>
+          <p-progressBar 
+            [value]="plan.completionPercentage" 
+            [showValue]="false"
+            [styleClass]="getProgressBarClass(plan.completionPercentage)">
+          </p-progressBar>
+        </div>
+
+        <!-- Financial Summary -->
+        <div class="financial-summary grid">
+          <div class="col-6">
+            <div class="text-color-secondary text-xs mb-1">Financiado</div>
+            <div class="text-color font-medium text-sm">{{ formatCurrency(plan.financedAmount) }}</div>
+          </div>
+          <div class="col-6">
+            <div class="text-color-secondary text-xs mb-1">Total</div>
+            <div class="text-color font-medium text-sm">{{ formatCurrency(plan.totalAmount) }}</div>
+          </div>
+          <div class="col-6 mt-2">
+            <div class="text-color-secondary text-xs mb-1">Pago</div>
+            <div class="text-green-500 font-medium text-sm">{{ formatCurrency(plan.totalPaid) }}</div>
+          </div>
+          <div class="col-6 mt-2">
+            <div class="text-color-secondary text-xs mb-1">Restante</div>
+            <div class="text-orange-500 font-medium text-sm">{{ formatCurrency(plan.remainingAmount) }}</div>
+          </div>
+        </div>
+
+        <!-- Next Due Date -->
+        <div class="next-due mt-3 pt-3 border-top-1 surface-border" *ngIf="plan.nextDueDate">
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-calendar text-color-secondary text-sm"></i>
+            <span class="text-color-secondary text-xs">Próximo vencimento:</span>
+            <span class="text-sm font-medium" [ngClass]="getDueDateClass(getDaysUntilDue(plan.nextDueDate))">
+              {{ formatDate(plan.nextDueDate) }}
+              <ng-container *ngIf="getDaysUntilDue(plan.nextDueDate) as days">
+                <span class="text-xs">
+                  ({{ days > 0 ? days + ' dias' : Math.abs(days) + ' dias em atraso' }})
+                </span>
+              </ng-container>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state text-center py-6" *ngIf="!isLoading && getActivePlans().length === 0">
+      <i class="pi pi-wallet text-4xl text-color-secondary mb-3"></i>
+      <p class="text-color-secondary m-0">Nenhum financiamento ativo encontrado</p>
+      <p-button 
+        label="Criar Financiamento" 
+        icon="pi pi-plus" 
+        [text]="true" 
+        (onClick)="onNewInstallmentPlan()"
+        styleClass="mt-3">
+      </p-button>
+    </div>
+  </div>
+</div>

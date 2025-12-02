@@ -25,6 +25,7 @@ import { InstallmentsWidgetComponent } from './components/installments-widget/in
 import { CardTransactionsWidgetComponent } from './components/card-transactions-widget/card-transactions-widget.component';
 import { KpiCardsWidgetComponent } from './components/kpi-cards-widget/kpi-cards-widget.component';
 import { FinancingsSummaryWidgetComponent } from './components/financings-summary-widget/financings-summary-widget.component';
+import { InstallmentPlansWidgetComponent } from './components/installment-plans-widget/installment-plans-widget.component';
 import { MonthlyTrendChartComponent } from './components/charts/monthly-trend-chart/monthly-trend-chart.component';
 import { IncomeExpenseChartComponent } from './components/charts/income-expense-chart/income-expense-chart.component';
 import { CategoryDistributionChartComponent } from './components/charts/category-distribution-chart/category-distribution-chart.component';
@@ -41,6 +42,7 @@ import { CategoryStatsWidgetComponent } from './components/category-stats-widget
     CardTransactionsWidgetComponent,
     KpiCardsWidgetComponent,
     FinancingsSummaryWidgetComponent,
+    InstallmentPlansWidgetComponent,
     MonthlyTrendChartComponent,
     IncomeExpenseChartComponent,
     CategoryDistributionChartComponent,

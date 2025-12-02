@@ -264,22 +264,6 @@
       </div>
 
       <div class="field">
-        <label for="discountAmount">Desconto Aplicado</label>
-        <p-inputNumber
-          id="discountAmount"
-          [(ngModel)]="paymentForm.discountAmount"
-          mode="currency"
-          currency="BRL"
-          locale="pt-BR"
-          [min]="0"
-        ></p-inputNumber>
-        <small class="field-hint">
-          <i class="pi pi-info-circle mr-1"></i>
-          Valor do desconto por pagamento antecipado. Este valor será somado ao desconto total do financiamento.
-        </small>
-      </div>
-
-      <div class="field">
         <label for="notes">Observações</label>
         <textarea
           id="notes"
@@ -296,17 +280,13 @@
         <span>Valor original:</span>
         <span>{{ formatCurrency(selectedInstallment.originalAmount) }}</span>
       </div>
-      <div class="summary-item" *ngIf="paymentForm.discountAmount && paymentForm.discountAmount > 0">
+      <div class="summary-item" *ngIf="paymentForm.paidAmount < selectedInstallment.originalAmount">
         <span>Desconto:</span>
-        <span class="text-green-500">-{{ formatCurrency(paymentForm.discountAmount || 0) }}</span>
+        <span class="text-green-500">-{{ formatCurrency(selectedInstallment.originalAmount - paymentForm.paidAmount) }}</span>
       </div>
       <div class="summary-item highlight">
         <span>Valor final:</span>
         <span>{{ formatCurrency(paymentForm.paidAmount) }}</span>
-      </div>
-      <div class="summary-item" *ngIf="paymentForm.paidAmount < selectedInstallment.originalAmount">
-        <span>Economia:</span>
-        <span class="text-green-500">{{ formatCurrency(selectedInstallment.originalAmount - paymentForm.paidAmount) }}</span>
       </div>
     </div>
   </div>
