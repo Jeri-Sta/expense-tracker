@@ -80,6 +80,18 @@ export class CardTransactionService {
     return `${months[parseInt(month) - 1]}/${year}`;
   }
 
+  /**
+   * Get card transactions by the invoice due month.
+   * This returns transactions from invoices that are due in the specified month.
+   */
+  getByDueMonth(year: number, month: number, creditCardId?: string): Observable<CardTransaction[]> {
+    let params = new HttpParams();
+    if (creditCardId) {
+      params = params.set('creditCardId', creditCardId);
+    }
+    return this.http.get<CardTransaction[]>(`${this.apiUrl}/by-due-month/${year}/${month}`, { params });
+  }
+
   // Helper to get current period
   getCurrentPeriod(): string {
     const now = new Date();

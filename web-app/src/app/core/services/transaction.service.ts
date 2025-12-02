@@ -79,6 +79,9 @@ export interface CreateTransactionDto {
   competencyPeriod: string;
   notes?: string;
   metadata?: Record<string, any>;
+  isProjected?: boolean;
+  projectionSource?: 'recurring' | 'manual' | 'ai';
+  confidenceScore?: number;
 }
 
 export interface UpdateTransactionDto {
@@ -90,6 +93,9 @@ export interface UpdateTransactionDto {
   competencyPeriod?: string;
   notes?: string;
   metadata?: Record<string, any>;
+  isProjected?: boolean;
+  projectionSource?: 'recurring' | 'manual' | 'ai';
+  confidenceScore?: number;
 }
 
 export interface Category extends BaseEntity {
@@ -185,6 +191,8 @@ export interface MonthlyNavigationStats {
     upcomingPayments: any[];
     paidInMonth: any[];
   };
+  creditCards?: CreditCardSummary[];
+  cardInstallments?: CardInstallmentSummary[];
 }
 
 @Injectable({
@@ -299,5 +307,51 @@ export class TransactionService {
     }
 
     return this.http.get<PaginatedResponse<Transaction>>(`${this.apiUrl}/projections/filter`, { params });
+  }
+
+  // Helper to format period for display
+  formatPeriod(period: string): string {
+    const [year, month] = period.split('-');
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    return `${months[Number.parseInt(month) - 1]}/${year}`;
+  }
+
+  // Helper to get current period
+  getCurrentPeriod(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  }
+
+  // Get available periods for filter (last 12 months + next 6 months)
+  getAvailablePeriods(): { label: string; value: string }[] {
+    const periods: { label: string; value: string }[] = [];
+    const now = new Date();
+    
+    // Last 12 months
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      periods.push({
+        label: this.formatPeriod(period),
+        value: period
+      });
+    }
+    
+    // Next 6 months
+    for (let i = 1; i <= 6; i++) {
+      const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      periods.push({
+        label: this.formatPeriod(period),
+        value: period
+      });
+    }
+    
+    return periods;
   }
 }

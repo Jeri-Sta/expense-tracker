@@ -12,7 +12,7 @@ import { InstallmentPlanSummary } from '../installments/models';
 import { MessageService } from 'primeng/api';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
 import { parseLocalDate, formatDateToString } from '../../shared/utils/date.utils';
-import { forkJoin, of } from 'rxjs';
+import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DashboardStats, CategoryStats, InstallmentStats } from '../../shared/types/dashboard.types';
 
@@ -171,7 +171,6 @@ export class DashboardComponent implements OnInit {
     this.initializeYears();
     this.updateNavigationStatus();
     this.loadDashboardData();
-    this.loadCreditCardData();
     this.loadInstallmentPlans();
     this.setupChartOptions();
   }
@@ -205,8 +204,17 @@ export class DashboardComponent implements OnInit {
               paidInMonth: dashboardData.installments.paidInMonth || []
             };
           }
+
+          // Update credit cards and card installments from backend (uses invoice due date logic)
+          if (dashboardData.creditCards) {
+            this.creditCards = dashboardData.creditCards;
+          }
+          if (dashboardData.cardInstallments) {
+            this.cardInstallments = dashboardData.cardInstallments;
+          }
           
           this.loadUpcomingRecurring(); // Still load recurring transactions
+          this.loadCardTransactionsForPeriod(); // Load card transactions for display
           this.loading = false;
           this.validateActiveTabIndex();
         },
@@ -235,9 +243,18 @@ export class DashboardComponent implements OnInit {
               paidInMonth: monthlyData.installments.paidInMonth || []
             };
           }
+
+          // Update credit cards and card installments from backend (uses invoice due date logic)
+          if (monthlyData.creditCards) {
+            this.creditCards = monthlyData.creditCards;
+          }
+          if (monthlyData.cardInstallments) {
+            this.cardInstallments = monthlyData.cardInstallments;
+          }
           
           // Load yearly trend for context
           this.loadYearlyTrend();
+          this.loadCardTransactionsForPeriod(); // Load card transactions for display
           this.loading = false;
           this.validateActiveTabIndex();
         },
@@ -350,96 +367,35 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  loadCreditCardData(): void {
-    // Use the selected year/month instead of current date
-    const selectedPeriod = `${this.selectedYear}-${String(this.selectedMonth).padStart(2, '0')}`;
-    this.currentCardPeriod = selectedPeriod;
+  /**
+   * Loads card transactions for display in the dashboard.
+   * Uses the invoice that has its due date in the selected month.
+   * Note: creditCards and cardInstallments are loaded from the backend in loadDashboardData()
+   */
+  loadCardTransactionsForPeriod(): void {
+    // Use the new endpoint that fetches transactions by invoice due month
+    this.currentCardPeriod = `${this.selectedYear}-${String(this.selectedMonth).padStart(2, '0')}`;
     
-    forkJoin({
-      cards: this.creditCardService.getAll().pipe(catchError(() => of([]))),
-      transactions: this.cardTransactionService.getAll(undefined, selectedPeriod).pipe(catchError(() => of([]))),
-      allTransactions: this.cardTransactionService.getAll().pipe(catchError(() => of([])))
-    }).subscribe({
-      next: ({ cards, transactions, allTransactions }) => {
-        // Ensure arrays are not undefined
-        const safeCards = cards || [];
-        const safeTransactions = transactions || [];
-        const safeAllTransactions = allTransactions || [];
-        
-        // Store card transactions for the widget
-        this.cardTransactions = safeTransactions;
-        
-        // Calculate credit card summaries - use backend data if available, otherwise calculate locally
-        this.creditCards = safeCards.map(card => {
-          // Use backend calculated values if available
-          let usedLimit = card.usedLimit ?? 0;
-          let availableLimit = card.availableLimit ?? card.totalLimit;
-          
-          // If backend didn't provide values, calculate from transactions
-          // For installments: count all remaining installments (from current period onwards)
-          // For non-installments: only count current period
-          if (card.usedLimit === undefined || card.usedLimit === null) {
-            const cardTransactions = safeTransactions.filter(t => t.creditCardId === card.id);
-            const nonInstallmentTotal = cardTransactions
-              .filter(t => !t.isInstallment)
-              .reduce((sum, t) => sum + t.amount, 0);
-            
-            // For installments, get all transactions from current period onwards
-            const installmentTotal = safeAllTransactions
-              .filter(t => t.creditCardId === card.id && t.isInstallment && t.invoicePeriod >= selectedPeriod)
-              .reduce((sum, t) => sum + t.amount, 0);
-            
-            usedLimit = nonInstallmentTotal + installmentTotal;
-            availableLimit = card.totalLimit - usedLimit;
-          }
-          
-          const usagePercentage = card.totalLimit > 0 ? (usedLimit / card.totalLimit) * 100 : 0;
-          
-          return {
-            id: card.id,
-            name: card.name,
-            color: card.color,
-            totalLimit: card.totalLimit,
-            usedLimit,
-            availableLimit,
-            usagePercentage,
-            currentInvoiceAmount: usedLimit,
-            currentInvoiceStatus: 'OPEN'
-          };
-        });
-        
-        // Calculate installment summaries - show all installments for the selected period
-        // This includes both parent transactions (first installment) and child transactions (subsequent installments)
-        const installmentTransactions = safeTransactions.filter(t => t.isInstallment);
-        this.cardInstallments = installmentTransactions.map(t => {
-          const currentInstallment = t.installmentNumber || 1;
-          const totalInstallments = t.totalInstallments || 1;
-          const remainingInstallments = totalInstallments - currentInstallment;
-          const installmentAmount = t.amount;
-          const totalRemaining = installmentAmount * remainingInstallments;
-          
-          return {
-            id: t.id,
-            description: t.description,
-            creditCardName: t.creditCardName || 'Cartão',
-            creditCardColor: t.creditCardColor || '#6B7280',
-            categoryName: t.categoryName,
-            categoryColor: t.categoryColor,
-            categoryIcon: t.categoryIcon,
-            currentInstallment,
-            totalInstallments,
-            remainingInstallments,
-            installmentAmount,
-            totalRemaining
-          };
-        }).slice(0, 5); // Limit to 5 for display
-        
+    // Load card transactions for invoices due in the selected month
+    this.cardTransactionService.getByDueMonth(this.selectedYear, this.selectedMonth).pipe(
+      catchError(() => of([]))
+    ).subscribe({
+      next: (transactions) => {
+        this.cardTransactions = transactions || [];
         this.validateActiveTabIndex();
       },
       error: (error) => {
-        console.error('Error loading credit card data:', error);
+        console.error('Error loading card transactions:', error);
       }
     });
+  }
+
+  /**
+   * Refreshes all credit card related data.
+   * Credit card summaries and installments come from the backend with proper invoice due date logic.
+   */
+  loadCreditCardData(): void {
+    this.loadCardTransactionsForPeriod();
   }
 
   calculateCurrentStats(transactions: any[]): void {

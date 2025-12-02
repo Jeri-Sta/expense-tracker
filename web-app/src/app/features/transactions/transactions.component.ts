@@ -46,6 +46,10 @@ export class TransactionsComponent implements OnInit {
     page: 1,
     limit: 10
   };
+
+  // Period filter
+  selectedPeriod: string = '';
+  periodOptions: { label: string; value: string }[] = [];
   
   // Projection settings
   showProjectionFilters = false;
@@ -67,9 +71,25 @@ export class TransactionsComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForms();
     this.loadCategories();
+    this.loadPeriodOptions();
     
     // Verificar se estamos autenticados antes de carregar transações
     this.checkAuthAndLoadData();
+  }
+
+  loadPeriodOptions(): void {
+    this.periodOptions = this.transactionService.getAvailablePeriods();
+    // Start with no period filter (show all transactions)
+    this.selectedPeriod = '';
+  }
+
+  onPeriodChange(): void {
+    // Update filter and reload
+    this.currentFilters.competencyPeriod = this.selectedPeriod || undefined;
+    this.filterForm.patchValue({ competencyPeriod: this.selectedPeriod || '' });
+    this.first = 0;
+    this.currentFilters.page = 1;
+    this.loadTransactions();
   }
 
   private checkAuthAndLoadData(): void {
@@ -95,7 +115,7 @@ export class TransactionsComponent implements OnInit {
   private loadTransactionsInitial(): void {
     this.loading = true;
     
-    // Configurar filtros iniciais
+    // Configurar filtros iniciais (sem filtro de período para mostrar tudo)
     this.currentFilters = {
       page: 1,
       limit: this.rows
@@ -283,6 +303,7 @@ export class TransactionsComponent implements OnInit {
 
   clearFilters(): void {
     this.filterForm.reset();
+    this.selectedPeriod = '';
     this.currentFilters = {
       page: 1,
       limit: this.rows
@@ -617,7 +638,10 @@ export class TransactionsComponent implements OnInit {
           categoryId: formValue.categoryId,
           transactionDate: transactionDateStr,
           competencyPeriod: competencyPeriod,
-          notes: formValue.notes
+          notes: formValue.notes,
+          isProjected: formValue.isProjected || false,
+          projectionSource: formValue.isProjected ? formValue.projectionSource : undefined,
+          confidenceScore: formValue.isProjected ? formValue.confidenceScore : undefined
         };
         
         this.transactionService.updateTransaction(this.selectedTransaction.id, updateDto).subscribe({
@@ -647,7 +671,10 @@ export class TransactionsComponent implements OnInit {
           categoryId: formValue.categoryId,
           transactionDate: transactionDateStr,
           competencyPeriod: competencyPeriod,
-          notes: formValue.notes
+          notes: formValue.notes,
+          isProjected: formValue.isProjected || false,
+          projectionSource: formValue.isProjected ? formValue.projectionSource : undefined,
+          confidenceScore: formValue.isProjected ? formValue.confidenceScore : undefined
         };
         
         this.transactionService.createTransaction(createDto).subscribe({

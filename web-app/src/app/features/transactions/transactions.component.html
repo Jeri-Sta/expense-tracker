@@ -45,6 +45,25 @@
       </div>
     </div>
     
+    <!-- Period Filter -->
+    <div class="flex flex-column md:flex-row gap-3 align-items-end mb-4">
+      <div class="flex-1" style="max-width: 250px;">
+        <label for="filterPeriod" class="block mb-2 font-medium">Competência</label>
+        <p-dropdown 
+          id="filterPeriod"
+          [options]="periodOptions" 
+          [(ngModel)]="selectedPeriod"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Todos os períodos"
+          [showClear]="true"
+          [style]="{'width': '100%'}"
+          (onChange)="onPeriodChange()"
+          appendTo="body"
+        ></p-dropdown>
+      </div>
+    </div>
+    
     <!-- Projection Filters Panel -->
     <p-panel 
       *ngIf="showProjectionFilters"
@@ -487,18 +506,17 @@
         header="Configurações de Projeção"
         [toggleable]="true"
         [collapsed]="!isProjectedFormEnabled()"
-        styleClass="mb-4"
+        styleClass="projection-settings-panel"
       >
         <!-- Is Projected Toggle -->
         <div class="field mb-3">
-          <div class="flex align-items-center">
+          <div class="flex align-items-center flex-wrap gap-2">
             <p-toggleButton 
               id="isProjected"
               formControlName="isProjected"
               onLabel="Transação Projetada" 
               offLabel="Transação Real"
               (onChange)="onProjectedToggle()"
-              styleClass="mr-3"
             ></p-toggleButton>
             <small class="text-600">
               Transações projetadas são estimativas para planejamento futuro
@@ -543,7 +561,8 @@
         </div>
       </p-panel>
 
-      <div class="flex justify-content-end gap-2 mt-4">
+      <!-- Action Buttons -->
+      <div class="dialog-actions flex justify-content-end gap-2 mt-4 pt-3">
         <p-button 
           label="Cancelar" 
           icon="pi pi-times" 

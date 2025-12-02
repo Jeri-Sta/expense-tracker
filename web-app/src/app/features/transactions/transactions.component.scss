@@ -95,6 +95,27 @@
   border-color: $color-danger !important;
 }
 
+// Transaction dialog form - ensure proper spacing
+.p-dialog {
+  .projection-settings-panel {
+    margin-bottom: $spacing-md;
+    
+    .p-panel-content {
+      padding: $spacing-md;
+    }
+  }
+  
+  // Ensure action buttons are always visible and not overlapped
+  .dialog-actions {
+    position: relative;
+    z-index: 10;
+    background: var(--surface-card);
+    border-top: 1px solid var(--surface-border);
+    margin-top: $spacing-lg;
+    padding-top: $spacing-md;
+  }
+}
+
 // Responsive improvements
 @include respond-to(md) {
   .p-datatable {

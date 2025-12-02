@@ -64,6 +64,28 @@ export class CardTransactionsController {
     return this.cardTransactionsService.findAll(user.id, creditCardId, invoicePeriod);
   }
 
+  @Get('by-due-month/:year/:month')
+  @ApiOperation({ summary: 'Get card transactions by invoice due month' })
+  @ApiResponse({
+    status: 200,
+    description: 'Card transactions retrieved successfully by due month',
+    type: [CardTransactionResponseDto],
+  })
+  @ApiQuery({ name: 'creditCardId', required: false, description: 'Filter by credit card ID' })
+  findByDueMonth(
+    @GetUser() user: User,
+    @Param('year') year: string,
+    @Param('month') month: string,
+    @Query('creditCardId') creditCardId?: string,
+  ): Promise<CardTransactionResponseDto[]> {
+    return this.cardTransactionsService.findByDueMonth(
+      user.id,
+      Number.parseInt(year, 10),
+      Number.parseInt(month, 10),
+      creditCardId,
+    );
+  }
+
   @Get('installments/pending')
   @ApiOperation({ summary: 'Get pending installment transactions' })
   @ApiResponse({

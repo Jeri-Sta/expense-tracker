@@ -440,6 +440,70 @@ export class CardTransactionsService {
     return Number(result?.total || 0);
   }
 
+  /**
+   * Get card transactions by the invoice due month.
+   * This calculates which invoice periods have their due date in the target month/year.
+   */
+  async findByDueMonth(
+    userId: string,
+    year: number,
+    month: number,
+    creditCardId?: string,
+  ): Promise<CardTransactionResponseDto[]> {
+    // Get all credit cards for the user to determine invoice periods
+    const whereCondition: any = { userId, isActive: true };
+    if (creditCardId) {
+      whereCondition.id = creditCardId;
+    }
+    
+    const creditCards = await this.creditCardRepository.find({
+      where: whereCondition,
+    });
+
+    if (creditCards.length === 0) {
+      return [];
+    }
+
+    const allTransactions: CardTransactionResponseDto[] = [];
+
+    for (const card of creditCards) {
+      // Calculate which invoice period has due date in the target month
+      const invoicePeriod = this.getInvoicePeriodWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+      
+      // Get transactions for this card and period
+      const transactions = await this.findAll(userId, card.id, invoicePeriod);
+      allTransactions.push(...transactions);
+    }
+
+    // Sort by transaction date descending
+    return allTransactions.sort((a, b) => 
+      new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()
+    );
+  }
+
+  /**
+   * Determines which invoice period has its due date in the target month/year.
+   */
+  private getInvoicePeriodWithDueDateInMonth(closingDay: number, dueDay: number, targetYear: number, targetMonth: number): string {
+    // If dueDay <= closingDay, the invoice of period X is due in month X+1
+    // Otherwise, it's due in the same month X
+    const dueDateIsNextMonth = dueDay <= closingDay;
+
+    if (dueDateIsNextMonth) {
+      // The invoice that is due in the target month is from the previous month
+      let invoiceMonth = targetMonth - 1;
+      let invoiceYear = targetYear;
+      if (invoiceMonth < 1) {
+        invoiceMonth = 12;
+        invoiceYear -= 1;
+      }
+      return `${invoiceYear}-${String(invoiceMonth).padStart(2, '0')}`;
+    } else {
+      // The invoice that is due in the target month is from the same month
+      return `${targetYear}-${String(targetMonth).padStart(2, '0')}`;
+    }
+  }
+
   // Helper methods
   private calculateInvoicePeriod(transactionDate: Date, closingDay: number): string {
     const txDate = new Date(transactionDate);

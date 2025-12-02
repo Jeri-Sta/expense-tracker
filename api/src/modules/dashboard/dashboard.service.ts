@@ -79,6 +79,8 @@ export interface MonthlyNavigationStats {
     upcomingPayments: any[];
     paidInMonth: any[];
   };
+  creditCards: CreditCardSummary[];
+  cardInstallments: CardInstallmentSummary[];
 }
 
 @Injectable()
@@ -125,12 +127,11 @@ export class DashboardService {
     // Get installments summary (with paid installments for current month)
     const installments = await this.getInstallmentsSummary(userId, targetYear, currentDate.getMonth() + 1);
 
-    // Get credit cards summary
-    const currentPeriod = `${targetYear}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-    const creditCards = await this.getCreditCardsSummary(userId, currentPeriod);
+    // Get credit cards summary (based on invoice due date)
+    const creditCards = await this.getCreditCardsSummary(userId, targetYear, currentDate.getMonth() + 1);
 
-    // Get card installments summary
-    const cardInstallments = await this.getCardInstallmentsSummary(userId, currentPeriod);
+    // Get card installments summary (based on invoice due date)
+    const cardInstallments = await this.getCardInstallmentsSummary(userId, targetYear, currentDate.getMonth() + 1);
 
     // Get card expenses based on invoice due date (not invoice period)
     const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(userId, targetYear, currentDate.getMonth() + 1);
@@ -182,6 +183,12 @@ export class DashboardService {
     // Get installments summary for the selected month
     const installments = await this.getInstallmentsSummary(userId, year, month);
 
+    // Get credit cards summary (based on invoice due date)
+    const creditCards = await this.getCreditCardsSummary(userId, year, month);
+
+    // Get card installments summary (based on invoice due date)
+    const cardInstallments = await this.getCardInstallmentsSummary(userId, year, month);
+
     const stats = monthStats[0] || {
       period: competencyPeriod,
       totalIncome: 0,
@@ -203,6 +210,8 @@ export class DashboardService {
       recentTransactions: monthTransactions,
       topCategories,
       installments,
+      creditCards,
+      cardInstallments,
     };
   }
 
@@ -477,7 +486,7 @@ export class DashboardService {
     return nonInstallmentTotal + installmentTotal;
   }
 
-  private async getCreditCardsSummary(userId: string, currentPeriod: string): Promise<CreditCardSummary[]> {
+  private async getCreditCardsSummary(userId: string, year: number, month: number): Promise<CreditCardSummary[]> {
     const creditCards = await this.creditCardRepository.find({
       where: { userId, isActive: true },
       order: { name: 'ASC' },
@@ -486,23 +495,27 @@ export class DashboardService {
     const summaries: CreditCardSummary[] = [];
 
     for (const card of creditCards) {
-      // Get current invoice amount
+      // Get the invoice period that has due date in the target month
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+      const invoicePeriod = invoicePeriods[0]; // Should have only one period
+
+      // Get current invoice amount for the invoice that is due in this month
       const currentInvoiceResult = await this.cardTransactionRepository
         .createQueryBuilder('transaction')
         .select('SUM(transaction.amount)', 'total')
         .where('transaction.creditCardId = :cardId', { cardId: card.id })
-        .andWhere('transaction.invoicePeriod = :period', { period: currentPeriod })
+        .andWhere('transaction.invoicePeriod = :period', { period: invoicePeriod })
         .getRawOne();
 
       const currentInvoiceAmount = Number(currentInvoiceResult?.total || 0);
 
       // Calculate used limit considering full installment amounts
       // For installment transactions, we need to count all remaining installments, not just current period
-      const usedLimitResult = await this.calculateUsedLimitForCard(card.id, currentPeriod);
+      const usedLimitResult = await this.calculateUsedLimitForCard(card.id, invoicePeriod);
 
       // Get invoice status
       const invoice = await this.invoiceRepository.findOne({
-        where: { creditCardId: card.id, period: currentPeriod },
+        where: { creditCardId: card.id, period: invoicePeriod },
       });
 
       const totalLimit = Number(card.totalLimit);
@@ -510,14 +523,8 @@ export class DashboardService {
       const availableLimit = totalLimit - usedLimit;
       const usagePercentage = totalLimit > 0 ? (usedLimit / totalLimit) * 100 : 0;
 
-      // Calculate due date for current period
-      const [yearStr, monthStr] = currentPeriod.split('-');
-      const year = parseInt(yearStr);
-      const month = parseInt(monthStr) - 1;
-      const dueDate = new Date(year, month, card.dueDay);
-      if (card.dueDay <= card.closingDay) {
-        dueDate.setMonth(dueDate.getMonth() + 1);
-      }
+      // Due date is in the target month
+      const dueDate = new Date(year, month - 1, card.dueDay);
 
       summaries.push({
         id: card.id,
@@ -536,46 +543,62 @@ export class DashboardService {
     return summaries;
   }
 
-  private async getCardInstallmentsSummary(userId: string, currentPeriod: string): Promise<CardInstallmentSummary[]> {
-    // Get all parent installment transactions that have remaining installments
-    const installmentTransactions = await this.cardTransactionRepository
-      .createQueryBuilder('transaction')
-      .leftJoinAndSelect('transaction.creditCard', 'creditCard')
-      .where('transaction.userId = :userId', { userId })
-      .andWhere('transaction.isInstallment = :isInstallment', { isInstallment: true })
-      .andWhere('transaction.parentTransactionId IS NULL')
-      .orderBy('transaction.transactionDate', 'DESC')
-      .getMany();
+  private async getCardInstallmentsSummary(userId: string, year: number, month: number): Promise<CardInstallmentSummary[]> {
+    // Get all credit cards to determine invoice periods based on due date
+    const creditCards = await this.creditCardRepository.find({
+      where: { userId, isActive: true },
+    });
+
+    if (creditCards.length === 0) {
+      return [];
+    }
 
     const summaries: CardInstallmentSummary[] = [];
+    const processedTransactionIds = new Set<string>();
 
-    for (const transaction of installmentTransactions) {
-      // Find current installment for this period
-      const currentInstallment = await this.cardTransactionRepository.findOne({
-        where: [
-          { id: transaction.id, invoicePeriod: currentPeriod },
-          { parentTransactionId: transaction.id, invoicePeriod: currentPeriod },
-        ],
-      });
+    for (const card of creditCards) {
+      // Get the invoice period that has due date in the target month
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+      const invoicePeriod = invoicePeriods[0];
 
-      // Count remaining installments
-      const remainingCount = await this.cardTransactionRepository
+      // Get all installment transactions for this card and period
+      const installmentTransactions = await this.cardTransactionRepository
         .createQueryBuilder('transaction')
-        .where('(transaction.id = :parentId OR transaction.parentTransactionId = :parentId)', { parentId: transaction.id })
-        .andWhere('transaction.invoicePeriod >= :period', { period: currentPeriod })
-        .getCount();
+        .leftJoinAndSelect('transaction.creditCard', 'creditCard')
+        .leftJoinAndSelect('transaction.parentTransaction', 'parentTransaction')
+        .where('transaction.creditCardId = :cardId', { cardId: card.id })
+        .andWhere('transaction.isInstallment = :isInstallment', { isInstallment: true })
+        .andWhere('transaction.invoicePeriod = :period', { period: invoicePeriod })
+        .orderBy('transaction.transactionDate', 'DESC')
+        .getMany();
 
-      if (remainingCount > 0) {
-        const currentInstallmentNumber = currentInstallment?.installmentNumber || 
-          (transaction.totalInstallments! - remainingCount + 1);
+      for (const transaction of installmentTransactions) {
+        // Determine the parent transaction id
+        const parentId = transaction.parentTransactionId || transaction.id;
+        
+        // Skip if already processed
+        if (processedTransactionIds.has(parentId)) {
+          continue;
+        }
+        processedTransactionIds.add(parentId);
+
+        // Get parent transaction info if needed
+        const parentTransaction = transaction.parentTransaction || transaction;
+
+        // Count remaining installments from this period onwards
+        const remainingCount = await this.cardTransactionRepository
+          .createQueryBuilder('t')
+          .where('(t.id = :parentId OR t.parentTransactionId = :parentId)', { parentId })
+          .andWhere('t.invoicePeriod >= :period', { period: invoicePeriod })
+          .getCount();
 
         summaries.push({
-          id: transaction.id,
-          description: transaction.description,
-          creditCardName: transaction.creditCard?.name || '',
-          creditCardColor: transaction.creditCard?.color || '#3B82F6',
-          currentInstallment: currentInstallmentNumber,
-          totalInstallments: transaction.totalInstallments!,
+          id: parentId,
+          description: parentTransaction.description,
+          creditCardName: card.name,
+          creditCardColor: card.color,
+          currentInstallment: transaction.installmentNumber || 1,
+          totalInstallments: transaction.totalInstallments || parentTransaction.totalInstallments || 1,
           remainingInstallments: remainingCount,
           installmentAmount: Number(transaction.amount),
           totalRemaining: Number(transaction.amount) * remainingCount,
