@@ -224,19 +224,22 @@
       [rows]="rows"
       [first]="first"
       [totalRecords]="totalRecords"
+      [rowsPerPageOptions]="[10, 25, 50]"
       [lazy]="true"
       (onLazyLoad)="onLazyLoad($event)"
+      [sortField]="sortField"
+      [sortOrder]="sortOrder"
       styleClass="p-datatable-striped"
       responsiveLayout="scroll"
     >
       <ng-template pTemplate="header">
         <tr>
-          <th>Data</th>
-          <th>Descrição</th>
+          <th pSortableColumn="transactionDate">Data <p-sortIcon field="transactionDate"></p-sortIcon></th>
+          <th pSortableColumn="description">Descrição <p-sortIcon field="description"></p-sortIcon></th>
           <th>Categoria</th>
           <th>Tipo</th>
-          <th>Valor</th>
-          <th style="width: 120px">Ações</th>
+          <th pSortableColumn="amount">Valor <p-sortIcon field="amount"></p-sortIcon></th>
+          <th class="table-actions-header">Ações</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-transaction>
@@ -296,7 +299,7 @@
             </span>
           </td>
           <td>
-            <div class="flex gap-1">
+            <div class="table-actions">
               <p-button 
                 icon="pi pi-pencil" 
                 (click)="editTransaction(transaction)"
@@ -315,15 +318,15 @@
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="6" class="text-center py-4">
-            <div class="flex flex-column align-items-center gap-3">
-              <i class="pi pi-inbox text-4xl text-400"></i>
-              <span class="text-lg">Nenhuma transação encontrada</span>
+          <td colspan="6">
+            <div class="table-empty-state">
+              <i class="pi pi-inbox table-empty-icon"></i>
+              <span class="table-empty-title">Nenhuma transação encontrada</span>
               <p-button 
                 label="Adicionar Primeira Transação" 
                 icon="pi pi-plus" 
                 (click)="openTransactionDialog()"
-                styleClass="p-button-primary"
+                styleClass="p-button-primary table-empty-action"
               ></p-button>
             </div>
           </td>

@@ -146,19 +146,22 @@
       <p-table
         [value]="installmentPlan.installments"
         [paginator]="true"
-        [rows]="12"
-        [responsive]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        responsiveLayout="scroll"
+        [sortField]="'dueDate'"
+        [sortOrder]="1"
         styleClass="p-datatable-striped"
       >
         <ng-template pTemplate="header">
           <tr>
-            <th>Parcela</th>
-            <th>Vencimento</th>
-            <th>Valor Original</th>
+            <th pSortableColumn="installmentNumber">Parcela <p-sortIcon field="installmentNumber"></p-sortIcon></th>
+            <th pSortableColumn="dueDate">Vencimento <p-sortIcon field="dueDate"></p-sortIcon></th>
+            <th pSortableColumn="originalAmount">Valor Original <p-sortIcon field="originalAmount"></p-sortIcon></th>
             <th>Valor Pago</th>
             <th>Desconto</th>
             <th>Status</th>
-            <th>Ações</th>
+            <th class="table-actions">Ações</th>
           </tr>
         </ng-template>
         

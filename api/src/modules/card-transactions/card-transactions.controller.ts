@@ -23,6 +23,7 @@ import { CardTransactionsService } from './card-transactions.service';
 import { CreateCardTransactionDto } from './dto/create-card-transaction.dto';
 import { UpdateCardTransactionDto } from './dto/update-card-transaction.dto';
 import { CardTransactionResponseDto } from './dto/card-transaction-response.dto';
+import { CardTransactionFilterDto, PaginatedCardTransactionsResponse } from './dto/card-transaction-filter.dto';
 import { InvoiceResponseDto, UpdateInvoiceStatusDto } from './dto/invoice.dto';
 import { User } from '../users/entities/user.entity';
 
@@ -48,20 +49,16 @@ export class CardTransactionsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all card transactions' })
+  @ApiOperation({ summary: 'Get all card transactions with pagination and sorting' })
   @ApiResponse({
     status: 200,
     description: 'Card transactions retrieved successfully',
-    type: [CardTransactionResponseDto],
   })
-  @ApiQuery({ name: 'creditCardId', required: false, description: 'Filter by credit card ID' })
-  @ApiQuery({ name: 'invoicePeriod', required: false, description: 'Filter by invoice period (YYYY-MM)' })
   findAll(
     @GetUser() user: User,
-    @Query('creditCardId') creditCardId?: string,
-    @Query('invoicePeriod') invoicePeriod?: string,
-  ): Promise<CardTransactionResponseDto[]> {
-    return this.cardTransactionsService.findAll(user.id, creditCardId, invoicePeriod);
+    @Query() filterDto: CardTransactionFilterDto,
+  ): Promise<PaginatedCardTransactionsResponse> {
+    return this.cardTransactionsService.findAllPaginated(user.id, filterDto);
   }
 
   @Get('by-due-month/:year/:month')

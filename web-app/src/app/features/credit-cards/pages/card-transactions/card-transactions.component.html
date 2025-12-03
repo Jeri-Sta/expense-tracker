@@ -125,20 +125,27 @@
     [value]="transactions" 
     [loading]="loading"
     [paginator]="true"
-    [rows]="10"
+    [rows]="rows"
+    [first]="first"
+    [totalRecords]="totalRecords"
     [rowsPerPageOptions]="[10, 25, 50]"
-    styleClass="p-datatable-sm"
-    *ngIf="transactions.length > 0"
+    [lazy]="true"
+    (onLazyLoad)="onLazyLoad($event)"
+    [sortField]="sortField"
+    [sortOrder]="sortOrder"
+    styleClass="p-datatable-striped"
+    responsiveLayout="scroll"
+    *ngIf="transactions.length > 0 || loading"
   >
     <ng-template pTemplate="header">
       <tr>
-        <th scope="col">Descrição</th>
-        <th scope="col">Cartão</th>
-        <th scope="col">Categoria</th>
-        <th scope="col">Data</th>
-        <th scope="col" class="text-right">Valor</th>
-        <th scope="col" class="text-center">Parcela</th>
-        <th scope="col" class="text-center">Ações</th>
+        <th pSortableColumn="description">Descrição <p-sortIcon field="description"></p-sortIcon></th>
+        <th>Cartão</th>
+        <th>Categoria</th>
+        <th pSortableColumn="transactionDate">Data <p-sortIcon field="transactionDate"></p-sortIcon></th>
+        <th pSortableColumn="amount" class="text-right">Valor <p-sortIcon field="amount"></p-sortIcon></th>
+        <th class="text-center">Parcela</th>
+        <th class="table-actions-header">Ações</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-transaction>
@@ -172,8 +179,8 @@
           ></p-tag>
           <span *ngIf="!transaction.isInstallment">-</span>
         </td>
-        <td class="text-center">
-          <div class="flex justify-content-center gap-1">
+        <td>
+          <div class="table-actions">
             <p-button 
               icon="pi pi-pencil" 
               severity="secondary"
@@ -198,8 +205,12 @@
     </ng-template>
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7" class="text-center py-4">
-          Nenhuma transação encontrada para o período selecionado
+        <td colspan="7">
+          <div class="table-empty-state">
+            <i class="pi pi-file table-empty-icon"></i>
+            <span class="table-empty-title">Nenhuma transação encontrada</span>
+            <span class="table-empty-description">Não há transações para o período selecionado</span>
+          </div>
         </td>
       </tr>
     </ng-template>
@@ -211,17 +222,16 @@
   </div>
 
   <!-- Empty State -->
-  <div class="text-center py-8" *ngIf="!loading && transactions.length === 0 && creditCards.length > 0">
-    <div class="flex flex-column align-items-center gap-3">
-      <i class="pi pi-file text-6xl text-color-secondary"></i>
-      <h3 class="text-color-secondary m-0">Nenhuma transação encontrada</h3>
-      <p class="text-color-secondary mb-4">
-        Não há transações para o período selecionado
-      </p>
+  <div class="card" *ngIf="!loading && transactions.length === 0 && creditCards.length > 0">
+    <div class="table-empty-state">
+      <i class="pi pi-file table-empty-icon"></i>
+      <span class="table-empty-title">Nenhuma transação encontrada</span>
+      <span class="table-empty-description">Não há transações para o período selecionado</span>
       <p-button 
         label="Nova Transação" 
         icon="pi pi-plus"
         (onClick)="openNew()"
+        styleClass="table-empty-action"
       ></p-button>
     </div>
   </div>

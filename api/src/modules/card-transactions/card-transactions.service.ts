@@ -7,6 +7,7 @@ import { CreditCard } from '../credit-cards/entities/credit-card.entity';
 import { CreateCardTransactionDto } from './dto/create-card-transaction.dto';
 import { UpdateCardTransactionDto } from './dto/update-card-transaction.dto';
 import { CardTransactionResponseDto, CardTransactionSummaryDto } from './dto/card-transaction-response.dto';
+import { CardTransactionFilterDto, PaginatedCardTransactionsResponse } from './dto/card-transaction-filter.dto';
 import { InvoiceResponseDto, UpdateInvoiceStatusDto } from './dto/invoice.dto';
 import { InvoiceStatus } from '../../common/enums';
 import { parseLocalDate } from '../../common/utils/date.utils';
@@ -118,6 +119,91 @@ export class CardTransactionsService {
     }
 
     return this.mapToResponseDto(parentTransaction, creditCard);
+  }
+
+  /**
+   * Find all card transactions with pagination and sorting support
+   */
+  async findAllPaginated(userId: string, filterDto: CardTransactionFilterDto): Promise<PaginatedCardTransactionsResponse> {
+    const { 
+      creditCardId, 
+      invoicePeriod, 
+      page = 1, 
+      limit = 10, 
+      sortField = 'transactionDate', 
+      sortOrder = 'DESC' 
+    } = filterDto;
+
+    const queryBuilder = this.transactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoinAndSelect('transaction.creditCard', 'creditCard')
+      .leftJoinAndSelect('transaction.category', 'category')
+      .leftJoinAndSelect('transaction.parentTransaction', 'parent')
+      .where('transaction.userId = :userId', { userId });
+
+    // Apply filters
+    if (invoicePeriod) {
+      queryBuilder.andWhere('transaction.invoicePeriod = :invoicePeriod', { invoicePeriod });
+    } else {
+      // When not filtering by period, only get parent transactions
+      queryBuilder.andWhere('transaction.parentTransactionId IS NULL');
+    }
+
+    if (creditCardId) {
+      queryBuilder.andWhere('transaction.creditCardId = :creditCardId', { creditCardId });
+    }
+
+    // Apply sorting
+    const sortColumn = sortField === 'transactionDate' ? 'transaction.transactionDate' 
+      : sortField === 'description' ? 'transaction.description'
+      : sortField === 'amount' ? 'transaction.amount'
+      : 'transaction.createdAt';
+    queryBuilder.orderBy(sortColumn, sortOrder);
+
+    // Get total count before pagination
+    const total = await queryBuilder.getCount();
+
+    // Apply pagination
+    const skip = (page - 1) * limit;
+    queryBuilder.skip(skip).take(limit);
+
+    const transactions = await queryBuilder.getMany();
+
+    // Map to response DTOs
+    const data = transactions.map(t => {
+      const parentTransaction = t.parentTransaction;
+      return {
+        id: t.id,
+        description: parentTransaction ? parentTransaction.description : t.description,
+        amount: Number(t.amount),
+        transactionDate: t.transactionDate,
+        invoicePeriod: t.invoicePeriod,
+        isInstallment: t.isInstallment,
+        installmentNumber: t.installmentNumber,
+        totalInstallments: t.totalInstallments || (parentTransaction?.totalInstallments),
+        installmentLabel: t.isInstallment && t.installmentNumber && (t.totalInstallments || parentTransaction?.totalInstallments)
+          ? `${t.installmentNumber}/${t.totalInstallments || parentTransaction?.totalInstallments}`
+          : undefined,
+        parentTransactionId: t.parentTransactionId,
+        creditCardId: t.creditCardId,
+        creditCardName: t.creditCard?.name,
+        creditCardColor: t.creditCard?.color,
+        categoryId: t.categoryId,
+        categoryName: t.category?.name,
+        categoryColor: t.category?.color,
+        categoryIcon: t.category?.icon,
+        createdAt: t.createdAt,
+        updatedAt: t.updatedAt,
+      };
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findAll(userId: string, creditCardId?: string, invoicePeriod?: string): Promise<CardTransactionResponseDto[]> {

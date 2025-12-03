@@ -10,6 +10,23 @@ import {
   UpdateInvoiceStatusDto
 } from '../models/card-transaction.model';
 
+export interface CardTransactionFilterParams {
+  page?: number;
+  limit?: number;
+  sortField?: string;
+  sortOrder?: 'ASC' | 'DESC';
+  creditCardId?: string;
+  invoicePeriod?: string;
+}
+
+export interface PaginatedCardTransactionsResponse {
+  data: CardTransaction[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,6 +34,22 @@ export class CardTransactionService {
   private readonly apiUrl = `${environment.apiUrl}/card-transactions`;
 
   constructor(private readonly http: HttpClient) {}
+
+  /**
+   * Get all card transactions with pagination and sorting support
+   */
+  getTransactionsPaginated(params: CardTransactionFilterParams): Observable<PaginatedCardTransactionsResponse> {
+    let httpParams = new HttpParams();
+    
+    if (params.page) httpParams = httpParams.set('page', params.page.toString());
+    if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
+    if (params.sortField) httpParams = httpParams.set('sortField', params.sortField);
+    if (params.sortOrder) httpParams = httpParams.set('sortOrder', params.sortOrder);
+    if (params.creditCardId) httpParams = httpParams.set('creditCardId', params.creditCardId);
+    if (params.invoicePeriod) httpParams = httpParams.set('invoicePeriod', params.invoicePeriod);
+    
+    return this.http.get<PaginatedCardTransactionsResponse>(this.apiUrl, { params: httpParams });
+  }
 
   getAll(creditCardId?: string, invoicePeriod?: string): Observable<CardTransaction[]> {
     let params = new HttpParams();

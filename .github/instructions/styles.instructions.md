@@ -8,6 +8,7 @@ O projeto utiliza uma estrutura SCSS modular localizada em `src/styles/`. Todos 
 
 *   **`_variables.scss`**: A fonte da verdade para todos os tokens de design. Contém breakpoints, espaçamento, sombras, border-radius e cores semânticas.
 *   **`_mixins.scss`**: Mixins reutilizáveis para media queries, layouts flexbox e padrões comuns de componentes (cards, inputs).
+*   **`_tables.scss`**: Estilos padronizados para tabelas p-table (PrimeNG). Contém classes `.table-actions` e `.table-empty-state`.
 *   **`_auth.scss`**: Estilos compartilhados especificamente para páginas de Autenticação (Login, Registro) para garantir consistência.
 *   **`sidebar.scss`**: Estilos dedicados para a navegação lateral da aplicação.
 *   **`required-fields.scss`**: Utilitário para marcar campos de formulário obrigatórios.
@@ -116,3 +117,116 @@ Prefira usar estas classes utilitárias no HTML em vez de escrever novo CSS para
 *   **Layout:** `.w-full`, `.h-full`, `.m-0`, `.p-0`
 *   **Espaçamento:** `.mt-1` a `.mt-4`, `.mb-1` a `.mb-4`
 *   **Interação:** `.cursor-pointer`
+
+## 7. Tabelas (p-table)
+
+O projeto utiliza o componente `p-table` do PrimeNG para tabelas CRUD. Todos os estilos estão centralizados em `src/styles/_tables.scss`.
+
+### Template HTML Padrão
+```html
+<p-table
+  [value]="items"
+  [lazy]="true"
+  [paginator]="true"
+  [rows]="10"
+  [rowsPerPageOptions]="[10, 25, 50]"
+  [totalRecords]="totalRecords"
+  [sortField]="sortField"
+  [sortOrder]="sortOrder"
+  (onLazyLoad)="onLazyLoad($event)"
+  responsiveLayout="scroll"
+  styleClass="p-datatable-striped"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="date">Data <p-sortIcon field="date"></p-sortIcon></th>
+      <th pSortableColumn="description">Descrição <p-sortIcon field="description"></p-sortIcon></th>
+      <th pSortableColumn="amount">Valor <p-sortIcon field="amount"></p-sortIcon></th>
+      <th>Status</th>
+      <th class="table-actions">Ações</th>
+    </tr>
+  </ng-template>
+  
+  <ng-template pTemplate="body" let-item>
+    <tr>
+      <td>{{ item.date | date:'dd/MM/yyyy' }}</td>
+      <td>{{ item.description }}</td>
+      <td>{{ item.amount | currency:'BRL' }}</td>
+      <td><p-tag [value]="item.status"></p-tag></td>
+      <td class="table-actions">
+        <p-button icon="pi pi-pencil" [text]="true" size="small"></p-button>
+        <p-button icon="pi pi-trash" [text]="true" size="small" severity="danger"></p-button>
+      </td>
+    </tr>
+  </ng-template>
+  
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="5" class="table-empty-state">
+        <i class="pi pi-inbox"></i>
+        <p>Nenhum registro encontrado</p>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+```
+
+### Propriedades Obrigatórias
+| Propriedade | Valor | Descrição |
+|-------------|-------|-----------|
+| `[lazy]` | `true` | Habilita carregamento lazy (server-side) |
+| `[paginator]` | `true` | Habilita paginação |
+| `[rows]` | `10` | Número de linhas por página |
+| `[rowsPerPageOptions]` | `[10, 25, 50]` | Opções de linhas por página |
+| `[totalRecords]` | `totalRecords` | Total de registros (do backend) |
+| `[sortField]` | `'date'` | Campo de ordenação padrão |
+| `[sortOrder]` | `-1` | Ordem padrão (-1 = DESC, 1 = ASC) |
+| `responsiveLayout` | `"scroll"` | Layout responsivo (NÃO usar `[responsive]`) |
+| `styleClass` | `"p-datatable-striped"` | Estilo zebrado |
+
+### Colunas Ordenáveis
+Use `pSortableColumn` e `p-sortIcon` **apenas** nas colunas principais:
+*   **Data** (transactionDate, dueDate, etc.)
+*   **Descrição** (description)
+*   **Valor** (amount, originalAmount, etc.)
+*   **Número/Parcela** (installmentNumber)
+
+**NÃO** adicione ordenação em:
+*   Colunas de Ações
+*   Colunas de Status (geralmente poucos valores distintos)
+*   Colunas de Categoria (melhor usar filtro)
+
+### Classes Padronizadas
+*   **`.table-actions`**: Aplicar no `<th>` e `<td>` da coluna de ações
+    *   Centraliza botões, define largura mínima, remove ordenação
+*   **`.table-empty-state`**: Aplicar no `<td colspan>` do template `emptymessage`
+    *   Centraliza conteúdo com ícone e mensagem estilizados
+
+### Componente TypeScript
+```typescript
+// Propriedades necessárias
+totalRecords: number = 0;
+first: number = 0;
+rows: number = 10;
+sortField: string = 'date';
+sortOrder: number = -1;
+
+// Método para lazy loading
+onLazyLoad(event: TableLazyLoadEvent): void {
+  const page = (event.first ?? 0) / (event.rows ?? 10) + 1;
+  const limit = event.rows ?? 10;
+  const sortField = event.sortField as string ?? this.sortField;
+  const sortOrder = event.sortOrder ?? this.sortOrder;
+
+  this.loadData(page, limit, sortField, sortOrder);
+}
+```
+
+### Checklist de Tabelas
+1.  [ ] **Usar `responsiveLayout="scroll"`**: Substituir `[responsive]="true"` (deprecated)
+2.  [ ] **Lazy Loading**: Implementar `[lazy]="true"` e `(onLazyLoad)`
+3.  [ ] **Ordenação nas principais**: Apenas Data, Descrição, Valor com `pSortableColumn`
+4.  [ ] **Ordenação padrão**: `[sortField]="'date'"` e `[sortOrder]="-1"` (mais recentes primeiro)
+5.  [ ] **Classe .table-actions**: No header e body da coluna de ações
+6.  [ ] **Empty State**: Template `emptymessage` com classe `.table-empty-state`
+7.  [ ] **rowsPerPageOptions**: Sempre `[10, 25, 50]`

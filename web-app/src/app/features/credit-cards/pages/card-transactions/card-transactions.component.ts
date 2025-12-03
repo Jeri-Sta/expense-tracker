@@ -20,6 +20,15 @@ export class CardTransactionsComponent implements OnInit {
   invoices: Invoice[] = [];
   loading = false;
   
+  // Pagination
+  totalRecords = 0;
+  rows = 10;
+  first = 0;
+  
+  // Sorting
+  sortField = 'transactionDate';
+  sortOrder = -1; // -1 = DESC, 1 = ASC
+  
   // Filters
   selectedCardId: string | null = null;
   selectedPeriod: string;
@@ -110,20 +119,39 @@ export class CardTransactionsComponent implements OnInit {
     });
   }
 
-  loadTransactions(): void {
+  loadTransactions(event?: any): void {
     this.loading = true;
+    
+    // Handle lazy load event
+    if (event) {
+      this.first = event.first || 0;
+      this.rows = event.rows || 10;
+      
+      // Update sort properties if provided
+      if (event.sortField) {
+        this.sortField = event.sortField;
+        this.sortOrder = event.sortOrder;
+      }
+    }
+    
+    const page = Math.floor(this.first / this.rows) + 1;
+    const sortOrderStr = this.sortOrder === 1 ? 'ASC' : 'DESC';
     
     // Parse year and month from selectedPeriod (e.g., "2024-12")
     const [year, month] = this.selectedPeriod.split('-').map(Number);
     
-    // Use the due-month endpoint to filter by invoice due date, not closing date
-    this.cardTransactionService.getByDueMonth(
-      year,
-      month,
-      this.selectedCardId || undefined
-    ).subscribe({
-      next: (transactions) => {
-        this.transactions = transactions;
+    // Use paginated endpoint with sorting
+    this.cardTransactionService.getTransactionsPaginated({
+      page,
+      limit: this.rows,
+      sortField: this.sortField,
+      sortOrder: sortOrderStr,
+      creditCardId: this.selectedCardId || undefined,
+      invoicePeriod: this.selectedPeriod || undefined
+    }).subscribe({
+      next: (response) => {
+        this.transactions = response.data;
+        this.totalRecords = response.total;
         this.loading = false;
         this.loadInvoices();
       },
@@ -137,6 +165,10 @@ export class CardTransactionsComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  onLazyLoad(event: any): void {
+    this.loadTransactions(event);
   }
 
   loadInvoices(): void {
@@ -159,6 +191,7 @@ export class CardTransactionsComponent implements OnInit {
   }
 
   onFilterChange(): void {
+    this.first = 0; // Reset to first page on filter change
     this.loadTransactions();
   }
 

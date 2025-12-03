@@ -1,0 +1,241 @@
+// =============================================================================
+// Expense Tracker - Global Table Styles (p-datatable)
+// =============================================================================
+// Estilos padronizados para tabelas CRUD com paginação, ordenação e responsividade.
+// Importar em componentes que usam p-table ou aplicar globalmente via styles.scss
+// =============================================================================
+
+@import 'variables';
+@import 'mixins';
+
+// =============================================================================
+// Base Table Styles
+// =============================================================================
+.p-datatable {
+  // Header
+  .p-datatable-header {
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+    border-bottom: none;
+    padding: $spacing-md;
+    border-radius: $border-radius-md $border-radius-md 0 0;
+  }
+
+  // Table Header Row
+  .p-datatable-thead > tr > th {
+    background: var(--surface-section);
+    color: var(--text-color);
+    font-weight: 600;
+    padding: $spacing-md;
+    border-bottom: 2px solid var(--surface-border);
+    
+    // Sortable columns styling
+    &.p-sortable-column {
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      
+      &:hover {
+        background: var(--surface-hover);
+      }
+      
+      &.p-highlight {
+        background: var(--primary-color);
+        color: #ffffff;
+        
+        .p-sortable-column-icon {
+          color: #ffffff;
+        }
+      }
+      
+      .p-sortable-column-icon {
+        color: var(--text-color-secondary);
+        margin-left: $spacing-xs;
+      }
+    }
+  }
+
+  // Table Body
+  .p-datatable-tbody > tr {
+    transition: background-color 0.2s ease;
+    
+    > td {
+      padding: $spacing-md;
+      border-bottom: 1px solid var(--surface-border);
+      vertical-align: middle;
+    }
+    
+    &:hover {
+      background: var(--surface-hover);
+    }
+    
+    // Striped rows (when using p-datatable-striped)
+    &:nth-child(even) {
+      background: var(--surface-ground);
+      
+      &:hover {
+        background: var(--surface-hover);
+      }
+    }
+  }
+
+  // Footer / Paginator
+  .p-datatable-footer {
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+    border-top: none;
+    padding: $spacing-md;
+    border-radius: 0 0 $border-radius-md $border-radius-md;
+  }
+
+  .p-paginator {
+    background: transparent;
+    border: none;
+    padding: $spacing-sm 0;
+    
+    .p-paginator-element {
+      min-width: 2.5rem;
+      height: 2.5rem;
+      margin: 0 $spacing-xs;
+      border-radius: $border-radius-sm;
+      
+      &:hover {
+        background: var(--surface-hover);
+      }
+      
+      &.p-highlight {
+        background: var(--primary-color);
+        color: #ffffff;
+      }
+    }
+  }
+}
+
+// =============================================================================
+// Table Actions Column
+// =============================================================================
+// Use this class on the actions column <td> or wrapper <div>
+.table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  min-width: 100px;
+  
+  // Ensure buttons don't wrap
+  .p-button {
+    flex-shrink: 0;
+  }
+}
+
+// Actions column header - fixed width, no sort
+th.table-actions-header {
+  width: 100px;
+  min-width: 100px;
+  text-align: center;
+}
+
+// =============================================================================
+// Empty State
+// =============================================================================
+// Use this class on the emptymessage template content
+.table-empty-state {
+  @include flex-center;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: $spacing-2xl $spacing-md;
+  
+  .table-empty-icon {
+    font-size: 4rem;
+    color: var(--text-color-secondary);
+    opacity: 0.5;
+  }
+  
+  .table-empty-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin: 0;
+  }
+  
+  .table-empty-description {
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
+    margin: 0;
+    text-align: center;
+    max-width: 300px;
+  }
+  
+  .table-empty-action {
+    margin-top: $spacing-sm;
+  }
+}
+
+// =============================================================================
+// Responsive Styles
+// =============================================================================
+@include respond-to($breakpoint-md) {
+  .p-datatable {
+    // Enable horizontal scroll on mobile
+    .p-datatable-wrapper {
+      overflow-x: auto;
+    }
+    
+    .p-datatable-thead > tr > th,
+    .p-datatable-tbody > tr > td {
+      padding: $spacing-sm;
+      font-size: 0.875rem;
+    }
+    
+    // Hide less important columns on mobile if needed
+    .hide-on-mobile {
+      display: none;
+    }
+  }
+  
+  .table-actions {
+    min-width: 80px;
+    gap: 2px;
+  }
+}
+
+@include respond-to($breakpoint-sm) {
+  .p-datatable {
+    .p-datatable-thead > tr > th,
+    .p-datatable-tbody > tr > td {
+      padding: $spacing-xs $spacing-sm;
+      font-size: 0.8rem;
+    }
+  }
+  
+  .table-empty-state {
+    padding: $spacing-xl $spacing-sm;
+    
+    .table-empty-icon {
+      font-size: 3rem;
+    }
+    
+    .table-empty-title {
+      font-size: 1rem;
+    }
+  }
+}
+
+// =============================================================================
+// Loading State Enhancement
+// =============================================================================
+.p-datatable-loading-overlay {
+  background: rgba(var(--surface-card), 0.8);
+  backdrop-filter: blur(2px);
+}
+
+// =============================================================================
+// Child/Nested Row Styling
+// =============================================================================
+// Use for installment child transactions or grouped data
+.child-transaction {
+  background: var(--surface-ground) !important;
+  
+  td:first-child {
+    padding-left: $spacing-xl;
+  }
+}

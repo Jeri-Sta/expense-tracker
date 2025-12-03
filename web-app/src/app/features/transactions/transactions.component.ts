@@ -23,6 +23,10 @@ export class TransactionsComponent implements OnInit {
   rows = 10;
   first = 0;
   
+  // Sorting
+  sortField = 'transactionDate';
+  sortOrder = -1; // -1 = DESC, 1 = ASC
+  
   // Dialog states
   transactionDialog = false;
   editMode = false;
@@ -219,6 +223,8 @@ export class TransactionsComponent implements OnInit {
       
       // Aplicar ordenação se presente
       if (event.sortField) {
+        this.sortField = event.sortField;
+        this.sortOrder = event.sortOrder;
         this.currentFilters.sortBy = event.sortField;
         this.currentFilters.sortOrder = event.sortOrder === 1 ? 'ASC' : 'DESC';
       }
