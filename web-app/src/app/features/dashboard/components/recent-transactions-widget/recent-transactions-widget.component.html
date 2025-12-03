@@ -65,6 +65,16 @@
           <div *ngIf="transaction.isProjected" class="text-xs text-blue-500 mt-1">
             <i class="pi pi-clock mr-1"></i>Projetada
           </div>
+          <div *ngIf="!transaction.isProjected" class="mt-1">
+            <span 
+              [class]="getPaymentStatusClass(transaction)"
+              [pTooltip]="getPaymentStatusTooltip(transaction)"
+              class="text-xs px-2 py-1 border-round"
+            >
+              <i [class]="getPaymentStatusIcon(transaction) + ' mr-1'"></i>
+              {{ getPaymentStatusLabel(transaction.paymentStatus) }}
+            </span>
+          </div>
         </div>
       </div>
     </div>

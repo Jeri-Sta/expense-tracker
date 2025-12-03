@@ -33,3 +33,8 @@ export enum InvoiceStatus {
   CLOSED = 'closed',
   PAID = 'paid',
 }
+
+export enum PaymentStatus {
+  PENDING = 'pending',
+  PAID = 'paid',
+}

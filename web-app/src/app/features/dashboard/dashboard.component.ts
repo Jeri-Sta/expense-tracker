@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { TransactionService, MonthlyStats, CreditCardSummary, CardInstallmentSummary } from '../../core/services/transaction.service';
+import { TransactionService, MonthlyStats, CreditCardSummary, CardInstallmentSummary, InvoiceSummary } from '../../core/services/transaction.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { CategoryService, Category } from '../../core/services/category.service';
 import { RecurringTransactionService, RecurringTransaction } from '../../core/services/recurring-transaction.service';
@@ -60,6 +60,7 @@ export class DashboardComponent implements OnInit {
   // Credit Cards data
   creditCards: CreditCardSummary[] = [];
   cardInstallments: CardInstallmentSummary[] = [];
+  invoices: InvoiceSummary[] = [];
   cardTransactions: CardTransaction[] = [];
   currentCardPeriod: string = '';
   
@@ -215,6 +216,9 @@ export class DashboardComponent implements OnInit {
           if (dashboardData.cardInstallments) {
             this.cardInstallments = dashboardData.cardInstallments;
           }
+          if (dashboardData.invoices) {
+            this.invoices = dashboardData.invoices;
+          }
           
           // Update expense breakdown
           if (dashboardData.expenseBreakdown) {
@@ -258,6 +262,9 @@ export class DashboardComponent implements OnInit {
           }
           if (monthlyData.cardInstallments) {
             this.cardInstallments = monthlyData.cardInstallments;
+          }
+          if (monthlyData.invoices) {
+            this.invoices = monthlyData.invoices;
           }
           
           // Update expense breakdown

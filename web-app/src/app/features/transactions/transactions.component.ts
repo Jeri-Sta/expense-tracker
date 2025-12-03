@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { TransactionService, Transaction, CreateTransactionDto, UpdateTransactionDto, TransactionFilters, ProjectionFilters } from '../../core/services/transaction.service';
+import { TransactionService, Transaction, CreateTransactionDto, UpdateTransactionDto, TransactionFilters, ProjectionFilters, PaymentStatus } from '../../core/services/transaction.service';
 import { CategoryService, Category } from '../../core/services/category.service';
 import { TransactionType } from '../../core/types/common.types';
 import { environment } from '../../../environments/environment';
@@ -55,6 +55,14 @@ export class TransactionsComponent implements OnInit {
   selectedPeriod: string = '';
   periodOptions: { label: string; value: string }[] = [];
   
+  // Payment status filter
+  selectedPaymentStatus: PaymentStatus | '' = '';
+  paymentStatusOptions = [
+    { label: 'Todos', value: '' },
+    { label: 'Pendente', value: 'pending' as PaymentStatus },
+    { label: 'Pago', value: 'paid' as PaymentStatus }
+  ];
+  
   // Projection settings
   showProjectionFilters = false;
   showProjectionManager = false;
@@ -96,6 +104,14 @@ export class TransactionsComponent implements OnInit {
     this.loadTransactions();
   }
 
+  onPaymentStatusChange(): void {
+    // Update filter and reload
+    this.currentFilters.paymentStatus = this.selectedPaymentStatus || undefined;
+    this.first = 0;
+    this.currentFilters.page = 1;
+    this.loadTransactions();
+  }
+
   private checkAuthAndLoadData(): void {
     const hasToken = localStorage.getItem('auth_token');
     
@@ -129,7 +145,7 @@ export class TransactionsComponent implements OnInit {
       next: (response) => {
         if (response?.data && Array.isArray(response.data)) {
           this.transactions = response.data;
-          this.totalRecords = response.meta?.total || 0;
+          this.totalRecords = response.total || 0;
         } else {
           this.transactions = [];
           this.totalRecords = 0;
@@ -249,7 +265,7 @@ export class TransactionsComponent implements OnInit {
         // Verificar se a resposta tem a estrutura esperada
         if (response && response.data && Array.isArray(response.data)) {
           this.transactions = response.data;
-          this.totalRecords = response.meta?.total || 0;
+          this.totalRecords = response.total || 0;
         } else {
           this.transactions = [];
           this.totalRecords = 0;
@@ -310,6 +326,7 @@ export class TransactionsComponent implements OnInit {
   clearFilters(): void {
     this.filterForm.reset();
     this.selectedPeriod = '';
+    this.selectedPaymentStatus = '';
     this.currentFilters = {
       page: 1,
       limit: this.rows
@@ -816,5 +833,93 @@ export class TransactionsComponent implements OnInit {
       {label: 'Receita', value: 'income', icon: 'pi pi-arrow-up'},
       {label: 'Despesa', value: 'expense', icon: 'pi pi-arrow-down'}
     ];
+  }
+
+  // Payment status methods
+  getPaymentStatusLabel(status?: PaymentStatus): string {
+    switch (status) {
+      case 'paid':
+        return 'Pago';
+      case 'pending':
+      default:
+        return 'Pendente';
+    }
+  }
+
+  getPaymentStatusSeverity(transaction: Transaction): 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast' {
+    if (transaction.paymentStatus === 'paid') {
+      return 'success';
+    }
+    // Check if transaction is overdue (pending and transaction date has passed)
+    if (transaction.paymentStatus === 'pending' || !transaction.paymentStatus) {
+      const transactionDate = parseLocalDate(transaction.transactionDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (transactionDate < today) {
+        return 'danger'; // Overdue
+      }
+    }
+    return 'warning'; // Pending but not overdue
+  }
+
+  getPaymentStatusTooltip(transaction: Transaction): string {
+    if (transaction.paymentStatus === 'paid') {
+      if (transaction.paidDate) {
+        const paidDate = parseLocalDate(transaction.paidDate);
+        return `Pago em ${paidDate.toLocaleDateString('pt-BR')}`;
+      }
+      return 'Pago';
+    }
+    // Check if overdue
+    const transactionDate = parseLocalDate(transaction.transactionDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (transactionDate < today) {
+      const daysOverdue = Math.floor((today.getTime() - transactionDate.getTime()) / (1000 * 60 * 60 * 24));
+      return `Atrasado há ${daysOverdue} dia${daysOverdue > 1 ? 's' : ''}`;
+    }
+    return 'Pendente';
+  }
+
+  canMarkAsPaid(transaction: Transaction): boolean {
+    // Can only mark as paid if:
+    // 1. Not a projected transaction
+    // 2. Status is pending (or undefined/null)
+    return !transaction.isProjected && 
+           (transaction.paymentStatus === 'pending' || !transaction.paymentStatus);
+  }
+
+  confirmPayTransaction(transaction: Transaction): void {
+    this.confirmationService.confirm({
+      message: `Confirma o pagamento da transação "${transaction.description}" no valor de ${this.formatCurrency(transaction.amount)}?`,
+      header: 'Confirmar Pagamento',
+      icon: 'pi pi-check-circle',
+      acceptLabel: 'Sim, Pagar',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.payTransaction(transaction);
+      }
+    });
+  }
+
+  payTransaction(transaction: Transaction): void {
+    this.transactionService.payTransaction(transaction.id).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Transação marcada como paga'
+        });
+        this.loadTransactions();
+      },
+      error: (error) => {
+        console.error('Error marking transaction as paid:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao marcar transação como paga'
+        });
+      }
+    });
   }
 }

@@ -1,0 +1,69 @@
+<div class="data-card surface-card shadow-2 border-round-lg">
+  <div class="card-header p-4 border-bottom-1 surface-border">
+    <div class="header-content">
+      <div class="header-title">
+        <h5 class="font-bold text-color m-0">Faturas do Mês</h5>
+        <p class="text-color-secondary text-sm m-0">{{ subtitleText }}</p>
+      </div>
+    </div>
+    <div class="header-summary mt-3">
+      <div class="flex justify-content-between align-items-center">
+        <span class="text-color-secondary text-sm">Total: <span class="text-red-500 font-bold">{{ formatCurrency(totalAmount) }}</span></span>
+        <p-button 
+          label="Ver Faturas" 
+          icon="pi pi-file" 
+          [text]="true"
+          size="small"
+          routerLink="/credit-cards/transactions"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+  <div class="card-content p-4">
+    <div class="invoice-list" *ngIf="invoices.length > 0">
+      <div 
+        class="invoice-item flex justify-content-between align-items-center py-3 px-3 border-round hover:surface-hover cursor-pointer border-bottom-1 surface-border"
+        *ngFor="let invoice of invoices"
+        (keydown.enter)="navigateToInvoice(invoice)"
+        tabindex="0"
+        role="button"
+      >
+        <div class="flex align-items-center gap-3">
+          <div 
+            class="flex align-items-center justify-content-center border-circle w-3rem h-3rem"
+            [style.background-color]="invoice.creditCardColor + '20'"
+          >
+            <i 
+              class="pi pi-credit-card text-xl"
+              [style.color]="invoice.creditCardColor"
+            ></i>
+          </div>
+          <div>
+            <div class="font-bold text-color text-lg">{{ invoice.creditCardName }}</div>
+            <div class="text-color-secondary text-sm mt-1">
+              Vencimento: {{ formatDate(invoice.dueDate) }}
+            </div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-xl font-bold text-red-500">
+            {{ formatCurrency(invoice.totalAmount) }}
+          </div>
+          <div class="mt-1">
+            <span 
+              [class]="getStatusClass(invoice)"
+              [pTooltip]="getStatusTooltip(invoice)"
+              class="text-xs px-2 py-1 border-round"
+            >
+              <i [class]="getStatusIcon(invoice) + ' mr-1'"></i>
+              {{ getStatusLabel(invoice.status) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center py-4 text-color-secondary" *ngIf="invoices.length === 0">
+      Nenhuma fatura encontrada para este mês
+    </div>
+  </div>
+</div>

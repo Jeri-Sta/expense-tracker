@@ -69,6 +69,7 @@ export class TransactionsController {
   @ApiQuery({ name: 'limit', required: false, description: 'Items per page' })
   @ApiQuery({ name: 'sortBy', required: false, description: 'Sort field' })
   @ApiQuery({ name: 'sortOrder', required: false, description: 'Sort order (ASC/DESC)' })
+  @ApiQuery({ name: 'paymentStatus', required: false, description: 'Filter by payment status (pending/paid)' })
   findAll(
     @GetUser() user: User,
     @Query() filterDto: TransactionsFilterDto,
@@ -149,6 +150,21 @@ export class TransactionsController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<void> {
     return this.transactionsService.remove(id, user.id);
+  }
+
+  @Patch(':id/pay')
+  @ApiOperation({ summary: 'Mark transaction as paid' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction marked as paid successfully',
+    type: TransactionResponseDto,
+  })
+  markAsPaid(
+    @GetUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { paidDate?: string },
+  ): Promise<TransactionResponseDto> {
+    return this.transactionsService.markAsPaid(id, user.id, body?.paidDate);
   }
 
   // Projection endpoints

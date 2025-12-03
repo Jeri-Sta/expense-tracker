@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsEnum, IsNumber, IsString, IsDateString, IsOptional, IsUUID, Min, IsBoolean, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { TransactionType } from '../../../common/enums';
+import { TransactionType, PaymentStatus } from '../../../common/enums';
 
 export class CreateTransactionDto {
   @ApiProperty({
@@ -96,4 +96,22 @@ export class CreateTransactionDto {
   @Max(100)
   @IsOptional()
   confidenceScore?: number;
+
+  @ApiProperty({
+    description: 'Payment status',
+    enum: PaymentStatus,
+    default: PaymentStatus.PENDING,
+    required: false
+  })
+  @IsEnum(PaymentStatus)
+  @IsOptional()
+  paymentStatus?: PaymentStatus;
+
+  @ApiProperty({
+    description: 'Date when the transaction was paid',
+    required: false
+  })
+  @IsDateString({}, { message: 'Paid date must be a valid date' })
+  @IsOptional()
+  paidDate?: string;
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TransactionType } from '../../../common/enums';
+import { TransactionType, PaymentStatus } from '../../../common/enums';
 
 export class TransactionResponseDto {
   @ApiProperty()
@@ -51,4 +51,10 @@ export class TransactionResponseDto {
     color: string;
     icon?: string;
   };
+
+  @ApiProperty({ enum: PaymentStatus })
+  paymentStatus: PaymentStatus;
+
+  @ApiProperty({ required: false })
+  paidDate?: Date;
 }

@@ -35,6 +35,20 @@ export interface CardInstallmentSummary {
   totalRemaining: number;
 }
 
+export interface InvoiceSummary {
+  id: string;
+  creditCardId: string;
+  creditCardName: string;
+  creditCardColor: string;
+  period: string;
+  totalAmount: number;
+  status: InvoiceStatus;
+  dueDate: Date;
+  closingDate?: Date;
+  paidAt?: Date;
+  isOverdue: boolean;
+}
+
 export interface MonthlyExpenseBreakdownItem {
   type: 'transaction' | 'credit-card' | 'financing' | 'total';
   name: string;
@@ -71,6 +85,7 @@ export interface DashboardStats {
   };
   creditCards: CreditCardSummary[];
   cardInstallments: CardInstallmentSummary[];
+  invoices: InvoiceSummary[];
   expenseBreakdown: MonthlyExpenseBreakdownItem[];
 }
 
@@ -91,6 +106,7 @@ export interface MonthlyNavigationStats {
   };
   creditCards: CreditCardSummary[];
   cardInstallments: CardInstallmentSummary[];
+  invoices: InvoiceSummary[];
   expenseBreakdown: MonthlyExpenseBreakdownItem[];
 }
 
@@ -146,6 +162,9 @@ export class DashboardService {
     // Get card installments summary (based on invoice due date)
     const cardInstallments = await this.getCardInstallmentsSummary(userId, targetYear, currentMonth);
 
+    // Get invoices summary (based on invoice due date)
+    const invoices = await this.getInvoicesSummary(userId, targetYear, currentMonth);
+
     // Get card expenses based on invoice due date (not invoice period)
     const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(userId, targetYear, currentMonth);
 
@@ -183,6 +202,7 @@ export class DashboardService {
       installments,
       creditCards,
       cardInstallments,
+      invoices,
       expenseBreakdown,
     };
   }
@@ -210,6 +230,9 @@ export class DashboardService {
 
     // Get card installments summary (based on invoice due date)
     const cardInstallments = await this.getCardInstallmentsSummary(userId, year, month);
+
+    // Get invoices summary (based on invoice due date)
+    const invoices = await this.getInvoicesSummary(userId, year, month);
 
     const stats = monthStats[0] || {
       period: competencyPeriod,
@@ -242,6 +265,7 @@ export class DashboardService {
       installments,
       creditCards,
       cardInstallments,
+      invoices,
       expenseBreakdown,
     };
   }
@@ -264,6 +288,8 @@ export class DashboardService {
       isProjected: transaction.isProjected || false,
       projectionSource: transaction.projectionSource,
       confidenceScore: transaction.confidenceScore ? Number(transaction.confidenceScore) : undefined,
+      paymentStatus: transaction.paymentStatus || 'pending',
+      paidDate: transaction.paidDate,
       category: transaction.category ? {
         id: transaction.category.id,
         name: transaction.category.name,
@@ -300,6 +326,8 @@ export class DashboardService {
       isProjected: transaction.isProjected || false,
       projectionSource: transaction.projectionSource,
       confidenceScore: transaction.confidenceScore ? Number(transaction.confidenceScore) : undefined,
+      paymentStatus: transaction.paymentStatus || 'pending',
+      paidDate: transaction.paidDate,
       category: transaction.category ? {
         id: transaction.category.id,
         name: transaction.category.name,
@@ -574,6 +602,68 @@ export class DashboardService {
         currentInvoiceAmount,
         currentInvoiceStatus: invoice?.status || InvoiceStatus.OPEN,
         dueDate,
+      });
+    }
+
+    return summaries;
+  }
+
+  private async getInvoicesSummary(userId: string, year: number, month: number): Promise<InvoiceSummary[]> {
+    const creditCards = await this.creditCardRepository.find({
+      where: { userId, isActive: true },
+      order: { name: 'ASC' },
+    });
+
+    const summaries: InvoiceSummary[] = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (const card of creditCards) {
+      // Get the invoice period that has due date in the target month
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+      const invoicePeriod = invoicePeriods[0];
+
+      // Get invoice amount from transactions
+      const invoiceAmountResult = await this.cardTransactionRepository
+        .createQueryBuilder('transaction')
+        .select('SUM(transaction.amount)', 'total')
+        .where('transaction.creditCardId = :cardId', { cardId: card.id })
+        .andWhere('transaction.invoicePeriod = :period', { period: invoicePeriod })
+        .getRawOne();
+
+      const totalAmount = Number(invoiceAmountResult?.total || 0);
+
+      // Skip if no transactions for this invoice
+      if (totalAmount === 0) {
+        continue;
+      }
+
+      // Get invoice record (may not exist if not created yet)
+      const invoice = await this.invoiceRepository.findOne({
+        where: { creditCardId: card.id, period: invoicePeriod },
+      });
+
+      // Calculate due date
+      const dueDate = new Date(year, month - 1, card.dueDay);
+      
+      // Calculate closing date (one month before due date, on closing day)
+      const closingDate = new Date(year, month - 2, card.closingDay);
+
+      // Check if overdue
+      const isOverdue = (invoice?.status !== InvoiceStatus.PAID) && (dueDate < today);
+
+      summaries.push({
+        id: invoice?.id || `${card.id}-${invoicePeriod}`,
+        creditCardId: card.id,
+        creditCardName: card.name,
+        creditCardColor: card.color,
+        period: invoicePeriod,
+        totalAmount,
+        status: invoice?.status || InvoiceStatus.OPEN,
+        dueDate,
+        closingDate,
+        paidAt: invoice?.paidAt,
+        isOverdue,
       });
     }
 

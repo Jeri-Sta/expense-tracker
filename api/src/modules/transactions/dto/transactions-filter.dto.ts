@@ -1,13 +1,18 @@
 import { IsOptional, IsEnum, IsDateString, IsUUID, IsString, IsNumber, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { TransactionType } from '../../../common/enums';
+import { TransactionType, PaymentStatus } from '../../../common/enums';
 
 export class TransactionsFilterDto {
   @ApiProperty({ required: false, enum: TransactionType })
   @IsOptional()
   @IsEnum(TransactionType)
   type?: TransactionType;
+
+  @ApiProperty({ required: false, enum: PaymentStatus, description: 'Filter by payment status' })
+  @IsOptional()
+  @IsEnum(PaymentStatus)
+  paymentStatus?: PaymentStatus;
 
   @ApiProperty({ required: false })
   @IsOptional()

@@ -8,6 +8,7 @@ import { TransactionsFilterDto } from './dto/transactions-filter.dto';
 import { ProjectionFiltersDto } from './dto/projection-filters.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
 import { parseLocalDate } from '../../common/utils/date.utils';
+import { PaymentStatus } from '../../common/enums';
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -201,6 +202,11 @@ export class TransactionsService {
       queryBuilder.andWhere('transaction.description ILIKE :search', { search: `%${filterDto.search}%` });
     }
 
+    // Payment status filter
+    if (filterDto.paymentStatus) {
+      queryBuilder.andWhere('transaction.paymentStatus = :paymentStatus', { paymentStatus: filterDto.paymentStatus });
+    }
+
     // Projection filters - check if this is a ProjectionFiltersDto
     if ('includeProjections' in filterDto) {
       if (filterDto.onlyProjections === true) {
@@ -277,7 +283,34 @@ export class TransactionsService {
         color: transaction.category.color,
         icon: transaction.category.icon,
       } : undefined,
+      paymentStatus: transaction.paymentStatus ?? PaymentStatus.PENDING,
+      paidDate: transaction.paidDate,
     };
+  }
+
+  async markAsPaid(id: string, userId: string, paidDate?: string): Promise<TransactionResponseDto> {
+    const transaction = await this.transactionsRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found');
+    }
+
+    if (transaction.userId !== userId) {
+      throw new ForbiddenException('You can only update your own transactions');
+    }
+
+    if (transaction.isProjected) {
+      throw new ForbiddenException('Cannot mark projected transactions as paid');
+    }
+
+    transaction.paymentStatus = PaymentStatus.PAID;
+    transaction.paidDate = paidDate ? parseLocalDate(paidDate) : new Date();
+
+    const savedTransaction = await this.transactionsRepository.save(transaction);
+    return this.mapToResponseDto(await this.findOneWithRelations(savedTransaction.id));
   }
 
   async deleteProjection(recurringTransactionId: string, date: Date): Promise<void> {

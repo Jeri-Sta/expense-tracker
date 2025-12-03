@@ -7,6 +7,8 @@ import { MonthlyExpenseBreakdownItem } from '../../shared/types/dashboard.types'
 
 export type TransactionType = 'income' | 'expense';
 
+export type PaymentStatus = 'pending' | 'paid';
+
 export interface TransactionFilters {
   type?: TransactionType;
   categoryId?: string;
@@ -18,6 +20,7 @@ export interface TransactionFilters {
   limit?: number;
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
+  paymentStatus?: PaymentStatus;
 }
 
 export interface ProjectionFilters extends TransactionFilters {
@@ -48,12 +51,10 @@ export interface BaseEntity {
 
 export interface PaginatedResponse<T> {
   data: T[];
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export interface Transaction extends BaseEntity {
@@ -69,6 +70,8 @@ export interface Transaction extends BaseEntity {
   projectionSource?: string;
   confidenceScore?: number;
   isRecurring?: boolean;
+  paymentStatus?: PaymentStatus;
+  paidDate?: string;
 }
 
 export interface CreateTransactionDto {
@@ -148,6 +151,7 @@ export interface DashboardStats {
   creditCards?: CreditCardSummary[];
   cardInstallments?: CardInstallmentSummary[];
   expenseBreakdown?: MonthlyExpenseBreakdownItem[];
+  invoices?: InvoiceSummary[];
 }
 
 export interface CreditCardSummary {
@@ -178,6 +182,22 @@ export interface CardInstallmentSummary {
   totalRemaining: number;
 }
 
+export type InvoiceStatus = 'open' | 'closed' | 'paid';
+
+export interface InvoiceSummary {
+  id: string;
+  creditCardId: string;
+  creditCardName: string;
+  creditCardColor: string;
+  period: string;
+  totalAmount: number;
+  status: InvoiceStatus;
+  dueDate: string;
+  closingDate?: string;
+  paidAt?: string;
+  isOverdue: boolean;
+}
+
 export interface MonthlyNavigationStats {
   year: number;
   month: number;
@@ -196,6 +216,7 @@ export interface MonthlyNavigationStats {
   creditCards?: CreditCardSummary[];
   cardInstallments?: CardInstallmentSummary[];
   expenseBreakdown?: MonthlyExpenseBreakdownItem[];
+  invoices?: InvoiceSummary[];
 }
 
 @Injectable({
@@ -238,6 +259,10 @@ export class TransactionService {
 
   deleteTransaction(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  payTransaction(id: string, paidDate?: string): Observable<Transaction> {
+    return this.http.patch<Transaction>(`${this.apiUrl}/${id}/pay`, { paidDate });
   }
 
   getMonthlyStats(year?: number): Observable<MonthlyStats[]> {

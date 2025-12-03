@@ -8,7 +8,7 @@ import { TransactionResponseDto } from '../transactions/dto/transaction-response
 import { Installment } from '../installments/entities/installment.entity';
 import { CreditCard } from '../credit-cards/entities/credit-card.entity';
 import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
-import { RecurrenceFrequency, InstallmentStatus } from '../../common/enums';
+import { RecurrenceFrequency, InstallmentStatus, PaymentStatus } from '../../common/enums';
 import { parseLocalDate } from '../../common/utils/date.utils';
 
 export interface ProjectionResult {
@@ -385,6 +385,8 @@ export class ProjectionsService {
         color: transaction.category.color,
         icon: transaction.category.icon,
       } : undefined,
+      paymentStatus: transaction.paymentStatus ?? PaymentStatus.PENDING,
+      paidDate: transaction.paidDate,
     };
   }
 

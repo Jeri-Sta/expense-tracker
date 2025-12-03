@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
+import { parseLocalDate } from '../../../../shared/utils/date.utils';
 
 type TransactionViewType = 'income' | 'expense';
 
@@ -94,5 +95,57 @@ export class RecentTransactionsWidgetComponent implements OnInit, OnChanges {
 
   getTransactionSign(type: string): string {
     return this.utils.getTransactionSign(type);
+  }
+
+  // Payment status methods
+  getPaymentStatusLabel(status?: string): string {
+    return status === 'paid' ? 'Pago' : 'Pendente';
+  }
+
+  getPaymentStatusClass(transaction: any): string {
+    if (transaction.paymentStatus === 'paid') {
+      return 'bg-green-100 text-green-700';
+    }
+    // Check if transaction is overdue (pending and transaction date has passed)
+    if (this.isOverdue(transaction)) {
+      return 'bg-red-100 text-red-700';
+    }
+    return 'bg-yellow-100 text-yellow-700';
+  }
+
+  getPaymentStatusIcon(transaction: any): string {
+    if (transaction.paymentStatus === 'paid') {
+      return 'pi pi-check-circle';
+    }
+    if (this.isOverdue(transaction)) {
+      return 'pi pi-exclamation-triangle';
+    }
+    return 'pi pi-clock';
+  }
+
+  getPaymentStatusTooltip(transaction: any): string {
+    if (transaction.paymentStatus === 'paid') {
+      if (transaction.paidDate) {
+        const paidDate = parseLocalDate(transaction.paidDate);
+        return `Pago em ${paidDate.toLocaleDateString('pt-BR')}`;
+      }
+      return 'Pago';
+    }
+    if (this.isOverdue(transaction)) {
+      const transactionDate = parseLocalDate(transaction.transactionDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const daysOverdue = Math.floor((today.getTime() - transactionDate.getTime()) / (1000 * 60 * 60 * 24));
+      return `Atrasado há ${daysOverdue} dia${daysOverdue > 1 ? 's' : ''}`;
+    }
+    return 'Pendente';
+  }
+
+  private isOverdue(transaction: any): boolean {
+    if (transaction.paymentStatus === 'paid') return false;
+    const transactionDate = parseLocalDate(transaction.transactionDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return transactionDate < today;
   }
 }

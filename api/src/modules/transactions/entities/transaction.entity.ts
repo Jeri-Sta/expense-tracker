@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
-import { TransactionType } from '../../../common/enums';
+import { TransactionType, PaymentStatus } from '../../../common/enums';
 import { User } from '../../users/entities/user.entity';
 import { Category } from '../../categories/entities/category.entity';
 
@@ -45,6 +45,17 @@ export class Transaction extends BaseEntity {
 
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   confidenceScore: number; // 0-100 confidence level
+
+  // Payment status fields
+  @Column({
+    type: 'enum',
+    enum: PaymentStatus,
+    default: PaymentStatus.PENDING,
+  })
+  paymentStatus: PaymentStatus;
+
+  @Column({ type: 'date', nullable: true })
+  paidDate: Date;
 
   // Relationships
   @ManyToOne(() => User, (user) => user.transactions)
