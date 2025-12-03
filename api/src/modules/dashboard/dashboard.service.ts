@@ -449,7 +449,7 @@ export class DashboardService {
     const totalRemaining = plans.reduce((sum, plan) => sum + Number(plan.remainingAmount), 0);
     const totalSavings = plans.reduce((sum, plan) => sum + Number(plan.totalDiscount), 0);
 
-    // Get upcoming payments (next 5 installments due)
+    // Get upcoming payments (all pending installments due)
     const today = new Date();
     const upcomingPayments = await this.installmentRepository
       .createQueryBuilder('installment')
@@ -458,7 +458,6 @@ export class DashboardService {
       .andWhere('installment.status = :status', { status: InstallmentStatus.PENDING })
       .andWhere('installment.dueDate >= :today', { today })
       .orderBy('installment.dueDate', 'ASC')
-      .limit(5)
       .getMany();
 
     const formattedUpcomingPayments = upcomingPayments.map(installment => ({
@@ -494,7 +493,6 @@ export class DashboardService {
         .andWhere('installment.paidDate >= :startDate', { startDate })
         .andWhere('installment.paidDate <= :endDate', { endDate })
         .orderBy('installment.paidDate', 'DESC')
-        .limit(5)
         .getMany();
 
       paidInMonth = paidInstallments.map(installment => ({

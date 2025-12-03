@@ -1,0 +1,68 @@
+<div class="data-card surface-card shadow-2 border-round-lg">
+  <div class="card-header p-4 border-bottom-1 surface-border">
+    <div class="header-content">
+      <div class="header-title">
+        <h5 class="font-bold text-color m-0">Parcelas Pagas no Mês</h5>
+        <p class="text-color-secondary text-sm m-0">{{ subtitleText }}</p>
+      </div>
+    </div>
+    <div class="header-summary mt-3">
+      <div class="flex justify-content-between align-items-center">
+        <span class="text-color-secondary text-sm">
+          Total: <span class="text-green-500 font-bold">{{ formatCurrency(totalAmount) }}</span>
+          <span *ngIf="totalDiscount > 0" class="text-green-600 ml-2">
+            <i class="pi pi-tag"></i> -{{ formatCurrency(totalDiscount) }}
+          </span>
+        </span>
+        <p-button 
+          label="Ver Todas" 
+          icon="pi pi-external-link" 
+          [text]="true"
+          size="small"
+          routerLink="/installments"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+  <div class="card-content p-4">
+    <div class="installment-list" *ngIf="paidInstallments.length > 0">
+      <div 
+        class="installment-item flex justify-content-between align-items-center py-3 px-3 border-round hover:surface-hover cursor-pointer border-bottom-1 surface-border"
+        *ngFor="let payment of paidInstallments"
+        (click)="navigateToInstallments()"
+        (keydown.enter)="navigateToInstallments()"
+        tabindex="0"
+        role="button"
+      >
+        <div class="flex align-items-center gap-3">
+          <div 
+            class="flex align-items-center justify-content-center border-circle w-3rem h-3rem bg-green-100"
+          >
+            <i class="pi pi-check-circle text-xl text-green-500"></i>
+          </div>
+          <div>
+            <div class="font-bold text-color text-lg">{{ payment.planName }}</div>
+            <div class="text-color-secondary text-sm mt-1">
+              Parcela {{ payment.installmentNumber }}/{{ payment.totalInstallments }} • Pago em: {{ formatDate(payment.paidDate) }}
+            </div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-xl font-bold text-green-500">
+            {{ formatCurrency(payment.paidAmount) }}
+          </div>
+          <div *ngIf="payment.discountAmount > 0" class="mt-1">
+            <span class="text-xs px-2 py-1 border-round bg-green-100 text-green-700">
+              <i class="pi pi-tag mr-1"></i>
+              -{{ formatCurrency(payment.discountAmount) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center py-4 text-color-secondary" *ngIf="paidInstallments.length === 0">
+      <i class="pi pi-inbox text-3xl text-color-secondary mb-2" style="display: block;"></i>
+      Nenhuma parcela paga neste mês
+    </div>
+  </div>
+</div>

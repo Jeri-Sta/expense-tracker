@@ -235,6 +235,24 @@
         </div>
       </div>
 
+      <!-- Upcoming Payments and Paid Installments Widgets -->
+      <div class="grid mb-4">
+        <div class="col-12 lg:col-6">
+          <app-upcoming-payments-widget
+            [upcomingPayments]="installmentStats.upcomingPayments"
+            [isLoading]="loading"
+          ></app-upcoming-payments-widget>
+        </div>
+        <div class="col-12 lg:col-6">
+          <app-paid-installments-widget
+            [paidInstallments]="installmentStats.paidInMonth"
+            [isLoading]="loading"
+            [selectedMonthName]="getSelectedMonthName()"
+            [selectedYear]="selectedYear"
+          ></app-paid-installments-widget>
+        </div>
+      </div>
+
       <!-- Installment Plans List -->
       <div class="grid">
         <div class="col-12">
