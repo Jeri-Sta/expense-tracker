@@ -43,3 +43,11 @@
     color: $color-warning !important;
   }
 }
+
+// Tooltip styling for multi-line content
+:host ::ng-deep .p-tooltip {
+  .p-tooltip-text {
+    white-space: pre-line;
+    text-align: left;
+  }
+}

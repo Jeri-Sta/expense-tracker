@@ -87,6 +87,7 @@
       [isLoading]="loading"
       [isCurrentMonth]="isCurrentMonth"
       [selectedMonthName]="getSelectedMonthName()"
+      [expenseBreakdown]="expenseBreakdown"
     ></app-kpi-cards-widget>
   </div>
 
@@ -112,7 +113,7 @@
             [chartOptions]="incomeVsExpenseOptions"
             [isLoading]="loading"
             [monthlyIncome]="currentStats.totalIncome"
-            [monthlyExpenses]="currentStats.totalExpenses"
+            [monthlyExpenses]="getActualTotalExpenses()"
             [projectedMonthlyIncome]="currentStats.projectedIncome"
             [projectedMonthlyExpenses]="currentStats.projectedExpenses"
             [showProjections]="includeProjections"

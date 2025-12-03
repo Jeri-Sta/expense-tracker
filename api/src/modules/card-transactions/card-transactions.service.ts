@@ -441,6 +441,50 @@ export class CardTransactionsService {
   }
 
   /**
+   * Get invoices by the invoice due month.
+   * This returns invoices that have their due date in the target month/year.
+   */
+  async getInvoicesByDueMonth(
+    userId: string,
+    year: number,
+    month: number,
+    creditCardId?: string,
+  ): Promise<InvoiceResponseDto[]> {
+    // Get all credit cards for the user to determine invoice periods
+    const whereCondition: any = { userId, isActive: true };
+    if (creditCardId) {
+      whereCondition.id = creditCardId;
+    }
+
+    const creditCards = await this.creditCardRepository.find({
+      where: whereCondition,
+    });
+
+    if (creditCards.length === 0) {
+      return [];
+    }
+
+    const allInvoices: InvoiceResponseDto[] = [];
+
+    for (const card of creditCards) {
+      // Calculate which invoice period has due date in the target month
+      const invoicePeriod = this.getInvoicePeriodWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+
+      // Get invoice for this card and period
+      const invoice = await this.invoiceRepository.findOne({
+        where: { creditCardId: card.id, period: invoicePeriod, userId },
+        relations: ['creditCard'],
+      });
+
+      if (invoice) {
+        allInvoices.push(this.mapInvoiceToResponseDto(invoice));
+      }
+    }
+
+    return allInvoices;
+  }
+
+  /**
    * Get card transactions by the invoice due month.
    * This calculates which invoice periods have their due date in the target month/year.
    */

@@ -112,9 +112,15 @@ export class CardTransactionsComponent implements OnInit {
 
   loadTransactions(): void {
     this.loading = true;
-    this.cardTransactionService.getAll(
-      this.selectedCardId || undefined, 
-      this.selectedPeriod
+    
+    // Parse year and month from selectedPeriod (e.g., "2024-12")
+    const [year, month] = this.selectedPeriod.split('-').map(Number);
+    
+    // Use the due-month endpoint to filter by invoice due date, not closing date
+    this.cardTransactionService.getByDueMonth(
+      year,
+      month,
+      this.selectedCardId || undefined
     ).subscribe({
       next: (transactions) => {
         this.transactions = transactions;
@@ -134,9 +140,17 @@ export class CardTransactionsComponent implements OnInit {
   }
 
   loadInvoices(): void {
-    this.cardTransactionService.getInvoices(this.selectedCardId || undefined).subscribe({
+    // Parse year and month from selectedPeriod (e.g., "2024-12")
+    const [year, month] = this.selectedPeriod.split('-').map(Number);
+    
+    // Use the due-month endpoint to get invoices with due date in selected month
+    this.cardTransactionService.getInvoicesByDueMonth(
+      year,
+      month,
+      this.selectedCardId || undefined
+    ).subscribe({
       next: (invoices) => {
-        this.invoices = invoices.filter(inv => inv.period === this.selectedPeriod);
+        this.invoices = invoices;
       },
       error: (error) => {
         console.error('Error loading invoices:', error);

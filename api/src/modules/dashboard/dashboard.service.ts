@@ -115,12 +115,13 @@ export class DashboardService {
   async getDashboardStats(userId: string, year?: number): Promise<DashboardStats> {
     const currentDate = new Date();
     const targetYear = year || currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
     
     // Get current month stats with projections
     const currentMonthStats = await this.projectionsService.getMonthlyStatsWithProjections(
       userId,
       targetYear,
-      currentDate.getMonth() + 1,
+      currentMonth,
     );
 
     // Get full year overview
@@ -129,36 +130,35 @@ export class DashboardService {
       targetYear,
     );
 
-    // Get recent transactions (last 10)
-    const recentTransactions = await this.getRecentTransactions(userId, 10);
+    // Get transactions for current month (not just recent, but all for the month)
+    const competencyPeriod = `${targetYear}-${String(currentMonth).padStart(2, '0')}`;
+    const recentTransactions = await this.getTransactionsForPeriod(userId, competencyPeriod);
 
     // Get top categories for current month
-    const topCategories = await this.getTopCategories(userId, targetYear, currentDate.getMonth() + 1);
+    const topCategories = await this.getTopCategories(userId, targetYear, currentMonth);
 
     // Get installments summary (with paid installments for current month)
-    const installments = await this.getInstallmentsSummary(userId, targetYear, currentDate.getMonth() + 1);
+    const installments = await this.getInstallmentsSummary(userId, targetYear, currentMonth);
 
     // Get credit cards summary (based on invoice due date)
-    const creditCards = await this.getCreditCardsSummary(userId, targetYear, currentDate.getMonth() + 1);
+    const creditCards = await this.getCreditCardsSummary(userId, targetYear, currentMonth);
 
     // Get card installments summary (based on invoice due date)
-    const cardInstallments = await this.getCardInstallmentsSummary(userId, targetYear, currentDate.getMonth() + 1);
+    const cardInstallments = await this.getCardInstallmentsSummary(userId, targetYear, currentMonth);
 
     // Get card expenses based on invoice due date (not invoice period)
-    const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(userId, targetYear, currentDate.getMonth() + 1);
+    const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(userId, targetYear, currentMonth);
 
     // Get monthly expense breakdown
     const expenseBreakdown = await this.getMonthlyExpenseBreakdown(
       userId,
       targetYear,
-      currentDate.getMonth() + 1,
-      currentMonthStats[0]?.totalExpenses || 0,
+      currentMonth,
       creditCards,
-      installments.paidInMonth,
     );
 
-    const currentMonth = currentMonthStats[0] || {
-      period: `${targetYear}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`,
+    const currentMonthData = currentMonthStats[0] || {
+      period: `${targetYear}-${String(currentMonth).padStart(2, '0')}`,
       totalIncome: 0,
       totalExpenses: 0,
       balance: 0,
@@ -172,10 +172,10 @@ export class DashboardService {
 
     return {
       currentMonth: {
-        ...currentMonth,
+        ...currentMonthData,
         cardExpenses,
-        totalExpenses: currentMonth.totalExpenses + cardExpenses,
-        balance: currentMonth.totalIncome - (currentMonth.totalExpenses + cardExpenses),
+        totalExpenses: currentMonthData.totalExpenses + cardExpenses,
+        balance: currentMonthData.totalIncome - (currentMonthData.totalExpenses + cardExpenses),
       },
       yearlyOverview,
       recentTransactions,
@@ -195,9 +195,9 @@ export class DashboardService {
       month,
     );
 
-    // Get recent transactions for the month
+    // Get all transactions for the month
     const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
-    const monthTransactions = await this.getTransactionsForPeriod(userId, competencyPeriod, 20);
+    const monthTransactions = await this.getTransactionsForPeriod(userId, competencyPeriod);
 
     // Get top categories for the month (includes card transaction categories by due date)
     const topCategories = await this.getTopCategories(userId, year, month);
@@ -230,9 +230,7 @@ export class DashboardService {
       userId,
       year,
       month,
-      stats.totalExpenses,
       creditCards,
-      installments.paidInMonth,
     );
 
     return {
@@ -275,16 +273,22 @@ export class DashboardService {
     }));
   }
 
-  private async getTransactionsForPeriod(userId: string, competencyPeriod: string, limit: number = 20) {
-    const transactions = await this.transactionsRepository.find({
+  private async getTransactionsForPeriod(userId: string, competencyPeriod: string, limit?: number) {
+    const findOptions: any = {
       where: { 
         userId,
         competencyPeriod,
       },
       relations: ['category'],
       order: { transactionDate: 'DESC' },
-      take: limit,
-    });
+    };
+
+    // Only apply limit if specified
+    if (limit) {
+      findOptions.take = limit;
+    }
+
+    const transactions = await this.transactionsRepository.find(findOptions);
 
     return transactions.map(transaction => ({
       id: transaction.id,
@@ -783,23 +787,24 @@ export class DashboardService {
     userId: string,
     year: number,
     month: number,
-    regularExpenses: number,
     creditCards: CreditCardSummary[],
-    paidInstallments: {
-      id: string;
-      planId: string;
-      planName: string;
-      installmentNumber: number;
-      totalInstallments: number;
-      paidAmount: number;
-      paidDate: Date;
-      discountAmount: number;
-    }[],
   ): Promise<MonthlyExpenseBreakdownItem[]> {
     const breakdown: MonthlyExpenseBreakdownItem[] = [];
     let grandTotal = 0;
 
-    // 1. Regular transactions expenses
+    // 1. Get regular transaction expenses (excluding projected)
+    const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
+    const regularExpensesResult = await this.transactionsRepository
+      .createQueryBuilder('transaction')
+      .select('SUM(transaction.amount)', 'total')
+      .where('transaction.userId = :userId', { userId })
+      .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+      .andWhere('transaction.type = :type', { type: TransactionType.EXPENSE })
+      .andWhere('(transaction.isProjected = false OR transaction.isProjected IS NULL)')
+      .getRawOne();
+
+    const regularExpenses = Number(regularExpensesResult?.total || 0);
+
     if (regularExpenses > 0) {
       breakdown.push({
         type: 'transaction',
@@ -825,34 +830,104 @@ export class DashboardService {
       }
     }
 
-    // 3. Financings (installments paid in the month) - aggregate by plan
-    const planTotals = new Map<string, { name: string; paidAmount: number; discountAmount: number }>();
-    
-    for (const installment of paidInstallments) {
-      const existing = planTotals.get(installment.planId);
+    // 3. Financings - Get installments due in this month + early payments from other months
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+
+    // 3a. Get all installments DUE in this month (regardless of payment status)
+    const installmentsDueThisMonth = await this.installmentRepository
+      .createQueryBuilder('installment')
+      .leftJoinAndSelect('installment.installmentPlan', 'plan')
+      .where('plan.userId = :userId', { userId })
+      .andWhere('installment.dueDate >= :startOfMonth', { startOfMonth })
+      .andWhere('installment.dueDate <= :endOfMonth', { endOfMonth })
+      .getMany();
+
+    // 3b. Get installments PAID in this month but DUE in other months (early payments / adiantamentos)
+    const earlyPayments = await this.installmentRepository
+      .createQueryBuilder('installment')
+      .leftJoinAndSelect('installment.installmentPlan', 'plan')
+      .where('plan.userId = :userId', { userId })
+      .andWhere('installment.status = :status', { status: InstallmentStatus.PAID })
+      .andWhere('installment.paidDate >= :startOfMonth', { startOfMonth })
+      .andWhere('installment.paidDate <= :endOfMonth', { endOfMonth })
+      .andWhere('(installment.dueDate < :startOfMonth OR installment.dueDate > :endOfMonth)', { startOfMonth, endOfMonth })
+      .getMany();
+
+    // Aggregate by plan
+    const planTotals = new Map<string, { 
+      name: string; 
+      dueAmount: number;      // Amount due this month (original or paid)
+      earlyPaymentAmount: number;  // Amount from early payments
+      discountAmount: number;
+    }>();
+
+    // Process installments due this month
+    for (const installment of installmentsDueThisMonth) {
+      const planId = installment.installmentPlan.id;
+      const existing = planTotals.get(planId);
+      // Use paidAmount if paid, otherwise originalAmount
+      const amount = installment.status === InstallmentStatus.PAID 
+        ? Number(installment.paidAmount || installment.originalAmount)
+        : Number(installment.originalAmount);
+      const discount = installment.status === InstallmentStatus.PAID 
+        ? Number(installment.discountAmount || 0)
+        : 0;
+
       if (existing) {
-        existing.paidAmount += installment.paidAmount;
-        existing.discountAmount += installment.discountAmount;
+        existing.dueAmount += amount;
+        existing.discountAmount += discount;
       } else {
-        planTotals.set(installment.planId, {
-          name: installment.planName,
-          paidAmount: installment.paidAmount,
-          discountAmount: installment.discountAmount,
+        planTotals.set(planId, {
+          name: installment.installmentPlan.name,
+          dueAmount: amount,
+          earlyPaymentAmount: 0,
+          discountAmount: discount,
         });
       }
     }
 
+    // Process early payments (paid this month but due in other months)
+    for (const installment of earlyPayments) {
+      const planId = installment.installmentPlan.id;
+      const existing = planTotals.get(planId);
+      const amount = Number(installment.paidAmount || installment.originalAmount);
+      const discount = Number(installment.discountAmount || 0);
+
+      if (existing) {
+        existing.earlyPaymentAmount += amount;
+        existing.discountAmount += discount;
+      } else {
+        planTotals.set(planId, {
+          name: installment.installmentPlan.name,
+          dueAmount: 0,
+          earlyPaymentAmount: amount,
+          discountAmount: discount,
+        });
+      }
+    }
+
+    // Add financing items to breakdown
     for (const [_, plan] of planTotals) {
-      if (plan.paidAmount > 0) {
+      const totalAmount = plan.dueAmount + plan.earlyPaymentAmount;
+      if (totalAmount > 0) {
+        // Build description based on what we have
+        let name = plan.name;
+        if (plan.earlyPaymentAmount > 0 && plan.dueAmount > 0) {
+          name = `${plan.name} (+ adiantamento)`;
+        } else if (plan.earlyPaymentAmount > 0 && plan.dueAmount === 0) {
+          name = `${plan.name} (adiantamento)`;
+        }
+
         breakdown.push({
           type: 'financing',
-          name: plan.name,
-          amount: plan.paidAmount,
+          name,
+          amount: totalAmount,
           icon: 'account_balance',
           color: '#FF9800',
           discountAmount: plan.discountAmount > 0 ? plan.discountAmount : undefined,
         });
-        grandTotal += plan.paidAmount;
+        grandTotal += totalAmount;
       }
     }
 

@@ -108,6 +108,44 @@ export class InstallmentDetailsComponent implements OnInit {
     this.selectedInstallment = undefined;
   }
 
+  onDeletePayment(installment: Installment): void {
+    if (installment.status !== InstallmentStatus.PAID) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Esta parcela não está paga',
+      });
+      return;
+    }
+
+    this.confirmationService.confirm({
+      message: `Tem certeza que deseja excluir o pagamento da parcela ${installment.installmentNumber}? O valor pago de ${this.formatCurrency(installment.paidAmount || 0)} será removido.`,
+      header: 'Confirmar Exclusão de Pagamento',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sim, excluir',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.installmentService.deletePayment(installment.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: 'Pagamento excluído com sucesso',
+            });
+            this.loadInstallmentPlan(this.installmentPlan!.id);
+          },
+          error: (error) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro',
+              detail: error.error?.message || 'Erro ao excluir pagamento',
+            });
+          },
+        });
+      },
+    });
+  }
+
   onEdit(): void {
     this.router.navigate(['/installments', this.installmentPlan!.id, 'edit']);
   }

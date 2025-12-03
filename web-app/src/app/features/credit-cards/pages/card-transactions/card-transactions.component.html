@@ -20,14 +20,14 @@
   <div class="card mb-4">
     <div class="flex flex-column md:flex-row gap-3 align-items-end">
       <div class="flex-1">
-        <label for="filterPeriod" class="block mb-2 font-medium">Período</label>
+        <label for="filterPeriod" class="block mb-2 font-medium">Mês de Vencimento</label>
         <p-dropdown 
           id="filterPeriod"
           [options]="periodOptions" 
           [(ngModel)]="selectedPeriod"
           optionLabel="label"
           optionValue="value"
-          placeholder="Selecione o período"
+          placeholder="Selecione o mês"
           [style]="{'width': '100%'}"
           (onChange)="onFilterChange()"
           appendTo="body"

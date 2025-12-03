@@ -811,7 +811,10 @@ export class DashboardComponent implements OnInit {
   }
 
   getBalanceClass(): string {
-    return this.currentStats.balance >= 0 ? 'text-green-600' : 'text-red-600';
+    const balance = this.includeProjections 
+      ? this.currentStats.balance + this.currentStats.projectedBalance 
+      : this.currentStats.balance;
+    return balance >= 0 ? 'text-green-600' : 'text-red-600';
   }
 
   getGrowthClass(): string {
@@ -1037,6 +1040,43 @@ export class DashboardComponent implements OnInit {
 
   getProjectionClass(value: number): string {
     return value >= 0 ? 'text-blue-600' : 'text-orange-600';
+  }
+
+  /**
+   * Gets the actual total expenses from the breakdown data if available,
+   * otherwise falls back to currentStats.totalExpenses.
+   * This ensures consistency with the "Totais do Mês" widget.
+   */
+  getActualTotalExpenses(): number {
+    if (this.expenseBreakdown && this.expenseBreakdown.length > 0) {
+      const totalItem = this.expenseBreakdown.find(item => item.type === 'total');
+      if (totalItem) {
+        return totalItem.amount;
+      }
+    }
+    return this.currentStats.totalExpenses;
+  }
+
+  /**
+   * Gets the actual balance calculated using the correct expenses from breakdown.
+   * Balance = totalIncome - actualTotalExpenses
+   */
+  getActualBalance(): number {
+    return this.currentStats.totalIncome - this.getActualTotalExpenses();
+  }
+
+  /**
+   * Gets the actual projected total expenses.
+   */
+  getActualTotalProjectedExpenses(): number {
+    return this.getActualTotalExpenses() + this.currentStats.projectedExpenses;
+  }
+
+  /**
+   * Gets the actual projected balance.
+   */
+  getActualTotalProjectedBalance(): number {
+    return this.getActualBalance() + this.currentStats.projectedBalance;
   }
 
   normalizeIcon(icon: string): string {

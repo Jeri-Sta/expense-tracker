@@ -48,6 +48,10 @@ export class InstallmentService {
     );
   }
 
+  deletePayment(installmentId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${installmentId}/payment`);
+  }
+
   calculateTotalAmount(installmentValue: number, totalInstallments: number): number {
     return installmentValue * totalInstallments;
   }

@@ -284,6 +284,46 @@ export class InstallmentsService {
   }
 
   /**
+   * Exclui o pagamento de uma parcela, retornando-a ao status de pendente ou vencida
+   */
+  async deletePayment(userId: string, installmentId: string): Promise<void> {
+    const installment = await this.installmentRepository.findOne({
+      where: { id: installmentId },
+      relations: ['installmentPlan'],
+    });
+
+    if (!installment?.installmentPlan || installment.installmentPlan?.userId !== userId) {
+      throw new NotFoundException('Parcela não encontrada');
+    }
+
+    if (installment.status !== InstallmentStatus.PAID) {
+      throw new BadRequestException('Esta parcela não está paga');
+    }
+
+    // Reset installment fields to unpaid state
+    installment.paidAmount = null as any;
+    installment.paidDate = null as any;
+    installment.discountAmount = 0;
+    installment.notes = null as any;
+    installment.metadata = null as any;
+
+    // Determine new status based on due date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = new Date(installment.dueDate);
+    dueDate.setHours(0, 0, 0, 0);
+
+    installment.status = dueDate < today
+      ? InstallmentStatus.OVERDUE
+      : InstallmentStatus.PENDING;
+
+    await this.installmentRepository.save(installment);
+
+    // Recalculate plan totals
+    await this.updatePlanTotals(installment.installmentPlanId);
+  }
+
+  /**
    * Retorna parcelas pagas em um determinado mês/ano baseado na paidDate
    * @param userId ID do usuário
    * @param year Ano

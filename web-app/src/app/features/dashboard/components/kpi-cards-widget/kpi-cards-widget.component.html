@@ -17,12 +17,15 @@
   
   <!-- Expenses KPI Card -->
   <div class="col-12 sm:col-6 lg:col-3">
-    <div class="kpi-card surface-card shadow-2 border-round-lg p-3 text-center">
+    <div class="kpi-card surface-card shadow-2 border-round-lg p-3 text-center"
+         [pTooltip]="getExpenseBreakdownTooltip()"
+         tooltipPosition="bottom"
+         [escape]="false">
       <div class="flex align-items-center justify-content-center mb-2">
         <i class="pi pi-arrow-down text-red-600 text-2xl"></i>
       </div>
       <div class="text-red-600 font-bold text-xl mb-1">
-        {{ formatCurrency(showProjections ? getTotalProjectedExpenses() : dashboardData.totalExpenses) }}
+        {{ formatCurrency(showProjections ? getTotalProjectedExpenses() : getActualTotalExpenses()) }}
       </div>
       <div class="text-color-secondary font-semibold">Despesas {{ getMonthLabel() }}</div>
       <div *ngIf="showProjections && dashboardData.hasProjections" class="text-xs text-orange-600 mt-1">
@@ -38,7 +41,7 @@
         <i class="pi pi-wallet" [class]="getBalanceClass() + ' text-2xl'"></i>
       </div>
       <div [class]="getBalanceClass() + ' font-bold text-xl mb-1'">
-        {{ formatCurrency(showProjections ? getTotalProjectedBalance() : dashboardData.balance) }}
+        {{ formatCurrency(showProjections ? getTotalProjectedBalance() : getActualBalance()) }}
       </div>
       <div class="text-color-secondary font-semibold">Saldo {{ getMonthLabel() }}</div>
       <div *ngIf="showProjections && dashboardData.hasProjections" [class]="'text-xs mt-1 ' + getProjectionClass(dashboardData.projectedBalance)">

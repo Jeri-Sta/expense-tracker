@@ -163,4 +163,30 @@ export class InstallmentsController {
     );
     return { message: 'Parcela paga com sucesso' };
   }
+
+  @Delete(':installmentId/payment')
+  @ApiOperation({ summary: 'Excluir pagamento de uma parcela' })
+  @ApiParam({
+    name: 'installmentId',
+    description: 'ID da parcela',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Pagamento excluído com sucesso',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Parcela não encontrada',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Parcela não está paga',
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePayment(
+    @Request() req,
+    @Param('installmentId') installmentId: string,
+  ): Promise<void> {
+    return this.installmentsService.deletePayment(req.user.id, installmentId);
+  }
 }
