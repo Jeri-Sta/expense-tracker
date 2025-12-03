@@ -1,0 +1,109 @@
+@import 'src/styles/variables';
+@import 'src/styles/mixins';
+
+.breakdown-section {
+  @include card-base;
+  padding: 0;
+  overflow: hidden;
+  border-radius: $border-radius-lg;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-md !important;
+  }
+
+  .section-header {
+    background: var(--surface-section);
+    border-bottom: 1px solid var(--surface-border);
+
+    h3 {
+      color: var(--text-color);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    p {
+      color: var(--text-color-secondary);
+      font-size: 0.875rem;
+    }
+  }
+
+  .breakdown-content {
+    background: var(--surface-card);
+  }
+}
+
+.breakdown-list {
+  .breakdown-item {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    border: 1px solid transparent;
+
+    &:hover {
+      background-color: var(--surface-hover);
+      transform: translateX(4px);
+    }
+
+    .item-icon {
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+      
+      i {
+        font-size: 1.25rem;
+      }
+    }
+
+    &:hover .item-icon {
+      transform: scale(1.05);
+    }
+  }
+
+  .discount-badge {
+    white-space: nowrap;
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+}
+
+.total-row {
+  .item-icon {
+    flex-shrink: 0;
+    
+    i {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+.empty-state {
+  i {
+    display: block;
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+// Responsive adjustments
+@include respond-to($breakpoint-md) {
+  .breakdown-item {
+    padding: $spacing-sm !important;
+    
+    .item-icon {
+      width: 32px !important;
+      height: 32px !important;
+      
+      i {
+        font-size: 1rem !important;
+      }
+    }
+  }
+
+  .section-header h3 {
+    font-size: 1rem;
+  }
+}

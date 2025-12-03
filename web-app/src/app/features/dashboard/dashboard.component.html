@@ -143,6 +143,18 @@
         </div>
       </div>
 
+      <!-- Monthly Expense Breakdown Widget -->
+      <div class="grid mb-4" *ngIf="expenseBreakdown.length > 0">
+        <div class="col-12 lg:col-6">
+          <app-monthly-expense-breakdown-widget
+            [breakdownItems]="expenseBreakdown"
+            [isLoading]="loading"
+            [selectedMonthName]="getSelectedMonthName()"
+            [selectedYear]="selectedYear"
+          ></app-monthly-expense-breakdown-widget>
+        </div>
+      </div>
+
       <!-- Data Tables Row -->
       <div class="grid">
         <!-- Monthly Transactions -->

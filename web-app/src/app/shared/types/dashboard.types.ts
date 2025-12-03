@@ -49,3 +49,12 @@ export interface PaidInstallment {
   paidDate: string;
   discountAmount: number;
 }
+
+export interface MonthlyExpenseBreakdownItem {
+  type: 'transaction' | 'credit-card' | 'financing' | 'total';
+  name: string;
+  amount: number;
+  color?: string;
+  icon?: string;
+  discountAmount?: number;
+}

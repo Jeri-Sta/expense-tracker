@@ -16,6 +16,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { TabViewModule } from 'primeng/tabview';
+import { SkeletonModule } from 'primeng/skeleton';
 
 // Components
 import { DashboardComponent } from './dashboard.component';
@@ -33,6 +34,7 @@ import { TopCategoriesChartComponent } from './components/charts/top-categories-
 import { RecentTransactionsWidgetComponent } from './components/recent-transactions-widget/recent-transactions-widget.component';
 import { UpcomingRecurringWidgetComponent } from './components/upcoming-recurring-widget/upcoming-recurring-widget.component';
 import { CategoryStatsWidgetComponent } from './components/category-stats-widget/category-stats-widget.component';
+import { MonthlyExpenseBreakdownWidgetComponent } from './components/monthly-expense-breakdown-widget/monthly-expense-breakdown-widget.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +51,8 @@ import { CategoryStatsWidgetComponent } from './components/category-stats-widget
     TopCategoriesChartComponent,
     RecentTransactionsWidgetComponent,
     UpcomingRecurringWidgetComponent,
-    CategoryStatsWidgetComponent
+    CategoryStatsWidgetComponent,
+    MonthlyExpenseBreakdownWidgetComponent
   ],
   imports: [
     CommonModule,
@@ -70,7 +73,8 @@ import { CategoryStatsWidgetComponent } from './components/category-stats-widget
     SelectButtonModule,
     TooltipModule,
     TagModule,
-    TabViewModule
+    TabViewModule,
+    SkeletonModule
   ]
 })
 export class DashboardModule { }

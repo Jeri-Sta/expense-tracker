@@ -35,6 +35,15 @@ export interface CardInstallmentSummary {
   totalRemaining: number;
 }
 
+export interface MonthlyExpenseBreakdownItem {
+  type: 'transaction' | 'credit-card' | 'financing' | 'total';
+  name: string;
+  amount: number;
+  color?: string;
+  icon?: string;
+  discountAmount?: number;
+}
+
 export interface DashboardStats {
   currentMonth: {
     totalIncome: number;
@@ -62,6 +71,7 @@ export interface DashboardStats {
   };
   creditCards: CreditCardSummary[];
   cardInstallments: CardInstallmentSummary[];
+  expenseBreakdown: MonthlyExpenseBreakdownItem[];
 }
 
 export interface MonthlyNavigationStats {
@@ -81,6 +91,7 @@ export interface MonthlyNavigationStats {
   };
   creditCards: CreditCardSummary[];
   cardInstallments: CardInstallmentSummary[];
+  expenseBreakdown: MonthlyExpenseBreakdownItem[];
 }
 
 @Injectable()
@@ -136,6 +147,16 @@ export class DashboardService {
     // Get card expenses based on invoice due date (not invoice period)
     const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(userId, targetYear, currentDate.getMonth() + 1);
 
+    // Get monthly expense breakdown
+    const expenseBreakdown = await this.getMonthlyExpenseBreakdown(
+      userId,
+      targetYear,
+      currentDate.getMonth() + 1,
+      currentMonthStats[0]?.totalExpenses || 0,
+      creditCards,
+      installments.paidInMonth,
+    );
+
     const currentMonth = currentMonthStats[0] || {
       period: `${targetYear}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`,
       totalIncome: 0,
@@ -162,6 +183,7 @@ export class DashboardService {
       installments,
       creditCards,
       cardInstallments,
+      expenseBreakdown,
     };
   }
 
@@ -203,6 +225,16 @@ export class DashboardService {
       cardExpenses: 0,
     };
 
+    // Get monthly expense breakdown
+    const expenseBreakdown = await this.getMonthlyExpenseBreakdown(
+      userId,
+      year,
+      month,
+      stats.totalExpenses,
+      creditCards,
+      installments.paidInMonth,
+    );
+
     return {
       year,
       month,
@@ -212,6 +244,7 @@ export class DashboardService {
       installments,
       creditCards,
       cardInstallments,
+      expenseBreakdown,
     };
   }
 
@@ -740,5 +773,100 @@ export class DashboardService {
     }
 
     return Array.from(categoryTotals.values());
+  }
+
+  /**
+   * Generates a breakdown of monthly expenses by source: regular transactions, credit cards, and financings.
+   * Only shows items with values > 0. Includes a grand total at the end.
+   */
+  private async getMonthlyExpenseBreakdown(
+    userId: string,
+    year: number,
+    month: number,
+    regularExpenses: number,
+    creditCards: CreditCardSummary[],
+    paidInstallments: {
+      id: string;
+      planId: string;
+      planName: string;
+      installmentNumber: number;
+      totalInstallments: number;
+      paidAmount: number;
+      paidDate: Date;
+      discountAmount: number;
+    }[],
+  ): Promise<MonthlyExpenseBreakdownItem[]> {
+    const breakdown: MonthlyExpenseBreakdownItem[] = [];
+    let grandTotal = 0;
+
+    // 1. Regular transactions expenses
+    if (regularExpenses > 0) {
+      breakdown.push({
+        type: 'transaction',
+        name: 'Transações',
+        amount: regularExpenses,
+        icon: 'receipt_long',
+        color: '#607D8B',
+      });
+      grandTotal += regularExpenses;
+    }
+
+    // 2. Credit card invoices - one item per card with invoice amount > 0
+    for (const card of creditCards) {
+      if (card.currentInvoiceAmount > 0) {
+        breakdown.push({
+          type: 'credit-card',
+          name: card.name,
+          amount: card.currentInvoiceAmount,
+          icon: 'credit_card',
+          color: card.color || '#9C27B0',
+        });
+        grandTotal += card.currentInvoiceAmount;
+      }
+    }
+
+    // 3. Financings (installments paid in the month) - aggregate by plan
+    const planTotals = new Map<string, { name: string; paidAmount: number; discountAmount: number }>();
+    
+    for (const installment of paidInstallments) {
+      const existing = planTotals.get(installment.planId);
+      if (existing) {
+        existing.paidAmount += installment.paidAmount;
+        existing.discountAmount += installment.discountAmount;
+      } else {
+        planTotals.set(installment.planId, {
+          name: installment.planName,
+          paidAmount: installment.paidAmount,
+          discountAmount: installment.discountAmount,
+        });
+      }
+    }
+
+    for (const [_, plan] of planTotals) {
+      if (plan.paidAmount > 0) {
+        breakdown.push({
+          type: 'financing',
+          name: plan.name,
+          amount: plan.paidAmount,
+          icon: 'account_balance',
+          color: '#FF9800',
+          discountAmount: plan.discountAmount > 0 ? plan.discountAmount : undefined,
+        });
+        grandTotal += plan.paidAmount;
+      }
+    }
+
+    // 4. Add grand total row
+    if (breakdown.length > 0) {
+      breakdown.push({
+        type: 'total',
+        name: 'Total Geral',
+        amount: grandTotal,
+        icon: 'functions',
+        color: '#2196F3',
+      });
+    }
+
+    return breakdown;
   }
 }

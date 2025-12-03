@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { formatDateToString } from '../../shared/utils/date.utils';
+import { MonthlyExpenseBreakdownItem } from '../../shared/types/dashboard.types';
 
 export type TransactionType = 'income' | 'expense';
 
@@ -146,6 +147,7 @@ export interface DashboardStats {
   };
   creditCards?: CreditCardSummary[];
   cardInstallments?: CardInstallmentSummary[];
+  expenseBreakdown?: MonthlyExpenseBreakdownItem[];
 }
 
 export interface CreditCardSummary {
@@ -193,6 +195,7 @@ export interface MonthlyNavigationStats {
   };
   creditCards?: CreditCardSummary[];
   cardInstallments?: CardInstallmentSummary[];
+  expenseBreakdown?: MonthlyExpenseBreakdownItem[];
 }
 
 @Injectable({

@@ -14,7 +14,7 @@ import { normalizeIcon } from '../../shared/utils/icon.utils';
 import { parseLocalDate, formatDateToString } from '../../shared/utils/date.utils';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { DashboardStats, CategoryStats, InstallmentStats } from '../../shared/types/dashboard.types';
+import { DashboardStats, CategoryStats, InstallmentStats, MonthlyExpenseBreakdownItem } from '../../shared/types/dashboard.types';
 
 @Component({
   selector: 'app-dashboard',
@@ -74,6 +74,9 @@ export class DashboardComponent implements OnInit {
     paidInMonth: []
   };
   installmentPlans: InstallmentPlanSummary[] = [];
+  
+  // Expense breakdown data
+  expenseBreakdown: MonthlyExpenseBreakdownItem[] = [];
   
   // Date range for analysis
   selectedYear = new Date().getFullYear();
@@ -213,6 +216,11 @@ export class DashboardComponent implements OnInit {
             this.cardInstallments = dashboardData.cardInstallments;
           }
           
+          // Update expense breakdown
+          if (dashboardData.expenseBreakdown) {
+            this.expenseBreakdown = dashboardData.expenseBreakdown;
+          }
+          
           this.loadUpcomingRecurring(); // Still load recurring transactions
           this.loadCardTransactionsForPeriod(); // Load card transactions for display
           this.loading = false;
@@ -250,6 +258,11 @@ export class DashboardComponent implements OnInit {
           }
           if (monthlyData.cardInstallments) {
             this.cardInstallments = monthlyData.cardInstallments;
+          }
+          
+          // Update expense breakdown
+          if (monthlyData.expenseBreakdown) {
+            this.expenseBreakdown = monthlyData.expenseBreakdown;
           }
           
           // Load yearly trend for context
