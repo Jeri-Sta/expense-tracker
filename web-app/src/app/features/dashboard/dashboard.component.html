@@ -145,11 +145,13 @@
 
       <!-- Data Tables Row -->
       <div class="grid">
-        <!-- Recent Transactions -->
+        <!-- Monthly Transactions -->
         <div class="col-12 lg:col-6">
           <app-recent-transactions-widget
             [transactions]="recentTransactions"
             [isLoading]="loading"
+            [selectedMonthName]="getSelectedMonthName()"
+            [selectedYear]="selectedYear"
           ></app-recent-transactions-widget>
         </div>
 

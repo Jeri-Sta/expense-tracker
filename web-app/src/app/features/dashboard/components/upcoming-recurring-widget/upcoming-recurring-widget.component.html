@@ -1,24 +1,41 @@
 <div class="data-card surface-card shadow-2 border-round-lg">
   <div class="card-header p-4 border-bottom-1 surface-border">
-    <div class="flex justify-content-between align-items-center">
-      <div>
+    <div class="header-content">
+      <div class="header-title">
         <h5 class="font-bold text-color m-0">Próximas Recorrências</h5>
         <p class="text-color-secondary text-sm m-0">Transações agendadas</p>
       </div>
-      <p-button 
-        label="Ver Todas" 
-        icon="pi pi-external-link" 
-        [text]="true"
-        size="small"
-        routerLink="/recurring-transactions"
-      ></p-button>
+      <div class="header-toggle">
+        <p-selectButton
+          [options]="viewTypeOptions"
+          [(ngModel)]="viewType"
+          (onChange)="onViewTypeChange()"
+          optionLabel="label"
+          optionValue="value"
+          [style]="{'font-size': '0.75rem'}"
+          [unselectable]="false"
+          [allowEmpty]="false"
+        ></p-selectButton>
+      </div>
+    </div>
+    <div class="header-summary mt-3">
+      <div class="flex justify-content-between align-items-center">
+        <span class="text-color-secondary text-sm">Total: <span [class]="getTransactionColorClass(viewType) + ' font-bold'">{{ formatCurrency(totalAmount) }}</span></span>
+        <p-button 
+          label="Ver Todas" 
+          icon="pi pi-external-link" 
+          [text]="true"
+          size="small"
+          routerLink="/recurring-transactions"
+        ></p-button>
+      </div>
     </div>
   </div>
   <div class="card-content p-4">
-    <div class="recurring-list" *ngIf="upcomingRecurring.length > 0">
+    <div class="recurring-list" *ngIf="filteredRecurring.length > 0">
       <div 
         class="recurring-item flex justify-content-between align-items-center py-3 px-3 border-round hover:surface-hover cursor-pointer border-bottom-1 surface-border"
-        *ngFor="let recurring of upcomingRecurring"
+        *ngFor="let recurring of filteredRecurring"
       >
         <div class="flex align-items-center gap-3">
           <div 
@@ -51,8 +68,8 @@
         </div>
       </div>
     </div>
-    <div class="text-center py-4 text-color-secondary" *ngIf="upcomingRecurring.length === 0">
-      Nenhuma recorrência agendada
+    <div class="text-center py-4 text-color-secondary" *ngIf="filteredRecurring.length === 0">
+      Nenhuma recorrência de {{ viewType === 'income' ? 'receita' : 'despesa' }} agendada
     </div>
   </div>
 </div>

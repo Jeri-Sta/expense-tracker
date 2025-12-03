@@ -18,6 +18,33 @@
   background: var(--surface-section);
   border-bottom: 1px solid var(--surface-border);
 
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+
+    .header-title {
+      flex: 1;
+    }
+
+    .header-toggle {
+      flex-shrink: 0;
+
+      ::ng-deep .p-selectbutton {
+        .p-button {
+          padding: 0.4rem 0.75rem;
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+
+  .header-summary {
+    border-top: 1px solid var(--surface-border);
+    padding-top: 0.75rem;
+  }
+
   h5 {
     color: var(--text-color);
     font-size: 1.1rem;
