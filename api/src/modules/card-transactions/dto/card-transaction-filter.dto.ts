@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsInt, Min, IsString, IsIn } from 'class-validator';
+import { IsOptional, IsInt, Min, IsString, IsIn, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CardTransactionFilterDto {
@@ -8,10 +8,26 @@ export class CardTransactionFilterDto {
   @IsString()
   creditCardId?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by invoice period (YYYY-MM)' })
+  @ApiPropertyOptional({ description: 'Filter by invoice period (YYYY-MM) - uses closing date' })
   @IsOptional()
   @IsString()
   invoicePeriod?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by invoice due year (use with dueMonth)' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(2000)
+  @Max(2100)
+  dueYear?: number;
+
+  @ApiPropertyOptional({ description: 'Filter by invoice due month 1-12 (use with dueYear)' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  dueMonth?: number;
 
   @ApiPropertyOptional({ description: 'Page number', default: 1 })
   @IsOptional()

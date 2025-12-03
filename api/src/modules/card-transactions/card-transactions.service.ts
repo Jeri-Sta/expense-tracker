@@ -127,12 +127,36 @@ export class CardTransactionsService {
   async findAllPaginated(userId: string, filterDto: CardTransactionFilterDto): Promise<PaginatedCardTransactionsResponse> {
     const { 
       creditCardId, 
-      invoicePeriod, 
+      invoicePeriod,
+      dueYear,
+      dueMonth,
       page = 1, 
       limit = 10, 
       sortField = 'transactionDate', 
       sortOrder = 'DESC' 
     } = filterDto;
+
+    // If dueYear and dueMonth are provided, calculate the invoice periods by due date
+    let invoicePeriodsToFilter: string[] = [];
+    if (dueYear && dueMonth) {
+      // Get all credit cards for the user to determine invoice periods
+      const whereCondition: any = { userId, isActive: true };
+      if (creditCardId) {
+        whereCondition.id = creditCardId;
+      }
+      
+      const creditCards = await this.creditCardRepository.find({
+        where: whereCondition,
+      });
+
+      // Calculate which invoice period has due date in the target month for each card
+      for (const card of creditCards) {
+        const period = this.getInvoicePeriodWithDueDateInMonth(card.closingDay, card.dueDay, dueYear, dueMonth);
+        if (!invoicePeriodsToFilter.includes(period)) {
+          invoicePeriodsToFilter.push(period);
+        }
+      }
+    }
 
     const queryBuilder = this.transactionRepository
       .createQueryBuilder('transaction')
@@ -141,8 +165,10 @@ export class CardTransactionsService {
       .leftJoinAndSelect('transaction.parentTransaction', 'parent')
       .where('transaction.userId = :userId', { userId });
 
-    // Apply filters
-    if (invoicePeriod) {
+    // Apply filters - prioritize dueYear/dueMonth over invoicePeriod
+    if (invoicePeriodsToFilter.length > 0) {
+      queryBuilder.andWhere('transaction.invoicePeriod IN (:...periods)', { periods: invoicePeriodsToFilter });
+    } else if (invoicePeriod) {
       queryBuilder.andWhere('transaction.invoicePeriod = :invoicePeriod', { invoicePeriod });
     } else {
       // When not filtering by period, only get parent transactions

@@ -17,6 +17,8 @@ export interface CardTransactionFilterParams {
   sortOrder?: 'ASC' | 'DESC';
   creditCardId?: string;
   invoicePeriod?: string;
+  dueYear?: number;
+  dueMonth?: number;
 }
 
 export interface PaginatedCardTransactionsResponse {
@@ -47,6 +49,8 @@ export class CardTransactionService {
     if (params.sortOrder) httpParams = httpParams.set('sortOrder', params.sortOrder);
     if (params.creditCardId) httpParams = httpParams.set('creditCardId', params.creditCardId);
     if (params.invoicePeriod) httpParams = httpParams.set('invoicePeriod', params.invoicePeriod);
+    if (params.dueYear) httpParams = httpParams.set('dueYear', params.dueYear.toString());
+    if (params.dueMonth) httpParams = httpParams.set('dueMonth', params.dueMonth.toString());
     
     return this.http.get<PaginatedCardTransactionsResponse>(this.apiUrl, { params: httpParams });
   }

@@ -140,14 +140,15 @@ export class CardTransactionsComponent implements OnInit {
     // Parse year and month from selectedPeriod (e.g., "2024-12")
     const [year, month] = this.selectedPeriod.split('-').map(Number);
     
-    // Use paginated endpoint with sorting
+    // Use paginated endpoint with sorting - filter by due month instead of invoice period
     this.cardTransactionService.getTransactionsPaginated({
       page,
       limit: this.rows,
       sortField: this.sortField,
       sortOrder: sortOrderStr,
       creditCardId: this.selectedCardId || undefined,
-      invoicePeriod: this.selectedPeriod || undefined
+      dueYear: year,
+      dueMonth: month
     }).subscribe({
       next: (response) => {
         this.transactions = response.data;
@@ -430,6 +431,11 @@ export class CardTransactionsComponent implements OnInit {
   }
 
   getTotalForPeriod(): number {
+    // Sum totalAmount from all invoices in the period (not just paginated transactions)
+    if (this.invoices.length > 0) {
+      return this.invoices.reduce((sum, inv) => sum + Number(inv.totalAmount), 0);
+    }
+    // Fallback to transactions sum if no invoices loaded
     return this.transactions.reduce((sum, t) => sum + Number(t.amount), 0);
   }
 

@@ -57,6 +57,7 @@
   // Table Body
   .p-datatable-tbody > tr {
     transition: background-color 0.2s ease;
+    background: var(--surface-ground);
     
     > td {
       padding: $spacing-md;
@@ -66,15 +67,6 @@
     
     &:hover {
       background: var(--surface-hover);
-    }
-    
-    // Striped rows (when using p-datatable-striped)
-    &:nth-child(even) {
-      background: var(--surface-ground);
-      
-      &:hover {
-        background: var(--surface-hover);
-      }
     }
   }
 
