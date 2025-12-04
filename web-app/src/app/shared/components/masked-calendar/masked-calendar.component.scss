@@ -1,31 +1,31 @@
 .masked-calendar-container {
   position: relative;
-  
+
   .p-inputgroup {
     display: flex;
     align-items: stretch;
-    
+
     ::ng-deep p-inputmask {
       flex: 1;
-      
+
       .p-inputtext {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
         width: 100%;
       }
     }
-    
+
     .calendar-button {
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
       border-left: 0;
-      
+
       &:focus {
         z-index: 1;
       }
     }
   }
-  
+
   // Invalid state styling
   ::ng-deep .ng-invalid.ng-dirty,
   ::ng-deep .ng-invalid.ng-touched {

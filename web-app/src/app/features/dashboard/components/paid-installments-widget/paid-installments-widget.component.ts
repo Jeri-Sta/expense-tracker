@@ -6,7 +6,7 @@ import { DashboardUtilsService } from '../../../../shared/services/dashboard-uti
 @Component({
   selector: 'app-paid-installments-widget',
   templateUrl: './paid-installments-widget.component.html',
-  styleUrls: ['./paid-installments-widget.component.scss']
+  styleUrls: ['./paid-installments-widget.component.scss'],
 })
 export class PaidInstallmentsWidgetComponent {
   @Input() paidInstallments: PaidInstallment[] = [];
@@ -16,7 +16,7 @@ export class PaidInstallmentsWidgetComponent {
 
   constructor(
     private readonly utils: DashboardUtilsService,
-    private readonly router: Router
+    private readonly router: Router,
   ) {}
 
   get subtitleText(): string {

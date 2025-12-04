@@ -5,12 +5,12 @@ import { RecurringTransactionsComponent } from './recurring-transactions.compone
 const routes: Routes = [
   {
     path: '',
-    component: RecurringTransactionsComponent
-  }
+    component: RecurringTransactionsComponent,
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class RecurringTransactionsRoutingModule { }
+export class RecurringTransactionsRoutingModule {}

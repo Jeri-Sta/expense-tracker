@@ -7,7 +7,7 @@ export class ProjectionFiltersDto extends TransactionsFilterDto {
   @ApiProperty({
     description: 'Include projected transactions in results',
     required: false,
-    default: false
+    default: false,
   })
   @IsOptional()
   @IsBoolean()
@@ -16,7 +16,7 @@ export class ProjectionFiltersDto extends TransactionsFilterDto {
   @ApiProperty({
     description: 'Show only projected transactions',
     required: false,
-    default: false
+    default: false,
   })
   @IsOptional()
   @IsBoolean()
@@ -25,7 +25,7 @@ export class ProjectionFiltersDto extends TransactionsFilterDto {
   @ApiProperty({
     description: 'Filter by projection source',
     enum: ['recurring', 'manual', 'ai'],
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsString()
@@ -35,7 +35,7 @@ export class ProjectionFiltersDto extends TransactionsFilterDto {
     description: 'Minimum confidence score for projections (0-100)',
     required: false,
     minimum: 0,
-    maximum: 100
+    maximum: 100,
   })
   @IsOptional()
   @IsNumber()

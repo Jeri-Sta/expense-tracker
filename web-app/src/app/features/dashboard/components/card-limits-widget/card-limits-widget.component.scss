@@ -33,17 +33,17 @@
 // Progress bar severity classes
 :host ::ng-deep {
   .usage-success .p-progressbar-value {
-    background: #10B981 !important;
+    background: #10b981 !important;
   }
-  
+
   .usage-warning .p-progressbar-value {
-    background: #F59E0B !important;
+    background: #f59e0b !important;
   }
-  
+
   .usage-danger .p-progressbar-value {
-    background: #EF4444 !important;
+    background: #ef4444 !important;
   }
-  
+
   .p-progressbar {
     background: var(--surface-200);
     border-radius: $border-radius-sm;

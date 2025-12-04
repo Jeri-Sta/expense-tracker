@@ -1,13 +1,21 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CardTransaction } from './entities/card-transaction.entity';
 import { Invoice } from './entities/invoice.entity';
 import { CreditCard } from '../credit-cards/entities/credit-card.entity';
 import { CreateCardTransactionDto } from './dto/create-card-transaction.dto';
 import { UpdateCardTransactionDto } from './dto/update-card-transaction.dto';
-import { CardTransactionResponseDto, CardTransactionSummaryDto } from './dto/card-transaction-response.dto';
-import { CardTransactionFilterDto, PaginatedCardTransactionsResponse } from './dto/card-transaction-filter.dto';
+import { CardTransactionResponseDto } from './dto/card-transaction-response.dto';
+import {
+  CardTransactionFilterDto,
+  PaginatedCardTransactionsResponse,
+} from './dto/card-transaction-filter.dto';
 import { InvoiceResponseDto, UpdateInvoiceStatusDto } from './dto/invoice.dto';
 import { InvoiceStatus } from '../../common/enums';
 import { parseLocalDate } from '../../common/utils/date.utils';
@@ -23,7 +31,10 @@ export class CardTransactionsService {
     private readonly creditCardRepository: Repository<CreditCard>,
   ) {}
 
-  async create(userId: string, createDto: CreateCardTransactionDto): Promise<CardTransactionResponseDto> {
+  async create(
+    userId: string,
+    createDto: CreateCardTransactionDto,
+  ): Promise<CardTransactionResponseDto> {
     // Validate credit card belongs to user
     const creditCard = await this.creditCardRepository.findOne({
       where: { id: createDto.creditCardId, userId },
@@ -34,8 +45,13 @@ export class CardTransactionsService {
     }
 
     // Validate installments
-    if (createDto.isInstallment && (!createDto.totalInstallments || createDto.totalInstallments < 2)) {
-      throw new BadRequestException('Total installments must be at least 2 for installment purchases');
+    if (
+      createDto.isInstallment &&
+      (!createDto.totalInstallments || createDto.totalInstallments < 2)
+    ) {
+      throw new BadRequestException(
+        'Total installments must be at least 2 for installment purchases',
+      );
     }
 
     const transactionDate = parseLocalDate(createDto.transactionDate);
@@ -85,7 +101,7 @@ export class CardTransactionsService {
     // Create all installment transactions
     for (let i = 1; i <= createDto.totalInstallments!; i++) {
       const invoicePeriod = this.addMonthsToInvoicePeriod(baseInvoicePeriod, i - 1);
-      
+
       const transaction = this.transactionRepository.create({
         description: createDto.description,
         amount: installmentAmount,
@@ -113,7 +129,7 @@ export class CardTransactionsService {
     await this.transactionRepository.save(savedTransactions.slice(1));
 
     // Update invoice totals for all affected periods
-    const uniquePeriods = [...new Set(transactions.map(t => t.invoicePeriod))];
+    const uniquePeriods = [...new Set(transactions.map((t) => t.invoicePeriod))];
     for (const period of uniquePeriods) {
       await this.updateInvoiceTotal(creditCard.id, period, userId, creditCard);
     }
@@ -124,34 +140,42 @@ export class CardTransactionsService {
   /**
    * Find all card transactions with pagination and sorting support
    */
-  async findAllPaginated(userId: string, filterDto: CardTransactionFilterDto): Promise<PaginatedCardTransactionsResponse> {
-    const { 
-      creditCardId, 
+  async findAllPaginated(
+    userId: string,
+    filterDto: CardTransactionFilterDto,
+  ): Promise<PaginatedCardTransactionsResponse> {
+    const {
+      creditCardId,
       invoicePeriod,
       dueYear,
       dueMonth,
-      page = 1, 
-      limit = 10, 
-      sortField = 'transactionDate', 
-      sortOrder = 'DESC' 
+      page = 1,
+      limit = 10,
+      sortField = 'transactionDate',
+      sortOrder = 'DESC',
     } = filterDto;
 
     // If dueYear and dueMonth are provided, calculate the invoice periods by due date
-    let invoicePeriodsToFilter: string[] = [];
+    const invoicePeriodsToFilter: string[] = [];
     if (dueYear && dueMonth) {
       // Get all credit cards for the user to determine invoice periods
       const whereCondition: any = { userId, isActive: true };
       if (creditCardId) {
         whereCondition.id = creditCardId;
       }
-      
+
       const creditCards = await this.creditCardRepository.find({
         where: whereCondition,
       });
 
       // Calculate which invoice period has due date in the target month for each card
       for (const card of creditCards) {
-        const period = this.getInvoicePeriodWithDueDateInMonth(card.closingDay, card.dueDay, dueYear, dueMonth);
+        const period = this.getInvoicePeriodWithDueDateInMonth(
+          card.closingDay,
+          card.dueDay,
+          dueYear,
+          dueMonth,
+        );
         if (!invoicePeriodsToFilter.includes(period)) {
           invoicePeriodsToFilter.push(period);
         }
@@ -167,7 +191,9 @@ export class CardTransactionsService {
 
     // Apply filters - prioritize dueYear/dueMonth over invoicePeriod
     if (invoicePeriodsToFilter.length > 0) {
-      queryBuilder.andWhere('transaction.invoicePeriod IN (:...periods)', { periods: invoicePeriodsToFilter });
+      queryBuilder.andWhere('transaction.invoicePeriod IN (:...periods)', {
+        periods: invoicePeriodsToFilter,
+      });
     } else if (invoicePeriod) {
       queryBuilder.andWhere('transaction.invoicePeriod = :invoicePeriod', { invoicePeriod });
     } else {
@@ -180,10 +206,14 @@ export class CardTransactionsService {
     }
 
     // Apply sorting
-    const sortColumn = sortField === 'transactionDate' ? 'transaction.transactionDate' 
-      : sortField === 'description' ? 'transaction.description'
-      : sortField === 'amount' ? 'transaction.amount'
-      : 'transaction.createdAt';
+    const sortColumn =
+      sortField === 'transactionDate'
+        ? 'transaction.transactionDate'
+        : sortField === 'description'
+          ? 'transaction.description'
+          : sortField === 'amount'
+            ? 'transaction.amount'
+            : 'transaction.createdAt';
     queryBuilder.orderBy(sortColumn, sortOrder);
 
     // Get total count before pagination
@@ -196,7 +226,7 @@ export class CardTransactionsService {
     const transactions = await queryBuilder.getMany();
 
     // Map to response DTOs
-    const data = transactions.map(t => {
+    const data = transactions.map((t) => {
       const parentTransaction = t.parentTransaction;
       return {
         id: t.id,
@@ -206,10 +236,13 @@ export class CardTransactionsService {
         invoicePeriod: t.invoicePeriod,
         isInstallment: t.isInstallment,
         installmentNumber: t.installmentNumber,
-        totalInstallments: t.totalInstallments || (parentTransaction?.totalInstallments),
-        installmentLabel: t.isInstallment && t.installmentNumber && (t.totalInstallments || parentTransaction?.totalInstallments)
-          ? `${t.installmentNumber}/${t.totalInstallments || parentTransaction?.totalInstallments}`
-          : undefined,
+        totalInstallments: t.totalInstallments || parentTransaction?.totalInstallments,
+        installmentLabel:
+          t.isInstallment &&
+          t.installmentNumber &&
+          (t.totalInstallments || parentTransaction?.totalInstallments)
+            ? `${t.installmentNumber}/${t.totalInstallments || parentTransaction?.totalInstallments}`
+            : undefined,
         parentTransactionId: t.parentTransactionId,
         creditCardId: t.creditCardId,
         creditCardName: t.creditCard?.name,
@@ -232,10 +265,14 @@ export class CardTransactionsService {
     };
   }
 
-  async findAll(userId: string, creditCardId?: string, invoicePeriod?: string): Promise<CardTransactionResponseDto[]> {
+  async findAll(
+    userId: string,
+    creditCardId?: string,
+    invoicePeriod?: string,
+  ): Promise<CardTransactionResponseDto[]> {
     // When filtering by invoicePeriod, we need to get all transactions that have installments in that period
     // This includes both parent transactions and child transactions that fall in the period
-    
+
     if (invoicePeriod) {
       // Get all transactions (both parent and child) for the period
       const periodQueryBuilder = this.transactionRepository
@@ -253,12 +290,12 @@ export class CardTransactionsService {
       periodQueryBuilder.orderBy('transaction.transactionDate', 'DESC');
 
       const periodTransactions = await periodQueryBuilder.getMany();
-      
+
       // Map transactions: for child transactions, we need to show them as the installment they are
-      return periodTransactions.map(t => {
+      return periodTransactions.map((t) => {
         // If it's a child transaction, get parent info for the original description
         const parentTransaction = t.parentTransaction;
-        
+
         return {
           id: t.id,
           description: parentTransaction ? parentTransaction.description : t.description,
@@ -267,10 +304,13 @@ export class CardTransactionsService {
           invoicePeriod: t.invoicePeriod,
           isInstallment: t.isInstallment,
           installmentNumber: t.installmentNumber,
-          totalInstallments: t.totalInstallments || (parentTransaction?.totalInstallments),
-          installmentLabel: t.isInstallment && t.installmentNumber && (t.totalInstallments || parentTransaction?.totalInstallments)
-            ? `${t.installmentNumber}/${t.totalInstallments || parentTransaction?.totalInstallments}`
-            : undefined,
+          totalInstallments: t.totalInstallments || parentTransaction?.totalInstallments,
+          installmentLabel:
+            t.isInstallment &&
+            t.installmentNumber &&
+            (t.totalInstallments || parentTransaction?.totalInstallments)
+              ? `${t.installmentNumber}/${t.totalInstallments || parentTransaction?.totalInstallments}`
+              : undefined,
           parentTransactionId: t.parentTransactionId,
           creditCardId: t.creditCardId,
           creditCardName: t.creditCard?.name,
@@ -284,7 +324,7 @@ export class CardTransactionsService {
         };
       });
     }
-    
+
     // When not filtering by period, return parent transactions with their children
     const queryBuilder = this.transactionRepository
       .createQueryBuilder('transaction')
@@ -301,14 +341,18 @@ export class CardTransactionsService {
     queryBuilder.orderBy('transaction.transactionDate', 'DESC');
 
     const transactions = await queryBuilder.getMany();
-    return transactions.map(t => this.mapToResponseDto(t, t.creditCard, t.childTransactions));
+    return transactions.map((t) => this.mapToResponseDto(t, t.creditCard, t.childTransactions));
   }
 
   async findByCard(userId: string, creditCardId: string): Promise<CardTransactionResponseDto[]> {
     return this.findAll(userId, creditCardId);
   }
 
-  async findByInvoice(userId: string, creditCardId: string, invoicePeriod: string): Promise<CardTransactionResponseDto[]> {
+  async findByInvoice(
+    userId: string,
+    creditCardId: string,
+    invoicePeriod: string,
+  ): Promise<CardTransactionResponseDto[]> {
     return this.findAll(userId, creditCardId, invoicePeriod);
   }
 
@@ -326,10 +370,18 @@ export class CardTransactionsService {
       throw new ForbiddenException('You can only access your own transactions');
     }
 
-    return this.mapToResponseDto(transaction, transaction.creditCard, transaction.childTransactions);
+    return this.mapToResponseDto(
+      transaction,
+      transaction.creditCard,
+      transaction.childTransactions,
+    );
   }
 
-  async update(id: string, userId: string, updateDto: UpdateCardTransactionDto): Promise<CardTransactionResponseDto> {
+  async update(
+    id: string,
+    userId: string,
+    updateDto: UpdateCardTransactionDto,
+  ): Promise<CardTransactionResponseDto> {
     const transaction = await this.transactionRepository.findOne({
       where: { id },
       relations: ['creditCard', 'category', 'childTransactions'],
@@ -345,14 +397,16 @@ export class CardTransactionsService {
 
     // Cannot update child transactions directly
     if (transaction.parentTransactionId) {
-      throw new BadRequestException('Cannot update installment child transactions directly. Update the parent transaction.');
+      throw new BadRequestException(
+        'Cannot update installment child transactions directly. Update the parent transaction.',
+      );
     }
 
     const oldInvoicePeriod = transaction.invoicePeriod;
-    
+
     // Build update object for the parent transaction
     const updateFields: Partial<CardTransaction> = {};
-    
+
     if (updateDto.description !== undefined) {
       updateFields.description = updateDto.description;
     }
@@ -366,7 +420,7 @@ export class CardTransactionsService {
       updateFields.transactionDate = parseLocalDate(updateDto.transactionDate);
       updateFields.invoicePeriod = this.calculateInvoicePeriod(
         updateFields.transactionDate,
-        transaction.creditCard.closingDay
+        transaction.creditCard.closingDay,
       );
     }
 
@@ -374,10 +428,14 @@ export class CardTransactionsService {
     await this.transactionRepository.update({ id }, updateFields);
 
     // Update child transactions if this is a parent installment transaction
-    if (transaction.isInstallment && transaction.childTransactions && transaction.childTransactions.length > 0) {
+    if (
+      transaction.isInstallment &&
+      transaction.childTransactions &&
+      transaction.childTransactions.length > 0
+    ) {
       // Fields to propagate to child transactions
       const childUpdateFields: Partial<CardTransaction> = {};
-      
+
       if ('categoryId' in updateDto) {
         childUpdateFields.categoryId = updateDto.categoryId || null;
       }
@@ -388,7 +446,7 @@ export class CardTransactionsService {
       if (Object.keys(childUpdateFields).length > 0) {
         await this.transactionRepository.update(
           { parentTransactionId: transaction.id },
-          childUpdateFields
+          childUpdateFields,
         );
       }
     }
@@ -397,10 +455,15 @@ export class CardTransactionsService {
     const creditCard = await this.creditCardRepository.findOne({
       where: { id: transaction.creditCardId },
     });
-    
+
     const newInvoicePeriod = updateFields.invoicePeriod || transaction.invoicePeriod;
     if (oldInvoicePeriod !== newInvoicePeriod) {
-      await this.updateInvoiceTotal(transaction.creditCardId, oldInvoicePeriod, userId, creditCard!);
+      await this.updateInvoiceTotal(
+        transaction.creditCardId,
+        oldInvoicePeriod,
+        userId,
+        creditCard!,
+      );
     }
     await this.updateInvoiceTotal(transaction.creditCardId, newInvoicePeriod, userId, creditCard!);
 
@@ -410,7 +473,11 @@ export class CardTransactionsService {
       relations: ['creditCard', 'category', 'childTransactions'],
     });
 
-    return this.mapToResponseDto(updatedTransaction!, updatedTransaction!.creditCard, updatedTransaction!.childTransactions);
+    return this.mapToResponseDto(
+      updatedTransaction!,
+      updatedTransaction!.creditCard,
+      updatedTransaction!.childTransactions,
+    );
   }
 
   async remove(id: string, userId: string): Promise<void> {
@@ -446,7 +513,7 @@ export class CardTransactionsService {
     const creditCard = await this.creditCardRepository.findOne({
       where: { id: creditCardId },
     });
-    
+
     for (const period of affectedPeriods) {
       await this.updateInvoiceTotal(creditCardId, period, userId, creditCard!);
     }
@@ -466,10 +533,14 @@ export class CardTransactionsService {
     queryBuilder.orderBy('invoice.period', 'DESC');
 
     const invoices = await queryBuilder.getMany();
-    return invoices.map(inv => this.mapInvoiceToResponseDto(inv));
+    return invoices.map((inv) => this.mapInvoiceToResponseDto(inv));
   }
 
-  async getInvoice(creditCardId: string, period: string, userId: string): Promise<InvoiceResponseDto> {
+  async getInvoice(
+    creditCardId: string,
+    period: string,
+    userId: string,
+  ): Promise<InvoiceResponseDto> {
     const invoice = await this.invoiceRepository.findOne({
       where: { creditCardId, period, userId },
       relations: ['creditCard'],
@@ -511,7 +582,7 @@ export class CardTransactionsService {
   // Summary methods for dashboard
   async getCardUsage(userId: string, creditCardId: string): Promise<number> {
     const currentPeriod = this.getCurrentInvoicePeriod();
-    
+
     const result = await this.transactionRepository
       .createQueryBuilder('transaction')
       .select('SUM(transaction.amount)', 'total')
@@ -523,9 +594,12 @@ export class CardTransactionsService {
     return Number(result?.total || 0);
   }
 
-  async getPendingInstallments(userId: string, period?: string): Promise<CardTransactionResponseDto[]> {
+  async getPendingInstallments(
+    userId: string,
+    period?: string,
+  ): Promise<CardTransactionResponseDto[]> {
     const targetPeriod = period || this.getCurrentInvoicePeriod();
-    
+
     const transactions = await this.transactionRepository
       .createQueryBuilder('transaction')
       .leftJoinAndSelect('transaction.creditCard', 'creditCard')
@@ -538,7 +612,7 @@ export class CardTransactionsService {
       .addOrderBy('transaction.transactionDate', 'DESC')
       .getMany();
 
-    return transactions.map(t => this.mapToResponseDto(t, t.creditCard));
+    return transactions.map((t) => this.mapToResponseDto(t, t.creditCard));
   }
 
   async getMonthlyCardExpenses(userId: string, period: string): Promise<number> {
@@ -580,7 +654,12 @@ export class CardTransactionsService {
 
     for (const card of creditCards) {
       // Calculate which invoice period has due date in the target month
-      const invoicePeriod = this.getInvoicePeriodWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+      const invoicePeriod = this.getInvoicePeriodWithDueDateInMonth(
+        card.closingDay,
+        card.dueDay,
+        year,
+        month,
+      );
 
       // Get invoice for this card and period
       const invoice = await this.invoiceRepository.findOne({
@@ -611,7 +690,7 @@ export class CardTransactionsService {
     if (creditCardId) {
       whereCondition.id = creditCardId;
     }
-    
+
     const creditCards = await this.creditCardRepository.find({
       where: whereCondition,
     });
@@ -624,23 +703,33 @@ export class CardTransactionsService {
 
     for (const card of creditCards) {
       // Calculate which invoice period has due date in the target month
-      const invoicePeriod = this.getInvoicePeriodWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
-      
+      const invoicePeriod = this.getInvoicePeriodWithDueDateInMonth(
+        card.closingDay,
+        card.dueDay,
+        year,
+        month,
+      );
+
       // Get transactions for this card and period
       const transactions = await this.findAll(userId, card.id, invoicePeriod);
       allTransactions.push(...transactions);
     }
 
     // Sort by transaction date descending
-    return allTransactions.sort((a, b) => 
-      new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()
+    return allTransactions.sort(
+      (a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime(),
     );
   }
 
   /**
    * Determines which invoice period has its due date in the target month/year.
    */
-  private getInvoicePeriodWithDueDateInMonth(closingDay: number, dueDay: number, targetYear: number, targetMonth: number): string {
+  private getInvoicePeriodWithDueDateInMonth(
+    closingDay: number,
+    dueDay: number,
+    targetYear: number,
+    targetMonth: number,
+  ): string {
     // If dueDay <= closingDay, the invoice of period X is due in month X+1
     // Otherwise, it's due in the same month X
     const dueDateIsNextMonth = dueDay <= closingDay;
@@ -726,10 +815,10 @@ export class CardTransactionsService {
       const [yearStr, monthStr] = period.split('-');
       const year = parseInt(yearStr);
       const month = parseInt(monthStr) - 1;
-      
+
       const closingDate = new Date(year, month, creditCard.closingDay);
       const dueDate = new Date(year, month, creditCard.dueDay);
-      
+
       // If due day is before closing day, due date is next month
       if (creditCard.dueDay <= creditCard.closingDay) {
         dueDate.setMonth(dueDate.getMonth() + 1);
@@ -765,8 +854,8 @@ export class CardTransactionsService {
       isInstallment: transaction.isInstallment,
       installmentNumber: transaction.installmentNumber,
       totalInstallments: transaction.totalInstallments,
-      installmentLabel: transaction.isInstallment 
-        ? `${transaction.installmentNumber}/${transaction.totalInstallments}` 
+      installmentLabel: transaction.isInstallment
+        ? `${transaction.installmentNumber}/${transaction.totalInstallments}`
         : undefined,
       parentTransactionId: transaction.parentTransactionId,
       creditCardId: transaction.creditCardId,
@@ -780,8 +869,8 @@ export class CardTransactionsService {
     };
 
     if (childTransactions && childTransactions.length > 0) {
-      dto.childTransactions = childTransactions.map(child => 
-        this.mapToResponseDto(child, creditCard)
+      dto.childTransactions = childTransactions.map((child) =>
+        this.mapToResponseDto(child, creditCard),
       );
     }
 

@@ -2,7 +2,7 @@
   <p-card class="auth-card">
     <ng-template pTemplate="header">
       <div class="auth-header">
-        <i class="pi pi-wallet" style="font-size: 2rem; color: var(--primary-color);"></i>
+        <i class="pi pi-wallet" style="font-size: 2rem; color: var(--primary-color)"></i>
         <h1>Criar Conta</h1>
         <p>Preencha os dados para criar sua conta</p>
       </div>
@@ -21,12 +21,11 @@
             [class.ng-invalid]="firstName?.invalid && firstName?.touched"
             class="w-full"
           />
-          <small 
-            class="error-message" 
-            *ngIf="firstName?.invalid && firstName?.touched"
-          >
+          <small class="error-message" *ngIf="firstName?.invalid && firstName?.touched">
             <span *ngIf="firstName?.errors?.['required']">Nome é obrigatório</span>
-            <span *ngIf="firstName?.errors?.['maxlength']">Nome deve ter no máximo 50 caracteres</span>
+            <span *ngIf="firstName?.errors?.['maxlength']"
+              >Nome deve ter no máximo 50 caracteres</span
+            >
           </small>
         </div>
 
@@ -41,12 +40,11 @@
             [class.ng-invalid]="lastName?.invalid && lastName?.touched"
             class="w-full"
           />
-          <small 
-            class="error-message" 
-            *ngIf="lastName?.invalid && lastName?.touched"
-          >
+          <small class="error-message" *ngIf="lastName?.invalid && lastName?.touched">
             <span *ngIf="lastName?.errors?.['required']">Sobrenome é obrigatório</span>
-            <span *ngIf="lastName?.errors?.['maxlength']">Sobrenome deve ter no máximo 50 caracteres</span>
+            <span *ngIf="lastName?.errors?.['maxlength']"
+              >Sobrenome deve ter no máximo 50 caracteres</span
+            >
           </small>
         </div>
       </div>
@@ -62,10 +60,7 @@
           [class.ng-invalid]="email?.invalid && email?.touched"
           class="w-full"
         />
-        <small 
-          class="error-message" 
-          *ngIf="email?.invalid && email?.touched"
-        >
+        <small class="error-message" *ngIf="email?.invalid && email?.touched">
           <span *ngIf="email?.errors?.['required']">Email é obrigatório</span>
           <span *ngIf="email?.errors?.['email']">Email inválido</span>
         </small>
@@ -82,17 +77,18 @@
           styleClass="w-full"
           [class.ng-invalid]="password?.invalid && password?.touched"
         ></p-password>
-        <small 
-          class="error-message" 
-          *ngIf="password?.invalid && password?.touched"
-        >
+        <small class="error-message" *ngIf="password?.invalid && password?.touched">
           <span *ngIf="password?.errors?.['required']">Senha é obrigatória</span>
-          <span *ngIf="password?.errors?.['minlength']">Senha deve ter pelo menos 8 caracteres</span>
+          <span *ngIf="password?.errors?.['minlength']"
+            >Senha deve ter pelo menos 8 caracteres</span
+          >
         </small>
       </div>
 
       <div class="form-field">
-        <label for="confirmPassword">Confirmar Senha <span class="required-asterisk">*</span></label>
+        <label for="confirmPassword"
+          >Confirmar Senha <span class="required-asterisk">*</span></label
+        >
         <p-password
           id="confirmPassword"
           formControlName="confirmPassword"
@@ -102,11 +98,10 @@
           styleClass="w-full"
           [class.ng-invalid]="confirmPassword?.invalid && confirmPassword?.touched"
         ></p-password>
-        <small 
-          class="error-message" 
-          *ngIf="confirmPassword?.invalid && confirmPassword?.touched"
-        >
-          <span *ngIf="confirmPassword?.errors?.['required']">Confirmação de senha é obrigatória</span>
+        <small class="error-message" *ngIf="confirmPassword?.invalid && confirmPassword?.touched">
+          <span *ngIf="confirmPassword?.errors?.['required']"
+            >Confirmação de senha é obrigatória</span
+          >
           <span *ngIf="confirmPassword?.errors?.['passwordMismatch']">As senhas não coincidem</span>
         </small>
       </div>

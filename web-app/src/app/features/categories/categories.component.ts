@@ -1,43 +1,48 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { CategoryService, Category, CreateCategoryDto, UpdateCategoryDto } from '../../core/services/category.service';
+import {
+  CategoryService,
+  Category,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+} from '../../core/services/category.service';
 import { CategoryType } from '../../core/types/common.types';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
 
 @Component({
   selector: 'app-categories',
   templateUrl: './categories.component.html',
-  styleUrls: ['./categories.component.scss']
+  styleUrls: ['./categories.component.scss'],
 })
 export class CategoriesComponent implements OnInit {
   categories: Category[] = [];
   loading = false;
-  
+
   // Dialog states
   categoryDialog = false;
   editMode = false;
   submitted = false;
-  
+
   // Forms
   categoryForm!: FormGroup;
-  
+
   // Selected category for operations
   selectedCategory!: Category;
-  
+
   // Category type options
   categoryTypes = [
     { label: 'Receita', value: 'income' as CategoryType },
-    { label: 'Despesa', value: 'expense' as CategoryType }
+    { label: 'Despesa', value: 'expense' as CategoryType },
   ];
-  
+
   // Filter
   selectedType: CategoryType | undefined;
-  
+
   // Predefined colors and icons
   availableColors: string[] = [];
   availableIcons: string[] = [];
-  
+
   // Color picker
   showColorPicker = false;
 
@@ -45,7 +50,7 @@ export class CategoriesComponent implements OnInit {
     private fb: FormBuilder,
     private categoryService: CategoryService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
   ) {}
 
   ngOnInit(): void {
@@ -61,7 +66,7 @@ export class CategoriesComponent implements OnInit {
       type: ['expense' as CategoryType, Validators.required],
       color: ['#6B7280', Validators.required],
       icon: ['pi pi-tag', Validators.required],
-      sortOrder: [0, [Validators.min(0)]]
+      sortOrder: [0, [Validators.min(0)]],
     });
   }
 
@@ -91,10 +96,10 @@ export class CategoriesComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar categorias'
+          detail: 'Erro ao carregar categorias',
         });
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -111,7 +116,7 @@ export class CategoriesComponent implements OnInit {
       type: 'expense',
       color: '#6B7280',
       icon: 'pi pi-tag',
-      sortOrder: 0
+      sortOrder: 0,
     });
     this.categoryDialog = true;
   }
@@ -120,16 +125,16 @@ export class CategoriesComponent implements OnInit {
     this.selectedCategory = { ...category };
     this.editMode = true;
     this.submitted = false;
-    
+
     this.categoryForm.patchValue({
       name: category.name,
       description: category.description || '',
       type: category.type,
       color: category.color,
       icon: category.icon,
-      sortOrder: category.sortOrder
+      sortOrder: category.sortOrder,
     });
-    
+
     this.categoryDialog = true;
   }
 
@@ -141,7 +146,7 @@ export class CategoriesComponent implements OnInit {
         icon: 'pi pi-exclamation-triangle',
         accept: () => {
           this.deactivateCategory(category);
-        }
+        },
       });
     } else {
       this.confirmationService.confirm({
@@ -150,7 +155,7 @@ export class CategoriesComponent implements OnInit {
         icon: 'pi pi-exclamation-triangle',
         accept: () => {
           this.performDelete(category);
-        }
+        },
       });
     }
   }
@@ -161,7 +166,7 @@ export class CategoriesComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Sucesso',
-          detail: 'Categoria desativada com sucesso'
+          detail: 'Categoria desativada com sucesso',
         });
         this.loadCategories();
       },
@@ -170,9 +175,9 @@ export class CategoriesComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao desativar categoria'
+          detail: 'Erro ao desativar categoria',
         });
-      }
+      },
     });
   }
 
@@ -182,7 +187,7 @@ export class CategoriesComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Sucesso',
-          detail: 'Categoria excluída com sucesso'
+          detail: 'Categoria excluída com sucesso',
         });
         this.loadCategories();
       },
@@ -191,18 +196,18 @@ export class CategoriesComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao excluir categoria'
+          detail: 'Erro ao excluir categoria',
         });
-      }
+      },
     });
   }
 
   saveCategory(): void {
     this.submitted = true;
-    
+
     if (this.categoryForm.valid) {
       const formValue = this.categoryForm.value;
-      
+
       if (this.editMode) {
         const updateDto: UpdateCategoryDto = {
           name: formValue.name,
@@ -210,15 +215,15 @@ export class CategoriesComponent implements OnInit {
           type: formValue.type,
           color: formValue.color,
           icon: formValue.icon,
-          sortOrder: formValue.sortOrder
+          sortOrder: formValue.sortOrder,
         };
-        
+
         this.categoryService.updateCategory(this.selectedCategory.id, updateDto).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
               summary: 'Sucesso',
-              detail: 'Categoria atualizada com sucesso'
+              detail: 'Categoria atualizada com sucesso',
             });
             this.hideDialog();
             this.loadCategories();
@@ -228,9 +233,9 @@ export class CategoriesComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao atualizar categoria'
+              detail: 'Erro ao atualizar categoria',
             });
-          }
+          },
         });
       } else {
         const createDto: CreateCategoryDto = {
@@ -238,15 +243,15 @@ export class CategoriesComponent implements OnInit {
           description: formValue.description,
           type: formValue.type,
           color: formValue.color,
-          icon: formValue.icon
+          icon: formValue.icon,
         };
-        
+
         this.categoryService.createCategory(createDto).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
               summary: 'Sucesso',
-              detail: 'Categoria criada com sucesso'
+              detail: 'Categoria criada com sucesso',
             });
             this.hideDialog();
             this.loadCategories();
@@ -256,9 +261,9 @@ export class CategoriesComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao criar categoria'
+              detail: 'Erro ao criar categoria',
             });
-          }
+          },
         });
       }
     }
@@ -273,7 +278,8 @@ export class CategoriesComponent implements OnInit {
 
   createDefaultCategories(): void {
     this.confirmationService.confirm({
-      message: 'Deseja criar as categorias padrão? Isso adicionará categorias básicas para receitas e despesas.',
+      message:
+        'Deseja criar as categorias padrão? Isso adicionará categorias básicas para receitas e despesas.',
       header: 'Criar Categorias Padrão',
       icon: 'pi pi-question-circle',
       accept: () => {
@@ -282,21 +288,21 @@ export class CategoriesComponent implements OnInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Sucesso',
-              detail: 'Categorias padrão criadas com sucesso'
+              detail: 'Categorias padrão criadas com sucesso',
             });
             this.loadCategories();
             this.confirmationService.close();
           },
-          error: (error) => {
+          error: (_error) => {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao criar categorias padrão'
+              detail: 'Erro ao criar categorias padrão',
             });
             this.confirmationService.close();
-          }
+          },
         });
-      }
+      },
     });
   }
 
@@ -331,7 +337,7 @@ export class CategoriesComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Sucesso',
-          detail: 'Categoria reativada com sucesso'
+          detail: 'Categoria reativada com sucesso',
         });
         this.loadCategories();
       },
@@ -340,9 +346,9 @@ export class CategoriesComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao reativar categoria'
+          detail: 'Erro ao reativar categoria',
         });
-      }
+      },
     });
   }
 

@@ -5,7 +5,7 @@ import { normalizeIcon } from '../../../../shared/utils/icon.utils';
 @Component({
   selector: 'app-card-transactions-widget',
   templateUrl: './card-transactions-widget.component.html',
-  styleUrls: ['./card-transactions-widget.component.scss']
+  styleUrls: ['./card-transactions-widget.component.scss'],
 })
 export class CardTransactionsWidgetComponent {
   @Input() transactions: CardTransaction[] = [];
@@ -14,7 +14,7 @@ export class CardTransactionsWidgetComponent {
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
     }).format(value);
   }
 
@@ -22,8 +22,18 @@ export class CardTransactionsWidgetComponent {
     if (!period) return '';
     const [year, month] = period.split('-');
     const months = [
-      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+      'Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro',
     ];
     return `${months[Number.parseInt(month, 10) - 1]}/${year}`;
   }

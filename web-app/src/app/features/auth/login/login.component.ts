@@ -9,7 +9,7 @@ import { LoginRequest } from '../../../core/models/auth.model';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
@@ -20,7 +20,7 @@ export class LoginComponent implements OnInit {
     private readonly authService: AuthService,
     private readonly router: Router,
     private readonly messageService: MessageService,
-    private readonly loadingService: LoadingService
+    private readonly loadingService: LoadingService,
   ) {}
 
   ngOnInit(): void {
@@ -30,7 +30,7 @@ export class LoginComponent implements OnInit {
   private initializeForm(): void {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
@@ -38,15 +38,15 @@ export class LoginComponent implements OnInit {
     if (this.loginForm.valid) {
       this.isLoading = true;
       this.loadingService.show();
-      
+
       const credentials: LoginRequest = this.loginForm.value;
-      
+
       this.authService.login(credentials).subscribe({
         next: (response) => {
           this.messageService.add({
             severity: 'success',
             summary: 'Sucesso',
-            detail: `Bem-vindo, ${response.user.firstName}!`
+            detail: `Bem-vindo, ${response.user.firstName}!`,
           });
           this.router.navigate(['/dashboard']);
         },
@@ -55,7 +55,7 @@ export class LoginComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro no Login',
-            detail: error.error?.message || 'Credenciais inválidas'
+            detail: error.error?.message || 'Credenciais inválidas',
           });
           this.isLoading = false;
           this.loadingService.hide();
@@ -63,7 +63,7 @@ export class LoginComponent implements OnInit {
         complete: () => {
           this.isLoading = false;
           this.loadingService.hide();
-        }
+        },
       });
     } else {
       this.markFormGroupTouched();
@@ -71,12 +71,16 @@ export class LoginComponent implements OnInit {
   }
 
   private markFormGroupTouched(): void {
-    Object.keys(this.loginForm.controls).forEach(key => {
+    Object.keys(this.loginForm.controls).forEach((key) => {
       const control = this.loginForm.get(key);
       control?.markAsTouched();
     });
   }
 
-  get email() { return this.loginForm.get('email'); }
-  get password() { return this.loginForm.get('password'); }
+  get email() {
+    return this.loginForm.get('email');
+  }
+  get password() {
+    return this.loginForm.get('password');
+  }
 }

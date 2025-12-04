@@ -10,7 +10,15 @@ import { CreditCard } from '../credit-cards/entities/credit-card.entity';
 import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Transaction, RecurringTransaction, Installment, CreditCard, CardTransaction])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Transaction,
+      RecurringTransaction,
+      Installment,
+      CreditCard,
+      CardTransaction,
+    ]),
+  ],
   controllers: [TransactionsController],
   providers: [TransactionsService, ProjectionsService],
   exports: [TransactionsService, ProjectionsService],

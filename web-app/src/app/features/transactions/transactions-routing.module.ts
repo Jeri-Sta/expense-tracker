@@ -5,12 +5,12 @@ import { TransactionsComponent } from './transactions.component';
 const routes: Routes = [
   {
     path: '',
-    component: TransactionsComponent
-  }
+    component: TransactionsComponent,
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class TransactionsRoutingModule { }
+export class TransactionsRoutingModule {}

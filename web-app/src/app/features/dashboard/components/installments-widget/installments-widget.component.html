@@ -6,9 +6,9 @@
         <h5 class="font-bold text-color m-0">Compras Parceladas</h5>
         <p class="text-color-secondary text-sm m-0">Parcelas do período</p>
       </div>
-      <p-button 
-        label="Ver Faturas" 
-        icon="pi pi-external-link" 
+      <p-button
+        label="Ver Faturas"
+        icon="pi pi-external-link"
         [text]="true"
         size="small"
         routerLink="/credit-cards/transactions"
@@ -26,27 +26,31 @@
       </div>
       <div class="summary-item flex-1 text-center">
         <div class="text-color-secondary text-sm">Total Mensal</div>
-        <div class="text-lg font-bold text-orange-500">{{ formatCurrency(getTotalMonthlyAmount()) }}</div>
+        <div class="text-lg font-bold text-orange-500">
+          {{ formatCurrency(getTotalMonthlyAmount()) }}
+        </div>
       </div>
       <div class="summary-item flex-1 text-center">
         <div class="text-color-secondary text-sm">Total Restante</div>
-        <div class="text-lg font-bold text-red-500">{{ formatCurrency(getTotalRemainingAmount()) }}</div>
+        <div class="text-lg font-bold text-red-500">
+          {{ formatCurrency(getTotalRemainingAmount()) }}
+        </div>
       </div>
     </div>
 
     <!-- Installments List -->
     <div class="installments-list" *ngIf="installments.length > 0">
-      <div 
+      <div
         class="installment-item flex justify-content-between align-items-center py-3 px-3 border-round hover:surface-hover border-bottom-1 surface-border"
         *ngFor="let installment of installments; let last = last"
         [class.border-none]="last"
       >
         <div class="flex align-items-center gap-3">
-          <div 
+          <div
             class="flex align-items-center justify-content-center border-circle w-3rem h-3rem"
             [style.background-color]="(installment.categoryColor || '#6B7280') + '20'"
           >
-            <i 
+            <i
               [class]="normalizeIcon(installment.categoryIcon || '') + ' text-xl'"
               [style.color]="installment.categoryColor || '#6B7280'"
             ></i>
@@ -64,7 +68,9 @@
             -{{ formatCurrency(installment.installmentAmount) }}
           </div>
           <div class="text-xs text-blue-500 mt-1">
-            <i class="pi pi-sync mr-1"></i>{{ installment.currentInstallment }}/{{ installment.totalInstallments }}
+            <i class="pi pi-sync mr-1"></i>{{ installment.currentInstallment }}/{{
+              installment.totalInstallments
+            }}
           </div>
         </div>
       </div>
@@ -72,9 +78,11 @@
 
     <!-- Empty State -->
     <div class="text-center py-4 text-color-secondary" *ngIf="installments.length === 0">
-      <i class="pi pi-check-circle text-4xl mb-2 text-green-500" style="display: block;"></i>
+      <i class="pi pi-check-circle text-4xl mb-2 text-green-500" style="display: block"></i>
       <p class="m-0 mb-2">Nenhuma compra parcelada no período</p>
-      <a routerLink="/credit-cards/transactions" class="text-primary text-sm">Adicionar transação</a>
+      <a routerLink="/credit-cards/transactions" class="text-primary text-sm"
+        >Adicionar transação</a
+      >
     </div>
   </div>
 </div>

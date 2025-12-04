@@ -5,11 +5,11 @@ import { CardTransactionsComponent } from './pages/card-transactions/card-transa
 
 const routes: Routes = [
   { path: '', component: CreditCardListComponent },
-  { path: 'transactions', component: CardTransactionsComponent }
+  { path: 'transactions', component: CardTransactionsComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class CreditCardsRoutingModule { }
+export class CreditCardsRoutingModule {}

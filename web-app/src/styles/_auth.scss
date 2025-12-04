@@ -20,14 +20,14 @@
 .auth-header {
   text-align: center;
   padding: $spacing-xl $spacing-md $spacing-md;
-  
+
   h1 {
     margin: $spacing-md 0 $spacing-sm;
     color: var(--text-color);
     font-size: 1.75rem;
     font-weight: 600;
   }
-  
+
   p {
     margin: 0;
     color: var(--text-color-secondary);
@@ -41,7 +41,7 @@
 
 .form-field {
   margin-bottom: $spacing-lg;
-  
+
   label {
     display: block;
     margin-bottom: $spacing-sm;
@@ -49,20 +49,20 @@
     font-weight: 500;
     font-size: 0.875rem;
   }
-  
+
   // Password field styling
   p-password {
     width: 100%;
-    
+
     .p-password {
       width: 100%;
-      
+
       .p-inputtext {
         width: 100%;
       }
     }
   }
-  
+
   // Input styling
   input,
   .p-inputtext {
@@ -75,16 +75,16 @@
 .password-field {
   width: 100% !important;
   display: block;
-  
+
   .p-password {
     width: 100% !important;
     display: block;
-    
+
     .p-inputwrapper {
       width: 100% !important;
       display: block;
     }
-    
+
     .p-inputtext {
       width: 100% !important;
       box-sizing: border-box;
@@ -109,18 +109,18 @@
 .auth-footer {
   text-align: center;
   padding: $spacing-md;
-  
+
   p {
     margin: 0 0 $spacing-sm;
     color: var(--text-color-secondary);
     font-size: 0.875rem;
   }
-  
+
   .link {
     color: var(--primary-color);
     text-decoration: none;
     font-weight: 500;
-    
+
     &:hover {
       text-decoration: underline;
     }
@@ -144,14 +144,14 @@
   .auth-container {
     padding: $spacing-sm;
   }
-  
+
   .auth-card {
     max-width: 100%;
   }
-  
+
   .auth-header {
     padding: $spacing-lg $spacing-md $spacing-md;
-    
+
     h1 {
       font-size: 1.5rem;
     }

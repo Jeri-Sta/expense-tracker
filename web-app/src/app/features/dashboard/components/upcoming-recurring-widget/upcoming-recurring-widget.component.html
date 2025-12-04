@@ -12,7 +12,7 @@
           (onChange)="onViewTypeChange()"
           optionLabel="label"
           optionValue="value"
-          [style]="{'font-size': '0.75rem'}"
+          [style]="{ 'font-size': '0.75rem' }"
           [unselectable]="false"
           [allowEmpty]="false"
         ></p-selectButton>
@@ -20,10 +20,15 @@
     </div>
     <div class="header-summary mt-3">
       <div class="flex justify-content-between align-items-center">
-        <span class="text-color-secondary text-sm">Total: <span [class]="getTransactionColorClass(viewType) + ' font-bold'">{{ formatCurrency(totalAmount) }}</span></span>
-        <p-button 
-          label="Ver Todas" 
-          icon="pi pi-external-link" 
+        <span class="text-color-secondary text-sm"
+          >Total:
+          <span [class]="getTransactionColorClass(viewType) + ' font-bold'">{{
+            formatCurrency(totalAmount)
+          }}</span></span
+        >
+        <p-button
+          label="Ver Todas"
+          icon="pi pi-external-link"
           [text]="true"
           size="small"
           routerLink="/recurring-transactions"
@@ -33,17 +38,17 @@
   </div>
   <div class="card-content p-4">
     <div class="recurring-list" *ngIf="filteredRecurring.length > 0">
-      <div 
+      <div
         class="recurring-item flex justify-content-between align-items-center py-3 px-3 border-round hover:surface-hover cursor-pointer border-bottom-1 surface-border"
         *ngFor="let recurring of filteredRecurring"
       >
         <div class="flex align-items-center gap-3">
-          <div 
+          <div
             class="flex align-items-center justify-content-center border-circle w-3rem h-3rem"
             [style.background-color]="recurring.category.color + '20'"
           >
-            <i 
-              [class]="normalizeIcon(recurring.category.icon)" 
+            <i
+              [class]="normalizeIcon(recurring.category.icon)"
               [style.color]="recurring.category.color"
               class="text-xl"
             ></i>
@@ -53,7 +58,9 @@
             <div class="text-color-secondary text-sm">
               {{ formatDate(recurring.nextExecution) }}
               <span [class]="isOverdue(recurring) ? 'text-red-600 font-bold' : ''">
-                ({{ isOverdue(recurring) ? 'Atrasada' : getDaysUntilExecution(recurring) + ' dias' }})
+                ({{
+                  isOverdue(recurring) ? 'Atrasada' : getDaysUntilExecution(recurring) + ' dias'
+                }})
               </span>
             </div>
           </div>

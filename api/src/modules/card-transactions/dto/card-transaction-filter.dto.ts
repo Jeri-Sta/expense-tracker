@@ -43,20 +43,20 @@ export class CardTransactionFilterDto {
   @Min(1)
   limit?: number = 10;
 
-  @ApiPropertyOptional({ 
-    description: 'Field to sort by', 
+  @ApiPropertyOptional({
+    description: 'Field to sort by',
     enum: ['transactionDate', 'description', 'amount', 'createdAt'],
-    default: 'transactionDate' 
+    default: 'transactionDate',
   })
   @IsOptional()
   @IsString()
   @IsIn(['transactionDate', 'description', 'amount', 'createdAt'])
   sortField?: string = 'transactionDate';
 
-  @ApiPropertyOptional({ 
-    description: 'Sort order', 
+  @ApiPropertyOptional({
+    description: 'Sort order',
     enum: ['ASC', 'DESC'],
-    default: 'DESC' 
+    default: 'DESC',
   })
   @IsOptional()
   @IsString()

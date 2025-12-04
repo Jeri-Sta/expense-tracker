@@ -9,12 +9,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { RecurringTransactionsService } from './recurring-transactions.service';
@@ -90,10 +85,7 @@ export class RecurringTransactionsController {
     status: 200,
     description: 'Recurring transaction deleted successfully',
   })
-  remove(
-    @GetUser() user: User,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<void> {
+  remove(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.recurringTransactionsService.remove(id, user.id);
   }
 
@@ -103,10 +95,7 @@ export class RecurringTransactionsController {
     status: 200,
     description: 'Recurring transaction executed successfully',
   })
-  execute(
-    @GetUser() user: User,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<void> {
+  execute(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.recurringTransactionsService.execute(id, user.id);
   }
 }

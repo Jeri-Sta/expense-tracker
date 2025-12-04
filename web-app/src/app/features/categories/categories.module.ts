@@ -25,15 +25,13 @@ import { CategoriesComponent } from './categories.component';
 import { CategoriesRoutingModule } from './categories-routing.module';
 
 @NgModule({
-  declarations: [
-    CategoriesComponent
-  ],
+  declarations: [CategoriesComponent],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     CategoriesRoutingModule,
-    
+
     // PrimeNG Modules
     TableModule,
     ButtonModule,
@@ -50,7 +48,7 @@ import { CategoriesRoutingModule } from './categories-routing.module';
     CardModule,
     ProgressSpinnerModule,
     ToggleButtonModule,
-    InputNumberModule
-  ]
+    InputNumberModule,
+  ],
 })
-export class CategoriesModule { }
+export class CategoriesModule {}

@@ -9,12 +9,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { CreditCardsService } from './credit-cards.service';
@@ -90,10 +85,7 @@ export class CreditCardsController {
     status: 200,
     description: 'Credit card deleted successfully',
   })
-  remove(
-    @GetUser() user: User,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<void> {
+  remove(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.creditCardsService.remove(id, user.id);
   }
 }

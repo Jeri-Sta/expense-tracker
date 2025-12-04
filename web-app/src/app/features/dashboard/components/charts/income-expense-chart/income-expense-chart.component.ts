@@ -10,7 +10,7 @@ interface ViewModeOption {
 @Component({
   selector: 'app-income-expense-chart',
   templateUrl: './income-expense-chart.component.html',
-  styleUrls: ['./income-expense-chart.component.scss']
+  styleUrls: ['./income-expense-chart.component.scss'],
 })
 export class IncomeExpenseChartComponent implements OnInit {
   private readonly STORAGE_KEY = 'income_expense_chart_view_mode';
@@ -34,7 +34,7 @@ export class IncomeExpenseChartComponent implements OnInit {
   viewMode: ViewMode = 'annual';
   viewModeOptions: ViewModeOption[] = [
     { label: 'Anual', value: 'annual' },
-    { label: 'Mensal', value: 'monthly' }
+    { label: 'Mensal', value: 'monthly' },
   ];
 
   ngOnInit(): void {
@@ -63,12 +63,14 @@ export class IncomeExpenseChartComponent implements OnInit {
 
       return {
         labels: ['Receitas', 'Despesas'],
-        datasets: [{
-          data: [income, expenses],
-          backgroundColor: ['#10B981', '#EF4444'],
-          borderColor: ['#059669', '#DC2626'],
-          borderWidth: 2
-        }]
+        datasets: [
+          {
+            data: [income, expenses],
+            backgroundColor: ['#10B981', '#EF4444'],
+            borderColor: ['#059669', '#DC2626'],
+            borderWidth: 2,
+          },
+        ],
       };
     }
     return this.chartData;

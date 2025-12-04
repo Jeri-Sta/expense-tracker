@@ -5,7 +5,7 @@ import { CategoryType } from '../../../common/enums';
 export class CreateCategoryDto {
   @ApiProperty({
     description: 'Category name',
-    example: 'Alimentação'
+    example: 'Alimentação',
   })
   @IsString()
   @IsNotEmpty()
@@ -15,7 +15,7 @@ export class CreateCategoryDto {
   @ApiProperty({
     description: 'Category description',
     required: false,
-    example: 'Gastos com supermercado e restaurantes'
+    example: 'Gastos com supermercado e restaurantes',
   })
   @IsString()
   @IsOptional()
@@ -24,7 +24,7 @@ export class CreateCategoryDto {
 
   @ApiProperty({
     enum: CategoryType,
-    description: 'Category type'
+    description: 'Category type',
   })
   @IsEnum(CategoryType)
   @IsNotEmpty()
@@ -33,7 +33,7 @@ export class CreateCategoryDto {
   @ApiProperty({
     description: 'Category color (hex format)',
     example: '#3B82F6',
-    default: '#6B7280'
+    default: '#6B7280',
   })
   @IsHexColor()
   @IsOptional()
@@ -42,7 +42,7 @@ export class CreateCategoryDto {
   @ApiProperty({
     description: 'PrimeNG icon name',
     required: false,
-    example: 'pi-shopping-cart'
+    example: 'pi-shopping-cart',
   })
   @IsString()
   @IsOptional()

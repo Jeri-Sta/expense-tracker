@@ -7,7 +7,7 @@ import { parseLocalDate } from '../../../../shared/utils/date.utils';
 @Component({
   selector: 'app-invoices-widget',
   templateUrl: './invoices-widget.component.html',
-  styleUrls: ['./invoices-widget.component.scss']
+  styleUrls: ['./invoices-widget.component.scss'],
 })
 export class InvoicesWidgetComponent {
   @Input() invoices: InvoiceSummary[] = [];
@@ -17,7 +17,7 @@ export class InvoicesWidgetComponent {
 
   constructor(
     private readonly utils: DashboardUtilsService,
-    private readonly router: Router
+    private readonly router: Router,
   ) {}
 
   get subtitleText(): string {
@@ -48,7 +48,7 @@ export class InvoicesWidgetComponent {
     const labels: Record<InvoiceStatus, string> = {
       open: 'Aberta',
       closed: 'Fechada',
-      paid: 'Paga'
+      paid: 'Paga',
     };
     return labels[status] || status;
   }
@@ -102,7 +102,7 @@ export class InvoicesWidgetComponent {
 
   navigateToInvoice(invoice: InvoiceSummary): void {
     this.router.navigate(['/credit-cards', invoice.creditCardId, 'transactions'], {
-      queryParams: { period: invoice.period }
+      queryParams: { period: invoice.period },
     });
   }
 }

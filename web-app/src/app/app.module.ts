@@ -51,9 +51,7 @@ import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -61,7 +59,7 @@ import { SharedModule } from './shared/shared.module';
     ReactiveFormsModule,
     FormsModule,
     AppRoutingModule,
-    
+
     // PrimeNG Modules
     ButtonModule,
     InputTextModule,
@@ -90,16 +88,12 @@ import { SharedModule } from './shared/shared.module';
     ToolbarModule,
     PaginatorModule,
     TooltipModule,
-    
+
     // App Modules
     CoreModule,
-    SharedModule
+    SharedModule,
   ],
-  providers: [
-    MessageService,
-    ConfirmationService,
-    { provide: LOCALE_ID, useValue: 'pt-BR' }
-  ],
-  bootstrap: [AppComponent]
+  providers: [MessageService, ConfirmationService, { provide: LOCALE_ID, useValue: 'pt-BR' }],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

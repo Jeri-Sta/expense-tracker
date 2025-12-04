@@ -20,24 +20,20 @@ import { AuthLayoutComponent } from './auth-layout/auth-layout.component';
 import { AuthRoutingModule } from './auth-routing.module';
 
 @NgModule({
-  declarations: [
-    LoginComponent,
-    RegisterComponent,
-    AuthLayoutComponent
-  ],
+  declarations: [LoginComponent, RegisterComponent, AuthLayoutComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
     AuthRoutingModule,
-    
+
     // PrimeNG
     CardModule,
     InputTextModule,
     PasswordModule,
     ButtonModule,
     CheckboxModule,
-    DividerModule
-  ]
+    DividerModule,
+  ],
 })
-export class AuthModule { }
+export class AuthModule {}

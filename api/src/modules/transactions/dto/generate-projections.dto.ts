@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class GenerateProjectionsDto {
   @ApiProperty({
     description: 'Start period for projections (YYYY-MM format)',
-    example: '2024-12'
+    example: '2024-12',
   })
   @IsString()
   @IsNotEmpty()
@@ -12,7 +12,7 @@ export class GenerateProjectionsDto {
 
   @ApiProperty({
     description: 'End period for projections (YYYY-MM format)',
-    example: '2025-03'
+    example: '2025-03',
   })
   @IsString()
   @IsNotEmpty()
@@ -21,7 +21,7 @@ export class GenerateProjectionsDto {
   @ApiProperty({
     description: 'Override existing projections',
     required: false,
-    default: false
+    default: false,
   })
   @IsOptional()
   overrideExisting?: boolean;
@@ -31,7 +31,7 @@ export class GenerateProjectionsDto {
     required: false,
     default: 80,
     minimum: 0,
-    maximum: 100
+    maximum: 100,
   })
   @IsOptional()
   @IsNumber()

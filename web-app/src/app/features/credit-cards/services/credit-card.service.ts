@@ -5,7 +5,7 @@ import { environment } from '../../../../environments/environment';
 import { CreditCard, CreateCreditCardDto, UpdateCreditCardDto } from '../models/credit-card.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CreditCardService {
   private readonly apiUrl = `${environment.apiUrl}/credit-cards`;

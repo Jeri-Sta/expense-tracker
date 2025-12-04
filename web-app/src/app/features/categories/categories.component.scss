@@ -6,7 +6,7 @@
   @include card-base;
   transition: all 0.3s ease;
   height: 100%;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: $shadow-md !important;
@@ -40,30 +40,30 @@
   width: 100%;
   background: var(--surface-card);
   cursor: pointer;
-  
+
   i {
     font-size: 1.25rem;
     color: var(--text-color);
   }
-  
+
   &:hover {
     background: var(--surface-hover) !important;
     border-color: var(--primary-color);
-    
+
     i {
       color: var(--primary-color);
     }
   }
-  
+
   &:focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
   }
-  
+
   &.selected {
     background: var(--highlight-bg) !important;
     border-color: var(--primary-color);
-    
+
     i {
       color: var(--primary-color);
     }
@@ -89,12 +89,12 @@
   min-height: 48px;
   width: 100%;
   text-align: left;
-  
+
   &:hover {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 1px var(--primary-color);
   }
-  
+
   &:focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
@@ -173,7 +173,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.15s ease;
-  
+
   &:hover {
     background: var(--surface-hover);
     color: var(--text-color);
@@ -201,17 +201,17 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  
+
   &:hover {
     transform: scale(1.1);
     box-shadow: $shadow-sm;
   }
-  
+
   &:focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
   }
-  
+
   &.selected {
     border-color: rgba(255, 255, 255, 0.8);
     transform: scale(1.05);
@@ -233,7 +233,7 @@
   .surface-border {
     border-style: dashed !important;
   }
-  
+
   i {
     font-size: 1.5rem;
   }
@@ -251,13 +251,13 @@
   .category-card {
     margin-bottom: $spacing-md;
   }
-  
+
   .icon-grid {
     .col-2 {
       width: 16.666% !important;
     }
   }
-  
+
   .color-grid {
     .col-2 {
       width: 16.666% !important;
@@ -271,7 +271,7 @@
       width: 20% !important;
     }
   }
-  
+
   .color-grid {
     .col-2 {
       width: 20% !important;
@@ -287,8 +287,8 @@
 // Status tags
 .p-tag {
   font-size: 0.75rem;
-  
-  &[data-pc-name="tag"] {
+
+  &[data-pc-name='tag'] {
     padding: $spacing-xs $spacing-sm;
   }
 }
@@ -329,27 +329,28 @@
 // Grid improvements
 .grid {
   margin: 0 !important;
-  
-  > [class*="col-"] {
+
+  > [class*='col-'] {
     padding: $spacing-sm !important;
   }
 }
 
 // Custom scrollbar for grids
-.icon-grid, .color-grid {
+.icon-grid,
+.color-grid {
   &::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: var(--surface-ground);
     border-radius: 3px;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: var(--surface-border);
     border-radius: 3px;
-    
+
     &:hover {
       background: var(--surface-300);
     }
@@ -383,11 +384,11 @@
   .transition-transform {
     transition: none !important;
   }
-  
+
   .color-picker-dropdown {
     animation: none !important;
   }
-  
+
   .color-option:hover {
     transform: none;
   }

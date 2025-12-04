@@ -14,18 +14,18 @@
       [ngClass]="invalidClass"
       [autoClear]="false"
     ></p-inputMask>
-    
-    <button 
+
+    <button
       *ngIf="showIcon"
-      type="button" 
-      pButton 
-      icon="pi pi-calendar" 
+      type="button"
+      pButton
+      icon="pi pi-calendar"
       class="p-button-icon-only calendar-button"
       (click)="toggleCalendar($event)"
       [disabled]="disabled"
     ></button>
   </div>
-  
+
   <p-calendar
     #calendar
     [(ngModel)]="value"
@@ -38,6 +38,6 @@
     (onSelect)="onCalendarSelect($event)"
     (onShow)="onCalendarShow()"
     (onHide)="onCalendarHide()"
-    [style]="{'position': 'absolute', 'visibility': 'hidden', 'width': '0', 'height': '0'}"
+    [style]="{ position: 'absolute', visibility: 'hidden', width: '0', height: '0' }"
   ></p-calendar>
 </div>

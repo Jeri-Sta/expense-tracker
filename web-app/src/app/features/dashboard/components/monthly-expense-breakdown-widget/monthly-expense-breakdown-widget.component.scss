@@ -57,7 +57,9 @@
   }
 
   .breakdown-item {
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition:
+      background-color 0.2s ease,
+      transform 0.2s ease;
     border: 1px solid transparent;
 
     &:hover {
@@ -68,7 +70,7 @@
     .item-icon {
       flex-shrink: 0;
       transition: transform 0.2s ease;
-      
+
       i {
         font-size: 1.25rem;
       }
@@ -88,7 +90,7 @@
 .total-row {
   .item-icon {
     flex-shrink: 0;
-    
+
     i {
       font-size: 1.25rem;
     }
@@ -102,7 +104,8 @@
 }
 
 @keyframes pulse-subtle {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -114,11 +117,11 @@
 @include respond-to($breakpoint-md) {
   .breakdown-item {
     padding: $spacing-sm !important;
-    
+
     .item-icon {
       width: 32px !important;
       height: 32px !important;
-      
+
       i {
         font-size: 1rem !important;
       }

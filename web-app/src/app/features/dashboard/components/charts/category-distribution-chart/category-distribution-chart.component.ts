@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-category-distribution-chart',
   templateUrl: './category-distribution-chart.component.html',
-  styleUrls: ['./category-distribution-chart.component.scss']
+  styleUrls: ['./category-distribution-chart.component.scss'],
 })
 export class CategoryDistributionChartComponent {
   @Input() chartData: any;

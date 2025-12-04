@@ -7,11 +7,13 @@ import { Component } from '@angular/core';
       <router-outlet></router-outlet>
     </div>
   `,
-  styles: [`
-    .auth-layout {
-      min-height: 100vh;
-      background: var(--surface-0);
-    }
-  `]
+  styles: [
+    `
+      .auth-layout {
+        min-height: 100vh;
+        background: var(--surface-0);
+      }
+    `,
+  ],
 })
 export class AuthLayoutComponent {}

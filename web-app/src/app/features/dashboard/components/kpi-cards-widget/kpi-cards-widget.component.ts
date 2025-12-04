@@ -1,11 +1,14 @@
 import { Component, Input } from '@angular/core';
-import { DashboardStats, MonthlyExpenseBreakdownItem } from '../../../../shared/types/dashboard.types';
+import {
+  DashboardStats,
+  MonthlyExpenseBreakdownItem,
+} from '../../../../shared/types/dashboard.types';
 import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
 
 @Component({
   selector: 'app-kpi-cards-widget',
   templateUrl: './kpi-cards-widget.component.html',
-  styleUrls: ['./kpi-cards-widget.component.scss']
+  styleUrls: ['./kpi-cards-widget.component.scss'],
 })
 export class KpiCardsWidgetComponent {
   @Input() dashboardData: DashboardStats = {
@@ -19,7 +22,7 @@ export class KpiCardsWidgetComponent {
     projectedExpenses: 0,
     projectedBalance: 0,
     projectedTransactionCount: 0,
-    hasProjections: false
+    hasProjections: false,
   };
   @Input() showProjections = false;
   @Input() isLoading = false;
@@ -34,7 +37,9 @@ export class KpiCardsWidgetComponent {
   }
 
   getBalanceClass(): string {
-    const balance = this.showProjections ? this.getTotalProjectedBalance() : this.getActualBalance();
+    const balance = this.showProjections
+      ? this.getTotalProjectedBalance()
+      : this.getActualBalance();
     return this.utils.getBalanceClass(balance);
   }
 
@@ -56,7 +61,7 @@ export class KpiCardsWidgetComponent {
    */
   getActualTotalExpenses(): number {
     if (this.expenseBreakdown && this.expenseBreakdown.length > 0) {
-      const totalItem = this.expenseBreakdown.find(item => item.type === 'total');
+      const totalItem = this.expenseBreakdown.find((item) => item.type === 'total');
       if (totalItem) {
         return totalItem.amount;
       }
@@ -77,7 +82,7 @@ export class KpiCardsWidgetComponent {
   }
 
   getTotalTransactionCount(): number {
-    return this.showProjections 
+    return this.showProjections
       ? this.dashboardData.transactionCount + this.dashboardData.projectedTransactionCount
       : this.dashboardData.transactionCount;
   }
@@ -92,9 +97,9 @@ export class KpiCardsWidgetComponent {
     }
 
     // Group items by type (excluding 'total')
-    const transactionItems = this.expenseBreakdown.filter(item => item.type === 'transaction');
-    const creditCardItems = this.expenseBreakdown.filter(item => item.type === 'credit-card');
-    const financingItems = this.expenseBreakdown.filter(item => item.type === 'financing');
+    const transactionItems = this.expenseBreakdown.filter((item) => item.type === 'transaction');
+    const creditCardItems = this.expenseBreakdown.filter((item) => item.type === 'credit-card');
+    const financingItems = this.expenseBreakdown.filter((item) => item.type === 'financing');
 
     const lines: string[] = [];
 

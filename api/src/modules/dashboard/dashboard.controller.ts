@@ -19,10 +19,7 @@ export class DashboardController {
     description: 'Dashboard stats retrieved successfully',
   })
   @ApiQuery({ name: 'year', required: false, description: 'Year for dashboard data' })
-  async getDashboard(
-    @GetUser() user: User,
-    @Query('year') year?: string,
-  ): Promise<DashboardStats> {
+  async getDashboard(@GetUser() user: User, @Query('year') year?: string): Promise<DashboardStats> {
     const targetYear = year ? Number.parseInt(year, 10) : undefined;
     return this.dashboardService.getDashboardStats(user.id, targetYear);
   }

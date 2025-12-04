@@ -4,12 +4,16 @@
     <p class="text-color-secondary text-sm m-0">Maiores gastos por categoria</p>
   </div>
   <div class="chart-content p-4">
-    <div class="chart-wrapper" style="position: relative; height: 400px; width: 100%;" *ngIf="hasData()">
-      <p-chart 
-        type="bar" 
-        [data]="chartData" 
+    <div
+      class="chart-wrapper"
+      style="position: relative; height: 400px; width: 100%"
+      *ngIf="hasData()"
+    >
+      <p-chart
+        type="bar"
+        [data]="chartData"
         [options]="chartOptions"
-        [style]="{'height': '100%', 'width': '100%'}"
+        [style]="{ height: '100%', width: '100%' }"
       ></p-chart>
     </div>
     <div class="text-center py-4 text-color-secondary w-full" *ngIf="!hasData()">

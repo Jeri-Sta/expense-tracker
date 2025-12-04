@@ -6,7 +6,7 @@ import { DashboardUtilsService } from '../../../../shared/services/dashboard-uti
 @Component({
   selector: 'app-upcoming-payments-widget',
   templateUrl: './upcoming-payments-widget.component.html',
-  styleUrls: ['./upcoming-payments-widget.component.scss']
+  styleUrls: ['./upcoming-payments-widget.component.scss'],
 })
 export class UpcomingPaymentsWidgetComponent {
   @Input() upcomingPayments: UpcomingPayment[] = [];
@@ -14,7 +14,7 @@ export class UpcomingPaymentsWidgetComponent {
 
   constructor(
     private readonly utils: DashboardUtilsService,
-    private readonly router: Router
+    private readonly router: Router,
   ) {}
 
   get subtitleText(): string {

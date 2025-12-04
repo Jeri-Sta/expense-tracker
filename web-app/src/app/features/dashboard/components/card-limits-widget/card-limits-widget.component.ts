@@ -4,7 +4,7 @@ import { CreditCardSummary } from '../../../../core/services/transaction.service
 @Component({
   selector: 'app-card-limits-widget',
   templateUrl: './card-limits-widget.component.html',
-  styleUrls: ['./card-limits-widget.component.scss']
+  styleUrls: ['./card-limits-widget.component.scss'],
 })
 export class CardLimitsWidgetComponent {
   @Input() creditCards: CreditCardSummary[] = [];
@@ -12,7 +12,7 @@ export class CardLimitsWidgetComponent {
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
     }).format(value);
   }
 

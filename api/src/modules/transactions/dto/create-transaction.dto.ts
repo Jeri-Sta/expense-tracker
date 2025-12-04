@@ -1,20 +1,34 @@
-import { IsNotEmpty, IsEnum, IsNumber, IsString, IsDateString, IsOptional, IsUUID, Min, IsBoolean, Max } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsEnum,
+  IsNumber,
+  IsString,
+  IsDateString,
+  IsOptional,
+  IsUUID,
+  Min,
+  IsBoolean,
+  Max,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { TransactionType, PaymentStatus } from '../../../common/enums';
 
 export class CreateTransactionDto {
   @ApiProperty({
     description: 'Transaction amount',
-    example: 150.50
+    example: 150.5,
   })
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Amount must be a valid number with up to 2 decimal places' })
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    { message: 'Amount must be a valid number with up to 2 decimal places' },
+  )
   @Min(0.01, { message: 'Amount must be greater than 0' })
   @IsNotEmpty()
   amount: number;
 
   @ApiProperty({
     description: 'Transaction description',
-    example: 'Grocery shopping'
+    example: 'Grocery shopping',
   })
   @IsString()
   @IsNotEmpty()
@@ -22,7 +36,7 @@ export class CreateTransactionDto {
 
   @ApiProperty({
     enum: TransactionType,
-    description: 'Transaction type'
+    description: 'Transaction type',
   })
   @IsEnum(TransactionType)
   @IsNotEmpty()
@@ -30,7 +44,7 @@ export class CreateTransactionDto {
 
   @ApiProperty({
     description: 'Transaction date',
-    example: '2023-11-23'
+    example: '2023-11-23',
   })
   @IsDateString({}, { message: 'Transaction date must be a valid date' })
   @IsNotEmpty()
@@ -38,7 +52,7 @@ export class CreateTransactionDto {
 
   @ApiProperty({
     description: 'Competency period (YYYY-MM format)',
-    example: '2023-11'
+    example: '2023-11',
   })
   @IsString()
   @IsNotEmpty()
@@ -46,7 +60,7 @@ export class CreateTransactionDto {
 
   @ApiProperty({
     description: 'Category ID',
-    required: false
+    required: false,
   })
   @IsUUID('4', { message: 'Category ID must be a valid UUID' })
   @IsOptional()
@@ -54,7 +68,7 @@ export class CreateTransactionDto {
 
   @ApiProperty({
     description: 'Additional notes',
-    required: false
+    required: false,
   })
   @IsString()
   @IsOptional()
@@ -62,7 +76,7 @@ export class CreateTransactionDto {
 
   @ApiProperty({
     description: 'Additional metadata',
-    required: false
+    required: false,
   })
   @IsOptional()
   metadata?: Record<string, any>;
@@ -70,7 +84,7 @@ export class CreateTransactionDto {
   @ApiProperty({
     description: 'Whether this is a projected transaction',
     required: false,
-    default: false
+    default: false,
   })
   @IsBoolean()
   @IsOptional()
@@ -79,7 +93,7 @@ export class CreateTransactionDto {
   @ApiProperty({
     description: 'Source of the projection',
     enum: ['recurring', 'manual', 'ai'],
-    required: false
+    required: false,
   })
   @IsString()
   @IsOptional()
@@ -89,7 +103,7 @@ export class CreateTransactionDto {
     description: 'Confidence score for projections (0-100)',
     minimum: 0,
     maximum: 100,
-    required: false
+    required: false,
   })
   @IsNumber({}, { message: 'Confidence score must be a number' })
   @Min(0)
@@ -101,7 +115,7 @@ export class CreateTransactionDto {
     description: 'Payment status',
     enum: PaymentStatus,
     default: PaymentStatus.PENDING,
-    required: false
+    required: false,
   })
   @IsEnum(PaymentStatus)
   @IsOptional()
@@ -109,7 +123,7 @@ export class CreateTransactionDto {
 
   @ApiProperty({
     description: 'Date when the transaction was paid',
-    required: false
+    required: false,
   })
   @IsDateString({}, { message: 'Paid date must be a valid date' })
   @IsOptional()

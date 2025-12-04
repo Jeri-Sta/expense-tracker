@@ -6,16 +6,16 @@
       <p class="text-color-secondary m-0">Gerencie as categorias de receitas e despesas</p>
     </div>
     <div class="flex gap-2">
-      <p-button 
-        label="Categorias Padrão" 
-        icon="pi pi-plus-circle" 
+      <p-button
+        label="Categorias Padrão"
+        icon="pi pi-plus-circle"
         severity="secondary"
         size="small"
         (onClick)="createDefaultCategories()"
       ></p-button>
-      <p-button 
-        label="Nova Categoria" 
-        icon="pi pi-plus" 
+      <p-button
+        label="Nova Categoria"
+        icon="pi pi-plus"
         size="small"
         (onClick)="openNew()"
       ></p-button>
@@ -26,21 +26,21 @@
   <div class="card mb-4">
     <h5>Filtros</h5>
     <div class="flex gap-2 flex-wrap">
-      <p-button 
-        label="Todas" 
+      <p-button
+        label="Todas"
         [outlined]="selectedType !== undefined"
         size="small"
         (onClick)="filterByType(undefined)"
       ></p-button>
-      <p-button 
-        label="Receitas" 
+      <p-button
+        label="Receitas"
         [outlined]="selectedType !== 'income'"
         severity="success"
         size="small"
         (onClick)="filterByType('income')"
       ></p-button>
-      <p-button 
-        label="Despesas" 
+      <p-button
+        label="Despesas"
         [outlined]="selectedType !== 'expense'"
         severity="danger"
         size="small"
@@ -51,23 +51,20 @@
 
   <!-- Categories Grid -->
   <div class="grid" *ngIf="!loading && categories.length > 0">
-    <div 
-      class="col-12 sm:col-6 lg:col-4 xl:col-3" 
-      *ngFor="let category of categories"
-    >
+    <div class="col-12 sm:col-6 lg:col-4 xl:col-3" *ngFor="let category of categories">
       <div class="category-card surface-card border-round-lg shadow-2 p-3 h-full">
         <div class="flex flex-column h-full">
           <!-- Category Header -->
           <div class="flex align-items-center justify-content-between mb-3">
             <div class="flex align-items-center gap-2">
-              <i 
-                [class]="normalizeIcon(category.icon)" 
+              <i
+                [class]="normalizeIcon(category.icon)"
                 [style.color]="category.color"
                 class="text-xl"
               ></i>
               <span class="font-bold text-lg">{{ category.name }}</span>
             </div>
-            <p-tag 
+            <p-tag
               [value]="getStatusLabel(category.isActive)"
               [severity]="getStatusSeverity(category.isActive)"
               [rounded]="true"
@@ -77,17 +74,17 @@
           <!-- Category Info -->
           <div class="flex-grow-1">
             <div class="mb-2">
-              <p-tag 
+              <p-tag
                 [value]="getCategoryTypeLabel(category.type)"
                 [severity]="category.type === 'income' ? 'success' : 'danger'"
                 [rounded]="true"
               ></p-tag>
             </div>
-            
+
             <p class="text-color-secondary text-sm mb-2" *ngIf="category.description">
               {{ category.description }}
             </p>
-            
+
             <div class="text-xs text-color-secondary mb-3">
               <div *ngIf="category.transactionCount !== undefined">
                 {{ category.transactionCount }} transação(ões)
@@ -99,25 +96,25 @@
           <!-- Actions -->
           <div class="flex justify-content-between align-items-center">
             <div class="flex gap-1">
-              <p-button 
-                icon="pi pi-pencil" 
+              <p-button
+                icon="pi pi-pencil"
                 severity="secondary"
                 size="small"
                 [text]="true"
                 (onClick)="editCategory(category)"
                 pTooltip="Editar"
               ></p-button>
-              <p-button 
+              <p-button
                 *ngIf="!category.isActive"
-                icon="pi pi-check" 
+                icon="pi pi-check"
                 severity="success"
                 size="small"
                 [text]="true"
                 (onClick)="reactivateCategory(category)"
                 pTooltip="Reativar"
               ></p-button>
-              <p-button 
-                icon="pi pi-trash" 
+              <p-button
+                icon="pi pi-trash"
                 severity="danger"
                 size="small"
                 [text]="true"
@@ -146,58 +143,47 @@
         Crie sua primeira categoria ou use as categorias padrão para começar
       </p>
       <div class="flex gap-2">
-        <p-button 
-          label="Categorias Padrão" 
-          icon="pi pi-plus-circle" 
+        <p-button
+          label="Categorias Padrão"
+          icon="pi pi-plus-circle"
           severity="secondary"
           (onClick)="createDefaultCategories()"
         ></p-button>
-        <p-button 
-          label="Nova Categoria" 
-          icon="pi pi-plus" 
-          (onClick)="openNew()"
-        ></p-button>
+        <p-button label="Nova Categoria" icon="pi pi-plus" (onClick)="openNew()"></p-button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Category Dialog -->
-<p-dialog 
-  [(visible)]="categoryDialog" 
+<p-dialog
+  [(visible)]="categoryDialog"
   [header]="editMode ? 'Editar Categoria' : 'Nova Categoria'"
-  [modal]="true" 
+  [modal]="true"
   [closable]="true"
   [style]="{ width: '600px' }"
   [maximizable]="false"
-  [breakpoints]="{'960px': '75vw', '640px': '90vw'}"
+  [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
 >
   <form [formGroup]="categoryForm" class="grid">
     <div class="field col-12 md:col-8">
-      <label for="name" class="font-bold">
-        Nome <span class="required-asterisk">*</span>
-      </label>
-      <input 
+      <label for="name" class="font-bold"> Nome <span class="required-asterisk">*</span> </label>
+      <input
         id="name"
-        type="text" 
-        pInputText 
+        type="text"
+        pInputText
         formControlName="name"
         class="w-full"
         placeholder="Digite o nome da categoria"
         [class.ng-dirty]="submitted && categoryForm.get('name')?.invalid"
       />
-      <small 
-        class="text-red-500" 
-        *ngIf="submitted && categoryForm.get('name')?.invalid"
-      >
+      <small class="text-red-500" *ngIf="submitted && categoryForm.get('name')?.invalid">
         Nome é obrigatório
       </small>
     </div>
-    
+
     <div class="field col-12 md:col-4">
-      <label for="type" class="font-bold">
-        Tipo <span class="required-asterisk">*</span>
-      </label>
+      <label for="type" class="font-bold"> Tipo <span class="required-asterisk">*</span> </label>
       <p-dropdown
         id="type"
         formControlName="type"
@@ -206,12 +192,12 @@
         styleClass="w-full"
       ></p-dropdown>
     </div>
-    
+
     <div class="field col-12">
       <label for="description" class="font-bold">Descrição</label>
-      <textarea 
+      <textarea
         id="description"
-        pInputTextarea 
+        pInputTextarea
         formControlName="description"
         rows="2"
         class="w-full"
@@ -226,20 +212,13 @@
       </label>
       <div class="icon-preview mb-2">
         <div class="flex align-items-center gap-2 p-2 border-round surface-border border-1">
-          <i 
-            [class]="getPreviewIconClass()" 
-            [style.color]="getPreviewColor()"
-            class="text-xl"
-          ></i>
+          <i [class]="getPreviewIconClass()" [style.color]="getPreviewColor()" class="text-xl"></i>
           <span>Pré-visualização</span>
         </div>
       </div>
       <div class="icon-grid">
         <div class="grid">
-          <div 
-            class="col-2" 
-            *ngFor="let icon of availableIcons"
-          >
+          <div class="col-2" *ngFor="let icon of availableIcons">
             <button
               type="button"
               class="icon-option p-2 border-round text-center cursor-pointer hover:surface-hover"
@@ -257,12 +236,10 @@
 
     <!-- Color Selection -->
     <div class="field col-12 md:col-6">
-      <label for="colorSelector" class="font-bold">
-        Cor <span class="text-red-500">*</span>
-      </label>
+      <label for="colorSelector" class="font-bold"> Cor <span class="text-red-500">*</span> </label>
       <div class="color-selector">
         <!-- Color Preview Button -->
-        <button 
+        <button
           id="colorSelector"
           type="button"
           class="color-preview-button"
@@ -270,24 +247,19 @@
           [attr.aria-expanded]="showColorPicker"
           aria-label="Selecionar cor"
         >
-          <div 
-            class="color-preview-swatch"
-            [style.background-color]="getPreviewColor()"
-          ></div>
+          <div class="color-preview-swatch" [style.background-color]="getPreviewColor()"></div>
           <span class="color-preview-text">{{ getPreviewColor() }}</span>
-          <i class="pi pi-chevron-down transition-transform" 
-             [class.rotate-180]="showColorPicker"></i>
+          <i
+            class="pi pi-chevron-down transition-transform"
+            [class.rotate-180]="showColorPicker"
+          ></i>
         </button>
-        
+
         <!-- Color Picker Dropdown -->
         <div class="color-picker-dropdown" *ngIf="showColorPicker">
           <div class="color-picker-header">
             <span class="color-picker-title">Selecione uma cor</span>
-            <button 
-              type="button" 
-              class="color-picker-close"
-              (click)="showColorPicker = false"
-            >
+            <button type="button" class="color-picker-close" (click)="showColorPicker = false">
               <i class="pi pi-times"></i>
             </button>
           </div>
@@ -310,7 +282,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="field col-12" *ngIf="editMode">
       <label for="sortOrder" class="font-bold">Ordem de Exibição</label>
       <p-inputNumber
@@ -327,26 +299,27 @@
         Ordem para exibição da categoria (0 = primeiro). Menor número aparece primeiro.
       </small>
     </div>
-    
+
     <div class="field col-12" *ngIf="!editMode">
       <small class="text-color-secondary">
         <i class="pi pi-info-circle mr-2"></i>
-        A ordem de exibição será definida automaticamente. Você pode alterá-la após criar a categoria.
+        A ordem de exibição será definida automaticamente. Você pode alterá-la após criar a
+        categoria.
       </small>
     </div>
   </form>
-  
+
   <ng-template pTemplate="footer">
     <div class="flex justify-content-end gap-2">
-      <p-button 
-        label="Cancelar" 
-        icon="pi pi-times" 
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
         severity="secondary"
         (onClick)="hideDialog()"
       ></p-button>
-      <p-button 
-        label="Salvar" 
-        icon="pi pi-check" 
+      <p-button
+        label="Salvar"
+        icon="pi pi-check"
         (onClick)="saveCategory()"
         [loading]="loading"
       ></p-button>

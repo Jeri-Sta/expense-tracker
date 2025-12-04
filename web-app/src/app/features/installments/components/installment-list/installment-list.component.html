@@ -9,11 +9,12 @@
         </h1>
         <p class="page-subtitle">Gerencie seus planos de financiamento e parcelas</p>
       </div>
-      <p-button 
-        label="Novo Financiamento" 
-        icon="pi pi-plus" 
+      <p-button
+        label="Novo Financiamento"
+        icon="pi pi-plus"
         (onClick)="onNewInstallmentPlan()"
-        styleClass="p-button-primary">
+        styleClass="p-button-primary"
+      >
       </p-button>
     </div>
   </div>
@@ -25,33 +26,37 @@
         <div class="card-header">
           <div class="title-section">
             <h3 class="plan-name">{{ plan.name }}</h3>
-            <p-tag 
-              [value]="plan.isActive ? 'Ativo' : 'Inativo'" 
-              [severity]="plan.isActive ? 'success' : 'secondary'">
+            <p-tag
+              [value]="plan.isActive ? 'Ativo' : 'Inativo'"
+              [severity]="plan.isActive ? 'success' : 'secondary'"
+            >
             </p-tag>
           </div>
           <div class="actions">
-            <p-button 
-              icon="pi pi-eye" 
-              [text]="true" 
+            <p-button
+              icon="pi pi-eye"
+              [text]="true"
               [rounded]="true"
               pTooltip="Ver detalhes"
-              (onClick)="onViewDetails(plan.id)">
+              (onClick)="onViewDetails(plan.id)"
+            >
             </p-button>
-            <p-button 
-              icon="pi pi-pencil" 
-              [text]="true" 
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
               [rounded]="true"
               pTooltip="Editar"
-              (onClick)="onEdit(plan.id)">
+              (onClick)="onEdit(plan.id)"
+            >
             </p-button>
-            <p-button 
-              icon="pi pi-trash" 
-              [text]="true" 
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
               [rounded]="true"
               severity="danger"
               pTooltip="Excluir"
-              (onClick)="onDelete(plan)">
+              (onClick)="onDelete(plan)"
+            >
             </p-button>
           </div>
         </div>
@@ -63,13 +68,12 @@
               <span class="progress-text">
                 {{ plan.paidInstallments }} de {{ plan.totalInstallments }} parcelas pagas
               </span>
-              <span class="progress-percentage">
-                {{ plan.completionPercentage.toFixed(1) }}%
-              </span>
+              <span class="progress-percentage"> {{ plan.completionPercentage.toFixed(1) }}% </span>
             </div>
-            <p-progressBar 
-              [value]="plan.completionPercentage" 
-              [styleClass]="getProgressBarClass(plan.completionPercentage)">
+            <p-progressBar
+              [value]="plan.completionPercentage"
+              [styleClass]="getProgressBarClass(plan.completionPercentage)"
+            >
             </p-progressBar>
           </div>
 
@@ -98,7 +102,10 @@
             <div class="info-row">
               <div class="info-item">
                 <span class="label">Desconto:</span>
-                <span class="value" [class]="plan.totalDiscount > 0 ? 'text-green-500' : 'text-color-secondary'">
+                <span
+                  class="value"
+                  [class]="plan.totalDiscount > 0 ? 'text-green-500' : 'text-color-secondary'"
+                >
                   {{ formatCurrency(plan.totalDiscount) }}
                 </span>
               </div>
@@ -133,10 +140,11 @@
           <i class="pi pi-credit-card no-data-icon"></i>
           <h3>Nenhum financiamento encontrado</h3>
           <p>Comece criando seu primeiro plano de financiamento.</p>
-          <p-button 
-            label="Criar Financiamento" 
-            icon="pi pi-plus" 
-            (onClick)="onNewInstallmentPlan()">
+          <p-button
+            label="Criar Financiamento"
+            icon="pi pi-plus"
+            (onClick)="onNewInstallmentPlan()"
+          >
           </p-button>
         </div>
       </div>

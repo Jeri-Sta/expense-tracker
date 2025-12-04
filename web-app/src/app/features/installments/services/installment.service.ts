@@ -38,14 +38,8 @@ export class InstallmentService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  payInstallment(
-    installmentId: string,
-    data: PayInstallment,
-  ): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(
-      `${this.apiUrl}/${installmentId}/pay`,
-      data,
-    );
+  payInstallment(installmentId: string, data: PayInstallment): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/${installmentId}/pay`, data);
   }
 
   deletePayment(installmentId: string): Observable<void> {
@@ -72,9 +66,9 @@ export class InstallmentService {
    * @returns Taxa de juros efetiva mensal em percentual
    */
   calculateAutoInterestRate(
-    financedAmount: number, 
-    installmentValue: number, 
-    totalInstallments: number
+    financedAmount: number,
+    installmentValue: number,
+    totalInstallments: number,
   ): number {
     if (financedAmount <= 0 || installmentValue <= 0 || totalInstallments <= 0) {
       return 0;
@@ -82,7 +76,7 @@ export class InstallmentService {
 
     const totalAmount = installmentValue * totalInstallments;
     const totalInterest = totalAmount - financedAmount;
-    
+
     // Se não há juros, retorna 0
     if (totalInterest <= 0) {
       return 0;
@@ -103,9 +97,9 @@ export class InstallmentService {
    * @returns Taxa de juros simples em percentual
    */
   calculateSimpleInterestRate(
-    financedAmount: number, 
-    installmentValue: number, 
-    totalInstallments: number
+    financedAmount: number,
+    installmentValue: number,
+    totalInstallments: number,
   ): number {
     if (financedAmount <= 0 || installmentValue <= 0 || totalInstallments <= 0) {
       return 0;
@@ -113,10 +107,10 @@ export class InstallmentService {
 
     const totalAmount = installmentValue * totalInstallments;
     const totalInterest = totalAmount - financedAmount;
-    
+
     // Taxa simples total
     const simpleRate = (totalInterest / financedAmount) * 100;
-    
+
     return simpleRate;
   }
 }

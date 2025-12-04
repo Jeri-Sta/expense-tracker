@@ -12,7 +12,7 @@ import { InstallmentPlanSummary } from '../../models';
 export class InstallmentListComponent implements OnInit {
   installmentPlans: InstallmentPlanSummary[] = [];
   loading = false;
-  
+
   // Math object for template
   Math = Math;
 
@@ -34,7 +34,7 @@ export class InstallmentListComponent implements OnInit {
         this.installmentPlans = plans;
         this.loading = false;
       },
-      error: (error) => {
+      error: (_error) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',

@@ -13,7 +13,7 @@ interface ViewTypeOption {
 @Component({
   selector: 'app-upcoming-recurring-widget',
   templateUrl: './upcoming-recurring-widget.component.html',
-  styleUrls: ['./upcoming-recurring-widget.component.scss']
+  styleUrls: ['./upcoming-recurring-widget.component.scss'],
 })
 export class UpcomingRecurringWidgetComponent implements OnInit, OnChanges {
   private readonly STORAGE_KEY = 'upcoming_recurring_view_type';
@@ -25,7 +25,7 @@ export class UpcomingRecurringWidgetComponent implements OnInit, OnChanges {
   viewType: TransactionViewType = 'expense';
   viewTypeOptions: ViewTypeOption[] = [
     { label: 'Despesas', value: 'expense' },
-    { label: 'Receitas', value: 'income' }
+    { label: 'Receitas', value: 'income' },
   ];
 
   // Filtered recurring transactions
@@ -57,9 +57,7 @@ export class UpcomingRecurringWidgetComponent implements OnInit, OnChanges {
   }
 
   private filterRecurring(): void {
-    this.filteredRecurring = this.upcomingRecurring.filter(
-      (r) => r.type === this.viewType
-    );
+    this.filteredRecurring = this.upcomingRecurring.filter((r) => r.type === this.viewType);
   }
 
   get totalAmount(): number {
@@ -106,11 +104,11 @@ export class UpcomingRecurringWidgetComponent implements OnInit, OnChanges {
 
   getFrequencyLabel(frequency: string): string {
     const labels: Record<string, string> = {
-      'daily': 'Diário',
-      'weekly': 'Semanal',
-      'monthly': 'Mensal',
-      'quarterly': 'Trimestral',
-      'yearly': 'Anual'
+      daily: 'Diário',
+      weekly: 'Semanal',
+      monthly: 'Mensal',
+      quarterly: 'Trimestral',
+      yearly: 'Anual',
     };
     return labels[frequency] || frequency;
   }

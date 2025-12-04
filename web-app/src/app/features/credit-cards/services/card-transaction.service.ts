@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { 
-  CardTransaction, 
-  CreateCardTransactionDto, 
+import {
+  CardTransaction,
+  CreateCardTransactionDto,
   UpdateCardTransactionDto,
   Invoice,
-  UpdateInvoiceStatusDto
+  UpdateInvoiceStatusDto,
 } from '../models/card-transaction.model';
 
 export interface CardTransactionFilterParams {
@@ -30,7 +30,7 @@ export interface PaginatedCardTransactionsResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CardTransactionService {
   private readonly apiUrl = `${environment.apiUrl}/card-transactions`;
@@ -40,9 +40,11 @@ export class CardTransactionService {
   /**
    * Get all card transactions with pagination and sorting support
    */
-  getTransactionsPaginated(params: CardTransactionFilterParams): Observable<PaginatedCardTransactionsResponse> {
+  getTransactionsPaginated(
+    params: CardTransactionFilterParams,
+  ): Observable<PaginatedCardTransactionsResponse> {
     let httpParams = new HttpParams();
-    
+
     if (params.page) httpParams = httpParams.set('page', params.page.toString());
     if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
     if (params.sortField) httpParams = httpParams.set('sortField', params.sortField);
@@ -51,7 +53,7 @@ export class CardTransactionService {
     if (params.invoicePeriod) httpParams = httpParams.set('invoicePeriod', params.invoicePeriod);
     if (params.dueYear) httpParams = httpParams.set('dueYear', params.dueYear.toString());
     if (params.dueMonth) httpParams = httpParams.set('dueMonth', params.dueMonth.toString());
-    
+
     return this.http.get<PaginatedCardTransactionsResponse>(this.apiUrl, { params: httpParams });
   }
 
@@ -103,16 +105,33 @@ export class CardTransactionService {
     return this.http.get<Invoice>(`${this.apiUrl}/invoices/${creditCardId}/${period}`);
   }
 
-  updateInvoiceStatus(creditCardId: string, period: string, status: UpdateInvoiceStatusDto): Observable<Invoice> {
-    return this.http.patch<Invoice>(`${this.apiUrl}/invoices/${creditCardId}/${period}/status`, status);
+  updateInvoiceStatus(
+    creditCardId: string,
+    period: string,
+    status: UpdateInvoiceStatusDto,
+  ): Observable<Invoice> {
+    return this.http.patch<Invoice>(
+      `${this.apiUrl}/invoices/${creditCardId}/${period}/status`,
+      status,
+    );
   }
 
   // Helper to format period for display
   formatPeriod(period: string): string {
     const [year, month] = period.split('-');
     const months = [
-      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+      'Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro',
     ];
     return `${months[parseInt(month) - 1]}/${year}`;
   }
@@ -126,7 +145,9 @@ export class CardTransactionService {
     if (creditCardId) {
       params = params.set('creditCardId', creditCardId);
     }
-    return this.http.get<CardTransaction[]>(`${this.apiUrl}/by-due-month/${year}/${month}`, { params });
+    return this.http.get<CardTransaction[]>(`${this.apiUrl}/by-due-month/${year}/${month}`, {
+      params,
+    });
   }
 
   /**
@@ -138,7 +159,9 @@ export class CardTransactionService {
     if (creditCardId) {
       params = params.set('creditCardId', creditCardId);
     }
-    return this.http.get<Invoice[]>(`${this.apiUrl}/invoices/by-due-month/${year}/${month}`, { params });
+    return this.http.get<Invoice[]>(`${this.apiUrl}/invoices/by-due-month/${year}/${month}`, {
+      params,
+    });
   }
 
   // Helper to get current period
@@ -153,27 +176,27 @@ export class CardTransactionService {
   getAvailablePeriods(): { label: string; value: string }[] {
     const periods: { label: string; value: string }[] = [];
     const now = new Date();
-    
+
     // Last 12 months
     for (let i = 11; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       periods.push({
         label: this.formatPeriod(period),
-        value: period
+        value: period,
       });
     }
-    
+
     // Next 6 months
     for (let i = 1; i <= 6; i++) {
       const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
       const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       periods.push({
         label: this.formatPeriod(period),
-        value: period
+        value: period,
       });
     }
-    
+
     return periods;
   }
 }

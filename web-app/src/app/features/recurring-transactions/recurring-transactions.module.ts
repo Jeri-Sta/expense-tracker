@@ -29,15 +29,13 @@ import { RecurringTransactionsRoutingModule } from './recurring-transactions-rou
 import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
-  declarations: [
-    RecurringTransactionsComponent
-  ],
+  declarations: [RecurringTransactionsComponent],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     RecurringTransactionsRoutingModule,
-    
+
     // PrimeNG Modules
     TableModule,
     ButtonModule,
@@ -56,7 +54,7 @@ import { SharedModule } from '../../shared/shared.module';
     ProgressSpinnerModule,
     ToggleButtonModule,
     ChipModule,
-    SharedModule
-  ]
+    SharedModule,
+  ],
 })
-export class RecurringTransactionsModule { }
+export class RecurringTransactionsModule {}

@@ -6,9 +6,9 @@
       <p class="text-color-secondary m-0">Gerencie as transações dos seus cartões de crédito</p>
     </div>
     <div class="flex gap-2">
-      <p-button 
-        label="Nova Transação" 
-        icon="pi pi-plus" 
+      <p-button
+        label="Nova Transação"
+        icon="pi pi-plus"
         size="small"
         (onClick)="openNew()"
         [disabled]="creditCards.length === 0"
@@ -21,29 +21,29 @@
     <div class="flex flex-column md:flex-row gap-3 align-items-end">
       <div class="flex-1">
         <label for="filterPeriod" class="block mb-2 font-medium">Mês de Vencimento</label>
-        <p-dropdown 
+        <p-dropdown
           id="filterPeriod"
-          [options]="periodOptions" 
+          [options]="periodOptions"
           [(ngModel)]="selectedPeriod"
           optionLabel="label"
           optionValue="value"
           placeholder="Selecione o mês"
-          [style]="{'width': '100%'}"
+          [style]="{ width: '100%' }"
           (onChange)="onFilterChange()"
           appendTo="body"
         ></p-dropdown>
       </div>
       <div class="flex-1">
         <label for="filterCard" class="block mb-2 font-medium">Cartão</label>
-        <p-dropdown 
+        <p-dropdown
           id="filterCard"
-          [options]="creditCards" 
+          [options]="creditCards"
           [(ngModel)]="selectedCardId"
           optionLabel="name"
           optionValue="id"
           placeholder="Todos os cartões"
           [showClear]="true"
-          [style]="{'width': '100%'}"
+          [style]="{ width: '100%' }"
           (onChange)="onFilterChange()"
           appendTo="body"
         >
@@ -62,8 +62,8 @@
         </p-dropdown>
       </div>
       <div>
-        <p-button 
-          icon="pi pi-refresh" 
+        <p-button
+          icon="pi pi-refresh"
           severity="secondary"
           [text]="true"
           (onClick)="loadTransactions()"
@@ -75,16 +75,17 @@
 
   <!-- Period Summary -->
   <div class="card mb-4 summary-card" *ngIf="!loading && transactions.length > 0">
-    <div class="flex flex-column md:flex-row justify-content-between align-items-start md:align-items-center">
+    <div
+      class="flex flex-column md:flex-row justify-content-between align-items-start md:align-items-center"
+    >
       <div>
         <span class="text-color-secondary">Total do período:</span>
-        <span class="text-xl font-bold text-red-500 ml-2">{{ formatCurrency(getTotalForPeriod()) }}</span>
+        <span class="text-xl font-bold text-red-500 ml-2">{{
+          formatCurrency(getTotalForPeriod())
+        }}</span>
       </div>
       <div class="flex gap-2 mt-2 md:mt-0">
-        <p-tag 
-          [value]="transactions.length + ' transação(ões)'"
-          severity="info"
-        ></p-tag>
+        <p-tag [value]="transactions.length + ' transação(ões)'" severity="info"></p-tag>
       </div>
     </div>
   </div>
@@ -98,18 +99,20 @@
             <div class="color-dot-lg" [style.background-color]="invoice.creditCardColor"></div>
             <span class="font-semibold">{{ invoice.creditCardName }}</span>
           </div>
-          <p-tag 
+          <p-tag
             [value]="getInvoiceStatusLabel(invoice.status)"
             [severity]="getInvoiceStatusSeverity(invoice.status)"
           ></p-tag>
         </div>
         <div class="text-2xl font-bold mb-2">{{ formatCurrency(invoice.totalAmount) }}</div>
         <div class="text-sm text-color-secondary mb-3">
-          <span *ngIf="invoice.dueDate">Vencimento: {{ invoice.dueDate | date:'dd/MM/yyyy' }}</span>
+          <span *ngIf="invoice.dueDate"
+            >Vencimento: {{ invoice.dueDate | date: 'dd/MM/yyyy' }}</span
+          >
         </div>
         <div class="flex gap-2" *ngIf="invoice.status !== 'paid'">
-          <p-button 
-            label="Marcar como Paga" 
+          <p-button
+            label="Marcar como Paga"
             icon="pi pi-check"
             severity="success"
             size="small"
@@ -121,8 +124,8 @@
   </div>
 
   <!-- Transactions Table -->
-  <p-table 
-    [value]="transactions" 
+  <p-table
+    [value]="transactions"
     [loading]="loading"
     [paginator]="true"
     [rows]="rows"
@@ -138,11 +141,17 @@
   >
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="description">Descrição <p-sortIcon field="description"></p-sortIcon></th>
+        <th pSortableColumn="description">
+          Descrição <p-sortIcon field="description"></p-sortIcon>
+        </th>
         <th>Cartão</th>
         <th>Categoria</th>
-        <th pSortableColumn="transactionDate">Data <p-sortIcon field="transactionDate"></p-sortIcon></th>
-        <th pSortableColumn="amount" class="text-right">Valor <p-sortIcon field="amount"></p-sortIcon></th>
+        <th pSortableColumn="transactionDate">
+          Data <p-sortIcon field="transactionDate"></p-sortIcon>
+        </th>
+        <th pSortableColumn="amount" class="text-right">
+          Valor <p-sortIcon field="amount"></p-sortIcon>
+        </th>
         <th class="text-center">Parcela</th>
         <th class="table-actions-header">Ações</th>
       </tr>
@@ -151,7 +160,11 @@
       <tr [class.child-transaction]="transaction.parentTransactionId">
         <td>
           <div class="flex align-items-center gap-2">
-            <i class="pi pi-replay text-color-secondary" *ngIf="transaction.parentTransactionId" pTooltip="Parcela"></i>
+            <i
+              class="pi pi-replay text-color-secondary"
+              *ngIf="transaction.parentTransactionId"
+              pTooltip="Parcela"
+            ></i>
             {{ transaction.description }}
           </div>
         </td>
@@ -168,10 +181,10 @@
           </div>
           <span class="text-color-secondary" *ngIf="!transaction.categoryName">-</span>
         </td>
-        <td>{{ transaction.transactionDate | date:'dd/MM/yyyy' }}</td>
+        <td>{{ transaction.transactionDate | date: 'dd/MM/yyyy' }}</td>
         <td class="text-right font-semibold">{{ formatCurrency(transaction.amount) }}</td>
         <td class="text-center">
-          <p-tag 
+          <p-tag
             *ngIf="transaction.isInstallment"
             [value]="transaction.installmentLabel"
             severity="secondary"
@@ -180,8 +193,8 @@
         </td>
         <td>
           <div class="table-actions">
-            <p-button 
-              icon="pi pi-pencil" 
+            <p-button
+              icon="pi pi-pencil"
               severity="secondary"
               size="small"
               [text]="true"
@@ -189,8 +202,8 @@
               pTooltip="Editar"
               [disabled]="transaction.parentTransactionId"
             ></p-button>
-            <p-button 
-              icon="pi pi-trash" 
+            <p-button
+              icon="pi pi-trash"
               severity="danger"
               size="small"
               [text]="true"
@@ -208,7 +221,9 @@
           <div class="table-empty-state">
             <i class="pi pi-file table-empty-icon"></i>
             <span class="table-empty-title">Nenhuma transação encontrada</span>
-            <span class="table-empty-description">Não há transações para o período selecionado</span>
+            <span class="table-empty-description"
+              >Não há transações para o período selecionado</span
+            >
           </div>
         </td>
       </tr>
@@ -226,8 +241,8 @@
       <i class="pi pi-file table-empty-icon"></i>
       <span class="table-empty-title">Nenhuma transação encontrada</span>
       <span class="table-empty-description">Não há transações para o período selecionado</span>
-      <p-button 
-        label="Nova Transação" 
+      <p-button
+        label="Nova Transação"
         icon="pi pi-plus"
         (onClick)="openNew()"
         styleClass="table-empty-action"
@@ -243,8 +258,8 @@
       <p class="text-color-secondary mb-4">
         Cadastre um cartão de crédito para começar a registrar transações
       </p>
-      <p-button 
-        label="Ir para Cartões" 
+      <p-button
+        label="Ir para Cartões"
         icon="pi pi-arrow-right"
         routerLink="/credit-cards"
       ></p-button>
@@ -253,11 +268,11 @@
 </div>
 
 <!-- Transaction Dialog -->
-<p-dialog 
-  [(visible)]="transactionDialog" 
+<p-dialog
+  [(visible)]="transactionDialog"
   [header]="editMode ? 'Editar Transação' : 'Nova Transação'"
-  [modal]="true" 
-  [style]="{width: '500px'}"
+  [modal]="true"
+  [style]="{ width: '500px' }"
   [draggable]="false"
   [resizable]="false"
   styleClass="p-fluid"
@@ -267,7 +282,7 @@
       <!-- Credit Card -->
       <div class="field">
         <label for="creditCardId" class="required-field">Cartão</label>
-        <p-dropdown 
+        <p-dropdown
           id="creditCardId"
           formControlName="creditCardId"
           [options]="creditCards"
@@ -290,7 +305,10 @@
             </div>
           </ng-template>
         </p-dropdown>
-        <small class="p-error" *ngIf="submitted && transactionForm.get('creditCardId')?.hasError('required')">
+        <small
+          class="p-error"
+          *ngIf="submitted && transactionForm.get('creditCardId')?.hasError('required')"
+        >
           Cartão é obrigatório
         </small>
       </div>
@@ -298,14 +316,17 @@
       <!-- Description -->
       <div class="field">
         <label for="description" class="required-field">Descrição</label>
-        <input 
-          pInputText 
-          id="description" 
+        <input
+          pInputText
+          id="description"
           formControlName="description"
           placeholder="Ex: Compra na Amazon"
           [class.ng-invalid]="submitted && transactionForm.get('description')?.invalid"
         />
-        <small class="p-error" *ngIf="submitted && transactionForm.get('description')?.hasError('required')">
+        <small
+          class="p-error"
+          *ngIf="submitted && transactionForm.get('description')?.hasError('required')"
+        >
           Descrição é obrigatória
         </small>
       </div>
@@ -313,7 +334,7 @@
       <!-- Amount -->
       <div class="field">
         <label for="amount" class="required-field">Valor Total</label>
-        <p-inputNumber 
+        <p-inputNumber
           id="amount"
           formControlName="amount"
           mode="currency"
@@ -322,7 +343,10 @@
           [min]="0.01"
           [class.ng-invalid]="submitted && transactionForm.get('amount')?.invalid"
         ></p-inputNumber>
-        <small class="p-error" *ngIf="submitted && transactionForm.get('amount')?.hasError('required')">
+        <small
+          class="p-error"
+          *ngIf="submitted && transactionForm.get('amount')?.hasError('required')"
+        >
           Valor é obrigatório
         </small>
       </div>
@@ -344,7 +368,7 @@
       <!-- Category -->
       <div class="field">
         <label for="categoryId">Categoria</label>
-        <p-dropdown 
+        <p-dropdown
           id="categoryId"
           formControlName="categoryId"
           [options]="categories"
@@ -372,7 +396,7 @@
       <!-- Installment Toggle -->
       <div class="field" *ngIf="!editMode">
         <div class="flex align-items-center gap-2">
-          <p-checkbox 
+          <p-checkbox
             formControlName="isInstallment"
             [binary]="true"
             inputId="isInstallment"
@@ -384,7 +408,7 @@
       <!-- Total Installments -->
       <div class="field" *ngIf="transactionForm.get('isInstallment')?.value && !editMode">
         <label for="totalInstallments" class="required-field">Número de Parcelas</label>
-        <p-dropdown 
+        <p-dropdown
           id="totalInstallments"
           formControlName="totalInstallments"
           [options]="installmentOptions"
@@ -394,7 +418,13 @@
           appendTo="body"
         ></p-dropdown>
         <small class="text-color-secondary">
-          Valor por parcela: {{ formatCurrency((transactionForm.get('amount')?.value || 0) / (transactionForm.get('totalInstallments')?.value || 1)) }}
+          Valor por parcela:
+          {{
+            formatCurrency(
+              (transactionForm.get('amount')?.value || 0) /
+                (transactionForm.get('totalInstallments')?.value || 1)
+            )
+          }}
         </small>
       </div>
     </form>
@@ -402,13 +432,13 @@
 
   <ng-template pTemplate="footer">
     <div class="flex justify-content-end gap-2">
-      <p-button 
-        label="Cancelar" 
+      <p-button
+        label="Cancelar"
         severity="secondary"
         [text]="true"
         (onClick)="hideDialog()"
       ></p-button>
-      <p-button 
+      <p-button
         [label]="editMode ? 'Atualizar' : 'Salvar'"
         icon="pi pi-check"
         (onClick)="saveTransaction()"

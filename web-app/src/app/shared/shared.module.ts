@@ -19,10 +19,7 @@ import { MaskedCalendarComponent } from './components/masked-calendar/masked-cal
 import { DateMaskDirective } from './directives/date-mask.directive';
 
 @NgModule({
-  declarations: [
-    MaskedCalendarComponent,
-    DateMaskDirective
-  ],
+  declarations: [MaskedCalendarComponent, DateMaskDirective],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -34,7 +31,7 @@ import { DateMaskDirective } from './directives/date-mask.directive';
     CardModule,
     DialogModule,
     ConfirmDialogModule,
-    ToastModule
+    ToastModule,
   ],
   exports: [
     CommonModule,
@@ -49,7 +46,7 @@ import { DateMaskDirective } from './directives/date-mask.directive';
     ConfirmDialogModule,
     ToastModule,
     MaskedCalendarComponent,
-    DateMaskDirective
-  ]
+    DateMaskDirective,
+  ],
 })
-export class SharedModule { }
+export class SharedModule {}

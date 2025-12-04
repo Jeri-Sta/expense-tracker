@@ -5,12 +5,12 @@ import { CategoriesComponent } from './categories.component';
 const routes: Routes = [
   {
     path: '',
-    component: CategoriesComponent
-  }
+    component: CategoriesComponent,
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class CategoriesRoutingModule { }
+export class CategoriesRoutingModule {}

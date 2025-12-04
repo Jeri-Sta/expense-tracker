@@ -62,7 +62,7 @@ export interface UpdateRecurringTransactionDto {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RecurringTransactionService {
   private readonly apiUrl = `${environment.apiUrl}/recurring-transactions`;
@@ -77,11 +77,16 @@ export class RecurringTransactionService {
     return this.http.get<RecurringTransaction>(`${this.apiUrl}/${id}`);
   }
 
-  createRecurringTransaction(transaction: CreateRecurringTransactionDto): Observable<RecurringTransaction> {
+  createRecurringTransaction(
+    transaction: CreateRecurringTransactionDto,
+  ): Observable<RecurringTransaction> {
     return this.http.post<RecurringTransaction>(this.apiUrl, transaction);
   }
 
-  updateRecurringTransaction(id: string, transaction: UpdateRecurringTransactionDto): Observable<RecurringTransaction> {
+  updateRecurringTransaction(
+    id: string,
+    transaction: UpdateRecurringTransactionDto,
+  ): Observable<RecurringTransaction> {
     return this.http.patch<RecurringTransaction>(`${this.apiUrl}/${id}`, transaction);
   }
 
@@ -94,20 +99,20 @@ export class RecurringTransactionService {
   }
 
   // Helper method to get frequency options with labels
-  getFrequencyOptions(): Array<{value: string, label: string}> {
+  getFrequencyOptions(): Array<{ value: string; label: string }> {
     return [
       { value: 'daily', label: 'Diário' },
       { value: 'weekly', label: 'Semanal' },
       { value: 'monthly', label: 'Mensal' },
       { value: 'quarterly', label: 'Trimestral' },
-      { value: 'yearly', label: 'Anual' }
+      { value: 'yearly', label: 'Anual' },
     ];
   }
 
   // Helper method to format frequency display
   formatFrequency(frequency: string, interval: number): string {
     const intervalText = interval > 1 ? ` (a cada ${interval})` : '';
-    
+
     switch (frequency) {
       case 'daily':
         return `Diário${intervalText}`;
@@ -127,25 +132,25 @@ export class RecurringTransactionService {
   // Helper method to calculate next execution date
   calculateNextExecution(currentDate: Date, frequency: string, interval: number): Date {
     const nextDate = new Date(currentDate);
-    
+
     switch (frequency) {
       case 'daily':
         nextDate.setDate(nextDate.getDate() + interval);
         break;
       case 'weekly':
-        nextDate.setDate(nextDate.getDate() + (interval * 7));
+        nextDate.setDate(nextDate.getDate() + interval * 7);
         break;
       case 'monthly':
         nextDate.setMonth(nextDate.getMonth() + interval);
         break;
       case 'quarterly':
-        nextDate.setMonth(nextDate.getMonth() + (interval * 3));
+        nextDate.setMonth(nextDate.getMonth() + interval * 3);
         break;
       case 'yearly':
         nextDate.setFullYear(nextDate.getFullYear() + interval);
         break;
     }
-    
+
     return nextDate;
   }
 }

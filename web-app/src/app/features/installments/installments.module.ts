@@ -31,11 +31,7 @@ import {
 import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
-  declarations: [
-    InstallmentListComponent,
-    InstallmentFormComponent,
-    InstallmentDetailsComponent,
-  ],
+  declarations: [InstallmentListComponent, InstallmentFormComponent, InstallmentDetailsComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,

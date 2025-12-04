@@ -30,7 +30,7 @@ export class AuthService {
 
     const user = await this.usersService.create(userData);
     const tokens = await this.generateTokens(user);
-    
+
     return {
       ...tokens,
       user: this.mapToUserResponse(user),
@@ -52,7 +52,7 @@ export class AuthService {
     await this.usersService.updateLastLogin(user.id);
 
     const tokens = await this.generateTokens(user);
-    
+
     return {
       ...tokens,
       user: this.mapToUserResponse(user),

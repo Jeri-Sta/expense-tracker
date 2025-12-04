@@ -3,84 +3,82 @@
   <div class="card">
     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
       <div class="mb-2 md:mb-0">
-        <h2 class="text-2xl font-bold text-color m-0">
-          Transações
-        </h2>
+        <h2 class="text-2xl font-bold text-color m-0">Transações</h2>
         <p class="text-color-secondary m-0">Gerencie suas receitas e despesas de forma eficiente</p>
       </div>
       <div class="flex gap-2">
-        <p-button 
-          label="Filtros de Projeção" 
-          icon="pi pi-filter" 
+        <p-button
+          label="Filtros de Projeção"
+          icon="pi pi-filter"
           [text]="true"
           size="small"
           (onClick)="toggleProjectionFilters()"
           [badge]="showProjectionFilters ? 'ON' : 'OFF'"
           badgeClass="p-badge-info"
         ></p-button>
-        <p-button 
-          label="Gerenciar Projeções" 
-          icon="pi pi-cog" 
+        <p-button
+          label="Gerenciar Projeções"
+          icon="pi pi-cog"
           [text]="true"
           size="small"
           (onClick)="toggleProjectionManager()"
           [badge]="showProjectionManager ? 'ON' : 'OFF'"
           badgeClass="p-badge-warning"
         ></p-button>
-        <p-button 
-          label="Nova Projeção" 
-          icon="pi pi-clock" 
+        <p-button
+          label="Nova Projeção"
+          icon="pi pi-clock"
           [outlined]="true"
           size="small"
           (onClick)="openProjectionDialog()"
           styleClass="p-button-info"
         ></p-button>
-        <p-button 
-          label="Nova Transação" 
-          icon="pi pi-plus" 
+        <p-button
+          label="Nova Transação"
+          icon="pi pi-plus"
           size="small"
           (onClick)="openTransactionDialog()"
           styleClass="p-button-primary"
         ></p-button>
       </div>
     </div>
-    
+
     <!-- Period Filter -->
     <div class="flex flex-column md:flex-row gap-3 align-items-end mb-4">
-      <div class="flex-1" style="max-width: 250px;">
+      <div class="flex-1" style="max-width: 250px">
         <label for="filterPeriod" class="block mb-2 font-medium">Competência</label>
-        <p-dropdown 
+        <p-dropdown
           id="filterPeriod"
-          [options]="periodOptions" 
+          [options]="periodOptions"
           [(ngModel)]="selectedPeriod"
           optionLabel="label"
           optionValue="value"
           placeholder="Todos os períodos"
           [showClear]="true"
-          [style]="{'width': '100%'}"
+          [style]="{ width: '100%' }"
           (onChange)="onPeriodChange()"
           appendTo="body"
         ></p-dropdown>
       </div>
-      <div class="flex-1" style="max-width: 200px;">
+      <div class="flex-1" style="max-width: 200px">
         <label for="filterPaymentStatus" class="block mb-2 font-medium">Status Pagamento</label>
-        <p-dropdown 
+        <p-dropdown
           id="filterPaymentStatus"
-          [options]="paymentStatusOptions" 
+          [options]="paymentStatusOptions"
           [(ngModel)]="selectedPaymentStatus"
           optionLabel="label"
           optionValue="value"
           placeholder="Todos"
           [showClear]="true"
-          [style]="{'width': '100%'}"
+          [style]="{ width: '100%' }"
           (onChange)="onPaymentStatusChange()"
           appendTo="body"
         ></p-dropdown>
       </div>
     </div>
-    
+
     <!-- Projection Filters Panel -->
-    <p-panel 
+    <p-panel
       *ngIf="showProjectionFilters"
       header="Filtros de Projeção"
       [toggleable]="false"
@@ -88,30 +86,36 @@
     >
       <form [formGroup]="filterForm" class="grid">
         <div class="col-12 md:col-3">
-          <label for="includeProjections" class="block text-sm font-medium mb-2">Incluir Projeções</label>
-          <p-toggleButton 
+          <label for="includeProjections" class="block text-sm font-medium mb-2"
+            >Incluir Projeções</label
+          >
+          <p-toggleButton
             id="includeProjections"
             formControlName="includeProjections"
-            onLabel="Sim" 
+            onLabel="Sim"
             offLabel="Não"
             (onChange)="onProjectionFilterChange()"
           ></p-toggleButton>
         </div>
-        
+
         <div class="col-12 md:col-3">
-          <label for="onlyProjections" class="block text-sm font-medium mb-2">Apenas Projeções</label>
-          <p-toggleButton 
+          <label for="onlyProjections" class="block text-sm font-medium mb-2"
+            >Apenas Projeções</label
+          >
+          <p-toggleButton
             id="onlyProjections"
             formControlName="onlyProjections"
-            onLabel="Sim" 
+            onLabel="Sim"
             offLabel="Não"
             (onChange)="onProjectionFilterChange()"
           ></p-toggleButton>
         </div>
-        
+
         <div class="col-12 md:col-3">
-          <label for="projectionSource" class="block text-sm font-medium mb-2">Fonte da Projeção</label>
-          <p-dropdown 
+          <label for="projectionSource" class="block text-sm font-medium mb-2"
+            >Fonte da Projeção</label
+          >
+          <p-dropdown
             id="projectionSource"
             formControlName="projectionSource"
             [options]="projectionSources"
@@ -122,10 +126,12 @@
             styleClass="w-full"
           ></p-dropdown>
         </div>
-        
+
         <div class="col-12 md:col-3">
-          <label for="minConfidence" class="block text-sm font-medium mb-2">Confiança Mínima (%)</label>
-          <p-inputNumber 
+          <label for="minConfidence" class="block text-sm font-medium mb-2"
+            >Confiança Mínima (%)</label
+          >
+          <p-inputNumber
             id="minConfidence"
             formControlName="minConfidence"
             [min]="0"
@@ -137,9 +143,9 @@
         </div>
       </form>
     </p-panel>
-    
+
     <!-- Projection Management Panel -->
-    <p-panel 
+    <p-panel
       *ngIf="showProjectionManager"
       header="Gerenciamento de Projeções"
       [toggleable]="false"
@@ -153,10 +159,11 @@
               <h5 class="m-0">Gerar Projeções</h5>
             </div>
             <p class="text-sm text-600 mb-3">
-              Cria automaticamente projeções baseadas nas suas transações recorrentes para os próximos 6 meses.
+              Cria automaticamente projeções baseadas nas suas transações recorrentes para os
+              próximos 6 meses.
             </p>
-            <p-button 
-              label="Gerar Projeções" 
+            <p-button
+              label="Gerar Projeções"
               icon="pi pi-plus-circle"
               (onClick)="generateProjectionsFromRecurring()"
               [loading]="loading"
@@ -165,7 +172,7 @@
             ></p-button>
           </div>
         </div>
-        
+
         <div class="col-12 md:col-4">
           <div class="card border-1 surface-border p-3 h-full">
             <div class="text-center mb-3">
@@ -175,8 +182,8 @@
             <p class="text-sm text-600 mb-3">
               Remove projeções de períodos passados que já não são mais relevantes.
             </p>
-            <p-button 
-              label="Limpar Antigas" 
+            <p-button
+              label="Limpar Antigas"
               icon="pi pi-trash"
               (onClick)="cleanupOldProjections()"
               [loading]="loading"
@@ -185,7 +192,7 @@
             ></p-button>
           </div>
         </div>
-        
+
         <div class="col-12 md:col-4">
           <div class="card border-1 surface-border p-3 h-full">
             <div class="text-center mb-3">
@@ -195,8 +202,8 @@
             <p class="text-sm text-600 mb-3">
               Remove completamente todas as projeções existentes no sistema.
             </p>
-            <p-button 
-              label="Remover Todas" 
+            <p-button
+              label="Remover Todas"
               icon="pi pi-ban"
               (onClick)="cleanupAllProjections()"
               [loading]="loading"
@@ -206,7 +213,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="mt-4 p-3 border-1 surface-border border-round">
         <h6 class="text-blue-600 mt-0 mb-2">
           <i class="pi pi-info-circle mr-2"></i>
@@ -232,10 +239,10 @@
 
   <!-- Transactions Table -->
   <div class="card">
-    <p-table 
-      [value]="transactions" 
+    <p-table
+      [value]="transactions"
       [loading]="loading"
-      [paginator]="true" 
+      [paginator]="true"
       [rows]="rows"
       [first]="first"
       [totalRecords]="totalRecords"
@@ -248,8 +255,12 @@
     >
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="transactionDate">Data <p-sortIcon field="transactionDate"></p-sortIcon></th>
-          <th pSortableColumn="description">Descrição <p-sortIcon field="description"></p-sortIcon></th>
+          <th pSortableColumn="transactionDate">
+            Data <p-sortIcon field="transactionDate"></p-sortIcon>
+          </th>
+          <th pSortableColumn="description">
+            Descrição <p-sortIcon field="description"></p-sortIcon>
+          </th>
           <th>Categoria</th>
           <th>Tipo</th>
           <th>Status</th>
@@ -261,8 +272,8 @@
         <tr [class]="getProjectionClass(transaction)">
           <td>
             <div class="flex align-items-center gap-2">
-              <span>{{ transaction.transactionDate | date:'dd/MM/yyyy' }}</span>
-              <i 
+              <span>{{ transaction.transactionDate | date: 'dd/MM/yyyy' }}</span>
+              <i
                 *ngIf="isProjectedTransaction(transaction)"
                 [class]="'pi ' + getProjectionIcon(transaction) + ' text-blue-500'"
                 [pTooltip]="getProjectionTooltip(transaction)"
@@ -274,20 +285,22 @@
             <div class="flex flex-column">
               <div class="flex align-items-center gap-2">
                 <span class="font-semibold">{{ transaction.description }}</span>
-                <p-tag 
+                <p-tag
                   *ngIf="isProjectedTransaction(transaction)"
                   value="PROJEÇÃO"
                   severity="info"
-                  [style]="{'font-size': '0.7rem', 'padding': '0.2rem 0.4rem'}"
+                  [style]="{ 'font-size': '0.7rem', padding: '0.2rem 0.4rem' }"
                 ></p-tag>
               </div>
-              <span class="text-sm text-600" *ngIf="transaction.notes">{{ transaction.notes }}</span>
-              <div 
+              <span class="text-sm text-600" *ngIf="transaction.notes">{{
+                transaction.notes
+              }}</span>
+              <div
                 *ngIf="isProjectedTransaction(transaction) && transaction.confidenceScore"
                 class="text-xs mt-1"
               >
                 <span>Confiança: </span>
-                <span [style]="{'color': getConfidenceColor(transaction.confidenceScore)}">
+                <span [style]="{ color: getConfidenceColor(transaction.confidenceScore) }">
                   {{ transaction.confidenceScore }}%
                 </span>
               </div>
@@ -295,18 +308,21 @@
           </td>
           <td>
             <div class="flex align-items-center gap-2" *ngIf="transaction.category">
-              <i [class]="normalizeIcon(transaction.category.icon)" [style.color]="transaction.category.color"></i>
+              <i
+                [class]="normalizeIcon(transaction.category.icon)"
+                [style.color]="transaction.category.color"
+              ></i>
               <span>{{ transaction.category.name }}</span>
             </div>
           </td>
           <td>
-            <p-tag 
+            <p-tag
               [value]="transaction.type === 'income' ? 'Receita' : 'Despesa'"
               [severity]="transaction.type === 'income' ? 'success' : 'danger'"
             ></p-tag>
           </td>
           <td>
-            <p-tag 
+            <p-tag
               *ngIf="!isProjectedTransaction(transaction)"
               [value]="getPaymentStatusLabel(transaction.paymentStatus)"
               [severity]="getPaymentStatusSeverity(transaction)"
@@ -315,30 +331,30 @@
             <span *ngIf="isProjectedTransaction(transaction)" class="text-500 text-sm">-</span>
           </td>
           <td>
-            <span 
+            <span
               [class]="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
               class="font-semibold"
             >
-              {{ transaction.amount | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+              {{ transaction.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
             </span>
           </td>
           <td>
             <div class="table-actions">
-              <p-button 
+              <p-button
                 *ngIf="canMarkAsPaid(transaction)"
-                icon="pi pi-check" 
+                icon="pi pi-check"
                 (click)="confirmPayTransaction(transaction)"
                 styleClass="p-button-text p-button-success p-button-sm"
                 pTooltip="Marcar como Pago"
               ></p-button>
-              <p-button 
-                icon="pi pi-pencil" 
+              <p-button
+                icon="pi pi-pencil"
                 (click)="editTransaction(transaction)"
                 styleClass="p-button-text p-button-sm"
                 pTooltip="Editar"
               ></p-button>
-              <p-button 
-                icon="pi pi-trash" 
+              <p-button
+                icon="pi pi-trash"
                 (click)="deleteTransaction(transaction)"
                 styleClass="p-button-text p-button-danger p-button-sm"
                 pTooltip="Excluir"
@@ -353,9 +369,9 @@
             <div class="table-empty-state">
               <i class="pi pi-inbox table-empty-icon"></i>
               <span class="table-empty-title">Nenhuma transação encontrada</span>
-              <p-button 
-                label="Adicionar Primeira Transação" 
-                icon="pi pi-plus" 
+              <p-button
+                label="Adicionar Primeira Transação"
+                icon="pi pi-plus"
                 (click)="openTransactionDialog()"
                 styleClass="p-button-primary table-empty-action"
               ></p-button>
@@ -367,7 +383,7 @@
   </div>
 
   <!-- Transaction Dialog -->
-  <p-dialog 
+  <p-dialog
     header="{{ editingTransaction ? 'Editar Transação' : 'Nova Transação' }}"
     [(visible)]="showTransactionDialog"
     [modal]="true"
@@ -375,7 +391,7 @@
     [draggable]="false"
     [resizable]="false"
     styleClass="p-dialog-maximized md:p-dialog-default"
-    [style]="{width: '500px'}"
+    [style]="{ width: '500px' }"
   >
     <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()">
       <!-- Type Selection -->
@@ -383,7 +399,7 @@
         <label class="block text-sm font-medium mb-2">
           Tipo <span class="required-asterisk">*</span>
         </label>
-        <p-dropdown 
+        <p-dropdown
           formControlName="type"
           [options]="getTypeOptions()"
           optionLabel="label"
@@ -407,10 +423,7 @@
           placeholder="0,00"
           styleClass="w-full"
         ></p-inputNumber>
-        <small 
-          class="text-red-500" 
-          *ngIf="submitted && transactionForm.get('amount')?.invalid"
-        >
+        <small class="text-red-500" *ngIf="submitted && transactionForm.get('amount')?.invalid">
           Valor é obrigatório
         </small>
       </div>
@@ -420,16 +433,16 @@
         <label for="description" class="block text-sm font-medium mb-2">
           Descrição <span class="required-asterisk">*</span>
         </label>
-        <input 
+        <input
           id="description"
-          type="text" 
-          pInputText 
+          type="text"
+          pInputText
           formControlName="description"
           placeholder="Descrição da transação"
           class="w-full"
         />
-        <small 
-          class="text-red-500" 
+        <small
+          class="text-red-500"
           *ngIf="submitted && transactionForm.get('description')?.invalid"
         >
           Descrição é obrigatória
@@ -461,10 +474,7 @@
             </div>
           </ng-template>
         </p-dropdown>
-        <small 
-          class="text-red-500" 
-          *ngIf="submitted && transactionForm.get('categoryId')?.invalid"
-        >
+        <small class="text-red-500" *ngIf="submitted && transactionForm.get('categoryId')?.invalid">
           Categoria é obrigatória
         </small>
       </div>
@@ -485,8 +495,8 @@
           appendTo="body"
           (onSelect)="onTransactionDateChange()"
         ></p-calendar>
-        <small 
-          class="text-red-500" 
+        <small
+          class="text-red-500"
           *ngIf="submitted && transactionForm.get('transactionDate')?.invalid"
         >
           Data é obrigatória
@@ -512,8 +522,8 @@
         <small class="text-color-secondary text-xs mt-1 block">
           Define em qual mês esta transação aparecerá nas estatísticas
         </small>
-        <small 
-          class="text-red-500" 
+        <small
+          class="text-red-500"
           *ngIf="submitted && transactionForm.get('competencyPeriod')?.invalid"
         >
           Período de competência é obrigatório
@@ -522,12 +532,10 @@
 
       <!-- Notes -->
       <div class="field mb-4">
-        <label for="notes" class="block text-sm font-medium mb-2">
-          Observações
-        </label>
-        <textarea 
+        <label for="notes" class="block text-sm font-medium mb-2"> Observações </label>
+        <textarea
           id="notes"
-          pInputTextarea 
+          pInputTextarea
           formControlName="notes"
           placeholder="Observações adicionais (opcional)"
           rows="3"
@@ -536,7 +544,7 @@
       </div>
 
       <!-- Projection Settings -->
-      <p-panel 
+      <p-panel
         header="Configurações de Projeção"
         [toggleable]="true"
         [collapsed]="!isProjectedFormEnabled()"
@@ -545,10 +553,10 @@
         <!-- Is Projected Toggle -->
         <div class="field mb-3">
           <div class="flex align-items-center flex-wrap gap-2">
-            <p-toggleButton 
+            <p-toggleButton
               id="isProjected"
               formControlName="isProjected"
-              onLabel="Transação Projetada" 
+              onLabel="Transação Projetada"
               offLabel="Transação Real"
               (onChange)="onProjectedToggle()"
             ></p-toggleButton>
@@ -579,7 +587,7 @@
           <label for="confidenceScore" class="block text-sm font-medium mb-2">
             Nível de Confiança (%)
           </label>
-          <p-inputNumber 
+          <p-inputNumber
             id="confidenceScore"
             formControlName="confidenceScore"
             [min]="0"
@@ -597,16 +605,16 @@
 
       <!-- Action Buttons -->
       <div class="dialog-actions flex justify-content-end gap-2 mt-4 pt-3">
-        <p-button 
-          label="Cancelar" 
-          icon="pi pi-times" 
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
           (click)="closeTransactionDialog()"
           styleClass="p-button-text"
           type="button"
         ></p-button>
-        <p-button 
-          [label]="editingTransaction ? 'Atualizar' : 'Salvar'" 
-          icon="pi pi-check" 
+        <p-button
+          [label]="editingTransaction ? 'Atualizar' : 'Salvar'"
+          icon="pi pi-check"
           type="submit"
           [loading]="loading"
         ></p-button>

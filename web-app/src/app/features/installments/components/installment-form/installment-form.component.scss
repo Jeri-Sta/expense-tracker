@@ -173,7 +173,7 @@
     color: var(--text-color) !important;
     border-radius: $border-radius-sm;
     transition: all 0.2s;
-    
+
     &:enabled:focus {
       outline: 0;
       outline-offset: 0;
@@ -181,62 +181,62 @@
       border-color: var(--primary-500) !important;
       background: var(--surface-0) !important;
     }
-    
+
     &:enabled:hover {
       border-color: var(--primary-400) !important;
       background: var(--surface-0) !important;
     }
-    
+
     &::placeholder {
       color: var(--text-color-secondary) !important;
     }
   }
-  
+
   .p-inputnumber {
     .p-inputnumber-input {
       background: var(--surface-0) !important;
       border: 1px solid var(--surface-300) !important;
-      
+
       &:enabled:focus {
         box-shadow: 0 0 0 0.2rem var(--primary-200) !important;
         border-color: var(--primary-500) !important;
       }
     }
-    
+
     .p-inputnumber-button {
       background: var(--surface-100) !important;
       border: 1px solid var(--surface-300) !important;
       color: var(--text-color) !important;
-      
+
       &:enabled:hover {
         background: var(--surface-200) !important;
         border-color: var(--primary-400) !important;
       }
     }
   }
-  
+
   .p-dropdown {
     background: var(--surface-0) !important;
-    
+
     .p-dropdown-trigger {
       background: transparent !important;
       color: var(--text-color-secondary) !important;
     }
-    
+
     .p-dropdown-label {
       color: var(--text-color) !important;
-      
+
       &.p-placeholder {
         color: var(--text-color-secondary) !important;
       }
     }
   }
-  
+
   .p-calendar {
     .p-inputtext {
       background: var(--surface-0) !important;
     }
-    
+
     .p-datepicker-trigger {
       background: transparent !important;
       color: var(--text-color-secondary) !important;
@@ -252,7 +252,7 @@
   .p-dropdown,
   .p-textarea {
     border-color: $color-danger !important;
-    
+
     &:enabled:focus {
       box-shadow: 0 0 0 0.2rem var(--red-200) !important;
     }

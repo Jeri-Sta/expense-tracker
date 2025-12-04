@@ -6,28 +6,31 @@
         <p class="text-color-secondary m-0 text-sm">Lista de todos os seus financiamentos ativos</p>
       </div>
       <div class="flex gap-2">
-        <p-button 
-          label="Novo" 
-          icon="pi pi-plus" 
-          [text]="true" 
+        <p-button
+          label="Novo"
+          icon="pi pi-plus"
+          [text]="true"
           size="small"
           (onClick)="onNewInstallmentPlan()"
         ></p-button>
-        <p-button 
-          label="Ver Todos" 
-          icon="pi pi-external-link" 
-          [text]="true" 
+        <p-button
+          label="Ver Todos"
+          icon="pi pi-external-link"
+          [text]="true"
           size="small"
           (onClick)="onViewAll()"
         ></p-button>
       </div>
     </div>
   </div>
-  
+
   <div class="widget-content p-4">
     <!-- Loading State -->
     <div class="loading-container" *ngIf="isLoading">
-      <p-progressSpinner strokeWidth="4" [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
+      <p-progressSpinner
+        strokeWidth="4"
+        [style]="{ width: '40px', height: '40px' }"
+      ></p-progressSpinner>
     </div>
 
     <!-- Plans Grid -->
@@ -36,19 +39,21 @@
         <div class="plan-header flex justify-content-between align-items-start mb-3">
           <div class="plan-info">
             <h4 class="plan-name text-color font-semibold m-0 mb-1">{{ plan.name }}</h4>
-            <p-tag 
-              [value]="plan.isActive ? 'Ativo' : 'Inativo'" 
+            <p-tag
+              [value]="plan.isActive ? 'Ativo' : 'Inativo'"
               [severity]="plan.isActive ? 'success' : 'secondary'"
-              styleClass="text-xs">
+              styleClass="text-xs"
+            >
             </p-tag>
           </div>
-          <p-button 
-            icon="pi pi-eye" 
-            [text]="true" 
+          <p-button
+            icon="pi pi-eye"
+            [text]="true"
             [rounded]="true"
             size="small"
             pTooltip="Ver detalhes"
-            (onClick)="onViewDetails(plan.id)">
+            (onClick)="onViewDetails(plan.id)"
+          >
           </p-button>
         </div>
 
@@ -58,14 +63,18 @@
             <span class="text-color-secondary text-sm">
               {{ plan.paidInstallments }} de {{ plan.totalInstallments }} parcelas
             </span>
-            <span class="font-semibold text-sm" [ngClass]="getProgressBarClass(plan.completionPercentage)">
+            <span
+              class="font-semibold text-sm"
+              [ngClass]="getProgressBarClass(plan.completionPercentage)"
+            >
               {{ plan.completionPercentage.toFixed(1) }}%
             </span>
           </div>
-          <p-progressBar 
-            [value]="plan.completionPercentage" 
+          <p-progressBar
+            [value]="plan.completionPercentage"
             [showValue]="false"
-            [styleClass]="getProgressBarClass(plan.completionPercentage)">
+            [styleClass]="getProgressBarClass(plan.completionPercentage)"
+          >
           </p-progressBar>
         </div>
 
@@ -73,7 +82,9 @@
         <div class="financial-summary grid">
           <div class="col-6">
             <div class="text-color-secondary text-xs mb-1">Financiado</div>
-            <div class="text-color font-medium text-sm">{{ formatCurrency(plan.financedAmount) }}</div>
+            <div class="text-color font-medium text-sm">
+              {{ formatCurrency(plan.financedAmount) }}
+            </div>
           </div>
           <div class="col-6">
             <div class="text-color-secondary text-xs mb-1">Total</div>
@@ -81,11 +92,15 @@
           </div>
           <div class="col-6 mt-2">
             <div class="text-color-secondary text-xs mb-1">Pago</div>
-            <div class="text-green-500 font-medium text-sm">{{ formatCurrency(plan.totalPaid) }}</div>
+            <div class="text-green-500 font-medium text-sm">
+              {{ formatCurrency(plan.totalPaid) }}
+            </div>
           </div>
           <div class="col-6 mt-2">
             <div class="text-color-secondary text-xs mb-1">Restante</div>
-            <div class="text-orange-500 font-medium text-sm">{{ formatCurrency(plan.remainingAmount) }}</div>
+            <div class="text-orange-500 font-medium text-sm">
+              {{ formatCurrency(plan.remainingAmount) }}
+            </div>
           </div>
         </div>
 
@@ -94,7 +109,10 @@
           <div class="flex align-items-center gap-2">
             <i class="pi pi-calendar text-color-secondary text-sm"></i>
             <span class="text-color-secondary text-xs">Próximo vencimento:</span>
-            <span class="text-sm font-medium" [ngClass]="getDueDateClass(getDaysUntilDue(plan.nextDueDate))">
+            <span
+              class="text-sm font-medium"
+              [ngClass]="getDueDateClass(getDaysUntilDue(plan.nextDueDate))"
+            >
               {{ formatDate(plan.nextDueDate) }}
               <ng-container *ngIf="getDaysUntilDue(plan.nextDueDate) as days">
                 <span class="text-xs">
@@ -111,12 +129,13 @@
     <div class="empty-state text-center py-6" *ngIf="!isLoading && getActivePlans().length === 0">
       <i class="pi pi-wallet text-4xl text-color-secondary mb-3"></i>
       <p class="text-color-secondary m-0">Nenhum financiamento ativo encontrado</p>
-      <p-button 
-        label="Criar Financiamento" 
-        icon="pi pi-plus" 
-        [text]="true" 
+      <p-button
+        label="Criar Financiamento"
+        icon="pi pi-plus"
+        [text]="true"
         (onClick)="onNewInstallmentPlan()"
-        styleClass="mt-3">
+        styleClass="mt-3"
+      >
       </p-button>
     </div>
   </div>

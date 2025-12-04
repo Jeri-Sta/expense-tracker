@@ -6,9 +6,9 @@
       <p class="text-color-secondary m-0">Gerencie transações automáticas e recorrentes</p>
     </div>
     <div class="flex gap-2">
-      <p-button 
-        label="Nova Recorrência" 
-        icon="pi pi-plus" 
+      <p-button
+        label="Nova Recorrência"
+        icon="pi pi-plus"
         size="small"
         (onClick)="openNew()"
       ></p-button>
@@ -17,37 +17,31 @@
 
   <!-- Recurring Transactions Cards -->
   <div class="grid" *ngIf="!loading && recurringTransactions.length > 0">
-    <div 
-      class="col-12 lg:col-6 xl:col-4" 
-      *ngFor="let transaction of recurringTransactions"
-    >
+    <div class="col-12 lg:col-6 xl:col-4" *ngFor="let transaction of recurringTransactions">
       <div class="recurring-card surface-card border-round-lg shadow-2 p-4 h-full">
         <div class="flex flex-column h-full">
           <!-- Card Header -->
           <div class="flex align-items-start justify-content-between mb-3">
             <div class="flex-grow-1">
               <div class="flex align-items-center gap-2 mb-2">
-                <i 
-                  [class]="normalizeIcon(transaction.category.icon)" 
+                <i
+                  [class]="normalizeIcon(transaction.category.icon)"
                   [style.color]="transaction.category.color"
                   class="text-lg"
                 ></i>
                 <h4 class="font-bold text-lg m-0">{{ transaction.description }}</h4>
               </div>
-              <span 
-                [class]="getTransactionTypeClass(transaction.type)" 
-                class="font-bold text-xl"
-              >
+              <span [class]="getTransactionTypeClass(transaction.type)" class="font-bold text-xl">
                 {{ formatCurrency(transaction.amount) }}
               </span>
             </div>
             <div class="flex flex-column gap-1 align-items-end">
-              <p-tag 
+              <p-tag
                 [value]="getStatusLabel(transaction)"
                 [severity]="getStatusSeverity(transaction)"
                 [rounded]="true"
               ></p-tag>
-              <p-tag 
+              <p-tag
                 [value]="getTransactionTypeLabel(transaction.type)"
                 [severity]="transaction.type === 'income' ? 'success' : 'danger'"
                 [rounded]="true"
@@ -65,7 +59,7 @@
                   <span>{{ transaction.category.name }}</span>
                 </div>
               </div>
-              
+
               <div class="col-6">
                 <div class="flex align-items-center gap-2 mb-1">
                   <i class="pi pi-clock text-color-secondary"></i>
@@ -75,24 +69,35 @@
                   {{ formatFrequency(transaction.frequency, transaction.interval) }}
                 </span>
               </div>
-              
+
               <div class="col-6">
                 <div class="flex align-items-center gap-2 mb-1">
                   <i class="pi pi-calendar text-color-secondary"></i>
                   <span class="font-semibold">Próxima:</span>
                 </div>
-                <span 
-                  [class]="isOverdue(transaction) ? 'text-red-600 font-bold' : 'text-color-secondary'"
+                <span
+                  [class]="
+                    isOverdue(transaction) ? 'text-red-600 font-bold' : 'text-color-secondary'
+                  "
                 >
                   {{ transaction.nextExecution ? formatDate(transaction.nextExecution) : 'N/A' }}
                 </span>
-                <div *ngIf="transaction.nextExecution && transaction.isActive && !transaction.isCompleted" class="text-xs mt-1">
+                <div
+                  *ngIf="
+                    transaction.nextExecution && transaction.isActive && !transaction.isCompleted
+                  "
+                  class="text-xs mt-1"
+                >
                   <span [class]="isOverdue(transaction) ? 'text-red-600' : 'text-color-secondary'">
-                    {{ isOverdue(transaction) ? 'Atrasada' : getDaysUntilExecution(transaction) + ' dias' }}
+                    {{
+                      isOverdue(transaction)
+                        ? 'Atrasada'
+                        : getDaysUntilExecution(transaction) + ' dias'
+                    }}
                   </span>
                 </div>
               </div>
-              
+
               <div class="col-6" *ngIf="transaction.executionCount > 0">
                 <div class="flex align-items-center gap-2 mb-1">
                   <i class="pi pi-check-circle text-color-secondary"></i>
@@ -100,12 +105,10 @@
                 </div>
                 <span class="text-color-secondary">
                   {{ transaction.executionCount }}
-                  <span *ngIf="transaction.maxExecutions">
-                    / {{ transaction.maxExecutions }}
-                  </span>
+                  <span *ngIf="transaction.maxExecutions"> / {{ transaction.maxExecutions }} </span>
                 </span>
               </div>
-              
+
               <div class="col-6" *ngIf="transaction.endDate">
                 <div class="flex align-items-center gap-2 mb-1">
                   <i class="pi pi-calendar-times text-color-secondary"></i>
@@ -120,10 +123,24 @@
             <!-- Progress Bar -->
             <div *ngIf="transaction.maxExecutions && transaction.executionCount > 0" class="mt-2">
               <small class="text-color-secondary">Progresso</small>
-              <div class="progress-bar-container" style="height: 8px; background-color: var(--surface-300); border-radius: 4px; overflow: hidden;">
-                <div class="progress-bar-fill" 
-                     [style]="{'width': getExecutionProgress(transaction) + '%', 'height': '100%', 'background-color': 'var(--primary-color)', 'transition': 'width 0.3s ease'}">
-                </div>
+              <div
+                class="progress-bar-container"
+                style="
+                  height: 8px;
+                  background-color: var(--surface-300);
+                  border-radius: 4px;
+                  overflow: hidden;
+                "
+              >
+                <div
+                  class="progress-bar-fill"
+                  [style]="{
+                    width: getExecutionProgress(transaction) + '%',
+                    height: '100%',
+                    'background-color': 'var(--primary-color)',
+                    transition: 'width 0.3s ease',
+                  }"
+                ></div>
               </div>
             </div>
 
@@ -137,18 +154,20 @@
           </div>
 
           <!-- Actions -->
-          <div class="flex justify-content-between align-items-center pt-2 border-top-1 surface-border">
+          <div
+            class="flex justify-content-between align-items-center pt-2 border-top-1 surface-border"
+          >
             <div class="flex gap-1">
-              <p-button 
-                icon="pi pi-pencil" 
+              <p-button
+                icon="pi pi-pencil"
                 severity="secondary"
                 size="small"
                 [text]="true"
                 (onClick)="editTransaction(transaction)"
                 pTooltip="Editar"
               ></p-button>
-              <p-button 
-                [icon]="transaction.isActive ? 'pi pi-pause' : 'pi pi-play'" 
+              <p-button
+                [icon]="transaction.isActive ? 'pi pi-pause' : 'pi pi-play'"
                 [severity]="transaction.isActive ? 'warning' : 'success'"
                 size="small"
                 [text]="true"
@@ -156,8 +175,8 @@
                 [title]="transaction.isActive ? 'Pausar' : 'Ativar'"
                 [disabled]="transaction.isCompleted"
               ></p-button>
-              <p-button 
-                icon="pi pi-play" 
+              <p-button
+                icon="pi pi-play"
                 severity="info"
                 size="small"
                 [text]="true"
@@ -165,8 +184,8 @@
                 pTooltip="Executar Agora"
                 [disabled]="!transaction.isActive || transaction.isCompleted"
               ></p-button>
-              <p-button 
-                icon="pi pi-trash" 
+              <p-button
+                icon="pi pi-trash"
                 severity="danger"
                 size="small"
                 [text]="true"
@@ -174,10 +193,10 @@
                 pTooltip="Excluir"
               ></p-button>
             </div>
-            
+
             <div class="flex align-items-center gap-2">
-              <i 
-                *ngIf="isOverdue(transaction)" 
+              <i
+                *ngIf="isOverdue(transaction)"
                 class="pi pi-exclamation-triangle text-orange-500"
                 pTooltip="Transação atrasada"
               ></i>
@@ -204,9 +223,9 @@
       <p class="text-color-secondary mb-4">
         Crie transações recorrentes para automatizar receitas e despesas regulares
       </p>
-      <p-button 
-        label="Criar Primeira Recorrência" 
-        icon="pi pi-plus" 
+      <p-button
+        label="Criar Primeira Recorrência"
+        icon="pi pi-plus"
         (onClick)="openNew()"
       ></p-button>
     </div>
@@ -214,46 +233,41 @@
 </div>
 
 <!-- Transaction Dialog -->
-<p-dialog 
-  [(visible)]="transactionDialog" 
+<p-dialog
+  [(visible)]="transactionDialog"
   [header]="editMode ? 'Editar Transação Recorrente' : 'Nova Transação Recorrente'"
-  [modal]="true" 
+  [modal]="true"
   [closable]="true"
   [style]="{ width: '800px' }"
   [maximizable]="false"
-  [breakpoints]="{'960px': '90vw', '640px': '95vw'}"
+  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
 >
   <form [formGroup]="transactionForm" class="grid">
     <!-- Basic Information -->
     <div class="col-12">
       <h5 class="text-primary mb-3">Informações Básicas</h5>
     </div>
-    
+
     <div class="field col-12">
       <label for="description" class="font-bold">
         Descrição <span class="required-asterisk">*</span>
       </label>
-      <input 
+      <input
         id="description"
-        type="text" 
-        pInputText 
+        type="text"
+        pInputText
         formControlName="description"
         class="w-full"
         placeholder="Ex: Aluguel, Salário, Conta de Luz..."
         [class.ng-dirty]="submitted && transactionForm.get('description')?.invalid"
       />
-      <small 
-        class="text-red-500" 
-        *ngIf="submitted && transactionForm.get('description')?.invalid"
-      >
+      <small class="text-red-500" *ngIf="submitted && transactionForm.get('description')?.invalid">
         Descrição é obrigatória
       </small>
     </div>
-    
+
     <div class="field col-12 md:col-6">
-      <label for="amount" class="font-bold">
-        Valor <span class="required-asterisk">*</span>
-      </label>
+      <label for="amount" class="font-bold"> Valor <span class="required-asterisk">*</span> </label>
       <p-inputNumber
         id="amount"
         formControlName="amount"
@@ -263,18 +277,13 @@
         styleClass="w-full"
         [class.ng-dirty]="submitted && transactionForm.get('amount')?.invalid"
       ></p-inputNumber>
-      <small 
-        class="text-red-500" 
-        *ngIf="submitted && transactionForm.get('amount')?.invalid"
-      >
+      <small class="text-red-500" *ngIf="submitted && transactionForm.get('amount')?.invalid">
         Valor deve ser maior que zero
       </small>
     </div>
-    
+
     <div class="field col-12 md:col-6">
-      <label for="type" class="font-bold">
-        Tipo <span class="required-asterisk">*</span>
-      </label>
+      <label for="type" class="font-bold"> Tipo <span class="required-asterisk">*</span> </label>
       <p-dropdown
         id="type"
         formControlName="type"
@@ -284,7 +293,7 @@
         (onChange)="onTypeChange()"
       ></p-dropdown>
     </div>
-    
+
     <div class="field col-12">
       <label for="categoryId" class="font-bold">
         Categoria <span class="required-asterisk">*</span>
@@ -310,10 +319,7 @@
           </div>
         </ng-template>
       </p-dropdown>
-      <small 
-        class="text-red-500" 
-        *ngIf="submitted && transactionForm.get('categoryId')?.invalid"
-      >
+      <small class="text-red-500" *ngIf="submitted && transactionForm.get('categoryId')?.invalid">
         Categoria é obrigatória
       </small>
     </div>
@@ -322,7 +328,7 @@
     <div class="col-12">
       <h5 class="text-primary mb-3 mt-4">Agendamento</h5>
     </div>
-    
+
     <div class="field col-12 md:col-6">
       <label for="frequency" class="font-bold">
         Frequência <span class="text-red-500">*</span>
@@ -336,7 +342,7 @@
         (onChange)="calculateNextExecution()"
       ></p-dropdown>
     </div>
-    
+
     <div class="field col-12 md:col-6">
       <label for="interval" class="font-bold">
         Intervalo <span class="text-red-500">*</span>
@@ -355,7 +361,7 @@
         A cada quantas vezes da frequência (ex: a cada 2 meses)
       </small>
     </div>
-    
+
     <div class="field col-12 md:col-6">
       <label for="nextExecution" class="font-bold">
         Próxima Execução <span class="text-red-500">*</span>
@@ -370,7 +376,7 @@
         appendTo="body"
       ></p-calendar>
     </div>
-    
+
     <div class="field col-12 md:col-6">
       <label for="endDate" class="font-bold">Data de Fim</label>
       <p-calendar
@@ -383,11 +389,9 @@
         placeholder="Opcional"
         appendTo="body"
       ></p-calendar>
-      <small class="text-color-secondary">
-        Data limite para execução automática
-      </small>
+      <small class="text-color-secondary"> Data limite para execução automática </small>
     </div>
-    
+
     <div class="field col-12 md:col-6">
       <label for="maxExecutions" class="font-bold">Máximo de Execuções</label>
       <p-inputNumber
@@ -399,27 +403,19 @@
         placeholder="Ilimitado"
         suffix=" vezes"
       ></p-inputNumber>
-      <small class="text-color-secondary">
-        Quantidade máxima de execuções
-      </small>
+      <small class="text-color-secondary"> Quantidade máxima de execuções </small>
     </div>
-    
+
     <div class="field col-12 md:col-6 flex align-items-center">
-      <p-checkbox 
-        formControlName="isActive"
-        binary="true"
-        inputId="isActive"
-      ></p-checkbox>
-      <label for="isActive" class="ml-2 font-bold">
-        Ativar imediatamente
-      </label>
+      <p-checkbox formControlName="isActive" binary="true" inputId="isActive"></p-checkbox>
+      <label for="isActive" class="ml-2 font-bold"> Ativar imediatamente </label>
     </div>
-    
+
     <div class="field col-12">
       <label for="notes" class="font-bold">Observações</label>
-      <textarea 
+      <textarea
         id="notes"
-        pInputTextarea 
+        pInputTextarea
         formControlName="notes"
         rows="3"
         class="w-full"
@@ -427,18 +423,18 @@
       ></textarea>
     </div>
   </form>
-  
+
   <ng-template pTemplate="footer">
     <div class="flex justify-content-end gap-2">
-      <p-button 
-        label="Cancelar" 
-        icon="pi pi-times" 
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
         severity="secondary"
         (onClick)="hideDialog()"
       ></p-button>
-      <p-button 
-        label="Salvar" 
-        icon="pi pi-check" 
+      <p-button
+        label="Salvar"
+        icon="pi pi-check"
         (onClick)="saveTransaction()"
         [loading]="loading"
       ></p-button>

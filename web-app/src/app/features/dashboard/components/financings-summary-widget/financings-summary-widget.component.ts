@@ -5,7 +5,7 @@ import { DashboardUtilsService } from '../../../../shared/services/dashboard-uti
 @Component({
   selector: 'app-financings-summary-widget',
   templateUrl: './financings-summary-widget.component.html',
-  styleUrls: ['./financings-summary-widget.component.scss']
+  styleUrls: ['./financings-summary-widget.component.scss'],
 })
 export class FinancingsSummaryWidgetComponent {
   @Input() installmentStats: InstallmentStats = {
@@ -15,7 +15,7 @@ export class FinancingsSummaryWidgetComponent {
     totalRemaining: 0,
     totalSavings: 0,
     upcomingPayments: [],
-    paidInMonth: []
+    paidInMonth: [],
   };
   @Input() isLoading = false;
   @Output() navigateToInstallments = new EventEmitter<void>();

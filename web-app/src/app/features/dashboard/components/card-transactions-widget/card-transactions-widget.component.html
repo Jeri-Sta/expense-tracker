@@ -6,9 +6,9 @@
         <h5 class="font-bold text-color m-0">Transações do Cartão</h5>
         <p class="text-color-secondary text-sm m-0">Lançamentos do período</p>
       </div>
-      <p-button 
-        label="Ver Todas" 
-        icon="pi pi-external-link" 
+      <p-button
+        label="Ver Todas"
+        icon="pi pi-external-link"
         [text]="true"
         size="small"
         routerLink="/credit-cards/transactions"
@@ -20,17 +20,17 @@
   <div class="card-content p-4">
     <!-- Transactions List -->
     <div class="transactions-list" *ngIf="transactions.length > 0">
-      <div 
+      <div
         class="transaction-item flex justify-content-between align-items-center py-3 px-3 border-round hover:surface-hover border-bottom-1 surface-border"
         *ngFor="let transaction of transactions; let last = last"
         [class.border-none]="last"
       >
         <div class="flex align-items-center gap-3">
-          <div 
+          <div
             class="flex align-items-center justify-content-center border-circle w-3rem h-3rem"
             [style.background-color]="(transaction.categoryColor || '#6B7280') + '20'"
           >
-            <i 
+            <i
               [class]="normalizeIcon(transaction.categoryIcon || '') + ' text-xl'"
               [style.color]="transaction.categoryColor || '#6B7280'"
             ></i>
@@ -56,9 +56,11 @@
 
     <!-- Empty State -->
     <div class="text-center py-4 text-color-secondary" *ngIf="transactions.length === 0">
-      <i class="pi pi-inbox text-4xl mb-2" style="display: block;"></i>
+      <i class="pi pi-inbox text-4xl mb-2" style="display: block"></i>
       <p class="m-0 mb-2">Nenhuma transação no período</p>
-      <a routerLink="/credit-cards/transactions" class="text-primary text-sm">Adicionar transação</a>
+      <a routerLink="/credit-cards/transactions" class="text-primary text-sm"
+        >Adicionar transação</a
+      >
     </div>
   </div>
 </div>

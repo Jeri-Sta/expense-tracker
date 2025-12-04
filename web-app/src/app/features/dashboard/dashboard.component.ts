@@ -1,9 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { TransactionService, MonthlyStats, CreditCardSummary, CardInstallmentSummary, InvoiceSummary } from '../../core/services/transaction.service';
+import {
+  TransactionService,
+  MonthlyStats,
+  CreditCardSummary,
+  CardInstallmentSummary,
+  InvoiceSummary,
+} from '../../core/services/transaction.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { CategoryService, Category } from '../../core/services/category.service';
-import { RecurringTransactionService, RecurringTransaction } from '../../core/services/recurring-transaction.service';
+import {
+  RecurringTransactionService,
+  RecurringTransaction,
+} from '../../core/services/recurring-transaction.service';
 import { CreditCardService } from '../credit-cards/services/credit-card.service';
 import { CardTransactionService } from '../credit-cards/services/card-transaction.service';
 import { CardTransaction } from '../credit-cards/models/card-transaction.model';
@@ -14,16 +23,21 @@ import { normalizeIcon } from '../../shared/utils/icon.utils';
 import { parseLocalDate, formatDateToString } from '../../shared/utils/date.utils';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { DashboardStats, CategoryStats, InstallmentStats, MonthlyExpenseBreakdownItem } from '../../shared/types/dashboard.types';
+import {
+  DashboardStats,
+  CategoryStats,
+  InstallmentStats,
+  MonthlyExpenseBreakdownItem,
+} from '../../shared/types/dashboard.types';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
   loading = false;
-  
+
   // Current month stats
   currentStats: DashboardStats = {
     totalIncome: 0,
@@ -36,34 +50,34 @@ export class DashboardComponent implements OnInit {
     projectedExpenses: 0,
     projectedBalance: 0,
     projectedTransactionCount: 0,
-    hasProjections: false
+    hasProjections: false,
   };
-  
+
   // Chart data
   incomeVsExpenseData: any;
   incomeVsExpenseOptions: any;
-  
+
   monthlyTrendData: any;
   monthlyTrendOptions: any;
-  
+
   categoryPieData: any;
   categoryPieOptions: any;
-  
+
   expenseCategoryData: any;
   expenseCategoryOptions: any;
-  
+
   // Recent data
   recentTransactions: any[] = [];
   upcomingRecurring: RecurringTransaction[] = [];
   topCategories: CategoryStats[] = [];
-  
+
   // Credit Cards data
   creditCards: CreditCardSummary[] = [];
   cardInstallments: CardInstallmentSummary[] = [];
   invoices: InvoiceSummary[] = [];
   cardTransactions: CardTransaction[] = [];
   currentCardPeriod: string = '';
-  
+
   // Installments data
   installmentStats: InstallmentStats = {
     totalPlans: 0,
@@ -72,47 +86,47 @@ export class DashboardComponent implements OnInit {
     totalRemaining: 0,
     totalSavings: 0,
     upcomingPayments: [],
-    paidInMonth: []
+    paidInMonth: [],
   };
   installmentPlans: InstallmentPlanSummary[] = [];
-  
+
   // Expense breakdown data
   expenseBreakdown: MonthlyExpenseBreakdownItem[] = [];
-  
+
   // Date range for analysis
   selectedYear = new Date().getFullYear();
   selectedMonth = new Date().getMonth() + 1;
   availableYears: number[] = [];
-  
+
   // Projection settings
   showProjections = true;
   includeProjections = true;
-  
+
   // Navigation mode
   isCurrentMonth = true;
   navigationDate: Date = new Date();
-  
+
   // Tab navigation
   activeTabIndex: number = 0;
   private readonly TAB_STORAGE_KEY = 'dashboard_active_tab';
-  
+
   // Chart responsive options
   responsiveOptions: any[] = [
     {
       breakpoint: '1024px',
       numVisible: 3,
-      numScroll: 3
+      numScroll: 3,
     },
     {
       breakpoint: '768px',
       numVisible: 2,
-      numScroll: 2
+      numScroll: 2,
     },
     {
       breakpoint: '560px',
       numVisible: 1,
-      numScroll: 1
-    }
+      numScroll: 1,
+    },
   ];
 
   constructor(
@@ -124,14 +138,18 @@ export class DashboardComponent implements OnInit {
     private readonly creditCardService: CreditCardService,
     private readonly cardTransactionService: CardTransactionService,
     private readonly installmentService: InstallmentService,
-    private readonly messageService: MessageService
+    private readonly messageService: MessageService,
   ) {
     this.loadActiveTabFromStorage();
   }
 
   // Getter to check if there is credit card data to display
   get hasCardData(): boolean {
-    return this.creditCards.length > 0 || this.cardInstallments.length > 0 || this.cardTransactions.length > 0;
+    return (
+      this.creditCards.length > 0 ||
+      this.cardInstallments.length > 0 ||
+      this.cardTransactions.length > 0
+    );
   }
 
   // Getter to check if there is financing data to display
@@ -191,7 +209,7 @@ export class DashboardComponent implements OnInit {
 
   loadDashboardData(): void {
     this.loading = true;
-    
+
     if (this.isCurrentMonth) {
       // Load comprehensive dashboard data for current view
       this.dashboardService.getDashboard(this.selectedYear).subscribe({
@@ -200,12 +218,12 @@ export class DashboardComponent implements OnInit {
           this.updateChartsFromYearlyData(dashboardData.yearlyOverview || []);
           this.recentTransactions = dashboardData.recentTransactions || [];
           this.updateCategoryData(dashboardData.topCategories || []);
-          
+
           // Update installment stats
           if (dashboardData.installments) {
             this.installmentStats = {
               ...dashboardData.installments,
-              paidInMonth: dashboardData.installments.paidInMonth || []
+              paidInMonth: dashboardData.installments.paidInMonth || [],
             };
           }
 
@@ -219,12 +237,12 @@ export class DashboardComponent implements OnInit {
           if (dashboardData.invoices) {
             this.invoices = dashboardData.invoices;
           }
-          
+
           // Update expense breakdown
           if (dashboardData.expenseBreakdown) {
             this.expenseBreakdown = dashboardData.expenseBreakdown;
           }
-          
+
           this.loadUpcomingRecurring(); // Still load recurring transactions
           this.loadCardTransactionsForPeriod(); // Load card transactions for display
           this.loading = false;
@@ -235,10 +253,10 @@ export class DashboardComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao carregar dados do dashboard'
+            detail: 'Erro ao carregar dados do dashboard',
           });
           this.loading = false;
-        }
+        },
       });
     } else {
       // Load specific month data
@@ -247,12 +265,12 @@ export class DashboardComponent implements OnInit {
           this.updateCurrentStatsFromDashboard(monthlyData.stats);
           this.recentTransactions = monthlyData.recentTransactions || [];
           this.updateCategoryData(monthlyData.topCategories || []);
-          
+
           // Update installment stats for the selected month
           if (monthlyData.installments) {
             this.installmentStats = {
               ...monthlyData.installments,
-              paidInMonth: monthlyData.installments.paidInMonth || []
+              paidInMonth: monthlyData.installments.paidInMonth || [],
             };
           }
 
@@ -266,12 +284,12 @@ export class DashboardComponent implements OnInit {
           if (monthlyData.invoices) {
             this.invoices = monthlyData.invoices;
           }
-          
+
           // Update expense breakdown
           if (monthlyData.expenseBreakdown) {
             this.expenseBreakdown = monthlyData.expenseBreakdown;
           }
-          
+
           // Load yearly trend for context
           this.loadYearlyTrend();
           this.loadCardTransactionsForPeriod(); // Load card transactions for display
@@ -283,10 +301,10 @@ export class DashboardComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao carregar dados mensais'
+            detail: 'Erro ao carregar dados mensais',
           });
           this.loading = false;
-        }
+        },
       });
     }
   }
@@ -300,7 +318,7 @@ export class DashboardComponent implements OnInit {
           this.calculateGrowthRate(stats);
           resolve();
         },
-        error: reject
+        error: reject,
       });
     });
   }
@@ -309,20 +327,22 @@ export class DashboardComponent implements OnInit {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    
+
     return new Promise((resolve, reject) => {
-      this.transactionService.getTransactions({
-        startDate: formatDateToString(startOfMonth),
-        endDate: formatDateToString(endOfMonth),
-        limit: 1000
-      }).subscribe({
-        next: (response) => {
-          const transactions = response.data;
-          this.calculateCurrentStats(transactions);
-          resolve();
-        },
-        error: reject
-      });
+      this.transactionService
+        .getTransactions({
+          startDate: formatDateToString(startOfMonth),
+          endDate: formatDateToString(endOfMonth),
+          limit: 1000,
+        })
+        .subscribe({
+          next: (response) => {
+            const transactions = response.data;
+            this.calculateCurrentStats(transactions);
+            resolve();
+          },
+          error: reject,
+        });
     });
   }
 
@@ -330,21 +350,25 @@ export class DashboardComponent implements OnInit {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    
+
     return new Promise((resolve, reject) => {
       Promise.all([
-        this.transactionService.getTransactions({
-          startDate: formatDateToString(startOfMonth),
-          endDate: formatDateToString(endOfMonth),
-          limit: 1000
-        }).toPromise(),
-        this.categoryService.getCategories().toPromise()
-      ]).then(([transactionResponse, categories]) => {
-        if (transactionResponse && categories) {
-          this.calculateCategoryStats(transactionResponse.data, categories);
-        }
-        resolve();
-      }).catch(reject);
+        this.transactionService
+          .getTransactions({
+            startDate: formatDateToString(startOfMonth),
+            endDate: formatDateToString(endOfMonth),
+            limit: 1000,
+          })
+          .toPromise(),
+        this.categoryService.getCategories().toPromise(),
+      ])
+        .then(([transactionResponse, categories]) => {
+          if (transactionResponse && categories) {
+            this.calculateCategoryStats(transactionResponse.data, categories);
+          }
+          resolve();
+        })
+        .catch(reject);
     });
   }
 
@@ -355,7 +379,7 @@ export class DashboardComponent implements OnInit {
           this.recentTransactions = response.data;
           resolve();
         },
-        error: reject
+        error: reject,
       });
     });
   }
@@ -365,12 +389,16 @@ export class DashboardComponent implements OnInit {
       this.recurringTransactionService.getRecurringTransactions().subscribe({
         next: (transactions) => {
           this.upcomingRecurring = transactions
-            .filter(t => t.isActive && !t.isCompleted && t.nextExecution)
-            .sort((a, b) => parseLocalDate(a.nextExecution).getTime() - parseLocalDate(b.nextExecution).getTime())
+            .filter((t) => t.isActive && !t.isCompleted && t.nextExecution)
+            .sort(
+              (a, b) =>
+                parseLocalDate(a.nextExecution).getTime() -
+                parseLocalDate(b.nextExecution).getTime(),
+            )
             .slice(0, 5);
           resolve();
         },
-        error: reject
+        error: reject,
       });
     });
   }
@@ -378,12 +406,12 @@ export class DashboardComponent implements OnInit {
   loadInstallmentPlans(): void {
     this.installmentService.getAll().subscribe({
       next: (plans) => {
-        this.installmentPlans = plans.filter(plan => plan.isActive);
+        this.installmentPlans = plans.filter((plan) => plan.isActive);
         this.validateActiveTabIndex();
       },
       error: (error) => {
         console.error('Error loading installment plans:', error);
-      }
+      },
     });
   }
 
@@ -395,19 +423,20 @@ export class DashboardComponent implements OnInit {
   loadCardTransactionsForPeriod(): void {
     // Use the new endpoint that fetches transactions by invoice due month
     this.currentCardPeriod = `${this.selectedYear}-${String(this.selectedMonth).padStart(2, '0')}`;
-    
+
     // Load card transactions for invoices due in the selected month
-    this.cardTransactionService.getByDueMonth(this.selectedYear, this.selectedMonth).pipe(
-      catchError(() => of([]))
-    ).subscribe({
-      next: (transactions) => {
-        this.cardTransactions = transactions || [];
-        this.validateActiveTabIndex();
-      },
-      error: (error) => {
-        console.error('Error loading card transactions:', error);
-      }
-    });
+    this.cardTransactionService
+      .getByDueMonth(this.selectedYear, this.selectedMonth)
+      .pipe(catchError(() => of([])))
+      .subscribe({
+        next: (transactions) => {
+          this.cardTransactions = transactions || [];
+          this.validateActiveTabIndex();
+        },
+        error: (error) => {
+          console.error('Error loading card transactions:', error);
+        },
+      });
   }
 
   /**
@@ -419,23 +448,24 @@ export class DashboardComponent implements OnInit {
   }
 
   calculateCurrentStats(transactions: any[]): void {
-    const income = transactions.filter(t => t.type === 'income');
-    const expenses = transactions.filter(t => t.type === 'expense');
-    
+    const income = transactions.filter((t) => t.type === 'income');
+    const expenses = transactions.filter((t) => t.type === 'expense');
+
     this.currentStats.totalIncome = income.reduce((sum, t) => sum + t.amount, 0);
     this.currentStats.totalExpenses = expenses.reduce((sum, t) => sum + t.amount, 0);
     this.currentStats.balance = this.currentStats.totalIncome - this.currentStats.totalExpenses;
     this.currentStats.transactionCount = transactions.length;
-    this.currentStats.averageTransaction = transactions.length > 0 
-      ? (this.currentStats.totalIncome + this.currentStats.totalExpenses) / transactions.length 
-      : 0;
+    this.currentStats.averageTransaction =
+      transactions.length > 0
+        ? (this.currentStats.totalIncome + this.currentStats.totalExpenses) / transactions.length
+        : 0;
   }
 
   calculateCategoryStats(transactions: any[], categories: Category[]): void {
     const categoryStats = new Map<string, CategoryStats>();
-    
+
     // Initialize category stats
-    categories.forEach(category => {
+    categories.forEach((category) => {
       categoryStats.set(category.id, {
         categoryId: category.id,
         categoryName: category.name,
@@ -443,39 +473,42 @@ export class DashboardComponent implements OnInit {
         categoryIcon: category.icon,
         amount: 0,
         percentage: 0,
-        transactionCount: 0
+        transactionCount: 0,
       });
     });
-    
+
     // Calculate amounts per category
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
       const stats = categoryStats.get(transaction.category.id);
       if (stats) {
         stats.amount += transaction.amount;
         stats.transactionCount++;
       }
     });
-    
+
     // Calculate percentages and filter out empty categories
-    const totalAmount = Array.from(categoryStats.values()).reduce((sum, stat) => sum + stat.amount, 0);
+    const totalAmount = Array.from(categoryStats.values()).reduce(
+      (sum, stat) => sum + stat.amount,
+      0,
+    );
     this.topCategories = Array.from(categoryStats.values())
-      .filter(stat => stat.amount > 0)
-      .map(stat => ({
+      .filter((stat) => stat.amount > 0)
+      .map((stat) => ({
         ...stat,
-        percentage: totalAmount > 0 ? (stat.amount / totalAmount) * 100 : 0
+        percentage: totalAmount > 0 ? (stat.amount / totalAmount) * 100 : 0,
       }))
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 10);
-    
+
     this.updateCategoryCharts();
   }
 
   updateMonthlyTrendChart(stats: MonthlyStats[]): void {
-    const months = stats.map(s => this.getMonthName(s.period));
-    const incomeData = stats.map(s => s.totalIncome);
-    const expenseData = stats.map(s => s.totalExpenses);
-    const balanceData = stats.map(s => s.balance);
-    
+    const months = stats.map((s) => this.getMonthName(s.period));
+    const incomeData = stats.map((s) => s.totalIncome);
+    const expenseData = stats.map((s) => s.totalExpenses);
+    const balanceData = stats.map((s) => s.balance);
+
     this.monthlyTrendData = {
       labels: months,
       datasets: [
@@ -485,7 +518,7 @@ export class DashboardComponent implements OnInit {
           borderColor: '#10B981',
           backgroundColor: 'rgba(16, 185, 129, 0.1)',
           tension: 0.4,
-          fill: true
+          fill: true,
         },
         {
           label: 'Despesas',
@@ -493,7 +526,7 @@ export class DashboardComponent implements OnInit {
           borderColor: '#EF4444',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
           tension: 0.4,
-          fill: true
+          fill: true,
         },
         {
           label: 'Saldo',
@@ -502,52 +535,58 @@ export class DashboardComponent implements OnInit {
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           tension: 0.4,
           fill: false,
-          type: 'line'
-        }
-      ]
+          type: 'line',
+        },
+      ],
     };
   }
 
   updateIncomeVsExpenseChart(stats: MonthlyStats[]): void {
     const totalIncome = stats.reduce((sum, s) => sum + s.totalIncome, 0);
     const totalExpenses = stats.reduce((sum, s) => sum + s.totalExpenses, 0);
-    
+
     this.incomeVsExpenseData = {
       labels: ['Receitas', 'Despesas'],
-      datasets: [{
-        data: [totalIncome, totalExpenses],
-        backgroundColor: ['#10B981', '#EF4444'],
-        borderColor: ['#059669', '#DC2626'],
-        borderWidth: 2
-      }]
+      datasets: [
+        {
+          data: [totalIncome, totalExpenses],
+          backgroundColor: ['#10B981', '#EF4444'],
+          borderColor: ['#059669', '#DC2626'],
+          borderWidth: 2,
+        },
+      ],
     };
   }
 
   updateCategoryCharts(): void {
     const categories = this.topCategories || [];
-    
+
     // Category pie chart
     this.categoryPieData = {
-      labels: categories.map(c => c.categoryName),
-      datasets: [{
-        data: categories.map(c => c.amount),
-        backgroundColor: categories.map(c => c.categoryColor),
-        borderWidth: 2,
-        borderColor: '#ffffff'
-      }]
+      labels: categories.map((c) => c.categoryName),
+      datasets: [
+        {
+          data: categories.map((c) => c.amount),
+          backgroundColor: categories.map((c) => c.categoryColor),
+          borderWidth: 2,
+          borderColor: '#ffffff',
+        },
+      ],
     };
-    
+
     // Expense categories horizontal bar
-    const expenseCategories = categories.filter(c => c.amount > 0);
+    const expenseCategories = categories.filter((c) => c.amount > 0);
     this.expenseCategoryData = {
-      labels: expenseCategories.map(c => c.categoryName),
-      datasets: [{
-        label: 'Valor Gasto',
-        data: expenseCategories.map(c => c.amount),
-        backgroundColor: expenseCategories.map(c => c.categoryColor),
-        borderColor: expenseCategories.map(c => c.categoryColor),
-        borderWidth: 1
-      }]
+      labels: expenseCategories.map((c) => c.categoryName),
+      datasets: [
+        {
+          label: 'Valor Gasto',
+          data: expenseCategories.map((c) => c.amount),
+          backgroundColor: expenseCategories.map((c) => c.categoryColor),
+          borderColor: expenseCategories.map((c) => c.categoryColor),
+          borderWidth: 1,
+        },
+      ],
     };
   }
 
@@ -555,9 +594,9 @@ export class DashboardComponent implements OnInit {
     if (stats.length >= 2) {
       const currentMonth = stats[stats.length - 1];
       const previousMonth = stats[stats.length - 2];
-      
+
       if (previousMonth.balance !== 0) {
-        this.currentStats.monthlyGrowth = 
+        this.currentStats.monthlyGrowth =
           ((currentMonth.balance - previousMonth.balance) / Math.abs(previousMonth.balance)) * 100;
       }
     }
@@ -567,34 +606,34 @@ export class DashboardComponent implements OnInit {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color');
     const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
-    
+
     this.monthlyTrendOptions = {
       responsive: true,
       maintainAspectRatio: false,
       aspectRatio: 0.7,
       interaction: {
-        intersect: false
+        intersect: false,
       },
       layout: {
         padding: {
           top: 15,
           right: 15,
           bottom: 25,
-          left: 15
-        }
+          left: 15,
+        },
       },
       plugins: {
         legend: {
           labels: {
             color: textColor,
             padding: 20,
-            usePointStyle: true
-          }
+            usePointStyle: true,
+          },
         },
         tooltip: {
           mode: 'index',
-          intersect: false
-        }
+          intersect: false,
+        },
       },
       scales: {
         x: {
@@ -602,28 +641,28 @@ export class DashboardComponent implements OnInit {
           ticks: {
             color: textColor,
             maxRotation: 45,
-            padding: 5
+            padding: 5,
           },
           grid: {
             color: surfaceBorder,
-            drawBorder: false
-          }
+            drawBorder: false,
+          },
         },
         y: {
           display: true,
           ticks: {
             color: textColor,
             padding: 10,
-            callback: (value: any) => this.formatCurrency(value)
+            callback: (value: any) => this.formatCurrency(value),
           },
           grid: {
             color: surfaceBorder,
-            drawBorder: false
-          }
-        }
-      }
+            drawBorder: false,
+          },
+        },
+      },
     };
-    
+
     this.categoryPieOptions = {
       responsive: true,
       maintainAspectRatio: false,
@@ -633,8 +672,8 @@ export class DashboardComponent implements OnInit {
           top: 10,
           right: 10,
           bottom: 10,
-          left: 10
-        }
+          left: 10,
+        },
       },
       plugins: {
         legend: {
@@ -642,20 +681,20 @@ export class DashboardComponent implements OnInit {
           labels: {
             color: textColor,
             padding: 15,
-            usePointStyle: true
-          }
+            usePointStyle: true,
+          },
         },
         tooltip: {
           callbacks: {
             label: (context: any) => {
               const category = this.topCategories[context.dataIndex];
               return `${category.categoryName}: ${this.formatCurrency(category.amount)} (${(category.percentage || 0).toFixed(1)}%)`;
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     };
-    
+
     this.expenseCategoryOptions = {
       indexAxis: 'y',
       responsive: true,
@@ -666,18 +705,18 @@ export class DashboardComponent implements OnInit {
           top: 20,
           right: 30,
           bottom: 20,
-          left: 20
-        }
+          left: 20,
+        },
       },
       plugins: {
         legend: {
-          display: false
+          display: false,
         },
         tooltip: {
           callbacks: {
-            label: (context: any) => this.formatCurrency(context.parsed.x)
-          }
-        }
+            label: (context: any) => this.formatCurrency(context.parsed.x),
+          },
+        },
       },
       scales: {
         x: {
@@ -686,28 +725,28 @@ export class DashboardComponent implements OnInit {
           ticks: {
             color: textColor,
             callback: (value: any) => this.formatCurrency(value),
-            maxTicksLimit: 6
+            maxTicksLimit: 6,
           },
           grid: {
             color: surfaceBorder,
-            drawBorder: false
-          }
+            drawBorder: false,
+          },
         },
         y: {
           display: true,
           ticks: {
             color: textColor,
             maxTicksLimit: 8,
-            padding: 10
+            padding: 10,
           },
           grid: {
             color: surfaceBorder,
-            drawBorder: false
-          }
-        }
-      }
+            drawBorder: false,
+          },
+        },
+      },
     };
-    
+
     this.incomeVsExpenseOptions = {
       responsive: true,
       maintainAspectRatio: false,
@@ -717,8 +756,8 @@ export class DashboardComponent implements OnInit {
           top: 10,
           right: 10,
           bottom: 10,
-          left: 10
-        }
+          left: 10,
+        },
       },
       plugins: {
         legend: {
@@ -726,8 +765,8 @@ export class DashboardComponent implements OnInit {
           labels: {
             color: textColor,
             padding: 15,
-            usePointStyle: true
-          }
+            usePointStyle: true,
+          },
         },
         tooltip: {
           callbacks: {
@@ -735,10 +774,10 @@ export class DashboardComponent implements OnInit {
               const label = context.label;
               const value = context.parsed;
               return `${label}: ${this.formatCurrency(value)}`;
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     };
   }
 
@@ -760,10 +799,9 @@ export class DashboardComponent implements OnInit {
 
   updateNavigationStatus(): void {
     const current = new Date();
-    this.isCurrentMonth = 
-      this.selectedYear === current.getFullYear() && 
-      this.selectedMonth === (current.getMonth() + 1);
-    
+    this.isCurrentMonth =
+      this.selectedYear === current.getFullYear() && this.selectedMonth === current.getMonth() + 1;
+
     this.navigationDate = new Date(this.selectedYear, this.selectedMonth - 1, 1);
   }
 
@@ -803,7 +841,7 @@ export class DashboardComponent implements OnInit {
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
     }).format(value);
   }
 
@@ -818,8 +856,8 @@ export class DashboardComponent implements OnInit {
   }
 
   getBalanceClass(): string {
-    const balance = this.includeProjections 
-      ? this.currentStats.balance + this.currentStats.projectedBalance 
+    const balance = this.includeProjections
+      ? this.currentStats.balance + this.currentStats.projectedBalance
       : this.currentStats.balance;
     return balance >= 0 ? 'text-green-600' : 'text-red-600';
   }
@@ -849,7 +887,7 @@ export class DashboardComponent implements OnInit {
 
   // Auxiliary methods for template
   getYearOptions() {
-    return this.availableYears.map(y => ({ label: y.toString(), value: y }));
+    return this.availableYears.map((y) => ({ label: y.toString(), value: y }));
   }
 
   getMonthOptions() {
@@ -865,7 +903,7 @@ export class DashboardComponent implements OnInit {
       { label: 'Setembro', value: 9 },
       { label: 'Outubro', value: 10 },
       { label: 'Novembro', value: 11 },
-      { label: 'Dezembro', value: 12 }
+      { label: 'Dezembro', value: 12 },
     ];
   }
 
@@ -912,27 +950,37 @@ export class DashboardComponent implements OnInit {
       totalExpenses: monthStats.totalExpenses || 0,
       balance: monthStats.balance || 0,
       transactionCount: monthStats.transactionCount || 0,
-      averageTransaction: monthStats.transactionCount > 0 
-        ? (monthStats.totalIncome + monthStats.totalExpenses) / monthStats.transactionCount 
-        : 0,
+      averageTransaction:
+        monthStats.transactionCount > 0
+          ? (monthStats.totalIncome + monthStats.totalExpenses) / monthStats.transactionCount
+          : 0,
       monthlyGrowth: 0, // Will be calculated separately
       projectedIncome: monthStats.projectedIncome || 0,
       projectedExpenses: monthStats.projectedExpenses || 0,
       projectedBalance: monthStats.projectedBalance || 0,
       projectedTransactionCount: monthStats.projectedTransactionCount || 0,
-      hasProjections: monthStats.hasProjections || false
+      hasProjections: monthStats.hasProjections || false,
     };
   }
 
   updateChartsFromYearlyData(yearlyData: any[]): void {
     if (!yearlyData || yearlyData.length === 0) return;
-    
+
     // Update monthly trend chart
-    const months = yearlyData.map(s => this.getMonthName(s.period));
-    const incomeData = yearlyData.map(s => s.totalIncome + (this.includeProjections ? s.projectedIncome : 0));
-    const expenseData = yearlyData.map(s => s.totalExpenses + (this.includeProjections ? s.projectedExpenses : 0));
-    const balanceData = yearlyData.map(s => (s.totalIncome - s.totalExpenses) + (this.includeProjections ? (s.projectedIncome - s.projectedExpenses) : 0));
-    
+    const months = yearlyData.map((s) => this.getMonthName(s.period));
+    const incomeData = yearlyData.map(
+      (s) => s.totalIncome + (this.includeProjections ? s.projectedIncome : 0),
+    );
+    const expenseData = yearlyData.map(
+      (s) => s.totalExpenses + (this.includeProjections ? s.projectedExpenses : 0),
+    );
+    const balanceData = yearlyData.map(
+      (s) =>
+        s.totalIncome -
+        s.totalExpenses +
+        (this.includeProjections ? s.projectedIncome - s.projectedExpenses : 0),
+    );
+
     this.monthlyTrendData = {
       labels: months,
       datasets: [
@@ -942,7 +990,7 @@ export class DashboardComponent implements OnInit {
           borderColor: '#10B981',
           backgroundColor: 'rgba(16, 185, 129, 0.1)',
           tension: 0.4,
-          fill: true
+          fill: true,
         },
         {
           label: 'Despesas',
@@ -950,7 +998,7 @@ export class DashboardComponent implements OnInit {
           borderColor: '#EF4444',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
           tension: 0.4,
-          fill: true
+          fill: true,
         },
         {
           label: 'Saldo',
@@ -959,38 +1007,49 @@ export class DashboardComponent implements OnInit {
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           tension: 0.4,
           fill: false,
-          type: 'line'
-        }
-      ]
+          type: 'line',
+        },
+      ],
     };
-    
+
     // Update income vs expense chart
-    const totalIncome = yearlyData.reduce((sum, s) => sum + s.totalIncome + (this.includeProjections ? s.projectedIncome : 0), 0);
-    const totalExpenses = yearlyData.reduce((sum, s) => sum + s.totalExpenses + (this.includeProjections ? s.projectedExpenses : 0), 0);
-    
+    const totalIncome = yearlyData.reduce(
+      (sum, s) => sum + s.totalIncome + (this.includeProjections ? s.projectedIncome : 0),
+      0,
+    );
+    const totalExpenses = yearlyData.reduce(
+      (sum, s) => sum + s.totalExpenses + (this.includeProjections ? s.projectedExpenses : 0),
+      0,
+    );
+
     this.incomeVsExpenseData = {
       labels: ['Receitas', 'Despesas'],
-      datasets: [{
-        data: [totalIncome, totalExpenses],
-        backgroundColor: ['#10B981', '#EF4444'],
-        borderColor: ['#059669', '#DC2626'],
-        borderWidth: 2
-      }]
+      datasets: [
+        {
+          data: [totalIncome, totalExpenses],
+          backgroundColor: ['#10B981', '#EF4444'],
+          borderColor: ['#059669', '#DC2626'],
+          borderWidth: 2,
+        },
+      ],
     };
   }
 
   updateCategoryData(categoriesData: any[]): void {
     // Calculate total for percentage calculation
-    const totalAmount = (categoriesData || []).reduce((sum, cat) => sum + (Number(cat.total) || 0), 0);
-    
-    this.topCategories = (categoriesData || []).map(category => ({
+    const totalAmount = (categoriesData || []).reduce(
+      (sum, cat) => sum + (Number(cat.total) || 0),
+      0,
+    );
+
+    this.topCategories = (categoriesData || []).map((category) => ({
       categoryId: category.id,
       categoryName: category.name || 'Sem categoria',
       categoryColor: category.color || '#808080',
       categoryIcon: category.icon || 'category',
       amount: Number(category.total) || 0,
       transactionCount: Number(category.count) || 0,
-      percentage: totalAmount > 0 ? ((Number(category.total) || 0) / totalAmount) * 100 : 0
+      percentage: totalAmount > 0 ? ((Number(category.total) || 0) / totalAmount) * 100 : 0,
     }));
     this.updateCategoryCharts();
   }
@@ -1002,14 +1061,24 @@ export class DashboardComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading yearly trend:', error);
-      }
+      },
     });
   }
 
   getSelectedMonthName(): string {
     const months = [
-      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+      'Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro',
     ];
     return months[this.selectedMonth - 1];
   }
@@ -1038,7 +1107,11 @@ export class DashboardComponent implements OnInit {
 
   getInstallmentProgress(): number {
     if (this.installmentStats.totalPlans === 0) return 0;
-    return (this.installmentStats.totalPaid / (this.installmentStats.totalFinanced + this.installmentStats.totalPaid)) * 100;
+    return (
+      (this.installmentStats.totalPaid /
+        (this.installmentStats.totalFinanced + this.installmentStats.totalPaid)) *
+      100
+    );
   }
 
   navigateToInstallments(): void {
@@ -1056,7 +1129,7 @@ export class DashboardComponent implements OnInit {
    */
   getActualTotalExpenses(): number {
     if (this.expenseBreakdown && this.expenseBreakdown.length > 0) {
-      const totalItem = this.expenseBreakdown.find(item => item.type === 'total');
+      const totalItem = this.expenseBreakdown.find((item) => item.type === 'total');
       if (totalItem) {
         return totalItem.amount;
       }

@@ -52,7 +52,9 @@ export class ProjectionsService {
     userId: string,
     generateDto: GenerateProjectionsDto,
   ): Promise<ProjectionResult> {
-    this.logger.log(`Generating projections for user ${userId} from ${generateDto.startPeriod} to ${generateDto.endPeriod}`);
+    this.logger.log(
+      `Generating projections for user ${userId} from ${generateDto.startPeriod} to ${generateDto.endPeriod}`,
+    );
 
     const startDate = new Date(`${generateDto.startPeriod}-01`);
     const endParts = generateDto.endPeriod.split('-');
@@ -114,7 +116,7 @@ export class ProjectionsService {
     while (currentDate <= endDate) {
       // Check if projection already exists for this period
       const competencyPeriod = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-      
+
       const existing = await this.transactionsRepository.findOne({
         where: {
           userId: recurring.userId,
@@ -162,7 +164,7 @@ export class ProjectionsService {
         nextDate.setDate(nextDate.getDate() + (recurring.interval || 1));
         break;
       case RecurrenceFrequency.WEEKLY:
-        nextDate.setDate(nextDate.getDate() + (7 * (recurring.interval || 1)));
+        nextDate.setDate(nextDate.getDate() + 7 * (recurring.interval || 1));
         break;
       case RecurrenceFrequency.MONTHLY:
         nextDate.setMonth(nextDate.getMonth() + (recurring.interval || 1));
@@ -223,7 +225,7 @@ export class ProjectionsService {
     month: number,
   ): Promise<MonthlyStatsWithProjections> {
     const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
-    
+
     this.logger.debug(`Calculating stats for period: ${competencyPeriod}, user: ${userId}`);
 
     // Real transactions
@@ -234,17 +236,20 @@ export class ProjectionsService {
         isProjected: false,
       },
     });
-    
+
     this.logger.debug(`Found ${realTransactions.length} real transactions for ${competencyPeriod}`);
     if (realTransactions.length > 0) {
-      this.logger.debug('Real transactions:', realTransactions.map(t => ({
-        id: t.id,
-        description: t.description,
-        amount: t.amount,
-        type: t.type,
-        transactionDate: t.transactionDate,
-        competencyPeriod: t.competencyPeriod
-      })));
+      this.logger.debug(
+        'Real transactions:',
+        realTransactions.map((t) => ({
+          id: t.id,
+          description: t.description,
+          amount: t.amount,
+          type: t.type,
+          transactionDate: t.transactionDate,
+          competencyPeriod: t.competencyPeriod,
+        })),
+      );
     }
 
     // Projected transactions
@@ -255,8 +260,10 @@ export class ProjectionsService {
         isProjected: true,
       },
     });
-    
-    this.logger.debug(`Found ${projectedTransactions.length} projected transactions for ${competencyPeriod}`);
+
+    this.logger.debug(
+      `Found ${projectedTransactions.length} projected transactions for ${competencyPeriod}`,
+    );
 
     // Get installments for the month - use due date for unpaid, paid date for paid
     const startOfMonth = new Date(year, month - 1, 1);
@@ -283,17 +290,17 @@ export class ProjectionsService {
       .getMany();
 
     const realIncome = realTransactions
-      .filter(t => t.type === 'income')
+      .filter((t) => t.type === 'income')
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     const realExpenses = realTransactions
-      .filter(t => t.type === 'expense')
+      .filter((t) => t.type === 'expense')
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     // Add installment expenses: original amount for unpaid, paid amount for paid
     const installmentExpenses = [
-      ...unpaidInstallments.map(i => Number(i.originalAmount)),
-      ...paidInstallments.map(i => Number(i.paidAmount || i.originalAmount))
+      ...unpaidInstallments.map((i) => Number(i.originalAmount)),
+      ...paidInstallments.map((i) => Number(i.paidAmount || i.originalAmount)),
     ].reduce((sum, amount) => sum + amount, 0);
 
     // Calculate card expenses based on invoice due date
@@ -302,11 +309,11 @@ export class ProjectionsService {
     const totalRealExpenses = realExpenses + installmentExpenses + cardExpenses;
 
     const projectedIncome = projectedTransactions
-      .filter(t => t.type === 'income')
+      .filter((t) => t.type === 'income')
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     const projectedExpenses = projectedTransactions
-      .filter(t => t.type === 'expense')
+      .filter((t) => t.type === 'expense')
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     return {
@@ -318,7 +325,8 @@ export class ProjectionsService {
       projectedExpenses,
       projectedBalance: projectedIncome - projectedExpenses,
       hasProjections: projectedTransactions.length > 0,
-      transactionCount: realTransactions.length + unpaidInstallments.length + paidInstallments.length,
+      transactionCount:
+        realTransactions.length + unpaidInstallments.length + paidInstallments.length,
       projectedTransactionCount: projectedTransactions.length,
       cardExpenses,
     };
@@ -329,7 +337,7 @@ export class ProjectionsService {
     startPeriod?: string,
     endPeriod?: string,
   ): Promise<number> {
-    let whereCondition: any = {
+    const whereCondition: any = {
       userId,
       isProjected: true,
     };
@@ -343,7 +351,7 @@ export class ProjectionsService {
     }
 
     const result = await this.transactionsRepository.delete(whereCondition);
-    
+
     this.logger.log(`Cleaned up ${result.affected} projected transactions`);
     return result.affected || 0;
   }
@@ -376,15 +384,19 @@ export class ProjectionsService {
       isRecurring: transaction.isRecurring,
       isProjected: transaction.isProjected,
       projectionSource: transaction.projectionSource,
-      confidenceScore: transaction.confidenceScore ? Number(transaction.confidenceScore) : undefined,
+      confidenceScore: transaction.confidenceScore
+        ? Number(transaction.confidenceScore)
+        : undefined,
       createdAt: transaction.createdAt,
       updatedAt: transaction.updatedAt,
-      category: transaction.category ? {
-        id: transaction.category.id,
-        name: transaction.category.name,
-        color: transaction.category.color,
-        icon: transaction.category.icon,
-      } : undefined,
+      category: transaction.category
+        ? {
+            id: transaction.category.id,
+            name: transaction.category.name,
+            color: transaction.category.color,
+            icon: transaction.category.icon,
+          }
+        : undefined,
       paymentStatus: transaction.paymentStatus ?? PaymentStatus.PENDING,
       paidDate: transaction.paidDate,
     };
@@ -394,7 +406,11 @@ export class ProjectionsService {
    * Calcula despesas de cartão de crédito baseado na data de vencimento da fatura.
    * Se o dia de vencimento <= dia de fechamento, a fatura vence no mês seguinte ao período.
    */
-  private async getCardExpensesByInvoiceDueMonth(userId: string, year: number, month: number): Promise<number> {
+  private async getCardExpensesByInvoiceDueMonth(
+    userId: string,
+    year: number,
+    month: number,
+  ): Promise<number> {
     const creditCards = await this.creditCardRepository.find({
       where: { userId, isActive: true },
     });
@@ -406,7 +422,12 @@ export class ProjectionsService {
     let totalExpenses = 0;
 
     for (const card of creditCards) {
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+        card.closingDay,
+        card.dueDay,
+        year,
+        month,
+      );
 
       for (const period of invoicePeriods) {
         const result = await this.cardTransactionRepository
@@ -426,7 +447,12 @@ export class ProjectionsService {
   /**
    * Determina quais períodos de fatura têm vencimento no mês/ano alvo.
    */
-  private getInvoicePeriodsWithDueDateInMonth(closingDay: number, dueDay: number, targetYear: number, targetMonth: number): string[] {
+  private getInvoicePeriodsWithDueDateInMonth(
+    closingDay: number,
+    dueDay: number,
+    targetYear: number,
+    targetMonth: number,
+  ): string[] {
     const periods: string[] = [];
     const dueDateIsNextMonth = dueDay <= closingDay;
 

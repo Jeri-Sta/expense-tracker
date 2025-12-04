@@ -12,18 +12,16 @@ import { MainLayoutComponent } from './main-layout.component';
 import { MainLayoutRoutingModule } from './main-layout-routing.module';
 
 @NgModule({
-  declarations: [
-    MainLayoutComponent
-  ],
+  declarations: [MainLayoutComponent],
   imports: [
     CommonModule,
     RouterModule,
     MainLayoutRoutingModule,
-    
+
     // PrimeNG Modules
     ButtonModule,
     SidebarModule,
-    RippleModule
-  ]
+    RippleModule,
+  ],
 })
-export class MainLayoutModule { }
+export class MainLayoutModule {}

@@ -79,7 +79,7 @@
 
 .invoice-item {
   transition: background-color 0.2s ease;
-  
+
   &:last-child {
     border-bottom: none !important;
   }
@@ -88,7 +88,7 @@
 .total-row {
   .item-icon {
     flex-shrink: 0;
-    
+
     i {
       font-size: 1.25rem;
     }

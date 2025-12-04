@@ -8,7 +8,11 @@ import { RecurringTransactionResponseDto } from './dto/recurring-transaction-res
 import { TransactionsService } from '../transactions/transactions.service';
 import { CategoriesService } from '../categories/categories.service';
 import { RecurrenceFrequency } from '../../common/enums';
-import { parseLocalDate, formatDateToString, formatCompetencyPeriod } from '../../common/utils/date.utils';
+import {
+  parseLocalDate,
+  formatDateToString,
+  formatCompetencyPeriod,
+} from '../../common/utils/date.utils';
 
 @Injectable()
 export class RecurringTransactionsService {
@@ -29,15 +33,16 @@ export class RecurringTransactionsService {
     const recurringTransaction = this.recurringTransactionsRepository.create({
       ...createRecurringTransactionDto,
       nextExecution: parseLocalDate(createRecurringTransactionDto.nextExecution),
-      endDate: createRecurringTransactionDto.endDate 
-        ? parseLocalDate(createRecurringTransactionDto.endDate) 
+      endDate: createRecurringTransactionDto.endDate
+        ? parseLocalDate(createRecurringTransactionDto.endDate)
         : undefined,
       userId,
       executionCount: 0,
       isCompleted: false,
     });
 
-    const savedRecurringTransaction = await this.recurringTransactionsRepository.save(recurringTransaction);
+    const savedRecurringTransaction =
+      await this.recurringTransactionsRepository.save(recurringTransaction);
     return this.findOne(savedRecurringTransaction.id, userId);
   }
 
@@ -185,17 +190,17 @@ export class RecurringTransactionsService {
 
   async findDueRecurringTransactions(): Promise<RecurringTransaction[]> {
     const now = new Date();
-    return this.recurringTransactionsRepository.find({
-      where: {
-        isActive: true,
-        isCompleted: false,
-      },
-      relations: ['category'],
-    }).then(transactions => 
-      transactions.filter(t => 
-        t.nextExecution && t.nextExecution <= now
-      )
-    );
+    return this.recurringTransactionsRepository
+      .find({
+        where: {
+          isActive: true,
+          isCompleted: false,
+        },
+        relations: ['category'],
+      })
+      .then((transactions) =>
+        transactions.filter((t) => t.nextExecution && t.nextExecution <= now),
+      );
   }
 
   private calculateNextExecution(
@@ -211,13 +216,13 @@ export class RecurringTransactionsService {
         next.setDate(next.getDate() + interval);
         break;
       case RecurrenceFrequency.WEEKLY:
-        next.setDate(next.getDate() + (interval * 7));
+        next.setDate(next.getDate() + interval * 7);
         break;
       case RecurrenceFrequency.MONTHLY:
         next.setMonth(next.getMonth() + interval);
         break;
       case RecurrenceFrequency.QUARTERLY:
-        next.setMonth(next.getMonth() + (interval * 3));
+        next.setMonth(next.getMonth() + interval * 3);
         break;
       case RecurrenceFrequency.YEARLY:
         next.setFullYear(next.getFullYear() + interval);
@@ -244,7 +249,9 @@ export class RecurringTransactionsService {
     return false;
   }
 
-  private mapToResponseDto(recurringTransaction: RecurringTransaction): RecurringTransactionResponseDto {
+  private mapToResponseDto(
+    recurringTransaction: RecurringTransaction,
+  ): RecurringTransactionResponseDto {
     return {
       id: recurringTransaction.id,
       description: recurringTransaction.description,

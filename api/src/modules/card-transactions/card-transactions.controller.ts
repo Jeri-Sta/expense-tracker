@@ -10,20 +10,17 @@ import {
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { CardTransactionsService } from './card-transactions.service';
 import { CreateCardTransactionDto } from './dto/create-card-transaction.dto';
 import { UpdateCardTransactionDto } from './dto/update-card-transaction.dto';
 import { CardTransactionResponseDto } from './dto/card-transaction-response.dto';
-import { CardTransactionFilterDto, PaginatedCardTransactionsResponse } from './dto/card-transaction-filter.dto';
+import {
+  CardTransactionFilterDto,
+  PaginatedCardTransactionsResponse,
+} from './dto/card-transaction-filter.dto';
 import { InvoiceResponseDto, UpdateInvoiceStatusDto } from './dto/invoice.dto';
 import { User } from '../users/entities/user.entity';
 
@@ -133,10 +130,7 @@ export class CardTransactionsController {
     status: 200,
     description: 'Card transaction deleted successfully',
   })
-  remove(
-    @GetUser() user: User,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<void> {
+  remove(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.cardTransactionsService.remove(id, user.id);
   }
 
@@ -206,6 +200,11 @@ export class CardTransactionsController {
     @Param('period') period: string,
     @Body() updateDto: UpdateInvoiceStatusDto,
   ): Promise<InvoiceResponseDto> {
-    return this.cardTransactionsService.updateInvoiceStatus(creditCardId, period, user.id, updateDto);
+    return this.cardTransactionsService.updateInvoiceStatus(
+      creditCardId,
+      period,
+      user.id,
+      updateDto,
+    );
   }
 }

@@ -12,7 +12,7 @@
           (onChange)="onViewModeChange()"
           optionLabel="label"
           optionValue="value"
-          [style]="{'font-size': '0.75rem'}"
+          [style]="{ 'font-size': '0.75rem' }"
           [unselectable]="false"
           [allowEmpty]="false"
         ></p-selectButton>
@@ -20,12 +20,12 @@
     </div>
   </div>
   <div class="chart-content p-4">
-    <div class="chart-wrapper" style="position: relative; height: 400px; width: 100%;">
-      <p-chart 
-        type="doughnut" 
-        [data]="displayChartData" 
+    <div class="chart-wrapper" style="position: relative; height: 400px; width: 100%">
+      <p-chart
+        type="doughnut"
+        [data]="displayChartData"
         [options]="chartOptions"
-        [style]="{'height': '100%', 'width': '100%'}"
+        [style]="{ height: '100%', width: '100%' }"
       ></p-chart>
     </div>
   </div>

@@ -22,7 +22,7 @@ export class InstallmentDetailsComponent implements OnInit {
 
   // Enum for template
   InstallmentStatus = InstallmentStatus;
-  
+
   // Math object for template
   Math = Math;
 
@@ -230,7 +230,7 @@ export class InstallmentDetailsComponent implements OnInit {
   getDueDateClass(installment: Installment): string {
     if (installment.status === InstallmentStatus.PAID) return 'text-green-500';
     if (installment.status === InstallmentStatus.OVERDUE) return 'text-red-500';
-    
+
     const daysUntilDue = this.getDaysUntilDue(installment.dueDate);
     if (daysUntilDue < 0) return 'text-red-500';
     if (daysUntilDue <= 7) return 'text-orange-500';
@@ -239,7 +239,7 @@ export class InstallmentDetailsComponent implements OnInit {
 
   getNextInstallment(): Installment | undefined {
     return this.installmentPlan?.installments
-      ?.filter(i => i.status === InstallmentStatus.PENDING)
+      ?.filter((i) => i.status === InstallmentStatus.PENDING)
       ?.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
   }
 

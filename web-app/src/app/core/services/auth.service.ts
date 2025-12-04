@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map, tap, catchError } from 'rxjs/operators';
+import { tap, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { StorageService } from './storage.service';
 import { LoginRequest, RegisterRequest, AuthResponse, AuthState } from '../models/auth.model';
@@ -10,20 +10,20 @@ const AUTH_TOKEN_KEY = 'auth_token';
 const AUTH_USER_KEY = 'auth_user';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly authStateSubject = new BehaviorSubject<AuthState>({
     user: null,
     token: null,
-    isAuthenticated: false
+    isAuthenticated: false,
   });
 
   public readonly authState$ = this.authStateSubject.asObservable();
 
   constructor(
     private readonly apiService: ApiService,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
   ) {
     this.loadAuthState();
   }
@@ -41,25 +41,23 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/login', credentials)
-      .pipe(
-        tap(response => this.setAuthState(response)),
-        catchError(error => {
-          console.error('Login error:', error);
-          throw error;
-        })
-      );
+    return this.apiService.post<AuthResponse>('/auth/login', credentials).pipe(
+      tap((response) => this.setAuthState(response)),
+      catchError((error) => {
+        console.error('Login error:', error);
+        throw error;
+      }),
+    );
   }
 
   register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/register', userData)
-      .pipe(
-        tap(response => this.setAuthState(response)),
-        catchError(error => {
-          console.error('Register error:', error);
-          throw error;
-        })
-      );
+    return this.apiService.post<AuthResponse>('/auth/register', userData).pipe(
+      tap((response) => this.setAuthState(response)),
+      catchError((error) => {
+        console.error('Register error:', error);
+        throw error;
+      }),
+    );
   }
 
   logout(): Observable<boolean> {
@@ -68,24 +66,23 @@ export class AuthService {
   }
 
   refreshUserProfile(): Observable<User> {
-    return this.apiService.get<User>('/users/profile')
-      .pipe(
-        tap(user => {
-          const currentState = this.authStateSubject.value;
-          this.authStateSubject.next({
-            ...currentState,
-            user
-          });
-          this.storageService.set(AUTH_USER_KEY, user);
-        })
-      );
+    return this.apiService.get<User>('/users/profile').pipe(
+      tap((user) => {
+        const currentState = this.authStateSubject.value;
+        this.authStateSubject.next({
+          ...currentState,
+          user,
+        });
+        this.storageService.set(AUTH_USER_KEY, user);
+      }),
+    );
   }
 
   private setAuthState(authResponse: AuthResponse): void {
     const authState: AuthState = {
       user: authResponse.user,
       token: authResponse.accessToken,
-      isAuthenticated: true
+      isAuthenticated: true,
     };
 
     this.authStateSubject.next(authState);
@@ -97,7 +94,7 @@ export class AuthService {
     const authState: AuthState = {
       user: null,
       token: null,
-      isAuthenticated: false
+      isAuthenticated: false,
     };
 
     this.authStateSubject.next(authState);
@@ -113,7 +110,7 @@ export class AuthService {
       const authState: AuthState = {
         user,
         token,
-        isAuthenticated: true
+        isAuthenticated: true,
       };
       this.authStateSubject.next(authState);
     }

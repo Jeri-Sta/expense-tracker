@@ -1,4 +1,15 @@
-import { IsNotEmpty, IsString, IsNumber, IsOptional, IsBoolean, IsDateString, IsUUID, Min, Max, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsBoolean,
+  IsDateString,
+  IsUUID,
+  Min,
+  Max,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCardTransactionDto {

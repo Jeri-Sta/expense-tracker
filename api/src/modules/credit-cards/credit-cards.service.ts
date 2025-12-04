@@ -32,7 +32,7 @@ export class CreditCardsService {
       order: { name: 'ASC' },
     });
 
-    return Promise.all(cards.map(card => this.mapToResponseDtoWithUsage(card)));
+    return Promise.all(cards.map((card) => this.mapToResponseDtoWithUsage(card)));
   }
 
   async findOne(id: string, userId: string): Promise<CreditCardResponseDto> {
@@ -51,7 +51,11 @@ export class CreditCardsService {
     return this.mapToResponseDtoWithUsage(card);
   }
 
-  async update(id: string, userId: string, updateDto: UpdateCreditCardDto): Promise<CreditCardResponseDto> {
+  async update(
+    id: string,
+    userId: string,
+    updateDto: UpdateCreditCardDto,
+  ): Promise<CreditCardResponseDto> {
     const card = await this.creditCardRepository.findOne({
       where: { id },
     });
@@ -134,7 +138,7 @@ export class CreditCardsService {
     // For installment transactions, we need to count all remaining installments (from current period onwards)
     // For non-installment transactions, only count current period
     const currentPeriod = this.getCurrentInvoicePeriod();
-    
+
     // 1. Sum of non-installment transactions in current period
     const nonInstallmentResult = await this.cardTransactionRepository
       .createQueryBuilder('transaction')

@@ -5,7 +5,7 @@ import { DashboardUtilsService } from '../../../../shared/services/dashboard-uti
 @Component({
   selector: 'app-category-stats-widget',
   templateUrl: './category-stats-widget.component.html',
-  styleUrls: ['./category-stats-widget.component.scss']
+  styleUrls: ['./category-stats-widget.component.scss'],
 })
 export class CategoryStatsWidgetComponent {
   @Input() categoryStats: CategoryStats[] = [];

@@ -30,16 +30,13 @@ import { CardTransactionsComponent } from './pages/card-transactions/card-transa
 import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
-  declarations: [
-    CreditCardListComponent,
-    CardTransactionsComponent
-  ],
+  declarations: [CreditCardListComponent, CardTransactionsComponent],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     CreditCardsRoutingModule,
-    
+
     // PrimeNG Modules
     ButtonModule,
     InputTextModule,
@@ -57,6 +54,6 @@ import { SharedModule } from '../../shared/shared.module';
     CalendarModule,
     CheckboxModule,
     SharedModule,
-  ]
+  ],
 })
-export class CreditCardsModule { }
+export class CreditCardsModule {}

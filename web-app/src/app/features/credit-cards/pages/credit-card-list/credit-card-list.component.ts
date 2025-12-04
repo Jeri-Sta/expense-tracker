@@ -2,31 +2,35 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CreditCardService } from '../../services/credit-card.service';
-import { CreditCard, CreateCreditCardDto, UpdateCreditCardDto } from '../../models/credit-card.model';
+import {
+  CreditCard,
+  CreateCreditCardDto,
+  UpdateCreditCardDto,
+} from '../../models/credit-card.model';
 
 @Component({
   selector: 'app-credit-card-list',
   templateUrl: './credit-card-list.component.html',
-  styleUrls: ['./credit-card-list.component.scss']
+  styleUrls: ['./credit-card-list.component.scss'],
 })
 export class CreditCardListComponent implements OnInit {
   creditCards: CreditCard[] = [];
   loading = false;
-  
+
   // Dialog states
   cardDialog = false;
   editMode = false;
   submitted = false;
-  
+
   // Forms
   cardForm!: FormGroup;
-  
+
   // Selected card for operations
   selectedCard!: CreditCard;
-  
+
   // Predefined colors
   availableColors: string[] = [];
-  
+
   // Color picker
   showColorPicker = false;
 
@@ -37,7 +41,7 @@ export class CreditCardListComponent implements OnInit {
     private fb: FormBuilder,
     private creditCardService: CreditCardService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
   ) {}
 
   ngOnInit(): void {
@@ -52,7 +56,7 @@ export class CreditCardListComponent implements OnInit {
       color: ['#3B82F6', Validators.required],
       closingDay: [15, [Validators.required, Validators.min(1), Validators.max(31)]],
       dueDay: [22, [Validators.required, Validators.min(1), Validators.max(31)]],
-      totalLimit: [0, [Validators.required, Validators.min(0)]]
+      totalLimit: [0, [Validators.required, Validators.min(0)]],
     });
   }
 
@@ -72,10 +76,10 @@ export class CreditCardListComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar cartões de crédito'
+          detail: 'Erro ao carregar cartões de crédito',
         });
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -87,7 +91,7 @@ export class CreditCardListComponent implements OnInit {
       color: '#3B82F6',
       closingDay: 15,
       dueDay: 22,
-      totalLimit: 0
+      totalLimit: 0,
     });
     this.cardDialog = true;
   }
@@ -96,15 +100,15 @@ export class CreditCardListComponent implements OnInit {
     this.selectedCard = { ...card };
     this.editMode = true;
     this.submitted = false;
-    
+
     this.cardForm.patchValue({
       name: card.name,
       color: card.color,
       closingDay: card.closingDay,
       dueDay: card.dueDay,
-      totalLimit: card.totalLimit
+      totalLimit: card.totalLimit,
     });
-    
+
     this.cardDialog = true;
   }
 
@@ -115,7 +119,7 @@ export class CreditCardListComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.performDelete(card);
-      }
+      },
     });
   }
 
@@ -125,7 +129,7 @@ export class CreditCardListComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Sucesso',
-          detail: 'Cartão excluído com sucesso'
+          detail: 'Cartão excluído com sucesso',
         });
         this.loadCreditCards();
       },
@@ -134,36 +138,36 @@ export class CreditCardListComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao excluir cartão'
+          detail: 'Erro ao excluir cartão',
         });
-      }
+      },
     });
   }
 
   saveCard(): void {
     this.submitted = true;
-    
+
     if (this.cardForm.invalid) {
       return;
     }
-    
+
     const formValue = this.cardForm.value;
-    
+
     if (this.editMode) {
       const updateData: UpdateCreditCardDto = {
         name: formValue.name,
         color: formValue.color,
         closingDay: formValue.closingDay,
         dueDay: formValue.dueDay,
-        totalLimit: formValue.totalLimit
+        totalLimit: formValue.totalLimit,
       };
-      
+
       this.creditCardService.update(this.selectedCard.id, updateData).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
             summary: 'Sucesso',
-            detail: 'Cartão atualizado com sucesso'
+            detail: 'Cartão atualizado com sucesso',
           });
           this.cardDialog = false;
           this.loadCreditCards();
@@ -173,9 +177,9 @@ export class CreditCardListComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao atualizar cartão'
+            detail: 'Erro ao atualizar cartão',
           });
-        }
+        },
       });
     } else {
       const createData: CreateCreditCardDto = {
@@ -183,15 +187,15 @@ export class CreditCardListComponent implements OnInit {
         color: formValue.color,
         closingDay: formValue.closingDay,
         dueDay: formValue.dueDay,
-        totalLimit: formValue.totalLimit
+        totalLimit: formValue.totalLimit,
       };
-      
+
       this.creditCardService.create(createData).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
             summary: 'Sucesso',
-            detail: 'Cartão criado com sucesso'
+            detail: 'Cartão criado com sucesso',
           });
           this.cardDialog = false;
           this.loadCreditCards();
@@ -201,9 +205,9 @@ export class CreditCardListComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao criar cartão'
+            detail: 'Erro ao criar cartão',
           });
-        }
+        },
       });
     }
   }
@@ -221,7 +225,7 @@ export class CreditCardListComponent implements OnInit {
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
     }).format(value);
   }
 

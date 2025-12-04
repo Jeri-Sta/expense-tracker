@@ -5,34 +5,34 @@ import { Directive, ElementRef, Input, OnInit, OnDestroy, Renderer2 } from '@ang
  * Automatically inserts slashes as user types
  */
 @Directive({
-  selector: '[appDateMask]'
+  selector: '[appDateMask]',
 })
 export class DateMaskDirective implements OnInit, OnDestroy {
   @Input() appDateMask: 'date' | 'month' = 'date';
-  
+
   private inputElement: HTMLInputElement | null = null;
   private observer: MutationObserver | null = null;
   private isProcessing = false;
 
   constructor(
     private readonly el: ElementRef,
-    private readonly renderer: Renderer2
+    private readonly renderer: Renderer2,
   ) {}
 
   ngOnInit(): void {
     // p-calendar creates an input element inside, we need to find it
     this.findAndSetupInput();
-    
+
     // Watch for DOM changes in case input is created later
     this.observer = new MutationObserver(() => {
       if (!this.inputElement) {
         this.findAndSetupInput();
       }
     });
-    
+
     this.observer.observe(this.el.nativeElement, {
       childList: true,
-      subtree: true
+      subtree: true,
     });
   }
 
@@ -66,7 +66,19 @@ export class DateMaskDirective implements OnInit, OnDestroy {
 
   private onKeyDown(event: KeyboardEvent): void {
     // Allow: backspace, delete, tab, escape, enter, arrows
-    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+    const allowedKeys = [
+      'Backspace',
+      'Delete',
+      'Tab',
+      'Escape',
+      'Enter',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowUp',
+      'ArrowDown',
+      'Home',
+      'End',
+    ];
     if (allowedKeys.includes(event.key)) {
       return;
     }
@@ -82,18 +94,18 @@ export class DateMaskDirective implements OnInit, OnDestroy {
     }
   }
 
-  private onInput(event: Event): void {
+  private onInput(_event: Event): void {
     if (!this.inputElement || this.isProcessing) return;
 
     this.isProcessing = true;
-    
+
     const input = this.inputElement;
     const value = input.value;
     const cursorPos = input.selectionStart || 0;
 
     // Remove all non-numeric characters
     const numbers = value.replaceAll(/[^\d]/g, '');
-    
+
     // Format based on type
     const formatted = this.formatNumbers(numbers);
     const newCursorPos = this.calculateCursorPosition(value, formatted, cursorPos);
@@ -101,13 +113,13 @@ export class DateMaskDirective implements OnInit, OnDestroy {
     // Only update if different
     if (input.value !== formatted) {
       input.value = formatted;
-      
+
       // Restore cursor position
       const maxPos = formatted.length;
       const pos = Math.min(newCursorPos, maxPos);
       input.setSelectionRange(pos, pos);
     }
-    
+
     this.isProcessing = false;
   }
 

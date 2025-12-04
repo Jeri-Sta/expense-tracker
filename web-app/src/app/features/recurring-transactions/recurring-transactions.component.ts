@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { RecurringTransactionService, RecurringTransaction, CreateRecurringTransactionDto, UpdateRecurringTransactionDto } from '../../core/services/recurring-transaction.service';
+import {
+  RecurringTransactionService,
+  RecurringTransaction,
+  CreateRecurringTransactionDto,
+  UpdateRecurringTransactionDto,
+} from '../../core/services/recurring-transaction.service';
 import { CategoryService, Category } from '../../core/services/category.service';
 import { TransactionType } from '../../core/types/common.types';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
@@ -10,41 +15,41 @@ import { parseLocalDate } from '../../shared/utils/date.utils';
 @Component({
   selector: 'app-recurring-transactions',
   templateUrl: './recurring-transactions.component.html',
-  styleUrls: ['./recurring-transactions.component.scss']
+  styleUrls: ['./recurring-transactions.component.scss'],
 })
 export class RecurringTransactionsComponent implements OnInit {
   normalizeIcon = normalizeIcon;
   recurringTransactions: RecurringTransaction[] = [];
   categories: Category[] = [];
   loading = false;
-  
+
   // Dialog states
   transactionDialog = false;
   scheduleDialog = false;
   editMode = false;
   submitted = false;
-  
+
   // Forms
   transactionForm!: FormGroup;
-  
+
   // Selected transaction for operations
   selectedTransaction!: RecurringTransaction;
-  
+
   // Transaction type options
   transactionTypes = [
     { label: 'Receita', value: 'income' as TransactionType },
-    { label: 'Despesa', value: 'expense' as TransactionType }
+    { label: 'Despesa', value: 'expense' as TransactionType },
   ];
-  
+
   // Frequency options
-  frequencyOptions: Array<{value: string, label: string}> = [];
+  frequencyOptions: Array<{ value: string; label: string }> = [];
 
   constructor(
     private fb: FormBuilder,
     private recurringTransactionService: RecurringTransactionService,
     private categoryService: CategoryService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
   ) {}
 
   ngOnInit(): void {
@@ -66,7 +71,7 @@ export class RecurringTransactionsComponent implements OnInit {
       endDate: [''],
       maxExecutions: ['', [Validators.min(1)]],
       isActive: [true],
-      notes: ['', Validators.maxLength(500)]
+      notes: ['', Validators.maxLength(500)],
     });
   }
 
@@ -77,16 +82,16 @@ export class RecurringTransactionsComponent implements OnInit {
   loadCategories(): void {
     this.categoryService.getCategories().subscribe({
       next: (categories) => {
-        this.categories = categories.filter(cat => cat.isActive);
+        this.categories = categories.filter((cat) => cat.isActive);
       },
       error: (error) => {
         console.error('Error loading categories:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar categorias'
+          detail: 'Erro ao carregar categorias',
         });
-      }
+      },
     });
   }
 
@@ -97,7 +102,9 @@ export class RecurringTransactionsComponent implements OnInit {
         this.recurringTransactions = transactions.sort((a, b) => {
           // Sort by next execution date, then by creation date
           if (a.nextExecution && b.nextExecution) {
-            return parseLocalDate(a.nextExecution).getTime() - parseLocalDate(b.nextExecution).getTime();
+            return (
+              parseLocalDate(a.nextExecution).getTime() - parseLocalDate(b.nextExecution).getTime()
+            );
           }
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
@@ -108,10 +115,10 @@ export class RecurringTransactionsComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar transações recorrentes'
+          detail: 'Erro ao carregar transações recorrentes',
         });
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -119,18 +126,18 @@ export class RecurringTransactionsComponent implements OnInit {
     this.selectedTransaction = {} as RecurringTransaction;
     this.editMode = false;
     this.submitted = false;
-    
+
     const nextMonth = new Date();
     nextMonth.setMonth(nextMonth.getMonth() + 1);
     nextMonth.setDate(1);
-    
+
     this.transactionForm.reset({
       type: 'expense',
       frequency: 'monthly',
       interval: 1,
       nextExecution: nextMonth,
       isActive: true,
-      amount: 0
+      amount: 0,
     });
     this.transactionDialog = true;
   }
@@ -139,7 +146,7 @@ export class RecurringTransactionsComponent implements OnInit {
     this.selectedTransaction = { ...transaction };
     this.editMode = true;
     this.submitted = false;
-    
+
     this.transactionForm.patchValue({
       description: transaction.description,
       amount: transaction.amount,
@@ -151,9 +158,9 @@ export class RecurringTransactionsComponent implements OnInit {
       endDate: transaction.endDate ? parseLocalDate(transaction.endDate) : null,
       maxExecutions: transaction.maxExecutions || '',
       isActive: transaction.isActive,
-      notes: transaction.notes || ''
+      notes: transaction.notes || '',
     });
-    
+
     this.transactionDialog = true;
   }
 
@@ -168,7 +175,7 @@ export class RecurringTransactionsComponent implements OnInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Sucesso',
-              detail: 'Transação recorrente excluída com sucesso'
+              detail: 'Transação recorrente excluída com sucesso',
             });
             this.loadRecurringTransactions();
           },
@@ -177,11 +184,11 @@ export class RecurringTransactionsComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao excluir transação recorrente'
+              detail: 'Erro ao excluir transação recorrente',
             });
-          }
+          },
         });
-      }
+      },
     });
   }
 
@@ -196,7 +203,7 @@ export class RecurringTransactionsComponent implements OnInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Sucesso',
-              detail: 'Transação executada com sucesso'
+              detail: 'Transação executada com sucesso',
             });
             this.loadRecurringTransactions();
           },
@@ -205,44 +212,46 @@ export class RecurringTransactionsComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao executar transação'
+              detail: 'Erro ao executar transação',
             });
-          }
+          },
         });
-      }
+      },
     });
   }
 
   toggleActive(transaction: RecurringTransaction): void {
     const newStatus = !transaction.isActive;
-    this.recurringTransactionService.updateRecurringTransaction(transaction.id, {
-      isActive: newStatus
-    }).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: `Transação ${newStatus ? 'ativada' : 'desativada'} com sucesso`
-        });
-        this.loadRecurringTransactions();
-      },
-      error: (error) => {
-        console.error('Error toggling transaction status:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao alterar status da transação'
-        });
-      }
-    });
+    this.recurringTransactionService
+      .updateRecurringTransaction(transaction.id, {
+        isActive: newStatus,
+      })
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: `Transação ${newStatus ? 'ativada' : 'desativada'} com sucesso`,
+          });
+          this.loadRecurringTransactions();
+        },
+        error: (error) => {
+          console.error('Error toggling transaction status:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Erro ao alterar status da transação',
+          });
+        },
+      });
   }
 
   saveTransaction(): void {
     this.submitted = true;
-    
+
     if (this.transactionForm.valid) {
       const formValue = this.transactionForm.value;
-      
+
       if (this.editMode) {
         const updateDto: UpdateRecurringTransactionDto = {
           description: formValue.description,
@@ -255,28 +264,30 @@ export class RecurringTransactionsComponent implements OnInit {
           endDate: formValue.endDate || undefined,
           maxExecutions: formValue.maxExecutions || undefined,
           isActive: formValue.isActive,
-          notes: formValue.notes
+          notes: formValue.notes,
         };
-        
-        this.recurringTransactionService.updateRecurringTransaction(this.selectedTransaction.id, updateDto).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Sucesso',
-              detail: 'Transação recorrente atualizada com sucesso'
-            });
-            this.hideDialog();
-            this.loadRecurringTransactions();
-          },
-          error: (error) => {
-            console.error('Error updating recurring transaction:', error);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erro',
-              detail: 'Erro ao atualizar transação recorrente'
-            });
-          }
-        });
+
+        this.recurringTransactionService
+          .updateRecurringTransaction(this.selectedTransaction.id, updateDto)
+          .subscribe({
+            next: () => {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Sucesso',
+                detail: 'Transação recorrente atualizada com sucesso',
+              });
+              this.hideDialog();
+              this.loadRecurringTransactions();
+            },
+            error: (error) => {
+              console.error('Error updating recurring transaction:', error);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Erro',
+                detail: 'Erro ao atualizar transação recorrente',
+              });
+            },
+          });
       } else {
         const createDto: CreateRecurringTransactionDto = {
           description: formValue.description,
@@ -289,15 +300,15 @@ export class RecurringTransactionsComponent implements OnInit {
           endDate: formValue.endDate || undefined,
           maxExecutions: formValue.maxExecutions || undefined,
           isActive: formValue.isActive,
-          notes: formValue.notes
+          notes: formValue.notes,
         };
-        
+
         this.recurringTransactionService.createRecurringTransaction(createDto).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
               summary: 'Sucesso',
-              detail: 'Transação recorrente criada com sucesso'
+              detail: 'Transação recorrente criada com sucesso',
             });
             this.hideDialog();
             this.loadRecurringTransactions();
@@ -307,9 +318,9 @@ export class RecurringTransactionsComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao criar transação recorrente'
+              detail: 'Erro ao criar transação recorrente',
             });
-          }
+          },
         });
       }
     }
@@ -322,7 +333,7 @@ export class RecurringTransactionsComponent implements OnInit {
   }
 
   getCategoriesByType(type: TransactionType): Category[] {
-    return this.categories.filter(cat => cat.type === type);
+    return this.categories.filter((cat) => cat.type === type);
   }
 
   onTypeChange(): void {
@@ -333,9 +344,13 @@ export class RecurringTransactionsComponent implements OnInit {
     const frequency = this.transactionForm.get('frequency')?.value;
     const interval = this.transactionForm.get('interval')?.value || 1;
     const currentNext = this.transactionForm.get('nextExecution')?.value;
-    
+
     if (frequency && currentNext) {
-      const nextDate = this.recurringTransactionService.calculateNextExecution(currentNext, frequency, interval);
+      const _nextDate = this.recurringTransactionService.calculateNextExecution(
+        currentNext,
+        frequency,
+        interval,
+      );
       // Show preview or validation
     }
   }
@@ -343,7 +358,7 @@ export class RecurringTransactionsComponent implements OnInit {
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
     }).format(value);
   }
 
@@ -404,11 +419,11 @@ export class RecurringTransactionsComponent implements OnInit {
   getCategoryOptionsForCurrentType() {
     const type = this.transactionForm.get('type')?.value;
     if (!type) return [];
-    return this.getCategoriesByType(type).map(c => ({
+    return this.getCategoriesByType(type).map((c) => ({
       label: c.name,
       value: c.id,
       icon: c.icon,
-      color: c.color
+      color: c.color,
     }));
   }
 
@@ -417,7 +432,7 @@ export class RecurringTransactionsComponent implements OnInit {
       { label: 'Diário', value: 'daily' },
       { label: 'Semanal', value: 'weekly' },
       { label: 'Mensal', value: 'monthly' },
-      { label: 'Anual', value: 'yearly' }
+      { label: 'Anual', value: 'yearly' },
     ];
   }
 
@@ -433,7 +448,7 @@ export class RecurringTransactionsComponent implements OnInit {
     return [
       { label: 'Indefinido', value: 'indefinite' },
       { label: 'Número específico', value: 'count' },
-      { label: 'Data limite', value: 'date' }
+      { label: 'Data limite', value: 'date' },
     ];
   }
 }

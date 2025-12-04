@@ -220,7 +220,7 @@ export interface MonthlyNavigationStats {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TransactionService {
   private readonly apiUrl = `${environment.apiUrl}/transactions`;
@@ -229,7 +229,7 @@ export class TransactionService {
 
   getTransactions(filters?: TransactionFilters): Observable<PaginatedResponse<Transaction>> {
     let params = new HttpParams();
-    
+
     if (filters) {
       for (const [key, value] of Object.entries(filters)) {
         if (value !== undefined && value !== null && value !== '') {
@@ -275,7 +275,7 @@ export class TransactionService {
 
   exportTransactions(filters?: TransactionFilters): Observable<Blob> {
     let params = new HttpParams();
-    
+
     if (filters) {
       for (const [key, value] of Object.entries(filters)) {
         if (value !== undefined && value !== null && value !== '') {
@@ -288,9 +288,9 @@ export class TransactionService {
       }
     }
 
-    return this.http.get(`${this.apiUrl}/export`, { 
-      params, 
-      responseType: 'blob' 
+    return this.http.get(`${this.apiUrl}/export`, {
+      params,
+      responseType: 'blob',
     });
   }
 
@@ -308,20 +308,25 @@ export class TransactionService {
     if (month) {
       params = params.set('month', month.toString());
     }
-    return this.http.get<MonthlyStatsWithProjections[]>(`${this.apiUrl}/projections/stats/${year}`, { params });
+    return this.http.get<MonthlyStatsWithProjections[]>(
+      `${this.apiUrl}/projections/stats/${year}`,
+      { params },
+    );
   }
 
-  cleanupProjections(startPeriod?: string, endPeriod?: string): Observable<{deleted: number}> {
+  cleanupProjections(startPeriod?: string, endPeriod?: string): Observable<{ deleted: number }> {
     let params = new HttpParams();
     if (startPeriod) params = params.set('startPeriod', startPeriod);
     if (endPeriod) params = params.set('endPeriod', endPeriod);
-    
-    return this.http.delete<{deleted: number}>(`${this.apiUrl}/projections/cleanup`, { params });
+
+    return this.http.delete<{ deleted: number }>(`${this.apiUrl}/projections/cleanup`, { params });
   }
 
-  getTransactionsWithProjectionFilters(filters?: ProjectionFilters): Observable<PaginatedResponse<Transaction>> {
+  getTransactionsWithProjectionFilters(
+    filters?: ProjectionFilters,
+  ): Observable<PaginatedResponse<Transaction>> {
     let params = new HttpParams();
-    
+
     if (filters) {
       for (const [key, value] of Object.entries(filters)) {
         if (value !== undefined && value !== null && value !== '') {
@@ -334,15 +339,27 @@ export class TransactionService {
       }
     }
 
-    return this.http.get<PaginatedResponse<Transaction>>(`${this.apiUrl}/projections/filter`, { params });
+    return this.http.get<PaginatedResponse<Transaction>>(`${this.apiUrl}/projections/filter`, {
+      params,
+    });
   }
 
   // Helper to format period for display
   formatPeriod(period: string): string {
     const [year, month] = period.split('-');
     const months = [
-      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+      'Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro',
     ];
     return `${months[Number.parseInt(month) - 1]}/${year}`;
   }
@@ -359,27 +376,27 @@ export class TransactionService {
   getAvailablePeriods(): { label: string; value: string }[] {
     const periods: { label: string; value: string }[] = [];
     const now = new Date();
-    
+
     // Last 12 months
     for (let i = 11; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       periods.push({
         label: this.formatPeriod(period),
-        value: period
+        value: period,
       });
     }
-    
+
     // Next 6 months
     for (let i = 1; i <= 6; i++) {
       const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
       const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       periods.push({
         label: this.formatPeriod(period),
-        value: period
+        value: period,
       });
     }
-    
+
     return periods;
   }
 }

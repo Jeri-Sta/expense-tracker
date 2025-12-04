@@ -7,7 +7,7 @@
 /**
  * Parses a date string (YYYY-MM-DD or ISO format) to a Date object at noon local time
  * to avoid timezone conversion issues.
- * 
+ *
  * @param dateString - Date string in YYYY-MM-DD or ISO format
  * @returns Date object at noon local time
  */
@@ -19,18 +19,18 @@ export function parseLocalDate(dateString: string | Date): Date {
     const day = dateString.getDate();
     return new Date(year, month, day, 12, 0, 0, 0);
   }
-  
+
   // Extract just the date part (YYYY-MM-DD)
   const datePart = dateString.split('T')[0];
   const [year, month, day] = datePart.split('-').map(Number);
-  
+
   // Create date at noon local time to avoid timezone shifts
   return new Date(year, month - 1, day, 12, 0, 0, 0);
 }
 
 /**
  * Formats a Date object to YYYY-MM-DD string using local timezone.
- * 
+ *
  * @param date - Date object to format
  * @returns Date string in YYYY-MM-DD format
  */
@@ -43,7 +43,7 @@ export function formatDateToString(date: Date): string {
 
 /**
  * Formats a Date object to YYYY-MM string for competency period.
- * 
+ *
  * @param date - Date object to format
  * @returns Period string in YYYY-MM format
  */

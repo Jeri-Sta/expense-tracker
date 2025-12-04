@@ -39,7 +39,7 @@ export class InstallmentsService {
     // Calcular valores totais e juros
     const totalAmount = installmentValue * totalInstallments;
     const totalInterest = totalAmount - financedAmount;
-    
+
     // Calcular data de fim
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + totalInstallments);
@@ -72,11 +72,7 @@ export class InstallmentsService {
     const plans = await this.installmentPlanRepository
       .createQueryBuilder('plan')
       .leftJoin('plan.installments', 'installment')
-      .addSelect([
-        'installment.id',
-        'installment.dueDate',
-        'installment.status',
-      ])
+      .addSelect(['installment.id', 'installment.dueDate', 'installment.status'])
       .where('plan.userId = :userId', { userId })
       .orderBy('plan.createdAt', 'DESC')
       .getMany();
@@ -86,13 +82,13 @@ export class InstallmentsService {
       let nextInstallment = null;
       if (plan.installments && plan.installments.length > 0) {
         const pendingInstallments = plan.installments
-          .filter(i => i.status === InstallmentStatus.PENDING)
-          .map(installment => ({
+          .filter((i) => i.status === InstallmentStatus.PENDING)
+          .map((installment) => ({
             ...installment,
-            dueDate: new Date(installment.dueDate) // Garantir que seja Date
+            dueDate: new Date(installment.dueDate), // Garantir que seja Date
           }))
           .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
-        
+
         nextInstallment = pendingInstallments[0] || null;
       }
 
@@ -131,7 +127,7 @@ export class InstallmentsService {
 
     return {
       ...plan,
-      installments: plan.installments.map(installment => ({
+      installments: plan.installments.map((installment) => ({
         ...installment,
         remainingAmount: installment.remainingAmount,
         effectiveAmount: installment.effectiveAmount,
@@ -173,21 +169,17 @@ export class InstallmentsService {
     }
 
     // Verificar se existe alguma parcela paga
-    const hasPaidInstallments = plan.installments.some(
-      i => i.status === InstallmentStatus.PAID
-    );
+    const hasPaidInstallments = plan.installments.some((i) => i.status === InstallmentStatus.PAID);
 
     if (hasPaidInstallments) {
-      throw new BadRequestException(
-        'Não é possível excluir um financiamento com parcelas pagas'
-      );
+      throw new BadRequestException('Não é possível excluir um financiamento com parcelas pagas');
     }
 
     // Excluir parcelas primeiro, depois o plano
     if (plan.installments && plan.installments.length > 0) {
       await this.installmentRepository.remove(plan.installments);
     }
-    
+
     await this.installmentPlanRepository.remove(plan);
   }
 
@@ -266,18 +258,13 @@ export class InstallmentsService {
 
     if (!plan) return;
 
-    const paidInstallments = plan.installments.filter(
-      i => i.status === InstallmentStatus.PAID
-    );
+    const paidInstallments = plan.installments.filter((i) => i.status === InstallmentStatus.PAID);
 
     plan.paidInstallments = paidInstallments.length;
-    plan.totalPaid = paidInstallments.reduce(
-      (sum, i) => sum + Number(i.paidAmount || 0),
-      0
-    );
+    plan.totalPaid = paidInstallments.reduce((sum, i) => sum + Number(i.paidAmount || 0), 0);
     plan.totalDiscount = paidInstallments.reduce(
       (sum, i) => sum + Number(i.discountAmount || 0),
-      0
+      0,
     );
 
     await this.installmentPlanRepository.save(plan);
@@ -313,9 +300,7 @@ export class InstallmentsService {
     const dueDate = new Date(installment.dueDate);
     dueDate.setHours(0, 0, 0, 0);
 
-    installment.status = dueDate < today
-      ? InstallmentStatus.OVERDUE
-      : InstallmentStatus.PENDING;
+    installment.status = dueDate < today ? InstallmentStatus.OVERDUE : InstallmentStatus.PENDING;
 
     await this.installmentRepository.save(installment);
 
@@ -334,16 +319,18 @@ export class InstallmentsService {
     userId: string,
     year: number,
     month: number,
-  ): Promise<{
-    id: string;
-    planId: string;
-    planName: string;
-    installmentNumber: number;
-    totalInstallments: number;
-    paidAmount: number;
-    paidDate: Date;
-    discountAmount: number;
-  }[]> {
+  ): Promise<
+    {
+      id: string;
+      planId: string;
+      planName: string;
+      installmentNumber: number;
+      totalInstallments: number;
+      paidAmount: number;
+      paidDate: Date;
+      discountAmount: number;
+    }[]
+  > {
     // Criar range de datas para o mês
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59, 999);
@@ -358,7 +345,7 @@ export class InstallmentsService {
       .orderBy('installment.paidDate', 'DESC')
       .getMany();
 
-    return paidInstallments.map(installment => ({
+    return paidInstallments.map((installment) => ({
       id: installment.id,
       planId: installment.installmentPlan.id,
       planName: installment.installmentPlan.name,

@@ -4,31 +4,31 @@
     <div class="topbar-content">
       <!-- Left Side - Logo & Menu Button -->
       <div class="topbar-left">
-        <button 
-          type="button" 
-          class="sidebar-toggle-btn p-link" 
+        <button
+          type="button"
+          class="sidebar-toggle-btn p-link"
           (click)="toggleSidebar()"
           pButton
           icon="pi pi-bars"
           [text]="true"
         ></button>
-        
+
         <div class="app-logo cursor-pointer" routerLink="/dashboard">
           <i class="pi pi-wallet text-primary text-2xl mr-2"></i>
           <span class="app-title">Expense Tracker</span>
         </div>
       </div>
-      
+
       <!-- Right Side - Page Info & User Menu -->
       <div class="topbar-right">
         <div class="page-info">
           <i [class]="getPageIcon()" class="text-primary mr-2"></i>
           <span class="page-title">{{ getPageTitle() }}</span>
         </div>
-        
-        <button 
-          type="button" 
-          class="user-menu-btn p-link ml-3" 
+
+        <button
+          type="button"
+          class="user-menu-btn p-link ml-3"
           (click)="logout()"
           pButton
           icon="pi pi-sign-out"
@@ -41,8 +41,8 @@
   </div>
 
   <!-- Sidebar Navigation -->
-  <p-sidebar 
-    [(visible)]="sidebarVisible" 
+  <p-sidebar
+    [(visible)]="sidebarVisible"
     position="left"
     [modal]="true"
     [dismissible]="true"
@@ -56,17 +56,17 @@
         </div>
       </div>
     </ng-template>
-    
+
     <div class="sidebar-navigation">
       <div class="sidebar-content">
         <!-- Navigation Menu -->
         <nav class="sidebar-nav">
           <ul class="nav-list">
             <li class="nav-item">
-              <a 
-                routerLink="/dashboard" 
+              <a
+                routerLink="/dashboard"
                 routerLinkActive="active"
-                [routerLinkActiveOptions]="{exact: true}"
+                [routerLinkActiveOptions]="{ exact: true }"
                 class="nav-link"
                 (click)="sidebarVisible = false"
               >
@@ -74,10 +74,10 @@
                 <span class="nav-label">Dashboard</span>
               </a>
             </li>
-            
+
             <li class="nav-item">
-              <a 
-                routerLink="/transactions" 
+              <a
+                routerLink="/transactions"
                 routerLinkActive="active"
                 class="nav-link"
                 (click)="sidebarVisible = false"
@@ -86,10 +86,10 @@
                 <span class="nav-label">Transações</span>
               </a>
             </li>
-            
+
             <li class="nav-item">
-              <a 
-                routerLink="/categories" 
+              <a
+                routerLink="/categories"
                 routerLinkActive="active"
                 class="nav-link"
                 (click)="sidebarVisible = false"
@@ -98,10 +98,10 @@
                 <span class="nav-label">Categorias</span>
               </a>
             </li>
-            
+
             <li class="nav-item">
-              <a 
-                routerLink="/recurring-transactions" 
+              <a
+                routerLink="/recurring-transactions"
                 routerLinkActive="active"
                 class="nav-link"
                 (click)="sidebarVisible = false"
@@ -110,10 +110,10 @@
                 <span class="nav-label">Recorrências</span>
               </a>
             </li>
-            
+
             <li class="nav-item">
-              <a 
-                routerLink="/installments" 
+              <a
+                routerLink="/installments"
                 routerLinkActive="active"
                 class="nav-link"
                 (click)="sidebarVisible = false"
@@ -122,12 +122,12 @@
                 <span class="nav-label">Financiamentos</span>
               </a>
             </li>
-            
+
             <li class="nav-item">
-              <a 
-                routerLink="/credit-cards" 
+              <a
+                routerLink="/credit-cards"
                 routerLinkActive="active"
-                [routerLinkActiveOptions]="{exact: true}"
+                [routerLinkActiveOptions]="{ exact: true }"
                 class="nav-link"
                 (click)="sidebarVisible = false"
               >
@@ -135,10 +135,10 @@
                 <span class="nav-label">Cartões de Crédito</span>
               </a>
             </li>
-            
+
             <li class="nav-item">
-              <a 
-                routerLink="/credit-cards/transactions" 
+              <a
+                routerLink="/credit-cards/transactions"
                 routerLinkActive="active"
                 class="nav-link"
                 (click)="sidebarVisible = false"
@@ -149,12 +149,12 @@
             </li>
           </ul>
         </nav>
-        
+
         <!-- Sidebar Footer -->
         <div class="sidebar-footer">
-          <button 
-            type="button" 
-            class="logout-btn p-link w-full" 
+          <button
+            type="button"
+            class="logout-btn p-link w-full"
             (click)="logout()"
             pButton
             icon="pi pi-sign-out"
@@ -173,12 +173,13 @@
       <router-outlet></router-outlet>
     </div>
   </div>
-  
+
   <!-- Overlay for mobile -->
-  <div class="layout-overlay" 
-       [class.overlay-visible]="sidebarVisible" 
-       (click)="sidebarVisible = false"
-       (keydown.escape)="sidebarVisible = false"
-       tabindex="-1">
-  </div>
+  <div
+    class="layout-overlay"
+    [class.overlay-visible]="sidebarVisible"
+    (click)="sidebarVisible = false"
+    (keydown.escape)="sidebarVisible = false"
+    tabindex="-1"
+  ></div>
 </div>

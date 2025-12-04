@@ -5,7 +5,7 @@ import { normalizeIcon } from '../../../../shared/utils/icon.utils';
 @Component({
   selector: 'app-installments-widget',
   templateUrl: './installments-widget.component.html',
-  styleUrls: ['./installments-widget.component.scss']
+  styleUrls: ['./installments-widget.component.scss'],
 })
 export class InstallmentsWidgetComponent {
   @Input() installments: CardInstallmentSummary[] = [];
@@ -13,7 +13,7 @@ export class InstallmentsWidgetComponent {
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
     }).format(value);
   }
 

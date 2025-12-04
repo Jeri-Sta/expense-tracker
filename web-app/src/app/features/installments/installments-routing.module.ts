@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { 
-  InstallmentListComponent, 
-  InstallmentFormComponent, 
-  InstallmentDetailsComponent 
+import {
+  InstallmentListComponent,
+  InstallmentFormComponent,
+  InstallmentDetailsComponent,
 } from './components';
 
 const routes: Routes = [

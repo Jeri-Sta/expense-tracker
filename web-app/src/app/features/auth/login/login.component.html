@@ -2,7 +2,7 @@
   <p-card class="auth-card">
     <ng-template pTemplate="header">
       <div class="auth-header">
-        <i class="pi pi-wallet" style="font-size: 2rem; color: var(--primary-color);"></i>
+        <i class="pi pi-wallet" style="font-size: 2rem; color: var(--primary-color)"></i>
         <h1>Personal Expense Tracker</h1>
         <p>Faça login para acessar sua conta</p>
       </div>
@@ -20,10 +20,7 @@
           [class.ng-invalid]="email?.invalid && email?.touched"
           class="w-full"
         />
-        <small 
-          class="error-message" 
-          *ngIf="email?.invalid && email?.touched"
-        >
+        <small class="error-message" *ngIf="email?.invalid && email?.touched">
           <span *ngIf="email?.errors?.['required']">Email é obrigatório</span>
           <span *ngIf="email?.errors?.['email']">Email inválido</span>
         </small>
@@ -40,12 +37,11 @@
           class="password-field w-full"
           [class.ng-invalid]="password?.invalid && password?.touched"
         ></p-password>
-        <small 
-          class="error-message" 
-          *ngIf="password?.invalid && password?.touched"
-        >
+        <small class="error-message" *ngIf="password?.invalid && password?.touched">
           <span *ngIf="password?.errors?.['required']">Senha é obrigatória</span>
-          <span *ngIf="password?.errors?.['minlength']">Senha deve ter pelo menos 6 caracteres</span>
+          <span *ngIf="password?.errors?.['minlength']"
+            >Senha deve ter pelo menos 6 caracteres</span
+          >
         </small>
       </div>
 

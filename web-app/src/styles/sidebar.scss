@@ -10,14 +10,14 @@
     padding: $spacing-lg $spacing-md;
     background: var(--surface-section);
     border-bottom: 1px solid var(--surface-border);
-    
+
     .sidebar-title {
       font-size: 1.125rem;
       font-weight: 600;
       color: var(--text-color);
       margin-left: $spacing-sm;
     }
-    
+
     i {
       color: var(--primary-color);
     }
@@ -34,15 +34,15 @@
   .sidebar-nav {
     flex: 1;
     padding: $spacing-md 0;
-    
+
     .nav-list {
       list-style: none;
       margin: 0;
       padding: 0;
-      
+
       .nav-item {
         margin: $spacing-xs 0.75rem;
-        
+
         .nav-link {
           display: flex;
           align-items: center;
@@ -53,24 +53,24 @@
           transition: all 0.2s ease-in-out;
           font-weight: 500;
           font-size: 0.875rem;
-          
+
           &:hover {
             background: var(--surface-hover);
             color: var(--text-color);
             transform: translateX(2px);
           }
-          
+
           &.active {
             background: rgba(59, 130, 246, 0.15);
             color: var(--primary-color);
             font-weight: 600;
             box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-            
+
             .nav-icon {
               color: var(--primary-color);
             }
           }
-          
+
           .nav-icon {
             width: 1.25rem;
             height: 1.25rem;
@@ -79,7 +79,7 @@
             @include flex-center;
             flex-shrink: 0;
           }
-          
+
           .nav-label {
             font-size: inherit;
             line-height: 1.25;
@@ -97,7 +97,7 @@
     padding: $spacing-md;
     border-top: 1px solid var(--surface-border);
     background: var(--surface-card);
-    
+
     .logout-btn {
       width: 100%;
       padding: 0.75rem;
@@ -110,19 +110,19 @@
       cursor: pointer;
       transition: all 0.2s ease-in-out;
       @include flex-center;
-      
+
       &:hover {
         background: rgba(220, 53, 69, 0.1);
         border-color: rgba(220, 53, 69, 0.5);
         color: var(--text-color);
         transform: translateY(-1px);
       }
-      
+
       .p-button-icon {
         margin-right: $spacing-sm;
         font-size: 1rem;
       }
-      
+
       .p-button-label {
         font-weight: inherit;
         font-size: inherit;
@@ -141,20 +141,20 @@
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       border-radius: 0;
     }
-    
+
     .p-sidebar-header {
       padding: 0;
       border: none;
       background: transparent;
     }
-    
+
     .p-sidebar-content {
       padding: 0;
       background: var(--surface-card);
       @include flex-column;
       height: calc(100vh - 60px);
     }
-    
+
     .p-sidebar-mask {
       background: rgba(0, 0, 0, 0.5);
     }
@@ -168,15 +168,15 @@
       .nav-list {
         .nav-item {
           margin: 0.125rem $spacing-sm;
-          
+
           .nav-link {
             padding: $spacing-sm 0.75rem;
-            
+
             .nav-icon {
               margin-right: $spacing-sm;
               font-size: 1rem;
             }
-            
+
             .nav-label {
               font-size: 0.8125rem;
             }
@@ -184,14 +184,14 @@
         }
       }
     }
-    
+
     .sidebar-footer {
       padding: 0.75rem;
-      
+
       .logout-btn {
         padding: $spacing-sm;
         font-size: 0.8125rem;
-        
+
         .p-button-icon {
           font-size: 0.875rem;
         }

@@ -5,25 +5,25 @@ import { map, take } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GuestGuard implements CanActivate {
   constructor(
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
   ) {}
 
   canActivate(): Observable<boolean> {
     return this.authService.authState$.pipe(
       take(1),
-      map(authState => {
+      map((authState) => {
         if (!authState.isAuthenticated) {
           return true;
         } else {
           this.router.navigate(['/dashboard']);
           return false;
         }
-      })
+      }),
     );
   }
 }

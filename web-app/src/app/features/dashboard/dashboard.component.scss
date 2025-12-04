@@ -15,17 +15,17 @@
 ::ng-deep .dashboard-tabs {
   &.p-tabview {
     background: transparent;
-    
+
     .p-tabview-nav {
       background: var(--surface-card);
       border: 1px solid var(--surface-border);
       border-radius: $border-radius-md $border-radius-md 0 0;
       padding: $spacing-xs $spacing-sm;
       gap: $spacing-xs;
-      
+
       li {
         margin-right: $spacing-xs;
-        
+
         .p-tabview-nav-link {
           background: transparent;
           border: none;
@@ -34,44 +34,44 @@
           color: var(--text-color-secondary);
           font-weight: 500;
           transition: all 0.2s ease;
-          
+
           .p-tabview-left-icon {
             margin-right: $spacing-xs;
           }
-          
+
           &:hover {
             background: var(--surface-hover);
             color: var(--text-color);
           }
-          
+
           &:focus {
             box-shadow: none;
           }
         }
-        
+
         &.p-highlight .p-tabview-nav-link {
           background: var(--primary-color);
           color: var(--primary-color-text);
-          
+
           &:hover {
             background: var(--primary-600);
           }
         }
-        
+
         &:not(.p-highlight):not(.p-disabled):hover .p-tabview-nav-link {
           background: var(--surface-hover);
           color: var(--text-color);
         }
       }
     }
-    
+
     .p-tabview-panels {
       background: var(--surface-card);
       border: 1px solid var(--surface-border);
       border-top: none;
       border-radius: 0 0 $border-radius-md $border-radius-md;
       padding: $spacing-md;
-      
+
       @include respond-to($breakpoint-md) {
         padding: $spacing-sm;
       }
@@ -141,7 +141,8 @@
 }
 
 // Chart Cards
-.chart-card, .data-card {
+.chart-card,
+.data-card {
   @include card-base;
   height: 100%;
   padding: 0;
@@ -157,7 +158,8 @@
   min-height: auto !important;
 }
 
-.chart-header, .card-header {
+.chart-header,
+.card-header {
   background: var(--surface-section);
   border-bottom: 1px solid var(--surface-border);
 
@@ -173,7 +175,8 @@
   }
 }
 
-.chart-content, .card-content {
+.chart-content,
+.card-content {
   background: var(--surface-card);
   min-height: 300px;
   display: flex;
@@ -185,7 +188,7 @@
     width: 100%;
     height: 100%;
     max-width: 100%;
-    
+
     ::ng-deep {
       canvas {
         max-width: 100% !important;
@@ -193,7 +196,7 @@
         width: auto !important;
         height: auto !important;
       }
-      
+
       .p-chart {
         width: 100% !important;
         height: 100% !important;
@@ -209,17 +212,17 @@
   overflow: hidden;
   width: 100%;
   height: 100%;
-  
+
   p-chart {
     display: block;
     width: 100% !important;
     height: 100% !important;
-    
+
     ::ng-deep {
       .p-chart {
         width: 100% !important;
         height: 100% !important;
-        
+
         canvas {
           width: 100% !important;
           height: 100% !important;
@@ -233,10 +236,10 @@
 }
 
 // Specific fixes for horizontal bar chart (Top Categorias)
-.chart-card .chart-content:has(p-chart[type="bar"]) {
+.chart-card .chart-content:has(p-chart[type='bar']) {
   .chart-wrapper {
     padding: $spacing-sm;
-    
+
     ::ng-deep {
       .p-chart canvas {
         padding: $spacing-xs;
@@ -248,11 +251,11 @@
 // Specific fixes for monthly trend chart
 .monthly-trend-chart {
   min-height: 450px !important;
-  
+
   ::ng-deep {
     .p-chart {
       height: 100% !important;
-      
+
       canvas {
         width: 100% !important;
         height: 100% !important;
@@ -266,18 +269,18 @@
 
 .chart-card {
   overflow: hidden;
-  
+
   .chart-content {
     position: relative;
     width: 100%;
     overflow: hidden;
-    
+
     ::ng-deep {
       .p-chart {
         position: relative;
         width: 100% !important;
         height: 100% !important;
-        
+
         canvas {
           width: 100% !important;
           height: 100% !important;
@@ -295,7 +298,7 @@
   .chart-content {
     min-height: 250px;
   }
-  
+
   .monthly-trend-chart {
     min-height: 400px !important;
   }
@@ -307,10 +310,11 @@
     padding: $spacing-md !important;
   }
 
-  .chart-header, .card-header {
+  .chart-header,
+  .card-header {
     padding: $spacing-md !important;
   }
-  
+
   .monthly-trend-chart {
     min-height: 350px !important;
   }
@@ -495,7 +499,9 @@
 }
 
 .shadow-2 {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 // Mobile Optimizations
@@ -510,7 +516,8 @@
     }
   }
 
-  .chart-card, .data-card {
+  .chart-card,
+  .data-card {
     &:hover {
       transform: none;
     }
@@ -518,13 +525,13 @@
 
   .chart-wrapper {
     height: 250px !important;
-    
+
     // Specific height for Top Categorias chart
-    &:has(p-chart[type="bar"]) {
+    &:has(p-chart[type='bar']) {
       height: 300px !important;
       padding: 5px;
     }
-    
+
     // Specific height for monthly trend chart on mobile
     &.monthly-trend-chart {
       height: 350px !important;
@@ -537,11 +544,13 @@
     padding: $spacing-sm !important;
   }
 
-  .chart-header, .card-header {
+  .chart-header,
+  .card-header {
     padding: 0.75rem !important;
   }
 
-  .transaction-item, .recurring-item {
+  .transaction-item,
+  .recurring-item {
     &:hover {
       transform: none;
     }
@@ -567,19 +576,19 @@
 @media (min-width: 577px) and (max-width: 992px) {
   .chart-wrapper {
     height: 300px !important;
-    
+
     // Specific height for Top Categorias chart on tablet
-    &:has(p-chart[type="bar"]) {
+    &:has(p-chart[type='bar']) {
       height: 350px !important;
     }
-    
+
     // Specific height for monthly trend chart on tablet
     &.monthly-trend-chart {
       height: 400px !important;
       min-height: 400px !important;
     }
   }
-  
+
   .chart-content {
     min-height: 250px !important;
     padding: 0.75rem !important;
@@ -588,15 +597,19 @@
 
 // Dark Theme Adjustments
 .dark {
-  .kpi-card, .chart-card, .data-card, .category-stat-card {
+  .kpi-card,
+  .chart-card,
+  .data-card,
+  .category-stat-card {
     border-color: var(--surface-border);
-    
+
     &:hover {
       border-color: var(--primary-400);
     }
   }
 
-  .transaction-item, .recurring-item {
+  .transaction-item,
+  .recurring-item {
     &:hover {
       border-color: var(--primary-400);
     }
@@ -608,13 +621,15 @@
     color: var(--text-color);
   }
 
-  .transaction-item i, .recurring-item i {
+  .transaction-item i,
+  .recurring-item i {
     background: transparent;
   }
 }
 
 // Scrollbar Styling
-.transaction-list, .recurring-list {
+.transaction-list,
+.recurring-list {
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -627,7 +642,7 @@
   &::-webkit-scrollbar-thumb {
     background: var(--surface-300);
     border-radius: 3px;
-    
+
     &:hover {
       background: var(--surface-400);
     }
@@ -675,7 +690,8 @@
     }
   }
 
-  .progress-section, .savings-section {
+  .progress-section,
+  .savings-section {
     transition: all 0.3s ease;
     border: 1px solid transparent;
 
@@ -729,7 +745,7 @@
     &::-webkit-scrollbar-thumb {
       background: var(--surface-300);
       border-radius: 2px;
-      
+
       &:hover {
         background: var(--surface-400);
       }
@@ -749,7 +765,7 @@
 
     .section-header {
       padding: $spacing-md !important;
-      
+
       .flex {
         flex-direction: column;
         align-items: flex-start;

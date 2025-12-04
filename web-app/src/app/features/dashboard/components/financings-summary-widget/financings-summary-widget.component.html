@@ -5,16 +5,16 @@
         <h3 class="text-lg font-bold text-color m-0">Financiamentos</h3>
         <p class="text-color-secondary m-0 text-sm">Resumo dos seus financiamentos ativos</p>
       </div>
-      <p-button 
-        label="Ver Todos" 
-        icon="pi pi-external-link" 
-        [text]="true" 
+      <p-button
+        label="Ver Todos"
+        icon="pi pi-external-link"
+        [text]="true"
         size="small"
         (onClick)="onNavigateClick()"
       ></p-button>
     </div>
   </div>
-  
+
   <div class="installments-content p-4">
     <div class="grid">
       <!-- Financial Summary Cards -->
@@ -25,32 +25,38 @@
           <div class="text-color-secondary text-sm">Financiamentos Ativos</div>
         </div>
       </div>
-      
+
       <div class="col-12 md:col-6 lg:col-3">
         <div class="installment-kpi surface-section border-round p-3 text-center h-full">
           <i class="pi pi-dollar text-blue-600 text-2xl mb-2"></i>
-          <div class="text-blue-600 font-bold text-lg">{{ formatCurrency(installmentStats.totalFinanced) }}</div>
+          <div class="text-blue-600 font-bold text-lg">
+            {{ formatCurrency(installmentStats.totalFinanced) }}
+          </div>
           <div class="text-color-secondary text-sm">Total Financiado</div>
         </div>
       </div>
-      
+
       <div class="col-12 md:col-6 lg:col-3">
         <div class="installment-kpi surface-section border-round p-3 text-center h-full">
           <i class="pi pi-check-circle text-green-600 text-2xl mb-2"></i>
-          <div class="text-green-600 font-bold text-lg">{{ formatCurrency(installmentStats.totalPaid) }}</div>
+          <div class="text-green-600 font-bold text-lg">
+            {{ formatCurrency(installmentStats.totalPaid) }}
+          </div>
           <div class="text-color-secondary text-sm">Total Pago</div>
         </div>
       </div>
-      
+
       <div class="col-12 md:col-6 lg:col-3">
         <div class="installment-kpi surface-section border-round p-3 text-center h-full">
           <i class="pi pi-clock text-orange-600 text-2xl mb-2"></i>
-          <div class="text-orange-600 font-bold text-lg">{{ formatCurrency(installmentStats.totalRemaining) }}</div>
+          <div class="text-orange-600 font-bold text-lg">
+            {{ formatCurrency(installmentStats.totalRemaining) }}
+          </div>
           <div class="text-color-secondary text-sm">Valor Restante</div>
         </div>
       </div>
     </div>
-    
+
     <!-- Progress and Savings Row -->
     <div class="grid mt-3">
       <div class="col-12 md:col-6">
@@ -60,32 +66,41 @@
             <span class="text-color-secondary text-sm">Valor pago do total</span>
             <span class="font-bold text-color">{{ getInstallmentProgress().toFixed(1) }}%</span>
           </div>
-          <p-progressBar 
-            [value]="getInstallmentProgress()"
-            styleClass="progress-bar-custom">
+          <p-progressBar [value]="getInstallmentProgress()" styleClass="progress-bar-custom">
           </p-progressBar>
         </div>
       </div>
-      
+
       <div class="col-12 md:col-6">
         <div class="savings-section surface-section border-round p-3 h-full">
           <h4 class="text-base font-bold text-color mb-2">Desconto Obtido</h4>
           <div class="flex align-items-center justify-content-center">
-            <i class="pi pi-star-fill text-yellow-500 text-xl mr-2" *ngIf="installmentStats.totalSavings > 0"></i>
-            <i class="pi pi-star text-color-secondary text-xl mr-2" *ngIf="installmentStats.totalSavings === 0"></i>
-            <div 
+            <i
+              class="pi pi-star-fill text-yellow-500 text-xl mr-2"
+              *ngIf="installmentStats.totalSavings > 0"
+            ></i>
+            <i
+              class="pi pi-star text-color-secondary text-xl mr-2"
+              *ngIf="installmentStats.totalSavings === 0"
+            ></i>
+            <div
               class="font-bold text-xl"
-              [class]="installmentStats.totalSavings > 0 ? 'text-green-600' : 'text-color-secondary'"
+              [class]="
+                installmentStats.totalSavings > 0 ? 'text-green-600' : 'text-color-secondary'
+              "
             >
               {{ formatCurrency(installmentStats.totalSavings) }}
             </div>
           </div>
           <div class="text-color-secondary text-sm text-center mt-1">
-            {{ installmentStats.totalSavings > 0 ? 'Economizado com pagamentos antecipados' : 'Nenhum desconto aplicado ainda' }}
+            {{
+              installmentStats.totalSavings > 0
+                ? 'Economizado com pagamentos antecipados'
+                : 'Nenhum desconto aplicado ainda'
+            }}
           </div>
         </div>
       </div>
     </div>
-    
   </div>
 </div>

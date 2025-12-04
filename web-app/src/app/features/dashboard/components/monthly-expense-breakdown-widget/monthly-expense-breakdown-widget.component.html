@@ -28,13 +28,13 @@
     <!-- Breakdown List -->
     <div *ngIf="!isLoading && hasItems" class="breakdown-list">
       <!-- Items (excluding total) -->
-      <div 
+      <div
         *ngFor="let item of itemsWithoutTotal; let last = last"
         class="breakdown-item flex align-items-center justify-content-between p-3 mb-2 surface-hover border-round"
       >
         <div class="flex align-items-center gap-3">
           <!-- Type Icon with Color -->
-          <div 
+          <div
             class="item-icon flex align-items-center justify-content-center border-round"
             [style.background-color]="item.color || '#607D8B'"
             [style.width.px]="40"
@@ -42,7 +42,7 @@
           >
             <i [class]="getIconForType(item)" class="text-white text-lg"></i>
           </div>
-          
+
           <!-- Name and Type Label -->
           <div class="flex flex-column">
             <span class="font-semibold text-color">{{ item.name }}</span>
@@ -53,15 +53,15 @@
         <!-- Amount and Discount Badge -->
         <div class="flex align-items-center gap-2">
           <!-- Discount Badge (if exists) -->
-          <span 
-            *ngIf="item.discountAmount && item.discountAmount > 0" 
+          <span
+            *ngIf="item.discountAmount && item.discountAmount > 0"
             class="discount-badge text-xs bg-green-100 text-green-700 px-2 py-1 border-round-lg font-semibold"
             pTooltip="Economia com pagamento antecipado"
             tooltipPosition="left"
           >
             -{{ formatCurrency(item.discountAmount) }}
           </span>
-          
+
           <!-- Amount -->
           <span class="font-bold text-lg text-color">
             {{ formatCurrency(item.amount) }}
@@ -71,10 +71,13 @@
     </div>
 
     <!-- Total Row (with separator) - Fixed at bottom -->
-    <div *ngIf="!isLoading && hasItems && totalItem" class="total-row mt-3 pt-3 border-top-1 surface-border">
+    <div
+      *ngIf="!isLoading && hasItems && totalItem"
+      class="total-row mt-3 pt-3 border-top-1 surface-border"
+    >
       <div class="flex align-items-center justify-content-between p-3 surface-section border-round">
         <div class="flex align-items-center gap-3">
-          <div 
+          <div
             class="item-icon flex align-items-center justify-content-center border-round bg-red-500"
             [style.width.px]="40"
             [style.height.px]="40"

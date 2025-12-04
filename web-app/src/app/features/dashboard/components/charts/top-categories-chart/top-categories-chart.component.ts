@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-top-categories-chart',
   templateUrl: './top-categories-chart.component.html',
-  styleUrls: ['./top-categories-chart.component.scss']
+  styleUrls: ['./top-categories-chart.component.scss'],
 })
 export class TopCategoriesChartComponent {
   @Input() chartData: any;

@@ -6,9 +6,9 @@
         <h5 class="font-bold text-color m-0">Limites dos Cartões</h5>
         <p class="text-color-secondary text-sm m-0">Uso do limite de crédito</p>
       </div>
-      <p-button 
-        label="Ver Todos" 
-        icon="pi pi-external-link" 
+      <p-button
+        label="Ver Todos"
+        icon="pi pi-external-link"
         [text]="true"
         size="small"
         routerLink="/credit-cards"
@@ -27,42 +27,44 @@
         </div>
         <div class="text-right">
           <span class="text-color-secondary text-sm">Disponível</span>
-          <div class="text-lg font-semibold text-green-500">{{ formatCurrency(getTotalAvailable()) }}</div>
+          <div class="text-lg font-semibold text-green-500">
+            {{ formatCurrency(getTotalAvailable()) }}
+          </div>
         </div>
       </div>
-      <p-progressBar 
-        [value]="getOverallUsagePercentage()" 
+      <p-progressBar
+        [value]="getOverallUsagePercentage()"
         [showValue]="false"
-        [style]="{'height': '10px'}"
+        [style]="{ height: '10px' }"
         [styleClass]="getProgressBarClass(getOverallUsagePercentage())"
       ></p-progressBar>
       <div class="text-xs text-color-secondary mt-1 text-right">
-        {{ getOverallUsagePercentage() | number:'1.0-0' }}% do limite total
+        {{ getOverallUsagePercentage() | number: '1.0-0' }}% do limite total
       </div>
     </div>
 
     <!-- Individual Cards -->
     <div class="cards-list" *ngIf="creditCards.length > 0">
-      <div 
+      <div
         class="card-item flex align-items-center gap-3 py-3 px-3 border-round hover:surface-hover border-bottom-1 surface-border"
         *ngFor="let card of creditCards; let last = last"
         [class.border-none]="last"
       >
-        <div 
-          class="card-color-badge"
-          [style.background-color]="card.color"
-        ></div>
+        <div class="card-color-badge" [style.background-color]="card.color"></div>
         <div class="flex-1">
           <div class="flex justify-content-between align-items-center mb-1">
             <span class="font-medium text-color">{{ card.name }}</span>
-            <span class="text-sm font-semibold" [class]="'text-' + getUsageSeverity(card.usagePercentage) + '-500'">
+            <span
+              class="text-sm font-semibold"
+              [class]="'text-' + getUsageSeverity(card.usagePercentage) + '-500'"
+            >
               {{ formatCurrency(card.usedLimit) }}
             </span>
           </div>
-          <p-progressBar 
-            [value]="card.usagePercentage" 
+          <p-progressBar
+            [value]="card.usagePercentage"
             [showValue]="false"
-            [style]="{'height': '6px'}"
+            [style]="{ height: '6px' }"
             [styleClass]="getProgressBarClass(card.usagePercentage)"
           ></p-progressBar>
           <div class="flex justify-content-between mt-1">
@@ -70,7 +72,7 @@
               Disponível: {{ formatCurrency(card.availableLimit) }}
             </span>
             <span class="text-xs text-color-secondary">
-              {{ card.usagePercentage | number:'1.0-0' }}%
+              {{ card.usagePercentage | number: '1.0-0' }}%
             </span>
           </div>
         </div>
@@ -79,7 +81,7 @@
 
     <!-- Empty State -->
     <div class="text-center py-4 text-color-secondary" *ngIf="creditCards.length === 0">
-      <i class="pi pi-credit-card text-4xl mb-2" style="display: block;"></i>
+      <i class="pi pi-credit-card text-4xl mb-2" style="display: block"></i>
       <p class="m-0 mb-2">Nenhum cartão cadastrado</p>
       <a routerLink="/credit-cards" class="text-primary text-sm">Cadastrar cartão</a>
     </div>

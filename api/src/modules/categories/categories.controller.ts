@@ -10,13 +10,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { CategoriesService } from './categories.service';
@@ -54,7 +48,12 @@ export class CategoriesController {
     description: 'Categories retrieved successfully',
     type: [CategoryResponseDto],
   })
-  @ApiQuery({ name: 'type', required: false, enum: CategoryType, description: 'Filter by category type' })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    enum: CategoryType,
+    description: 'Filter by category type',
+  })
   findAll(
     @GetUser() user: User,
     @Query('type') type?: CategoryType,
@@ -107,10 +106,7 @@ export class CategoriesController {
     status: 200,
     description: 'Category deleted successfully',
   })
-  remove(
-    @GetUser() user: User,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<void> {
+  remove(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.categoriesService.remove(id, user.id);
   }
 }

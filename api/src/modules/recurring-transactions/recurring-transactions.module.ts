@@ -8,11 +8,7 @@ import { TransactionsModule } from '../transactions/transactions.module';
 import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([RecurringTransaction]),
-    TransactionsModule,
-    CategoriesModule,
-  ],
+  imports: [TypeOrmModule.forFeature([RecurringTransaction]), TransactionsModule, CategoriesModule],
   controllers: [RecurringTransactionsController],
   providers: [RecurringTransactionsService, RecurringTransactionsScheduler],
   exports: [RecurringTransactionsService],

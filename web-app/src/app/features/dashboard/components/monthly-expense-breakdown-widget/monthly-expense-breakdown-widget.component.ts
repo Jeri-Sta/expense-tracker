@@ -5,7 +5,7 @@ import { DashboardUtilsService } from '../../../../shared/services/dashboard-uti
 @Component({
   selector: 'app-monthly-expense-breakdown-widget',
   templateUrl: './monthly-expense-breakdown-widget.component.html',
-  styleUrls: ['./monthly-expense-breakdown-widget.component.scss']
+  styleUrls: ['./monthly-expense-breakdown-widget.component.scss'],
 })
 export class MonthlyExpenseBreakdownWidgetComponent {
   @Input() breakdownItems: MonthlyExpenseBreakdownItem[] = [];
@@ -54,10 +54,10 @@ export class MonthlyExpenseBreakdownWidgetComponent {
   }
 
   get itemsWithoutTotal(): MonthlyExpenseBreakdownItem[] {
-    return this.breakdownItems.filter(item => item.type !== 'total');
+    return this.breakdownItems.filter((item) => item.type !== 'total');
   }
 
   get totalItem(): MonthlyExpenseBreakdownItem | undefined {
-    return this.breakdownItems.find(item => item.type === 'total');
+    return this.breakdownItems.find((item) => item.type === 'total');
   }
 }

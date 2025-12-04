@@ -12,7 +12,7 @@ interface ViewTypeOption {
 @Component({
   selector: 'app-recent-transactions-widget',
   templateUrl: './recent-transactions-widget.component.html',
-  styleUrls: ['./recent-transactions-widget.component.scss']
+  styleUrls: ['./recent-transactions-widget.component.scss'],
 })
 export class RecentTransactionsWidgetComponent implements OnInit, OnChanges {
   private readonly STORAGE_KEY = 'monthly_transactions_view_type';
@@ -26,7 +26,7 @@ export class RecentTransactionsWidgetComponent implements OnInit, OnChanges {
   viewType: TransactionViewType = 'expense';
   viewTypeOptions: ViewTypeOption[] = [
     { label: 'Despesas', value: 'expense' },
-    { label: 'Receitas', value: 'income' }
+    { label: 'Receitas', value: 'income' },
   ];
 
   // Filtered transactions
@@ -58,9 +58,7 @@ export class RecentTransactionsWidgetComponent implements OnInit, OnChanges {
   }
 
   private filterTransactions(): void {
-    this.filteredTransactions = this.transactions.filter(
-      (t) => t.type === this.viewType
-    );
+    this.filteredTransactions = this.transactions.filter((t) => t.type === this.viewType);
   }
 
   get subtitleText(): string {
@@ -135,7 +133,9 @@ export class RecentTransactionsWidgetComponent implements OnInit, OnChanges {
       const transactionDate = parseLocalDate(transaction.transactionDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const daysOverdue = Math.floor((today.getTime() - transactionDate.getTime()) / (1000 * 60 * 60 * 24));
+      const daysOverdue = Math.floor(
+        (today.getTime() - transactionDate.getTime()) / (1000 * 60 * 60 * 24),
+      );
       return `Atrasado há ${daysOverdue} dia${daysOverdue > 1 ? 's' : ''}`;
     }
     return 'Pendente';

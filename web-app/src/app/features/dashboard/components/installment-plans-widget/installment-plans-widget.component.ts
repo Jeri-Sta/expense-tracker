@@ -5,7 +5,7 @@ import { InstallmentPlanSummary } from '../../../installments/models';
 @Component({
   selector: 'app-installment-plans-widget',
   templateUrl: './installment-plans-widget.component.html',
-  styleUrls: ['./installment-plans-widget.component.scss']
+  styleUrls: ['./installment-plans-widget.component.scss'],
 })
 export class InstallmentPlansWidgetComponent {
   @Input() installmentPlans: InstallmentPlanSummary[] = [];
@@ -65,6 +65,6 @@ export class InstallmentPlansWidgetComponent {
   }
 
   getActivePlans(): InstallmentPlanSummary[] {
-    return this.installmentPlans.filter(plan => plan.isActive);
+    return this.installmentPlans.filter((plan) => plan.isActive);
   }
 }

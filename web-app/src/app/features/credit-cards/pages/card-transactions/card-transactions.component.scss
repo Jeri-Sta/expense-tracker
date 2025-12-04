@@ -23,7 +23,7 @@
 .invoice-card {
   @include card-base;
   border-left: 4px solid transparent;
-  
+
   &:hover {
     transform: translateY(-2px);
   }
@@ -31,7 +31,7 @@
 
 .child-transaction {
   background-color: var(--surface-50);
-  
+
   td {
     font-size: 0.9rem;
   }
@@ -39,13 +39,13 @@
 
 .field {
   margin-bottom: $spacing-lg;
-  
+
   label {
     display: block;
     margin-bottom: $spacing-xs;
     font-weight: 500;
   }
-  
+
   small {
     display: block;
     margin-top: $spacing-xs;

@@ -9,7 +9,7 @@ import { RegisterRequest } from '../../../core/models/auth.model';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
@@ -20,7 +20,7 @@ export class RegisterComponent implements OnInit {
     private readonly authService: AuthService,
     private readonly router: Router,
     private readonly messageService: MessageService,
-    private readonly loadingService: LoadingService
+    private readonly loadingService: LoadingService,
   ) {}
 
   ngOnInit(): void {
@@ -28,19 +28,22 @@ export class RegisterComponent implements OnInit {
   }
 
   private initializeForm(): void {
-    this.registerForm = this.formBuilder.group({
-      firstName: ['', [Validators.required, Validators.maxLength(50)]],
-      lastName: ['', [Validators.required, Validators.maxLength(50)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
+    this.registerForm = this.formBuilder.group(
+      {
+        firstName: ['', [Validators.required, Validators.maxLength(50)]],
+        lastName: ['', [Validators.required, Validators.maxLength(50)]],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
+        confirmPassword: ['', [Validators.required]],
+      },
+      { validators: this.passwordMatchValidator },
+    );
   }
 
   private passwordMatchValidator(form: FormGroup) {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
-    
+
     if (password && confirmPassword && password.value !== confirmPassword.value) {
       confirmPassword.setErrors({ passwordMismatch: true });
     } else if (confirmPassword?.errors?.['passwordMismatch']) {
@@ -56,20 +59,20 @@ export class RegisterComponent implements OnInit {
     if (this.registerForm.valid) {
       this.isLoading = true;
       this.loadingService.show();
-      
+
       const userData: RegisterRequest = {
         firstName: this.registerForm.value.firstName,
         lastName: this.registerForm.value.lastName,
         email: this.registerForm.value.email,
-        password: this.registerForm.value.password
+        password: this.registerForm.value.password,
       };
-      
+
       this.authService.register(userData).subscribe({
         next: (response) => {
           this.messageService.add({
             severity: 'success',
             summary: 'Conta Criada',
-            detail: `Bem-vindo, ${response.user.firstName}! Sua conta foi criada com sucesso.`
+            detail: `Bem-vindo, ${response.user.firstName}! Sua conta foi criada com sucesso.`,
           });
           this.router.navigate(['/dashboard']);
         },
@@ -78,7 +81,7 @@ export class RegisterComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro no Registro',
-            detail: error.error?.message || 'Erro ao criar conta'
+            detail: error.error?.message || 'Erro ao criar conta',
           });
           this.isLoading = false;
           this.loadingService.hide();
@@ -86,7 +89,7 @@ export class RegisterComponent implements OnInit {
         complete: () => {
           this.isLoading = false;
           this.loadingService.hide();
-        }
+        },
       });
     } else {
       this.markFormGroupTouched();
@@ -100,9 +103,19 @@ export class RegisterComponent implements OnInit {
     }
   }
 
-  get firstName() { return this.registerForm.get('firstName'); }
-  get lastName() { return this.registerForm.get('lastName'); }
-  get email() { return this.registerForm.get('email'); }
-  get password() { return this.registerForm.get('password'); }
-  get confirmPassword() { return this.registerForm.get('confirmPassword'); }
+  get firstName() {
+    return this.registerForm.get('firstName');
+  }
+  get lastName() {
+    return this.registerForm.get('lastName');
+  }
+  get email() {
+    return this.registerForm.get('email');
+  }
+  get password() {
+    return this.registerForm.get('password');
+  }
+  get confirmPassword() {
+    return this.registerForm.get('confirmPassword');
+  }
 }

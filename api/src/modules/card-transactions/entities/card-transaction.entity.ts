@@ -28,7 +28,9 @@ export class CardTransaction extends BaseEntity {
   totalInstallments: number;
 
   // Self-referencing relationship for installments
-  @ManyToOne(() => CardTransaction, (transaction) => transaction.childTransactions, { nullable: true })
+  @ManyToOne(() => CardTransaction, (transaction) => transaction.childTransactions, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'parentTransactionId' })
   parentTransaction: CardTransaction;
 

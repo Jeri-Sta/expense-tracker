@@ -8,22 +8,28 @@
   <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
     <div class="mb-2 md:mb-0">
       <h2 class="text-2xl font-bold text-color m-0">Dashboard Financeiro</h2>
-      <p class="text-color-secondary m-0">{{ isCurrentMonth ? 'Visão geral das suas finanças' : getSelectedMonthName() + ' de ' + selectedYear }}</p>
+      <p class="text-color-secondary m-0">
+        {{
+          isCurrentMonth
+            ? 'Visão geral das suas finanças'
+            : getSelectedMonthName() + ' de ' + selectedYear
+        }}
+      </p>
     </div>
-    
+
     <!-- Navigation and Controls -->
     <div class="flex flex-column sm:flex-row gap-3 align-items-center">
       <!-- Month Navigation -->
       <div class="flex align-items-center gap-2">
-        <p-button 
-          icon="pi pi-chevron-left" 
-          [rounded]="true" 
+        <p-button
+          icon="pi pi-chevron-left"
+          [rounded]="true"
           [text]="true"
           size="small"
           (onClick)="navigateToPreviousMonth()"
           pTooltip="Mês anterior"
         ></p-button>
-        
+
         <div class="flex gap-2">
           <p-dropdown
             [(ngModel)]="selectedYear"
@@ -31,31 +37,31 @@
             placeholder="Ano"
             (onChange)="onYearChange()"
             styleClass="w-full"
-            [style]="{'min-width': '100px'}"
+            [style]="{ 'min-width': '100px' }"
           ></p-dropdown>
-          
+
           <p-dropdown
             [(ngModel)]="selectedMonth"
             [options]="getMonthOptions()"
             placeholder="Mês"
             (onChange)="onMonthChange()"
             styleClass="w-full"
-            [style]="{'min-width': '120px'}"
+            [style]="{ 'min-width': '120px' }"
           ></p-dropdown>
         </div>
-        
-        <p-button 
-          icon="pi pi-chevron-right" 
-          [rounded]="true" 
+
+        <p-button
+          icon="pi pi-chevron-right"
+          [rounded]="true"
           [text]="true"
           size="small"
           (onClick)="navigateToNextMonth()"
           pTooltip="Próximo mês"
         ></p-button>
-        
-        <p-button 
-          icon="pi pi-home" 
-          [rounded]="true" 
+
+        <p-button
+          icon="pi pi-home"
+          [rounded]="true"
           [text]="true"
           size="small"
           (onClick)="navigateToCurrentMonth()"
@@ -63,17 +69,17 @@
           [disabled]="isCurrentMonth"
         ></p-button>
       </div>
-      
+
       <!-- Projection Toggle -->
       <div class="flex align-items-center gap-2">
         <label for="projectionToggle" class="text-sm font-semibold">Incluir Projeções:</label>
-        <p-toggleButton 
+        <p-toggleButton
           id="projectionToggle"
           [(ngModel)]="includeProjections"
-          onLabel="Sim" 
+          onLabel="Sim"
           offLabel="Não"
           (onChange)="onProjectionToggle()"
-          [style]="{'min-width': '80px'}"
+          [style]="{ 'min-width': '80px' }"
         ></p-toggleButton>
       </div>
     </div>
@@ -92,7 +98,11 @@
   </div>
 
   <!-- Tab Navigation -->
-  <p-tabView [(activeIndex)]="activeTabIndex" (onChange)="onTabChange($event)" styleClass="dashboard-tabs">
+  <p-tabView
+    [(activeIndex)]="activeTabIndex"
+    (onChange)="onTabChange($event)"
+    styleClass="dashboard-tabs"
+  >
     <!-- Tab: Visão Geral -->
     <p-tabPanel header="Visão Geral" leftIcon="pi pi-chart-line">
       <!-- Main Charts Row -->
@@ -183,25 +193,25 @@
         <div class="col-12 lg:col-6" *ngIf="creditCards.length > 0">
           <app-card-limits-widget [creditCards]="creditCards"></app-card-limits-widget>
         </div>
-        
+
         <!-- Invoices Widget -->
         <div class="col-12 lg:col-6" *ngIf="invoices.length > 0">
-          <app-invoices-widget 
+          <app-invoices-widget
             [invoices]="invoices"
             [isLoading]="loading"
             [selectedMonthName]="getSelectedMonthName()"
             [selectedYear]="selectedYear"
           ></app-invoices-widget>
         </div>
-        
+
         <!-- Card Transactions Widget -->
         <div class="col-12 lg:col-6" *ngIf="cardTransactions.length > 0 || creditCards.length > 0">
-          <app-card-transactions-widget 
-            [transactions]="cardTransactions" 
+          <app-card-transactions-widget
+            [transactions]="cardTransactions"
             [currentPeriod]="currentCardPeriod"
           ></app-card-transactions-widget>
         </div>
-        
+
         <!-- Installments Widget -->
         <div class="col-12 lg:col-6" *ngIf="cardInstallments.length > 0">
           <app-installments-widget [installments]="cardInstallments"></app-installments-widget>

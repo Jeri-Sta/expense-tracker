@@ -56,12 +56,12 @@
     .app-logo {
       display: flex;
       align-items: center;
-      
+
       .app-title {
         font-size: 1.25rem;
         font-weight: 600;
         color: var(--text-color);
-        
+
         @include respond-to(md) {
           display: none;
         }
@@ -77,11 +77,11 @@
     .page-info {
       display: flex;
       align-items: center;
-      
+
       @include respond-to(sm) {
         display: none;
       }
-      
+
       .page-title {
         font-weight: 500;
         color: var(--text-color-secondary);
@@ -103,15 +103,15 @@
   flex: 1;
   margin-top: 60px;
   transition: margin-left 0.3s ease;
-  
+
   .main-content {
     padding: $spacing-lg;
     min-height: calc(100vh - 60px);
-    
+
     @include respond-to(md) {
       padding: $spacing-md;
     }
-    
+
     @include respond-to(sm) {
       padding: $spacing-sm;
     }
@@ -130,7 +130,7 @@
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
-  
+
   &.overlay-visible {
     opacity: 1;
     visibility: visible;
@@ -144,7 +144,7 @@
       padding: 0 $spacing-xl;
     }
   }
-  
+
   .layout-main {
     .main-content {
       padding: $spacing-xl;
@@ -157,12 +157,12 @@
   .p-sidebar-content {
     background: var(--surface-card) !important;
   }
-  
+
   .p-sidebar-header {
     background: var(--surface-section) !important;
     border-bottom: 1px solid var(--surface-border) !important;
   }
-  
+
   .p-sidebar-mask {
     background: rgba(0, 0, 0, 0.6) !important;
   }
@@ -172,12 +172,12 @@
 :host ::ng-deep .sidebar-nav {
   .nav-link {
     color: var(--text-color-secondary) !important;
-    
+
     &:hover {
       color: var(--text-color) !important;
       background: var(--surface-hover) !important;
     }
-    
+
     &.active {
       color: var(--primary-color) !important;
       background: rgba(100, 181, 246, 0.1) !important;
@@ -223,7 +223,7 @@
   .layout-sidebar {
     display: none !important;
   }
-  
+
   .layout-main {
     margin-top: 0 !important;
   }

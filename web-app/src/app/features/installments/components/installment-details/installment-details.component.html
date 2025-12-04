@@ -44,23 +44,26 @@
       <div class="summary-card progress-card">
         <div class="card-header">
           <h3>Progresso do Financiamento</h3>
-          <p-tag 
-            [value]="installmentPlan.isActive ? 'Ativo' : 'Inativo'" 
-            [severity]="installmentPlan.isActive ? 'success' : 'secondary'">
+          <p-tag
+            [value]="installmentPlan.isActive ? 'Ativo' : 'Inativo'"
+            [severity]="installmentPlan.isActive ? 'success' : 'secondary'"
+          >
           </p-tag>
         </div>
         <div class="progress-content">
           <div class="progress-info">
             <span class="progress-text">
-              {{ installmentPlan.paidInstallments }} de {{ installmentPlan.totalInstallments }} parcelas pagas
+              {{ installmentPlan.paidInstallments }} de
+              {{ installmentPlan.totalInstallments }} parcelas pagas
             </span>
             <span class="progress-percentage">
               {{ installmentPlan.completionPercentage.toFixed(1) }}%
             </span>
           </div>
-          <p-progressBar 
-            [value]="installmentPlan.completionPercentage" 
-            [styleClass]="getProgressBarClass(installmentPlan.completionPercentage)">
+          <p-progressBar
+            [value]="installmentPlan.completionPercentage"
+            [styleClass]="getProgressBarClass(installmentPlan.completionPercentage)"
+          >
           </p-progressBar>
         </div>
       </div>
@@ -89,7 +92,9 @@
           </div>
           <div class="financial-item">
             <span class="label">Valor Restante</span>
-            <span class="value highlight">{{ formatCurrency(installmentPlan.remainingAmount) }}</span>
+            <span class="value highlight">{{
+              formatCurrency(installmentPlan.remainingAmount)
+            }}</span>
           </div>
           <div class="financial-item">
             <span class="label">Desconto Obtido</span>
@@ -114,14 +119,20 @@
         <div class="next-payment-content">
           <div class="payment-info">
             <div class="payment-details">
-              <span class="installment-number">Parcela {{ nextInstallment.installmentNumber }}</span>
-              <span class="payment-amount">{{ formatCurrency(nextInstallment.originalAmount) }}</span>
+              <span class="installment-number"
+                >Parcela {{ nextInstallment.installmentNumber }}</span
+              >
+              <span class="payment-amount">{{
+                formatCurrency(nextInstallment.originalAmount)
+              }}</span>
               <span class="payment-date" [class]="getDueDateClass(nextInstallment)">
                 {{ formatDate(nextInstallment.dueDate) }}
                 <span class="days-info">
-                  ({{ getDaysUntilDue(nextInstallment.dueDate) > 0 ? 
-                    getDaysUntilDue(nextInstallment.dueDate) + ' dias' : 
-                    Math.abs(getDaysUntilDue(nextInstallment.dueDate)) + ' dias em atraso' }})
+                  ({{
+                    getDaysUntilDue(nextInstallment.dueDate) > 0
+                      ? getDaysUntilDue(nextInstallment.dueDate) + ' dias'
+                      : Math.abs(getDaysUntilDue(nextInstallment.dueDate)) + ' dias em atraso'
+                  }})
                 </span>
               </span>
             </div>
@@ -154,16 +165,20 @@
       >
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="installmentNumber">Parcela <p-sortIcon field="installmentNumber"></p-sortIcon></th>
+            <th pSortableColumn="installmentNumber">
+              Parcela <p-sortIcon field="installmentNumber"></p-sortIcon>
+            </th>
             <th pSortableColumn="dueDate">Vencimento <p-sortIcon field="dueDate"></p-sortIcon></th>
-            <th pSortableColumn="originalAmount">Valor Original <p-sortIcon field="originalAmount"></p-sortIcon></th>
+            <th pSortableColumn="originalAmount">
+              Valor Original <p-sortIcon field="originalAmount"></p-sortIcon>
+            </th>
             <th>Valor Pago</th>
             <th>Desconto</th>
             <th>Status</th>
             <th class="table-actions">Ações</th>
           </tr>
         </ng-template>
-        
+
         <ng-template pTemplate="body" let-installment>
           <tr>
             <td>{{ installment.installmentNumber }}</td>
@@ -172,9 +187,11 @@
                 {{ formatDate(installment.dueDate) }}
               </span>
               <small class="block" *ngIf="installment.status !== InstallmentStatus.PAID">
-                {{ getDaysUntilDue(installment.dueDate) > 0 ? 
-                  getDaysUntilDue(installment.dueDate) + ' dias' : 
-                  Math.abs(getDaysUntilDue(installment.dueDate)) + ' dias em atraso' }}
+                {{
+                  getDaysUntilDue(installment.dueDate) > 0
+                    ? getDaysUntilDue(installment.dueDate) + ' dias'
+                    : Math.abs(getDaysUntilDue(installment.dueDate)) + ' dias em atraso'
+                }}
               </small>
             </td>
             <td>{{ formatCurrency(installment.originalAmount) }}</td>
@@ -293,7 +310,9 @@
       </div>
       <div class="summary-item" *ngIf="paymentForm.paidAmount < selectedInstallment.originalAmount">
         <span>Desconto:</span>
-        <span class="text-green-500">-{{ formatCurrency(selectedInstallment.originalAmount - paymentForm.paidAmount) }}</span>
+        <span class="text-green-500"
+          >-{{ formatCurrency(selectedInstallment.originalAmount - paymentForm.paidAmount) }}</span
+        >
       </div>
       <div class="summary-item highlight">
         <span>Valor final:</span>

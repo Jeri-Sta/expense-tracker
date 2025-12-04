@@ -31,7 +31,7 @@
 .projection-indicator {
   td:first-child {
     position: relative;
-    
+
     &::before {
       content: '';
       position: absolute;
@@ -42,17 +42,17 @@
       border-radius: 0 2px 2px 0;
     }
   }
-  
+
   &.projection-recurring td:first-child::before {
     background: linear-gradient(135deg, $color-primary, darken($color-primary, 15%));
   }
-  
+
   &.projection-manual td:first-child::before {
     background: linear-gradient(135deg, $color-success, darken($color-success, 15%));
   }
-  
+
   &.projection-ai td:first-child::before {
-    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   }
 }
 
@@ -62,7 +62,7 @@
     background: var(--blue-50, #eff6ff); // Fallback to light blue
     color: var(--blue-900, #1e3a8a); // Fallback to dark blue
   }
-  
+
   .p-panel-content {
     padding: $spacing-md;
   }
@@ -99,12 +99,12 @@
 .p-dialog {
   .projection-settings-panel {
     margin-bottom: $spacing-md;
-    
+
     .p-panel-content {
       padding: $spacing-md;
     }
   }
-  
+
   // Ensure action buttons are always visible and not overlapped
   .dialog-actions {
     position: relative;

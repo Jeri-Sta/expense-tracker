@@ -21,15 +21,12 @@ import { RecurringTransactionService } from './services/recurring-transaction.se
 
 @NgModule({
   declarations: [],
-  imports: [
-    CommonModule,
-    HttpClientModule
-  ],
+  imports: [CommonModule, HttpClientModule],
   providers: [
     // Guards
     AuthGuard,
     GuestGuard,
-    
+
     // Services
     AuthService,
     ApiService,
@@ -38,19 +35,19 @@ import { RecurringTransactionService } from './services/recurring-transaction.se
     TransactionService,
     CategoryService,
     RecurringTransactionService,
-    
+
     // Interceptors
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
-      multi: true
+      multi: true,
     },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ErrorInterceptor,
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class CoreModule {
   constructor(@Optional() @SkipSelf() parentModule: CoreModule) {

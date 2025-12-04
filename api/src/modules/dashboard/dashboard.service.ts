@@ -8,7 +8,10 @@ import { CreditCard } from '../credit-cards/entities/credit-card.entity';
 import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
 import { Invoice } from '../card-transactions/entities/invoice.entity';
 import { InstallmentStatus, TransactionType, InvoiceStatus } from '../../common/enums';
-import { ProjectionsService, MonthlyStatsWithProjections } from '../transactions/projections.service';
+import {
+  ProjectionsService,
+  MonthlyStatsWithProjections,
+} from '../transactions/projections.service';
 
 export interface CreditCardSummary {
   id: string;
@@ -132,7 +135,7 @@ export class DashboardService {
     const currentDate = new Date();
     const targetYear = year || currentDate.getFullYear();
     const currentMonth = currentDate.getMonth() + 1;
-    
+
     // Get current month stats with projections
     const currentMonthStats = await this.projectionsService.getMonthlyStatsWithProjections(
       userId,
@@ -160,13 +163,21 @@ export class DashboardService {
     const creditCards = await this.getCreditCardsSummary(userId, targetYear, currentMonth);
 
     // Get card installments summary (based on invoice due date)
-    const cardInstallments = await this.getCardInstallmentsSummary(userId, targetYear, currentMonth);
+    const cardInstallments = await this.getCardInstallmentsSummary(
+      userId,
+      targetYear,
+      currentMonth,
+    );
 
     // Get invoices summary (based on invoice due date)
     const invoices = await this.getInvoicesSummary(userId, targetYear, currentMonth);
 
     // Get card expenses based on invoice due date (not invoice period)
-    const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(userId, targetYear, currentMonth);
+    const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(
+      userId,
+      targetYear,
+      currentMonth,
+    );
 
     // Get monthly expense breakdown
     const expenseBreakdown = await this.getMonthlyExpenseBreakdown(
@@ -207,7 +218,11 @@ export class DashboardService {
     };
   }
 
-  async getMonthlyDashboardStats(userId: string, year: number, month: number): Promise<MonthlyNavigationStats> {
+  async getMonthlyDashboardStats(
+    userId: string,
+    year: number,
+    month: number,
+  ): Promise<MonthlyNavigationStats> {
     // Get specific month stats with projections
     const monthStats = await this.projectionsService.getMonthlyStatsWithProjections(
       userId,
@@ -278,7 +293,7 @@ export class DashboardService {
       take: limit,
     });
 
-    return transactions.map(transaction => ({
+    return transactions.map((transaction) => ({
       id: transaction.id,
       amount: Number(transaction.amount),
       description: transaction.description,
@@ -287,21 +302,25 @@ export class DashboardService {
       competencyPeriod: transaction.competencyPeriod,
       isProjected: transaction.isProjected || false,
       projectionSource: transaction.projectionSource,
-      confidenceScore: transaction.confidenceScore ? Number(transaction.confidenceScore) : undefined,
+      confidenceScore: transaction.confidenceScore
+        ? Number(transaction.confidenceScore)
+        : undefined,
       paymentStatus: transaction.paymentStatus || 'pending',
       paidDate: transaction.paidDate,
-      category: transaction.category ? {
-        id: transaction.category.id,
-        name: transaction.category.name,
-        color: transaction.category.color,
-        icon: transaction.category.icon,
-      } : null,
+      category: transaction.category
+        ? {
+            id: transaction.category.id,
+            name: transaction.category.name,
+            color: transaction.category.color,
+            icon: transaction.category.icon,
+          }
+        : null,
     }));
   }
 
   private async getTransactionsForPeriod(userId: string, competencyPeriod: string, limit?: number) {
     const findOptions: any = {
-      where: { 
+      where: {
         userId,
         competencyPeriod,
       },
@@ -316,7 +335,7 @@ export class DashboardService {
 
     const transactions = await this.transactionsRepository.find(findOptions);
 
-    return transactions.map(transaction => ({
+    return transactions.map((transaction) => ({
       id: transaction.id,
       amount: Number(transaction.amount),
       description: transaction.description,
@@ -325,27 +344,31 @@ export class DashboardService {
       competencyPeriod: transaction.competencyPeriod,
       isProjected: transaction.isProjected || false,
       projectionSource: transaction.projectionSource,
-      confidenceScore: transaction.confidenceScore ? Number(transaction.confidenceScore) : undefined,
+      confidenceScore: transaction.confidenceScore
+        ? Number(transaction.confidenceScore)
+        : undefined,
       paymentStatus: transaction.paymentStatus || 'pending',
       paidDate: transaction.paidDate,
-      category: transaction.category ? {
-        id: transaction.category.id,
-        name: transaction.category.name,
-        color: transaction.category.color,
-        icon: transaction.category.icon,
-      } : null,
+      category: transaction.category
+        ? {
+            id: transaction.category.id,
+            name: transaction.category.name,
+            color: transaction.category.color,
+            icon: transaction.category.icon,
+          }
+        : null,
     }));
   }
 
   private async getTopCategories(userId: string, year: number, month: number) {
     const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
-    
+
     // Get regular transaction categories
     const transactionResult = await this.transactionsRepository
       .createQueryBuilder('transaction')
       .select([
         'category.id as id',
-        'category.name as name', 
+        'category.name as name',
         'category.color as color',
         'category.icon as icon',
         'SUM(transaction.amount) as total',
@@ -365,17 +388,20 @@ export class DashboardService {
     const cardCategories = await this.getCardExpensesByCategoryForDueMonth(userId, year, month);
 
     // Merge categories from both sources
-    const categoryMap = new Map<string, {
-      id: string | null;
-      name: string;
-      color: string;
-      icon: string;
-      total: number;
-      count: number;
-      type: string;
-      projectedTotal: number;
-      projectedCount: number;
-    }>();
+    const categoryMap = new Map<
+      string,
+      {
+        id: string | null;
+        name: string;
+        color: string;
+        icon: string;
+        total: number;
+        count: number;
+        type: string;
+        projectedTotal: number;
+        projectedCount: number;
+      }
+    >();
 
     // Add regular transaction categories
     for (const item of transactionResult) {
@@ -460,7 +486,7 @@ export class DashboardService {
       .orderBy('installment.dueDate', 'ASC')
       .getMany();
 
-    const formattedUpcomingPayments = upcomingPayments.map(installment => ({
+    const formattedUpcomingPayments = upcomingPayments.map((installment) => ({
       id: installment.id,
       installmentNumber: installment.installmentNumber,
       amount: Number(installment.originalAmount),
@@ -495,7 +521,7 @@ export class DashboardService {
         .orderBy('installment.paidDate', 'DESC')
         .getMany();
 
-      paidInMonth = paidInstallments.map(installment => ({
+      paidInMonth = paidInstallments.map((installment) => ({
         id: installment.id,
         planId: installment.installmentPlan.id,
         planName: installment.installmentPlan.name,
@@ -549,7 +575,11 @@ export class DashboardService {
     return nonInstallmentTotal + installmentTotal;
   }
 
-  private async getCreditCardsSummary(userId: string, year: number, month: number): Promise<CreditCardSummary[]> {
+  private async getCreditCardsSummary(
+    userId: string,
+    year: number,
+    month: number,
+  ): Promise<CreditCardSummary[]> {
     const creditCards = await this.creditCardRepository.find({
       where: { userId, isActive: true },
       order: { name: 'ASC' },
@@ -559,7 +589,12 @@ export class DashboardService {
 
     for (const card of creditCards) {
       // Get the invoice period that has due date in the target month
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+        card.closingDay,
+        card.dueDay,
+        year,
+        month,
+      );
       const invoicePeriod = invoicePeriods[0]; // Should have only one period
 
       // Get current invoice amount for the invoice that is due in this month
@@ -606,7 +641,11 @@ export class DashboardService {
     return summaries;
   }
 
-  private async getInvoicesSummary(userId: string, year: number, month: number): Promise<InvoiceSummary[]> {
+  private async getInvoicesSummary(
+    userId: string,
+    year: number,
+    month: number,
+  ): Promise<InvoiceSummary[]> {
     const creditCards = await this.creditCardRepository.find({
       where: { userId, isActive: true },
       order: { name: 'ASC' },
@@ -618,7 +657,12 @@ export class DashboardService {
 
     for (const card of creditCards) {
       // Get the invoice period that has due date in the target month
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+        card.closingDay,
+        card.dueDay,
+        year,
+        month,
+      );
       const invoicePeriod = invoicePeriods[0];
 
       // Get invoice amount from transactions
@@ -643,12 +687,12 @@ export class DashboardService {
 
       // Calculate due date
       const dueDate = new Date(year, month - 1, card.dueDay);
-      
+
       // Calculate closing date (one month before due date, on closing day)
       const closingDate = new Date(year, month - 2, card.closingDay);
 
       // Check if overdue
-      const isOverdue = (invoice?.status !== InvoiceStatus.PAID) && (dueDate < today);
+      const isOverdue = invoice?.status !== InvoiceStatus.PAID && dueDate < today;
 
       summaries.push({
         id: invoice?.id || `${card.id}-${invoicePeriod}`,
@@ -668,7 +712,11 @@ export class DashboardService {
     return summaries;
   }
 
-  private async getCardInstallmentsSummary(userId: string, year: number, month: number): Promise<CardInstallmentSummary[]> {
+  private async getCardInstallmentsSummary(
+    userId: string,
+    year: number,
+    month: number,
+  ): Promise<CardInstallmentSummary[]> {
     // Get all credit cards to determine invoice periods based on due date
     const creditCards = await this.creditCardRepository.find({
       where: { userId, isActive: true },
@@ -683,7 +731,12 @@ export class DashboardService {
 
     for (const card of creditCards) {
       // Get the invoice period that has due date in the target month
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+        card.closingDay,
+        card.dueDay,
+        year,
+        month,
+      );
       const invoicePeriod = invoicePeriods[0];
 
       // Get all installment transactions for this card and period
@@ -700,7 +753,7 @@ export class DashboardService {
       for (const transaction of installmentTransactions) {
         // Determine the parent transaction id
         const parentId = transaction.parentTransactionId || transaction.id;
-        
+
         // Skip if already processed
         if (processedTransactionIds.has(parentId)) {
           continue;
@@ -723,7 +776,8 @@ export class DashboardService {
           creditCardName: card.name,
           creditCardColor: card.color,
           currentInstallment: transaction.installmentNumber || 1,
-          totalInstallments: transaction.totalInstallments || parentTransaction.totalInstallments || 1,
+          totalInstallments:
+            transaction.totalInstallments || parentTransaction.totalInstallments || 1,
           remainingInstallments: remainingCount,
           installmentAmount: Number(transaction.amount),
           totalRemaining: Number(transaction.amount) * remainingCount,
@@ -751,7 +805,11 @@ export class DashboardService {
    * Exemplo: Cartão fecha dia 10, vence dia 20 -> fatura de nov vence em nov
    * Exemplo: Cartão fecha dia 25, vence dia 5 -> fatura de nov vence em dez
    */
-  async getCardExpensesByInvoiceDueMonth(userId: string, year: number, month: number): Promise<number> {
+  async getCardExpensesByInvoiceDueMonth(
+    userId: string,
+    year: number,
+    month: number,
+  ): Promise<number> {
     // Get all credit cards for the user
     const creditCards = await this.creditCardRepository.find({
       where: { userId, isActive: true },
@@ -765,7 +823,12 @@ export class DashboardService {
 
     for (const card of creditCards) {
       // Calculate which invoice period(s) have due date in the target month
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+        card.closingDay,
+        card.dueDay,
+        year,
+        month,
+      );
 
       for (const period of invoicePeriods) {
         const result = await this.cardTransactionRepository
@@ -786,7 +849,12 @@ export class DashboardService {
    * Determina quais períodos de fatura (invoicePeriod) têm vencimento no mês/ano alvo.
    * Retorna array de períodos no formato YYYY-MM.
    */
-  private getInvoicePeriodsWithDueDateInMonth(closingDay: number, dueDay: number, targetYear: number, targetMonth: number): string[] {
+  private getInvoicePeriodsWithDueDateInMonth(
+    closingDay: number,
+    dueDay: number,
+    targetYear: number,
+    targetMonth: number,
+  ): string[] {
     const periods: string[] = [];
 
     // Se dueDay <= closingDay, a fatura do período X vence no mês X+1
@@ -813,7 +881,11 @@ export class DashboardService {
   /**
    * Obtém despesas de cartão por categoria para um mês específico (baseado na data de vencimento).
    */
-  async getCardExpensesByCategoryForDueMonth(userId: string, year: number, month: number): Promise<any[]> {
+  async getCardExpensesByCategoryForDueMonth(
+    userId: string,
+    year: number,
+    month: number,
+  ): Promise<any[]> {
     const creditCards = await this.creditCardRepository.find({
       where: { userId, isActive: true },
     });
@@ -822,10 +894,18 @@ export class DashboardService {
       return [];
     }
 
-    const categoryTotals = new Map<string, { id: string | null; name: string; color: string; icon: string; total: number; count: number }>();
+    const categoryTotals = new Map<
+      string,
+      { id: string | null; name: string; color: string; icon: string; total: number; count: number }
+    >();
 
     for (const card of creditCards) {
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(card.closingDay, card.dueDay, year, month);
+      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+        card.closingDay,
+        card.dueDay,
+        year,
+        month,
+      );
 
       for (const period of invoicePeriods) {
         const result = await this.cardTransactionRepository
@@ -939,28 +1019,34 @@ export class DashboardService {
       .andWhere('installment.status = :status', { status: InstallmentStatus.PAID })
       .andWhere('installment.paidDate >= :startOfMonth', { startOfMonth })
       .andWhere('installment.paidDate <= :endOfMonth', { endOfMonth })
-      .andWhere('(installment.dueDate < :startOfMonth OR installment.dueDate > :endOfMonth)', { startOfMonth, endOfMonth })
+      .andWhere('(installment.dueDate < :startOfMonth OR installment.dueDate > :endOfMonth)', {
+        startOfMonth,
+        endOfMonth,
+      })
       .getMany();
 
     // Aggregate by plan
-    const planTotals = new Map<string, { 
-      name: string; 
-      dueAmount: number;      // Amount due this month (original or paid)
-      earlyPaymentAmount: number;  // Amount from early payments
-      discountAmount: number;
-    }>();
+    const planTotals = new Map<
+      string,
+      {
+        name: string;
+        dueAmount: number; // Amount due this month (original or paid)
+        earlyPaymentAmount: number; // Amount from early payments
+        discountAmount: number;
+      }
+    >();
 
     // Process installments due this month
     for (const installment of installmentsDueThisMonth) {
       const planId = installment.installmentPlan.id;
       const existing = planTotals.get(planId);
       // Use paidAmount if paid, otherwise originalAmount
-      const amount = installment.status === InstallmentStatus.PAID 
-        ? Number(installment.paidAmount || installment.originalAmount)
-        : Number(installment.originalAmount);
-      const discount = installment.status === InstallmentStatus.PAID 
-        ? Number(installment.discountAmount || 0)
-        : 0;
+      const amount =
+        installment.status === InstallmentStatus.PAID
+          ? Number(installment.paidAmount || installment.originalAmount)
+          : Number(installment.originalAmount);
+      const discount =
+        installment.status === InstallmentStatus.PAID ? Number(installment.discountAmount || 0) : 0;
 
       if (existing) {
         existing.dueAmount += amount;

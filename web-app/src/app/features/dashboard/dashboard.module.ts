@@ -58,7 +58,7 @@ import { PaidInstallmentsWidgetComponent } from './components/paid-installments-
     MonthlyExpenseBreakdownWidgetComponent,
     InvoicesWidgetComponent,
     UpcomingPaymentsWidgetComponent,
-    PaidInstallmentsWidgetComponent
+    PaidInstallmentsWidgetComponent,
   ],
   imports: [
     CommonModule,
@@ -66,7 +66,7 @@ import { PaidInstallmentsWidgetComponent } from './components/paid-installments-
     ReactiveFormsModule,
     RouterModule,
     DashboardRoutingModule,
-    
+
     // PrimeNG Modules
     CardModule,
     ButtonModule,
@@ -80,7 +80,7 @@ import { PaidInstallmentsWidgetComponent } from './components/paid-installments-
     TooltipModule,
     TagModule,
     TabViewModule,
-    SkeletonModule
-  ]
+    SkeletonModule,
+  ],
 })
-export class DashboardModule { }
+export class DashboardModule {}

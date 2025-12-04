@@ -10,7 +10,7 @@ import { PrimeNGConfig } from 'primeng/api';
     <p-toast></p-toast>
     <p-confirmDialog></p-confirmDialog>
   `,
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
   title = 'Personal Expense Tracker';
@@ -23,9 +23,9 @@ export class AppComponent implements OnInit {
       modal: 1100,
       overlay: 1000,
       menu: 1000,
-      tooltip: 1100
+      tooltip: 1100,
     };
-    
+
     // Configurar tradução para português brasileiro
     this.primengConfig.setTranslation({
       // Botões de confirmação
@@ -34,22 +34,48 @@ export class AppComponent implements OnInit {
       cancel: 'Cancelar',
       clear: 'Limpar',
       apply: 'Aplicar',
-      
+
       // Upload/Arquivo
       choose: 'Escolher',
       upload: 'Enviar',
-      
+
       // Calendário
       today: 'Hoje',
       dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
       dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
       dayNamesMin: ['Do', 'Se', 'Te', 'Qu', 'Qu', 'Se', 'Sá'],
-      monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
-      monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+      monthNames: [
+        'Janeiro',
+        'Fevereiro',
+        'Março',
+        'Abril',
+        'Maio',
+        'Junho',
+        'Julho',
+        'Agosto',
+        'Setembro',
+        'Outubro',
+        'Novembro',
+        'Dezembro',
+      ],
+      monthNamesShort: [
+        'Jan',
+        'Fev',
+        'Mar',
+        'Abr',
+        'Mai',
+        'Jun',
+        'Jul',
+        'Ago',
+        'Set',
+        'Out',
+        'Nov',
+        'Dez',
+      ],
       weekHeader: 'Sem',
       firstDayOfWeek: 0,
       dateFormat: 'dd/mm/yy',
-      
+
       // Filtros e buscas
       startsWith: 'Inicia com',
       contains: 'Contém',
@@ -70,16 +96,16 @@ export class AppComponent implements OnInit {
       matchAny: 'Corresponder qualquer',
       addRule: 'Adicionar regra',
       removeRule: 'Remover regra',
-      
+
       // Senhas
       weak: 'Fraco',
       medium: 'Médio',
       strong: 'Forte',
       passwordPrompt: 'Digite uma senha',
-      
+
       // Mensagens vazias
       emptyMessage: 'Nenhum resultado encontrado',
-      emptyFilterMessage: 'Nenhum resultado encontrado'
+      emptyFilterMessage: 'Nenhum resultado encontrado',
     });
   }
 }

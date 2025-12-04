@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { DashboardStats, MonthlyNavigationStats } from './transaction.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DashboardService {
   private readonly apiUrl = `${environment.apiUrl}/dashboard`;

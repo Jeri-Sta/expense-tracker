@@ -6,17 +6,16 @@ import { RecurringTransactionsService } from './recurring-transactions.service';
 export class RecurringTransactionsScheduler {
   private readonly logger = new Logger(RecurringTransactionsScheduler.name);
 
-  constructor(
-    private readonly recurringTransactionsService: RecurringTransactionsService,
-  ) {}
+  constructor(private readonly recurringTransactionsService: RecurringTransactionsService) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleCron() {
     this.logger.log('Checking for due recurring transactions...');
-    
+
     try {
-      const dueTransactions = await this.recurringTransactionsService.findDueRecurringTransactions();
-      
+      const dueTransactions =
+        await this.recurringTransactionsService.findDueRecurringTransactions();
+
       if (dueTransactions.length === 0) {
         this.logger.log('No due recurring transactions found.');
         return;

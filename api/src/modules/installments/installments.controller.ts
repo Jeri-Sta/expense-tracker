@@ -11,13 +11,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { InstallmentsService } from './installments.service';
 import {
@@ -79,10 +73,7 @@ export class InstallmentsController {
     status: 404,
     description: 'Plano de financiamento não encontrado',
   })
-  async findOne(
-    @Request() req,
-    @Param('id') id: string,
-  ): Promise<InstallmentPlanResponseDto> {
+  async findOne(@Request() req, @Param('id') id: string): Promise<InstallmentPlanResponseDto> {
     return this.installmentsService.findOne(req.user.id, id);
   }
 
@@ -156,11 +147,7 @@ export class InstallmentsController {
     @Param('installmentId') installmentId: string,
     @Body() payInstallmentDto: PayInstallmentDto,
   ): Promise<{ message: string }> {
-    await this.installmentsService.payInstallment(
-      req.user.id,
-      installmentId,
-      payInstallmentDto,
-    );
+    await this.installmentsService.payInstallment(req.user.id, installmentId, payInstallmentDto);
     return { message: 'Parcela paga com sucesso' };
   }
 

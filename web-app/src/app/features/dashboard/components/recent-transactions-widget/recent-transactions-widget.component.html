@@ -6,32 +6,46 @@
         <p class="text-color-secondary text-sm m-0">{{ subtitleText }}</p>
       </div>
       <div class="header-toggle">
-        <p-selectButton [options]="viewTypeOptions" [(ngModel)]="viewType" (onChange)="onViewTypeChange()"
-          optionLabel="label" optionValue="value" [style]="{'font-size': '0.75rem'}" [unselectable]="false"
-          [allowEmpty]="false"></p-selectButton>
+        <p-selectButton
+          [options]="viewTypeOptions"
+          [(ngModel)]="viewType"
+          (onChange)="onViewTypeChange()"
+          optionLabel="label"
+          optionValue="value"
+          [style]="{ 'font-size': '0.75rem' }"
+          [unselectable]="false"
+          [allowEmpty]="false"
+        ></p-selectButton>
       </div>
     </div>
-
   </div>
   <div class="card-content p-4">
     <div class="transaction-list" *ngIf="filteredTransactions.length > 0">
       <div
         class="transaction-item flex justify-content-between align-items-center py-3 px-3 border-round hover:surface-hover cursor-pointer border-bottom-1 surface-border"
-        *ngFor="let transaction of filteredTransactions">
+        *ngFor="let transaction of filteredTransactions"
+      >
         <div class="flex align-items-center gap-3">
-          <div class="flex align-items-center justify-content-center border-circle w-3rem h-3rem"
-            [style.background-color]="transaction.category.color + '20'">
-            <i [class]="normalizeIcon(transaction.category.icon)" [style.color]="transaction.category.color"
-              class="text-xl"></i>
+          <div
+            class="flex align-items-center justify-content-center border-circle w-3rem h-3rem"
+            [style.background-color]="transaction.category.color + '20'"
+          >
+            <i
+              [class]="normalizeIcon(transaction.category.icon)"
+              [style.color]="transaction.category.color"
+              class="text-xl"
+            ></i>
           </div>
           <div>
             <div class="font-bold text-color text-lg">{{ transaction.description }}</div>
             <div class="text-color-secondary text-sm mt-1">
               {{ transaction.category.name }} • {{ formatDate(transaction.transactionDate) }}
             </div>
-            <div *ngIf="transaction.notes"
+            <div
+              *ngIf="transaction.notes"
               class="text-color-secondary text-xs mt-1 white-space-nowrap overflow-hidden text-overflow-ellipsis"
-              style="max-width: 200px;">
+              style="max-width: 200px"
+            >
               <i class="pi pi-align-left mr-1" style="font-size: 0.7rem"></i>{{ transaction.notes }}
             </div>
           </div>
@@ -44,8 +58,11 @@
             <i class="pi pi-clock mr-1"></i>Projetada
           </div>
           <div *ngIf="!transaction.isProjected" class="mt-1">
-            <span [class]="getPaymentStatusClass(transaction)" [pTooltip]="getPaymentStatusTooltip(transaction)"
-              class="text-xs px-2 py-1 border-round">
+            <span
+              [class]="getPaymentStatusClass(transaction)"
+              [pTooltip]="getPaymentStatusTooltip(transaction)"
+              class="text-xs px-2 py-1 border-round"
+            >
               <i [class]="getPaymentStatusIcon(transaction) + ' mr-1'"></i>
               {{ getPaymentStatusLabel(transaction.paymentStatus) }}
             </span>
@@ -55,13 +72,23 @@
     </div>
 
     <!-- Total Row (with separator) -->
-    <div *ngIf="filteredTransactions.length > 0" class="total-row mt-3 pt-3 border-top-1 surface-border">
+    <div
+      *ngIf="filteredTransactions.length > 0"
+      class="total-row mt-3 pt-3 border-top-1 surface-border"
+    >
       <div class="flex align-items-center justify-content-between p-3 surface-section border-round">
         <div class="flex align-items-center gap-3">
-          <div class="item-icon flex align-items-center justify-content-center border-round"
-            [class.bg-green-500]="viewType === 'income'" [class.bg-red-500]="viewType === 'expense'"
-            [style.width.px]="40" [style.height.px]="40">
-            <i [class]="viewType === 'income' ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" class="text-white text-lg"></i>
+          <div
+            class="item-icon flex align-items-center justify-content-center border-round"
+            [class.bg-green-500]="viewType === 'income'"
+            [class.bg-red-500]="viewType === 'expense'"
+            [style.width.px]="40"
+            [style.height.px]="40"
+          >
+            <i
+              [class]="viewType === 'income' ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
+              class="text-white text-lg"
+            ></i>
           </div>
           <span class="font-bold text-lg text-color">Total Geral</span>
         </div>

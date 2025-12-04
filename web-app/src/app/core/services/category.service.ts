@@ -41,7 +41,7 @@ export interface UpdateCategoryDto {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CategoryService {
   private readonly apiUrl = `${environment.apiUrl}/categories`;
@@ -80,7 +80,7 @@ export class CategoryService {
   getCategoryIcons(): string[] {
     return [
       'pi pi-money-bill',
-      'pi pi-credit-card', 
+      'pi pi-credit-card',
       'pi pi-briefcase',
       'pi pi-shopping-cart',
       'pi pi-home',
@@ -117,7 +117,7 @@ export class CategoryService {
       'pi pi-trash',
       'pi pi-save',
       'pi pi-arrow-up',
-      'pi pi-arrow-down'
+      'pi pi-arrow-down',
     ];
   }
 
@@ -135,7 +135,7 @@ export class CategoryService {
       '#6B7280', // gray
       '#84CC16', // lime
       '#06B6D4', // cyan
-      '#A855F7'  // violet
+      '#A855F7', // violet
     ];
   }
 }

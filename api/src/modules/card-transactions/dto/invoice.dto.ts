@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional } from 'class-validator';
+import { IsEnum } from 'class-validator';
 import { InvoiceStatus } from '../../../common/enums';
 
 export class InvoiceResponseDto {

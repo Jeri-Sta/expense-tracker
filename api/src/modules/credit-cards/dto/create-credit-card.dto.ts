@@ -1,4 +1,13 @@
-import { IsNotEmpty, IsString, IsOptional, IsHexColor, IsNumber, Min, Max, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsHexColor,
+  IsNumber,
+  Min,
+  Max,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCreditCardDto {
@@ -40,7 +49,7 @@ export class CreateCreditCardDto {
 
   @ApiProperty({
     description: 'Total credit limit',
-    example: 5000.00,
+    example: 5000.0,
   })
   @IsNumber()
   @Min(0)

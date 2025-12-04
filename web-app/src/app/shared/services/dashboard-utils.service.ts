@@ -2,14 +2,13 @@ import { Injectable } from '@angular/core';
 import { normalizeIcon } from '../utils/icon.utils';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DashboardUtilsService {
-
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
     }).format(value);
   }
 

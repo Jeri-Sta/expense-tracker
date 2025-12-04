@@ -31,15 +31,13 @@ import { TransactionsRoutingModule } from './transactions-routing.module';
 import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
-  declarations: [
-    TransactionsComponent
-  ],
+  declarations: [TransactionsComponent],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     TransactionsRoutingModule,
-    
+
     // PrimeNG Modules
     TableModule,
     ButtonModule,
@@ -60,7 +58,7 @@ import { SharedModule } from '../../shared/shared.module';
     PanelModule,
     ToggleButtonModule,
     TooltipModule,
-    SharedModule
-  ]
+    SharedModule,
+  ],
 })
-export class TransactionsModule { }
+export class TransactionsModule {}

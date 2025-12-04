@@ -71,7 +71,9 @@
                 currency="BRL"
                 locale="pt-BR"
                 placeholder="R$ 0,00"
-                [class.ng-invalid]="form.get('financedAmount')?.invalid && form.get('financedAmount')?.touched"
+                [class.ng-invalid]="
+                  form.get('financedAmount')?.invalid && form.get('financedAmount')?.touched
+                "
               ></p-inputNumber>
               <small class="error-message" *ngIf="getFieldError('financedAmount')">
                 {{ getFieldError('financedAmount') }}
@@ -87,7 +89,9 @@
                 currency="BRL"
                 locale="pt-BR"
                 placeholder="R$ 0,00"
-                [class.ng-invalid]="form.get('installmentValue')?.invalid && form.get('installmentValue')?.touched"
+                [class.ng-invalid]="
+                  form.get('installmentValue')?.invalid && form.get('installmentValue')?.touched
+                "
               ></p-inputNumber>
               <small class="error-message" *ngIf="getFieldError('installmentValue')">
                 {{ getFieldError('installmentValue') }}
@@ -103,7 +107,9 @@
                 [showButtons]="true"
                 [min]="1"
                 [max]="999"
-                [class.ng-invalid]="form.get('totalInstallments')?.invalid && form.get('totalInstallments')?.touched"
+                [class.ng-invalid]="
+                  form.get('totalInstallments')?.invalid && form.get('totalInstallments')?.touched
+                "
               ></p-inputNumber>
               <small class="error-message" *ngIf="getFieldError('totalInstallments')">
                 {{ getFieldError('totalInstallments') }}
@@ -119,7 +125,9 @@
                 dateFormat="dd/mm/yy"
                 placeholder="Selecione a data"
                 [showIcon]="true"
-                [class.ng-invalid]="form.get('startDate')?.invalid && form.get('startDate')?.touched"
+                [class.ng-invalid]="
+                  form.get('startDate')?.invalid && form.get('startDate')?.touched
+                "
                 appendTo="body"
               ></p-calendar>
               <small class="error-message" *ngIf="getFieldError('startDate')">
@@ -130,7 +138,15 @@
         </div>
 
         <!-- Calculation Summary -->
-        <div class="form-section" *ngIf="!isEditMode && form.get('financedAmount')?.value > 0 && form.get('installmentValue')?.value > 0 && form.get('totalInstallments')?.value > 0">
+        <div
+          class="form-section"
+          *ngIf="
+            !isEditMode &&
+            form.get('financedAmount')?.value > 0 &&
+            form.get('installmentValue')?.value > 0 &&
+            form.get('totalInstallments')?.value > 0
+          "
+        >
           <h3 class="section-title">
             <i class="pi pi-calculator"></i>
             Resumo dos Cálculos
@@ -139,11 +155,15 @@
           <div class="summary-grid">
             <div class="summary-item">
               <span class="label">Valor Financiado:</span>
-              <span class="value">{{ formatCurrency(form.get('financedAmount')?.value || 0) }}</span>
+              <span class="value">{{
+                formatCurrency(form.get('financedAmount')?.value || 0)
+              }}</span>
             </div>
             <div class="summary-item">
               <span class="label">Valor da Parcela:</span>
-              <span class="value">{{ formatCurrency(form.get('installmentValue')?.value || 0) }}</span>
+              <span class="value">{{
+                formatCurrency(form.get('installmentValue')?.value || 0)
+              }}</span>
             </div>
             <div class="summary-item">
               <span class="label">Número de Parcelas:</span>
@@ -172,13 +192,23 @@
               </span>
             </div>
           </div>
-          
+
           <!-- Explicação dos cálculos -->
-          <div class="calculation-info" style="margin-top: 1rem; padding: 1rem; background: var(--surface-hover); border-radius: 6px; border-left: 3px solid var(--primary-color);">
-            <small style="color: var(--text-color-secondary); line-height: 1.4;">
-              <i class="pi pi-info-circle" style="margin-right: 0.5rem;"></i>
-              <strong>Cálculos automáticos:</strong> Preencha o valor financiado, valor da parcela e número de parcelas. 
-              Todas as taxas e totais são calculados automaticamente para mostrar o real custo do financiamento.
+          <div
+            class="calculation-info"
+            style="
+              margin-top: 1rem;
+              padding: 1rem;
+              background: var(--surface-hover);
+              border-radius: 6px;
+              border-left: 3px solid var(--primary-color);
+            "
+          >
+            <small style="color: var(--text-color-secondary); line-height: 1.4">
+              <i class="pi pi-info-circle" style="margin-right: 0.5rem"></i>
+              <strong>Cálculos automáticos:</strong> Preencha o valor financiado, valor da parcela e
+              número de parcelas. Todas as taxas e totais são calculados automaticamente para
+              mostrar o real custo do financiamento.
             </small>
           </div>
         </div>

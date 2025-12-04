@@ -28,25 +28,25 @@
     font-weight: 600;
     padding: $spacing-md;
     border-bottom: 2px solid var(--surface-border);
-    
+
     // Sortable columns styling
     &.p-sortable-column {
       cursor: pointer;
       transition: background-color 0.2s ease;
-      
+
       &:hover {
         background: var(--surface-hover);
       }
-      
+
       &.p-highlight {
         background: var(--primary-color);
         color: #ffffff;
-        
+
         .p-sortable-column-icon {
           color: #ffffff;
         }
       }
-      
+
       .p-sortable-column-icon {
         color: var(--text-color-secondary);
         margin-left: $spacing-xs;
@@ -58,13 +58,13 @@
   .p-datatable-tbody > tr {
     transition: background-color 0.2s ease;
     background: var(--surface-ground);
-    
+
     > td {
       padding: $spacing-md;
       border-bottom: 1px solid var(--surface-border);
       vertical-align: middle;
     }
-    
+
     &:hover {
       background: var(--surface-hover);
     }
@@ -83,17 +83,17 @@
     background: transparent;
     border: none;
     padding: $spacing-sm 0;
-    
+
     .p-paginator-element {
       min-width: 2.5rem;
       height: 2.5rem;
       margin: 0 $spacing-xs;
       border-radius: $border-radius-sm;
-      
+
       &:hover {
         background: var(--surface-hover);
       }
-      
+
       &.p-highlight {
         background: var(--primary-color);
         color: #ffffff;
@@ -112,7 +112,7 @@
   justify-content: center;
   gap: $spacing-xs;
   min-width: 100px;
-  
+
   // Ensure buttons don't wrap
   .p-button {
     flex-shrink: 0;
@@ -135,20 +135,20 @@ th.table-actions-header {
   flex-direction: column;
   gap: $spacing-lg;
   padding: $spacing-2xl $spacing-md;
-  
+
   .table-empty-icon {
     font-size: 4rem;
     color: var(--text-color-secondary);
     opacity: 0.5;
   }
-  
+
   .table-empty-title {
     font-size: 1.25rem;
     font-weight: 500;
     color: var(--text-color);
     margin: 0;
   }
-  
+
   .table-empty-description {
     font-size: 0.875rem;
     color: var(--text-color-secondary);
@@ -156,7 +156,7 @@ th.table-actions-header {
     text-align: center;
     max-width: 300px;
   }
-  
+
   .table-empty-action {
     margin-top: $spacing-sm;
   }
@@ -171,19 +171,19 @@ th.table-actions-header {
     .p-datatable-wrapper {
       overflow-x: auto;
     }
-    
+
     .p-datatable-thead > tr > th,
     .p-datatable-tbody > tr > td {
       padding: $spacing-sm;
       font-size: 0.875rem;
     }
-    
+
     // Hide less important columns on mobile if needed
     .hide-on-mobile {
       display: none;
     }
   }
-  
+
   .table-actions {
     min-width: 80px;
     gap: 2px;
@@ -198,14 +198,14 @@ th.table-actions-header {
       font-size: 0.8rem;
     }
   }
-  
+
   .table-empty-state {
     padding: $spacing-xl $spacing-sm;
-    
+
     .table-empty-icon {
       font-size: 3rem;
     }
-    
+
     .table-empty-title {
       font-size: 1rem;
     }
@@ -226,7 +226,7 @@ th.table-actions-header {
 // Use for installment child transactions or grouped data
 .child-transaction {
   background: var(--surface-ground) !important;
-  
+
   td:first-child {
     padding-left: $spacing-xl;
   }

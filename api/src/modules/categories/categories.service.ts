@@ -51,7 +51,7 @@ export class CategoriesService {
     }
 
     const result = await queryBuilder.getRawAndEntities();
-    
+
     return result.entities.map((category, index) => ({
       ...this.mapToResponseDto(category),
       transactionCount: Number.parseInt(result.raw[index].transactionCount) || 0,
@@ -74,7 +74,11 @@ export class CategoriesService {
     return this.mapToResponseDto(category);
   }
 
-  async update(id: string, userId: string, updateCategoryDto: UpdateCategoryDto): Promise<CategoryResponseDto> {
+  async update(
+    id: string,
+    userId: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<CategoryResponseDto> {
     const category = await this.categoriesRepository.findOne({
       where: { id },
     });
@@ -123,9 +127,14 @@ export class CategoriesService {
       { name: 'Salário', type: CategoryType.INCOME, color: '#10B981', icon: 'pi-money-bill' },
       { name: 'Freelance', type: CategoryType.INCOME, color: '#8B5CF6', icon: 'pi-briefcase' },
       { name: 'Investimentos', type: CategoryType.INCOME, color: '#F59E0B', icon: 'pi-chart-line' },
-      
+
       // Expense categories
-      { name: 'Alimentação', type: CategoryType.EXPENSE, color: '#EF4444', icon: 'pi-shopping-cart' },
+      {
+        name: 'Alimentação',
+        type: CategoryType.EXPENSE,
+        color: '#EF4444',
+        icon: 'pi-shopping-cart',
+      },
       { name: 'Transporte', type: CategoryType.EXPENSE, color: '#3B82F6', icon: 'pi-car' },
       { name: 'Moradia', type: CategoryType.EXPENSE, color: '#6B7280', icon: 'pi-home' },
       { name: 'Saúde', type: CategoryType.EXPENSE, color: '#EC4899', icon: 'pi-heart' },
@@ -134,12 +143,12 @@ export class CategoriesService {
       { name: 'Outros', type: CategoryType.EXPENSE, color: '#6B7280', icon: 'pi-ellipsis-h' },
     ];
 
-    const categories = defaultCategories.map((cat, index) => 
+    const categories = defaultCategories.map((cat, index) =>
       this.categoriesRepository.create({
         ...cat,
         userId,
         sortOrder: index + 1,
-      })
+      }),
     );
 
     await this.categoriesRepository.save(categories);

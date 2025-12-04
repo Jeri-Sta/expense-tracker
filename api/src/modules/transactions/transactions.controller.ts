@@ -10,13 +10,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { TransactionsService, PaginatedResult } from './transactions.service';
@@ -61,15 +55,27 @@ export class TransactionsController {
   })
   @ApiQuery({ name: 'type', required: false, description: 'Filter by transaction type' })
   @ApiQuery({ name: 'categoryId', required: false, description: 'Filter by category' })
-  @ApiQuery({ name: 'startDate', required: false, description: 'Filter by start date (YYYY-MM-DD)' })
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    description: 'Filter by start date (YYYY-MM-DD)',
+  })
   @ApiQuery({ name: 'endDate', required: false, description: 'Filter by end date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'competencyPeriod', required: false, description: 'Filter by competency period (YYYY-MM)' })
+  @ApiQuery({
+    name: 'competencyPeriod',
+    required: false,
+    description: 'Filter by competency period (YYYY-MM)',
+  })
   @ApiQuery({ name: 'search', required: false, description: 'Search in description' })
   @ApiQuery({ name: 'page', required: false, description: 'Page number' })
   @ApiQuery({ name: 'limit', required: false, description: 'Items per page' })
   @ApiQuery({ name: 'sortBy', required: false, description: 'Sort field' })
   @ApiQuery({ name: 'sortOrder', required: false, description: 'Sort order (ASC/DESC)' })
-  @ApiQuery({ name: 'paymentStatus', required: false, description: 'Filter by payment status (pending/paid)' })
+  @ApiQuery({
+    name: 'paymentStatus',
+    required: false,
+    description: 'Filter by payment status (pending/paid)',
+  })
   findAll(
     @GetUser() user: User,
     @Query() filterDto: TransactionsFilterDto,
@@ -84,10 +90,7 @@ export class TransactionsController {
     description: 'Monthly statistics retrieved successfully',
   })
   @ApiQuery({ name: 'year', required: false, description: 'Year for statistics' })
-  getYearlyMonthlyStats(
-    @GetUser() user: User,
-    @Query('year') year?: string,
-  ) {
+  getYearlyMonthlyStats(@GetUser() user: User, @Query('year') year?: string) {
     const targetYear = year ? Number.parseInt(year, 10) : new Date().getFullYear();
     return this.transactionsService.getYearlyMonthlyStats(user.id, targetYear);
   }
@@ -145,10 +148,7 @@ export class TransactionsController {
     status: 200,
     description: 'Transaction deleted successfully',
   })
-  remove(
-    @GetUser() user: User,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<void> {
+  remove(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.transactionsService.remove(id, user.id);
   }
 
@@ -232,8 +232,9 @@ export class TransactionsController {
     @Query('startPeriod') startPeriod?: string,
     @Query('endPeriod') endPeriod?: string,
   ): Promise<{ deleted: number }> {
-    return this.projectionsService.cleanupProjections(user.id, startPeriod, endPeriod)
-      .then(deleted => ({ deleted }));
+    return this.projectionsService
+      .cleanupProjections(user.id, startPeriod, endPeriod)
+      .then((deleted) => ({ deleted }));
   }
 
   @Get('projections/filter')
@@ -242,8 +243,16 @@ export class TransactionsController {
     status: 200,
     description: 'Filtered transactions retrieved successfully',
   })
-  @ApiQuery({ name: 'includeProjections', required: false, description: 'Include projected transactions' })
-  @ApiQuery({ name: 'onlyProjections', required: false, description: 'Only projected transactions' })
+  @ApiQuery({
+    name: 'includeProjections',
+    required: false,
+    description: 'Include projected transactions',
+  })
+  @ApiQuery({
+    name: 'onlyProjections',
+    required: false,
+    description: 'Only projected transactions',
+  })
   @ApiQuery({ name: 'minConfidence', required: false, description: 'Minimum confidence score' })
   findWithProjectionFilters(
     @GetUser() user: User,
