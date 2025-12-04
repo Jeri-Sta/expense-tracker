@@ -154,11 +154,6 @@
             [selectedYear]="selectedYear"
           ></app-monthly-expense-breakdown-widget>
         </div>
-      </div>
-
-      <!-- Data Tables Row -->
-      <div class="grid">
-        <!-- Monthly Transactions -->
         <div class="col-12 lg:col-6">
           <app-recent-transactions-widget
             [transactions]="recentTransactions"
@@ -167,18 +162,10 @@
             [selectedYear]="selectedYear"
           ></app-recent-transactions-widget>
         </div>
-
-        <!-- Upcoming Recurring -->
-        <div class="col-12 lg:col-6">
-          <app-upcoming-recurring-widget
-            [upcomingRecurring]="upcomingRecurring"
-            [isLoading]="loading"
-          ></app-upcoming-recurring-widget>
-        </div>
       </div>
 
       <!-- Category Stats -->
-      <div class="grid mt-4">
+      <div class="grid">
         <div class="col-12">
           <app-category-stats-widget
             [categoryStats]="topCategories"

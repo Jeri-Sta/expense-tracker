@@ -68,24 +68,24 @@
           </span>
         </div>
       </div>
+    </div>
 
-      <!-- Total Row (with separator) -->
-      <div *ngIf="totalItem" class="total-row mt-3 pt-3 border-top-1 surface-border">
-        <div class="flex align-items-center justify-content-between p-3 surface-section border-round">
-          <div class="flex align-items-center gap-3">
-            <div 
-              class="item-icon flex align-items-center justify-content-center border-round bg-primary"
-              [style.width.px]="40"
-              [style.height.px]="40"
-            >
-              <i [class]="getIconForType(totalItem)" class="text-white text-lg"></i>
-            </div>
-            <span class="font-bold text-lg text-color">{{ totalItem.name }}</span>
+    <!-- Total Row (with separator) - Fixed at bottom -->
+    <div *ngIf="!isLoading && hasItems && totalItem" class="total-row mt-3 pt-3 border-top-1 surface-border">
+      <div class="flex align-items-center justify-content-between p-3 surface-section border-round">
+        <div class="flex align-items-center gap-3">
+          <div 
+            class="item-icon flex align-items-center justify-content-center border-round bg-red-500"
+            [style.width.px]="40"
+            [style.height.px]="40"
+          >
+            <i [class]="getIconForType(totalItem)" class="text-white text-lg"></i>
           </div>
-          <span class="font-bold text-xl text-primary">
-            {{ formatCurrency(totalItem.amount) }}
-          </span>
+          <span class="font-bold text-lg text-color">{{ totalItem.name }}</span>
         </div>
+        <span class="font-bold text-xl text-red-500">
+          -{{ formatCurrency(totalItem.amount) }}
+        </span>
       </div>
     </div>
   </div>

@@ -91,3 +91,13 @@
     border-bottom: none !important;
   }
 }
+
+.total-row {
+  .item-icon {
+    flex-shrink: 0;
+    
+    i {
+      font-size: 1.25rem;
+    }
+  }
+}

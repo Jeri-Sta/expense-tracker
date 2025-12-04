@@ -5,13 +5,10 @@
         <h5 class="font-bold text-color m-0">Faturas do Mês</h5>
         <p class="text-color-secondary text-sm m-0">{{ subtitleText }}</p>
       </div>
-    </div>
-    <div class="header-summary mt-3">
-      <div class="flex justify-content-between align-items-center">
-        <span class="text-color-secondary text-sm">Total: <span class="text-red-500 font-bold">{{ formatCurrency(totalAmount) }}</span></span>
+      <div class="header-action">
         <p-button 
           label="Ver Faturas" 
-          icon="pi pi-file" 
+          icon="pi pi-external-link" 
           [text]="true"
           size="small"
           routerLink="/credit-cards/transactions"
@@ -62,6 +59,26 @@
         </div>
       </div>
     </div>
+
+    <!-- Total Row (with separator) - Fixed at bottom -->
+    <div *ngIf="invoices.length > 0" class="total-row mt-3 pt-3 border-top-1 surface-border">
+      <div class="flex align-items-center justify-content-between p-3 surface-section border-round">
+        <div class="flex align-items-center gap-3">
+          <div 
+            class="item-icon flex align-items-center justify-content-center border-round bg-red-500"
+            [style.width.px]="40"
+            [style.height.px]="40"
+          >
+            <i class="pi pi-credit-card text-white text-lg"></i>
+          </div>
+          <span class="font-bold text-lg text-color">Total Geral</span>
+        </div>
+        <span class="font-bold text-xl text-red-500">
+          -{{ formatCurrency(totalAmount) }}
+        </span>
+      </div>
+    </div>
+
     <div class="text-center py-4 text-color-secondary" *ngIf="invoices.length === 0">
       Nenhuma fatura encontrada para este mês
     </div>
