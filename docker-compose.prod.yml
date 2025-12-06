@@ -15,15 +15,6 @@ services:
     networks:
       - expense-tracker-prod
 
-  redis:
-    image: redis:7-alpine
-    container_name: expense-tracker-redis-prod
-    restart: always
-    volumes:
-      - redis_prod_data:/data
-    networks:
-      - expense-tracker-prod
-
   api:
     build:
       context: ./api
@@ -77,7 +68,6 @@ services:
 
 volumes:
   postgres_prod_data:
-  redis_prod_data:
 
 networks:
   expense-tracker-prod:
