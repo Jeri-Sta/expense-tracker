@@ -52,7 +52,6 @@ services:
       - /app/node_modules
     depends_on:
       - postgres
-      - redis
     networks:
       - expense-tracker-network
 
