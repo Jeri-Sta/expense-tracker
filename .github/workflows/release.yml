@@ -1,0 +1,362 @@
+name: 🏷️ Release Management
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Tipo de versão para release'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+      confirm_release:
+        description: 'Confirmar criação do release (digite "CONFIRMAR")'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  validate-and-prepare:
+    name: 🔍 Validar e Preparar Release
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    outputs:
+      new-version: ${{ steps.version-info.outputs.new-version }}
+      old-version: ${{ steps.version-info.outputs.old-version }}
+      release-notes: ${{ steps.version-info.outputs.release-notes }}
+      backup-branch: ${{ steps.version-info.outputs.backup-branch }}
+    
+    steps:
+      - name: ✅ Verificar confirmação
+        if: inputs.confirm_release != 'CONFIRMAR'
+        run: |
+          echo "❌ Release não confirmado. Digite 'CONFIRMAR' para prosseguir."
+          exit 1
+
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🔧 Configurar Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: 📋 Executar version bump
+        id: version-bump
+        run: |
+          echo "🚀 Executando version bump para: ${{ inputs.version_type }}"
+          cd scripts
+          node version-bump.js ${{ inputs.version_type }}
+
+      - name: 📊 Extrair informações de versão
+        id: version-info
+        run: |
+          if [ -f "release-info.json" ]; then
+            NEW_VERSION=$(jq -r '.newVersion' release-info.json)
+            OLD_VERSION=$(jq -r '.oldVersion' release-info.json)
+            RELEASE_NOTES=$(jq -r '.releaseNotes' release-info.json)
+            BACKUP_BRANCH=$(jq -r '.backupBranch' release-info.json)
+            
+            echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "old-version=$OLD_VERSION" >> $GITHUB_OUTPUT
+            echo "backup-branch=$BACKUP_BRANCH" >> $GITHUB_OUTPUT
+            
+            # Para release notes multiline, usa um delimiter
+            echo "release-notes<<EOF" >> $GITHUB_OUTPUT
+            echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            
+            echo "✅ Nova versão preparada: $OLD_VERSION → $NEW_VERSION"
+          else
+            echo "❌ Arquivo release-info.json não encontrado"
+            exit 1
+          fi
+
+      - name: 💾 Upload release info
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-info
+          path: release-info.json
+          retention-days: 1
+
+  run-tests:
+    name: 🧪 Executar Testes Completos
+    needs: validate-and-prepare
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [backend, frontend]
+        
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.component == 'backend' && 'api/package-lock.json' || 'web-app/package-lock.json' }}
+
+      - name: 📦 Instalar dependências - Backend
+        if: matrix.component == 'backend'
+        working-directory: api
+        run: npm ci
+
+      - name: 🔍 Executar linter - Backend
+        if: matrix.component == 'backend'
+        working-directory: api
+        run: npm run lint
+
+      - name: 🧪 Executar testes - Backend
+        if: matrix.component == 'backend'
+        working-directory: api
+        run: npm run test
+
+      - name: 🏗️ Build - Backend
+        if: matrix.component == 'backend'
+        working-directory: api
+        run: npm run build
+
+      - name: 📦 Instalar dependências - Frontend
+        if: matrix.component == 'frontend'
+        working-directory: web-app
+        run: npm ci
+
+      - name: 🔍 Executar linter - Frontend
+        if: matrix.component == 'frontend'
+        working-directory: web-app
+        run: npm run lint
+
+      - name: 🧪 Executar testes - Frontend
+        if: matrix.component == 'frontend'
+        working-directory: web-app
+        run: npm run test -- --browsers=ChromeHeadless --watch=false
+
+      - name: 🏗️ Build - Frontend
+        if: matrix.component == 'frontend'
+        working-directory: web-app
+        run: npm run build:prod
+
+  create-release:
+    name: 🚀 Criar Release
+    needs: [validate-and-prepare, run-tests]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🔧 Configurar Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: 📥 Download release info
+        uses: actions/download-artifact@v4
+        with:
+          name: release-info
+
+      - name: 🔄 Re-executar version bump
+        run: |
+          echo "🔄 Re-executando version bump após validação dos testes..."
+          cd scripts
+          node version-bump.js ${{ inputs.version_type }}
+
+      - name: 📝 Commit mudanças de versão
+        run: |
+          git add .
+          git commit -m "🏷️ Release v${{ needs.validate-and-prepare.outputs.new-version }}
+
+          - Bump version from ${{ needs.validate-and-prepare.outputs.old-version }} to ${{ needs.validate-and-prepare.outputs.new-version }}
+          - Update package.json files
+          - Update environment files  
+          - Update CHANGELOG.md
+          
+          Type: ${{ inputs.version_type }}
+          Backup: ${{ needs.validate-and-prepare.outputs.backup-branch }}"
+
+      - name: 🏷️ Criar tag
+        run: |
+          git tag -a "v${{ needs.validate-and-prepare.outputs.new-version }}" -m "Release v${{ needs.validate-and-prepare.outputs.new-version }}"
+
+      - name: 📤 Push mudanças e tag
+        run: |
+          git push origin main
+          git push origin "v${{ needs.validate-and-prepare.outputs.new-version }}"
+
+      - name: 🏗️ Build final para release - Backend
+        working-directory: api
+        run: |
+          npm ci
+          npm run build
+
+      - name: 🏗️ Build final para release - Frontend
+        working-directory: web-app
+        run: |
+          npm ci
+          npm run build:prod
+
+      - name: 📦 Criar artifacts
+        run: |
+          # Criar diretório para artifacts
+          mkdir -p release-artifacts
+          
+          # Backend artifact
+          cd api
+          tar -czf ../release-artifacts/expense-tracker-api-v${{ needs.validate-and-prepare.outputs.new-version }}.tar.gz dist/
+          cd ..
+          
+          # Frontend artifact
+          cd web-app
+          tar -czf ../release-artifacts/expense-tracker-web-v${{ needs.validate-and-prepare.outputs.new-version }}.tar.gz dist/
+          cd ..
+          
+          # Source code artifact
+          git archive --format=tar.gz --prefix=expense-tracker-v${{ needs.validate-and-prepare.outputs.new-version }}/ HEAD > release-artifacts/expense-tracker-source-v${{ needs.validate-and-prepare.outputs.new-version }}.tar.gz
+
+      - name: 🎉 Criar GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.validate-and-prepare.outputs.new-version }}
+          name: Release v${{ needs.validate-and-prepare.outputs.new-version }}
+          body: |
+            # 🎉 Personal Expense Tracker v${{ needs.validate-and-prepare.outputs.new-version }}
+            
+            ## 📋 Mudanças nesta versão
+            
+            ${{ needs.validate-and-prepare.outputs.release-notes }}
+            
+            ## 📦 Artifacts
+            
+            - **API Backend**: `expense-tracker-api-v${{ needs.validate-and-prepare.outputs.new-version }}.tar.gz`
+            - **Web Frontend**: `expense-tracker-web-v${{ needs.validate-and-prepare.outputs.new-version }}.tar.gz` 
+            - **Código Fonte**: `expense-tracker-source-v${{ needs.validate-and-prepare.outputs.new-version }}.tar.gz`
+            
+            ## 🔄 Tipo de Release
+            
+            **${{ inputs.version_type }}**: ${{ needs.validate-and-prepare.outputs.old-version }} → ${{ needs.validate-and-prepare.outputs.new-version }}
+            
+            ## 📅 Data
+            
+            ${{ github.event.head_commit.timestamp }}
+            
+            ---
+            
+            💡 **Como usar**: Baixe os artifacts acima e siga as instruções do README.md para deployment.
+            
+            🔒 **Backup**: Branch de backup criado: `${{ needs.validate-and-prepare.outputs.backup-branch }}`
+          files: |
+            release-artifacts/*.tar.gz
+          draft: false
+          prerelease: false
+
+  cleanup:
+    name: 🧹 Limpeza
+    needs: [validate-and-prepare, create-release]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: 🗑️ Limpar artifacts temporários
+        run: |
+          echo "✅ Limpeza concluída"
+          echo "📋 Release info disponível por 24h para debugging"
+
+  rollback:
+    name: 🔄 Rollback Automático
+    needs: [validate-and-prepare, run-tests, create-release]
+    runs-on: ubuntu-latest
+    if: failure()
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔧 Configurar Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: 🔄 Executar rollback
+        run: |
+          echo "❌ Release falhou. Executando rollback automático..."
+          
+          # Verificar se tag foi criada e removê-la
+          if git tag -l | grep -q "v${{ needs.validate-and-prepare.outputs.new-version }}"; then
+            echo "🗑️ Removendo tag v${{ needs.validate-and-prepare.outputs.new-version }}..."
+            git tag -d "v${{ needs.validate-and-prepare.outputs.new-version }}" || true
+            git push --delete origin "v${{ needs.validate-and-prepare.outputs.new-version }}" || true
+          fi
+          
+          # Restaurar do backup se disponível
+          BACKUP_BRANCH="${{ needs.validate-and-prepare.outputs.backup-branch }}"
+          if [ -n "$BACKUP_BRANCH" ] && git branch -r | grep -q "origin/$BACKUP_BRANCH"; then
+            echo "♻️ Restaurando do backup: $BACKUP_BRANCH"
+            git checkout "$BACKUP_BRANCH"
+            git checkout -b rollback-temp
+            git checkout main
+            git reset --hard rollback-temp
+            git push --force-with-lease origin main
+            git branch -D rollback-temp
+            echo "✅ Rollback concluído. Estado restaurado do backup."
+          else
+            echo "⚠️ Backup não disponível. Rollback manual necessário."
+          fi
+
+      - name: 📝 Criar issue de rollback
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Rollback Automático - Release v${{ needs.validate-and-prepare.outputs.new-version }} Falhou`,
+              body: `## ⚠️ Release Automático Falhou
+              
+              O processo de release para a versão **v${{ needs.validate-and-prepare.outputs.new-version }}** falhou e foi executado um rollback automático.
+              
+              ### 📊 Informações do Release
+              - **Versão anterior**: ${{ needs.validate-and-prepare.outputs.old-version }}
+              - **Nova versão**: ${{ needs.validate-and-prepare.outputs.new-version }}
+              - **Tipo**: ${{ inputs.version_type }}
+              - **Branch de backup**: ${{ needs.validate-and-prepare.outputs.backup-branch }}
+              
+              ### 🔍 Próximos Passos
+              1. Verificar os logs do workflow para identificar a causa da falha
+              2. Corrigir os problemas identificados
+              3. Tentar o release novamente
+              
+              ### 📋 Links Úteis
+              - [Workflow que falhou](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              - [Commit atual](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+              
+              _Issue criada automaticamente pelo sistema de rollback_`,
+              labels: ['bug', 'release', 'rollback', 'urgent']
+            })
