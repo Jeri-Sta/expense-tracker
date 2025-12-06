@@ -30,7 +30,7 @@ async function bootstrap() {
   });
 
   // Global prefix for API routes
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api');
 
   // Swagger documentation
   const config = new DocumentBuilder()

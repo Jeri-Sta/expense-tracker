@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: '/api/v1',
+  apiUrl: '/api',
   appName: 'Personal Expense Tracker',
   version: '1.0.0',
 };
