@@ -176,35 +176,28 @@ function updateEnvironmentFiles(newVersion) {
 // Função para atualizar CHANGELOG
 function updateChangelog(newVersion, changelogContent) {
   logStep('6', 'Atualizando CHANGELOG...');
-  
+
   const currentDate = new Date().toISOString().split('T')[0];
   const fullChangelogContent = fs.readFileSync(CHANGELOG_PATH, 'utf-8');
-  
-  // Substitui a seção "Em Desenvolvimento" pela nova versão
+
+  // Extrai a seção Em Desenvolvimento
+  const emDesenvolvimentoRegex = /## \[Em Desenvolvimento\][\s\S]*?---\s*/;
+  const emDesenvolvimentoMatch = fullChangelogContent.match(emDesenvolvimentoRegex);
+  if (!emDesenvolvimentoMatch) {
+    throw new Error('Seção "Em Desenvolvimento" não encontrada para atualização do changelog.');
+  }
+  const emDesenvolvimentoSection = emDesenvolvimentoMatch[0];
+
+  // Remove a seção Em Desenvolvimento do changelog
+  const changelogWithoutDev = fullChangelogContent.replace(emDesenvolvimentoRegex, '');
+
+  // Monta a nova versão
   const versionSection = `## [${newVersion}] - ${currentDate}
+\n${changelogContent}\n\n---\n`;
 
-${changelogContent}
+  // Monta o novo changelog: Em Desenvolvimento no topo, depois nova versão, depois o restante
+  const updatedChangelog = `${emDesenvolvimentoSection}${versionSection}${changelogWithoutDev.trim() ? '\n' + changelogWithoutDev.trim() : ''}`;
 
----
-
-## [Em Desenvolvimento]
-
-### ✨ Novas Funcionalidades
-- Adicione novas funcionalidades aqui
-
-### 🔧 Melhorias
-- Adicione melhorias e otimizações aqui
-
-### 🐛 Correções
-- Adicione correções de bugs aqui
-
----`;
-
-  const updatedChangelog = fullChangelogContent.replace(
-    /## \[Em Desenvolvimento\](.*?)---/s,
-    versionSection
-  );
-  
   fs.writeFileSync(CHANGELOG_PATH, updatedChangelog);
   logSuccess('CHANGELOG atualizado');
 }
