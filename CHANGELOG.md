@@ -8,13 +8,18 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 ## [Em Desenvolvimento]
 
 ### ✨ Novas Funcionalidades
-- Adicione novas funcionalidades aqui
+- Estrutura e instrução oficial para testes automatizados no backend (Jest)
+- Adição de exemplo de teste unitário para UsersService
 
 ### 🔧 Melhorias
-- Adicione melhorias e otimizações aqui
+- Refatoração completa do backend seguindo padrões DDD (Domain-Driven Design)
+- Padronização de nomenclatura, organização de pastas e separação de responsabilidades
+- Remoção de duplicidades e códigos obsoletos
+- Tipagem mais forte em services (remoção de any)
+- Atualização e detalhamento das instruções de backend para futuras implementações
 
 ### 🐛 Correções
-- Adicione correções de bugs aqui
+- Ajuste na configuração do Jest para reconhecer testes em src e test
 
 ---
 
