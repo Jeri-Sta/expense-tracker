@@ -5,7 +5,7 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
-## [Em Desenvolvimento]
+## [1.0.1] - 2025-12-08
 
 ### ✨ Novas Funcionalidades
 - Estrutura e instrução oficial para testes automatizados no backend (Jest)
@@ -21,6 +21,19 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ### 🐛 Correções
 - Ajuste na configuração do Jest para reconhecer testes em src e test
+
+---
+
+## [Em Desenvolvimento]
+
+### ✨ Novas Funcionalidades
+- Adicione novas funcionalidades aqui
+
+### 🔧 Melhorias
+- Adicione melhorias e otimizações aqui
+
+### 🐛 Correções
+- Adicione correções de bugs aqui
 
 ---
 

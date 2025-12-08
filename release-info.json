@@ -1,0 +1,8 @@
+{
+  "oldVersion": "1.0.0",
+  "newVersion": "1.0.1",
+  "versionType": "patch",
+  "releaseNotes": "### ✨ Novas Funcionalidades\n- Estrutura e instrução oficial para testes automatizados no backend (Jest)\n- Adição de exemplo de teste unitário para UsersService\n- Criação do guia de padrões de projeto para o frontend Angular, documentado em `.github/instructions/frontend-patterns.instructions.md` para uso em futuras implementações\n### 🔧 Melhorias\n- Refatoração completa do backend seguindo padrões DDD (Domain-Driven Design)\n- Padronização de nomenclatura, organização de pastas e separação de responsabilidades\n- Remoção de duplicidades e códigos obsoletos\n- Tipagem mais forte em services (remoção de any)\n- Atualização e detalhamento das instruções de backend para futuras implementações\n### 🐛 Correções\n- Ajuste na configuração do Jest para reconhecer testes em src e test",
+  "backupBranch": "backup/release-2025-12-08T12-26-16-926Z",
+  "timestamp": "2025-12-08T12:26:16.961Z"
+}
