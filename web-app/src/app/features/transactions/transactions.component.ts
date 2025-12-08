@@ -948,4 +948,45 @@ export class TransactionsComponent implements OnInit {
       },
     });
   }
+
+  canRevertPayment(transaction: Transaction): boolean {
+    // Can only revert payment if:
+    // 1. Not a projected transaction
+    // 2. Status is paid
+    return !transaction.isProjected && transaction.paymentStatus === 'paid';
+  }
+
+  confirmRevertPayment(transaction: Transaction): void {
+    this.confirmationService.confirm({
+      message: `Confirma a reversão do pagamento da transação "${transaction.description}" no valor de ${this.formatCurrency(transaction.amount)}?`,
+      header: 'Confirmar Reversão de Pagamento',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sim, Reverter',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.revertPayment(transaction);
+      },
+    });
+  }
+
+  revertPayment(transaction: Transaction): void {
+    this.transactionService.revertPayment(transaction.id).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Pagamento revertido com sucesso',
+        });
+        this.loadTransactions();
+      },
+      error: (error) => {
+        console.error('Error reverting payment:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao reverter pagamento',
+        });
+      },
+    });
+  }
 }

@@ -167,6 +167,20 @@ export class TransactionsController {
     return this.transactionsService.markAsPaid(id, user.id, body?.paidDate);
   }
 
+  @Patch(':id/revert-payment')
+  @ApiOperation({ summary: 'Revert payment of transaction' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction payment reverted successfully',
+    type: TransactionResponseDto,
+  })
+  revertPayment(
+    @GetUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<TransactionResponseDto> {
+    return this.transactionsService.revertPayment(id, user.id);
+  }
+
   // Projection endpoints
   @Post('projections/generate')
   @ApiOperation({ summary: 'Generate projections from recurring transactions' })

@@ -348,6 +348,13 @@
                 pTooltip="Marcar como Pago"
               ></p-button>
               <p-button
+                *ngIf="canRevertPayment(transaction)"
+                icon="pi pi-undo"
+                (click)="confirmRevertPayment(transaction)"
+                styleClass="p-button-text p-button-warning p-button-sm"
+                pTooltip="Reverter Pagamento"
+              ></p-button>
+              <p-button
                 icon="pi pi-pencil"
                 (click)="editTransaction(transaction)"
                 styleClass="p-button-text p-button-sm"

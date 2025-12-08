@@ -373,4 +373,29 @@ export class TransactionsService {
     const regex = /^\d{4}-\d{2}$/;
     return regex.test(period);
   }
+
+  async revertPayment(id: string, userId: string): Promise<TransactionResponseDto> {
+    const transaction = await this.transactionsRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found');
+    }
+
+    if (transaction.userId !== userId) {
+      throw new ForbiddenException('You can only update your own transactions');
+    }
+
+    if (transaction.paymentStatus !== PaymentStatus.PAID) {
+      throw new ForbiddenException('Only paid transactions can be reverted');
+    }
+
+    transaction.paymentStatus = PaymentStatus.PENDING;
+    transaction.paidDate = null;
+
+    const savedTransaction = await this.transactionsRepository.save(transaction);
+    return this.mapToResponseDto(await this.findOneWithRelations(savedTransaction.id));
+  }
 }
