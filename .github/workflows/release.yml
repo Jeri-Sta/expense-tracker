@@ -16,6 +16,9 @@ on:
         description: 'Confirmar criação do release (digite "CONFIRMAR")'
         required: true
         type: string
+permissions:
+  issues: write
+  contents: write
 
 env:
   NODE_VERSION: '18'
