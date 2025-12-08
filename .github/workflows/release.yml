@@ -33,6 +33,7 @@ jobs:
       old-version: ${{ steps.version-info.outputs.old-version }}
       release-notes: ${{ steps.version-info.outputs.release-notes }}
       backup-branch: ${{ steps.version-info.outputs.backup-branch }}
+      timestamp: ${{ steps.version-info.outputs.timestamp }}
     
     steps:
       - name: ✅ Verificar confirmação
@@ -72,10 +73,12 @@ jobs:
             OLD_VERSION=$(jq -r '.oldVersion' release-info.json)
             RELEASE_NOTES=$(jq -r '.releaseNotes' release-info.json)
             BACKUP_BRANCH=$(jq -r '.backupBranch' release-info.json)
+            TIMESTAMP=$(jq -r '.timestamp' release-info.json)
             
             echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
             echo "old-version=$OLD_VERSION" >> $GITHUB_OUTPUT
             echo "backup-branch=$BACKUP_BRANCH" >> $GITHUB_OUTPUT
+            echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
             
             # Para release notes multiline, usa um delimiter
             echo "release-notes<<EOF" >> $GITHUB_OUTPUT
@@ -263,7 +266,7 @@ jobs:
             
             ## 📅 Data
             
-            ${{ github.event.head_commit.timestamp }}
+            ${{ needs.validate-and-prepare.outputs.timestamp }}
             
             ---
             
