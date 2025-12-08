@@ -265,6 +265,10 @@ export class TransactionService {
     return this.http.patch<Transaction>(`${this.apiUrl}/${id}/pay`, { paidDate });
   }
 
+  revertPayment(id: string): Observable<Transaction> {
+    return this.http.patch<Transaction>(`${this.apiUrl}/${id}/revert-payment`, {});
+  }
+
   getMonthlyStats(year?: number): Observable<MonthlyStats[]> {
     let params = new HttpParams();
     if (year) {

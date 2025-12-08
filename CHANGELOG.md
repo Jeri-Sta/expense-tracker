@@ -8,7 +8,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 ## [Em Desenvolvimento]
 
 ### ✨ Novas Funcionalidades
-- Adicione novas funcionalidades aqui
+- Adicionada funcionalidade de reverter o pagamento de uma transação marcada como paga
 
 ### 🔧 Melhorias
 - Adicione melhorias e otimizações aqui
