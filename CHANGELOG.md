@@ -10,6 +10,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 ### ✨ Novas Funcionalidades
 - Estrutura e instrução oficial para testes automatizados no backend (Jest)
 - Adição de exemplo de teste unitário para UsersService
+- Criação do guia de padrões de projeto para o frontend Angular, documentado em `.github/instructions/frontend-patterns.instructions.md` para uso em futuras implementações
 
 ### 🔧 Melhorias
 - Refatoração completa do backend seguindo padrões DDD (Domain-Driven Design)
