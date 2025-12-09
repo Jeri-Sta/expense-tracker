@@ -137,7 +137,21 @@ jobs:
         with:
           args: detect --source . --verbose
 
-# -------------------------
+      # ------------------------------------------------------
+      # Install deps for backend
+      # ------------------------------------------------------
+      - name: 📦 Install backend dependencies
+        working-directory: api
+        run: npm ci
+
+      # ------------------------------------------------------
+      # Install deps for frontend
+      # ------------------------------------------------------
+      - name: 📦 Install frontend dependencies
+        working-directory: web-app
+        run: npm ci
+
+      # -------------------------
       # 2. TRIVY - Dependências Node (Nest + Angular)
       # -------------------------
       - name: 📦 Trivy - Scan Node dependencies
@@ -151,16 +165,25 @@ jobs:
           severity: MEDIUM,HIGH,CRITICAL
 
       # -------------------------
-      # 3. TRIVY - Dockerfile Scan
+      # 3. TRIVY - Dockerfile Scan Backend
       # -------------------------
-      - name: 🐳 Trivy - Dockerfile scan
+      - name: 🐳 Trivy - Dockerfile scan (Backend)
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: config
-          scan-ref: ./Dockerfile
+          scan-ref: ./api/Dockerfile
 
       # -------------------------
-      # 4. TRIVY - IaC Scan (ex.: Terraform / Docker Compose)
+      # 4. TRIVY - Dockerfile Scan Frontend
+      # -------------------------
+      - name: 🐳 Trivy - Dockerfile scan (Frontend)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: ./web-app/Dockerfile
+
+      # -------------------------
+      # 5. TRIVY - IaC Scan (ex.: Terraform / Docker Compose)
       # -------------------------
       - name: 📐 Trivy - IaC scan
         uses: aquasecurity/trivy-action@master
@@ -169,7 +192,7 @@ jobs:
           scan-ref: .
 
       # ------------------------------------------------------
-      # 5. CodeQL (TypeScript)
+      # 6. CodeQL (TypeScript)
       # ------------------------------------------------------
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
