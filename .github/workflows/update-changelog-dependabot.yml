@@ -29,7 +29,6 @@ jobs:
         run: |
           CHANGELOG="CHANGELOG.md"
           TEMP="CHANGELOG.tmp"
-
           TITLE="${{ github.event.pull_request.title }}"
 
           awk -v insert="$TITLE" '
@@ -40,6 +39,9 @@ jobs:
               done=1
               next
             }
+            # Remove a linha padrão de placeholder
+            /- Adicione atualizações de dependências aqui/ {next}
+
             {print}
           ' "$CHANGELOG" > "$TEMP"
 
