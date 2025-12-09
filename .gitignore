@@ -5,6 +5,7 @@ yarn-debug.log*
 yarn-error.log*
 dist/
 .angular/
+.package-lock.json*
 
 # Environment variables
 .env
