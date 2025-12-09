@@ -142,14 +142,14 @@ jobs:
       # ------------------------------------------------------
       - name: 📦 Install backend dependencies
         working-directory: api
-        run: npm ci
+        run: npm install
 
       # ------------------------------------------------------
       # Install deps for frontend
       # ------------------------------------------------------
       - name: 📦 Install frontend dependencies
         working-directory: web-app
-        run: npm ci
+        run: npm install
 
       # -------------------------
       # 2. TRIVY - Dependências Node (Nest + Angular)
