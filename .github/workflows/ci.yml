@@ -137,78 +137,39 @@ jobs:
         with:
           args: detect --source . --verbose
 
-      # ------------------------------------------------------
-      # Node setup para Snyk
-      # ------------------------------------------------------
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+# -------------------------
+      # 2. TRIVY - Dependências Node (Nest + Angular)
+      # -------------------------
+      - name: 📦 Trivy - Scan Node dependencies
+        uses: aquasecurity/trivy-action@master
         with:
-          node-version: '18'
+          scan-type: fs
+          scanners: vuln
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          severity: MEDIUM,HIGH,CRITICAL
 
-      # ------------------------------------------------------
-      # Install deps for backend
-      # ------------------------------------------------------
-      - name: 📦 Install backend dependencies
-        working-directory: api
-        run: npm ci
-
-      # ------------------------------------------------------
-      # Install deps for frontend
-      # ------------------------------------------------------
-      - name: 📦 Install frontend dependencies
-        working-directory: web-app
-        run: npm ci
-
-      # ------------------------------------------------------
-      # 2. Snyk - Backend
-      # ------------------------------------------------------
-      - name: 🛡️ Snyk Scan (Backend)
-        uses: snyk/actions/node@master
+      # -------------------------
+      # 3. TRIVY - Dockerfile Scan
+      # -------------------------
+      - name: 🐳 Trivy - Dockerfile scan
+        uses: aquasecurity/trivy-action@master
         with:
-          command: test
-          args: --file=api/package.json
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          scan-type: config
+          scan-ref: ./Dockerfile
 
-      # ------------------------------------------------------
-      # 3. Snyk - Frontend
-      # ------------------------------------------------------
-      - name: 🛡️ Snyk Scan (Frontend)
-        uses: snyk/actions/node@master
+      # -------------------------
+      # 4. TRIVY - IaC Scan (ex.: Terraform / Docker Compose)
+      # -------------------------
+      - name: 📐 Trivy - IaC scan
+        uses: aquasecurity/trivy-action@master
         with:
-          command: test
-          args: --file=web-app/package.json
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          scan-type: config
+          scan-ref: .
 
       # ------------------------------------------------------
-      # 4. Snyk IaC Scan (Terraform, YAML, Docker Compose, K8s, etc)
-      # ------------------------------------------------------
-      - name: 🏗️ Snyk IaC Scan
-        uses: snyk/actions/iac@master
-        with:
-          args: test --severity-threshold=medium
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      # ------------------------------------------------------
-      # 5. Snyk Container Scan (Dockerfile + imagem)
-      # ------------------------------------------------------
-      # Build da imagem para análise
-      - name: 🐳 Build Docker image for scanning
-        run: |
-          docker build -t api-image -f api/Dockerfile api
-
-      - name: 🐳 Snyk Dockerfile & Container Scan
-        uses: snyk/actions/docker@master
-        with:
-          image: api-image
-          args: --file=api/Dockerfile
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      # ------------------------------------------------------
-      # 6. CodeQL (TypeScript)
+      # 5. CodeQL (TypeScript)
       # ------------------------------------------------------
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
