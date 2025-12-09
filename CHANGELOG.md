@@ -17,6 +17,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
+- Bump @angular-eslint/eslint-plugin from 17.5.3 to 21.1.0 in /web-app
 - Adicione atualizações de dependências aqui
 
 ---
