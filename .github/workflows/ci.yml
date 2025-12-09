@@ -1,4 +1,4 @@
-name: CI - Build, Lint & Test
+name: CI - Version & Security Check, Build, Lint & Test
 
 on:
   push:
@@ -67,20 +67,12 @@ jobs:
           fi
           
           # Verificar se contém as seções obrigatórias
-          if ! grep -q "### ✨ Novas Funcionalidades" CHANGELOG.md; then
-            echo "❌ Seção '### ✨ Novas Funcionalidades' não encontrada no CHANGELOG.md"
-            exit 1
-          fi
-          
-          if ! grep -q "### 🔧 Melhorias" CHANGELOG.md; then
-            echo "❌ Seção '### 🔧 Melhorias' não encontrada no CHANGELOG.md"
-            exit 1
-          fi
-          
-          if ! grep -q "### 🐛 Correções" CHANGELOG.md; then
-            echo "❌ Seção '### 🐛 Correções' não encontrada no CHANGELOG.md"
-            exit 1
-          fi
+          for section in "### ✨ Novas Funcionalidades" "### 🔧 Melhorias" "### 🐛 Correções"; do
+            if ! grep -q "$section" CHANGELOG.md; then
+              echo "❌ Seção obrigatória não encontrada: $section"
+              exit 1
+            fi
+          done
           
           echo "✅ Estrutura do CHANGELOG.md validada com sucesso"
 
@@ -98,7 +90,7 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Validate tag matches package versions
+      - name: Validate tag version
         run: |
           echo "🏷️ Validating tag version matches package.json versions..."
           
@@ -115,18 +107,110 @@ jobs:
           
           # Validar se a tag corresponde às versões dos packages
           if [ "$TAG_VERSION" != "$API_VERSION" ] || [ "$TAG_VERSION" != "$WEB_VERSION" ]; then
-            echo "❌ Versão da tag não corresponde às versões dos packages!"
+            echo "❌ Tag não corresponde às versões dos packages!"
             echo "Tag: $TAG_VERSION"
             echo "API: $API_VERSION"
             echo "Web: $WEB_VERSION"
             exit 1
           fi
           
-          echo "✅ Versão da tag corresponde aos packages: $TAG_VERSION"
+          echo "✅ Tag corresponde às versões"
+
+  security-scan:
+    name: 🔐 Security Scan (Gitleaks, Snyk, CodeQL, IaC & Docker)
+    runs-on: ubuntu-latest
+    needs: validate-versions
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------
+      # 1. Gitleaks - Detecta segredos expostos
+      # ------------------------------------------------------
+      - name: 🔑 Gitleaks Scan
+        uses: zricethezav/gitleaks-action@v1
+        with:
+          args: detect --source . --verbose
+
+      # ------------------------------------------------------
+      # Node setup para Snyk
+      # ------------------------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # ------------------------------------------------------
+      # 2. Snyk - Backend
+      # ------------------------------------------------------
+      - name: 🛡️ Snyk Scan (Backend)
+        uses: snyk/actions/node@master
+        with:
+          command: test
+          args: --file=api/package.json
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # ------------------------------------------------------
+      # 3. Snyk - Frontend
+      # ------------------------------------------------------
+      - name: 🛡️ Snyk Scan (Frontend)
+        uses: snyk/actions/node@master
+        with:
+          command: test
+          args: --file=web-app/package.json
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # ------------------------------------------------------
+      # 4. Snyk IaC Scan (Terraform, YAML, Docker Compose, K8s, etc)
+      # ------------------------------------------------------
+      - name: 🏗️ Snyk IaC Scan
+        uses: snyk/actions/iac@master
+        with:
+          args: test --severity-threshold=medium
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # ------------------------------------------------------
+      # 5. Snyk Container Scan (Dockerfile + imagem)
+      # ------------------------------------------------------
+      # Build da imagem para análise
+      - name: 🐳 Build Docker image for scanning
+        run: |
+          docker build -t api-image -f api/Dockerfile api
+
+      - name: 🐳 Snyk Dockerfile & Container Scan
+        uses: snyk/actions/docker@master
+        with:
+          image: api-image
+          args: --file=api/Dockerfile
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # ------------------------------------------------------
+      # 6. CodeQL (TypeScript)
+      # ------------------------------------------------------
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - name: Autobuild for CodeQL
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
   build-backend:
     name: Backend - Build, Lint & Test
     runs-on: ubuntu-latest
-    needs: validate-versions
+    needs: security-scan
     defaults:
       run:
         working-directory: api
@@ -164,7 +248,7 @@ jobs:
   build-frontend:
     name: Frontend - Build, Lint & Test
     runs-on: ubuntu-latest
-    needs: validate-versions
+    needs: security-scan
     defaults:
       run:
         working-directory: web-app
