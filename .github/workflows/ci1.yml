@@ -1,0 +1,282 @@
+name: CI - Version & Security Check, Build, Lint & Test
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'v*'
+
+jobs:
+  validate-versions:
+    name: 🔍 Validate Version Synchronization
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Validate version synchronization
+        run: |
+          echo "🔍 Validating version synchronization across all files..."
+          
+          # Extrair versões dos package.json
+          API_VERSION=$(node -p "require('./api/package.json').version")
+          WEB_VERSION=$(node -p "require('./web-app/package.json').version")
+          
+          echo "API Version: $API_VERSION"
+          echo "Web Version: $WEB_VERSION"
+          
+          # Extrair versões dos environment files
+          ENV_VERSION=$(grep -o "version: '[^']*'" web-app/src/environments/environment.ts | cut -d"'" -f2)
+          ENV_PROD_VERSION=$(grep -o "version: '[^']*'" web-app/src/environments/environment.production.ts | cut -d"'" -f2)
+          
+          echo "Environment Dev Version: $ENV_VERSION"
+          echo "Environment Prod Version: $ENV_PROD_VERSION"
+          
+          # Validar se todas as versões são iguais
+          if [ "$API_VERSION" != "$WEB_VERSION" ] || [ "$API_VERSION" != "$ENV_VERSION" ] || [ "$API_VERSION" != "$ENV_PROD_VERSION" ]; then
+            echo "❌ Versões desincronizadas detectadas!"
+            echo "API: $API_VERSION"
+            echo "Web: $WEB_VERSION" 
+            echo "Env Dev: $ENV_VERSION"
+            echo "Env Prod: $ENV_PROD_VERSION"
+            exit 1
+          fi
+          
+          echo "✅ Todas as versões estão sincronizadas: $API_VERSION"
+
+      - name: Validate CHANGELOG structure
+        run: |
+          echo "📋 Validating CHANGELOG.md structure..."
+          
+          if [ ! -f "CHANGELOG.md" ]; then
+            echo "❌ CHANGELOG.md não encontrado"
+            exit 1
+          fi
+          
+          # Verificar se contém seção "Em Desenvolvimento"
+          if ! grep -q "## \[Em Desenvolvimento\]" CHANGELOG.md; then
+            echo "❌ Seção '## [Em Desenvolvimento]' não encontrada no CHANGELOG.md"
+            exit 1
+          fi
+          
+          # Verificar se contém as seções obrigatórias
+          for section in "### ✨ Novas Funcionalidades" "### 🔧 Melhorias" "### 🐛 Correções"; do
+            if ! grep -q "$section" CHANGELOG.md; then
+              echo "❌ Seção obrigatória não encontrada: $section"
+              exit 1
+            fi
+          done
+          
+          echo "✅ Estrutura do CHANGELOG.md validada com sucesso"
+
+  validate-tag-version:
+    name: 🏷️ Validate Tag Version (Tags only)
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Validate tag version
+        run: |
+          echo "🏷️ Validating tag version matches package.json versions..."
+          
+          # Extrair versão da tag
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Tag Version: $TAG_VERSION"
+          
+          # Extrair versão dos package.json
+          API_VERSION=$(node -p "require('./api/package.json').version")
+          WEB_VERSION=$(node -p "require('./web-app/package.json').version")
+          
+          echo "API Version: $API_VERSION"
+          echo "Web Version: $WEB_VERSION"
+          
+          # Validar se a tag corresponde às versões dos packages
+          if [ "$TAG_VERSION" != "$API_VERSION" ] || [ "$TAG_VERSION" != "$WEB_VERSION" ]; then
+            echo "❌ Tag não corresponde às versões dos packages!"
+            echo "Tag: $TAG_VERSION"
+            echo "API: $API_VERSION"
+            echo "Web: $WEB_VERSION"
+            exit 1
+          fi
+          
+          echo "✅ Tag corresponde às versões"
+
+  security-scan:
+    name: 🔐 Security Scan (Gitleaks, Snyk, CodeQL, IaC & Docker)
+    runs-on: ubuntu-latest
+    needs: validate-versions
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------
+      # 1. Gitleaks - Detecta segredos expostos
+      # ------------------------------------------------------
+      - name: 🔑 Gitleaks Scan
+        uses: zricethezav/gitleaks-action@v1
+        with:
+          args: detect --source . --verbose
+
+      # ------------------------------------------------------
+      # Install deps for backend
+      # ------------------------------------------------------
+      - name: 📦 Install backend dependencies
+        working-directory: api
+        run: npm install --no-package-lock
+
+      # ------------------------------------------------------
+      # Install deps for frontend
+      # ------------------------------------------------------
+      - name: 📦 Install frontend dependencies
+        working-directory: web-app
+        run: npm install --no-package-lock
+
+      # -------------------------
+      # 2. TRIVY - Dependências Node (Nest + Angular)
+      # -------------------------
+      - name: 📦 Trivy - Scan Node dependencies
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scanners: vuln
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          severity: MEDIUM,HIGH,CRITICAL
+
+      # -------------------------
+      # 3. TRIVY - Dockerfile Scan Backend
+      # -------------------------
+      - name: 🐳 Trivy - Dockerfile scan (Backend)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: ./api/Dockerfile
+
+      # -------------------------
+      # 4. TRIVY - Dockerfile Scan Frontend
+      # -------------------------
+      - name: 🐳 Trivy - Dockerfile scan (Frontend)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: ./web-app/Dockerfile
+
+      # -------------------------
+      # 5. TRIVY - IaC Scan (ex.: Terraform / Docker Compose)
+      # -------------------------
+      - name: 📐 Trivy - IaC scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: .
+
+      # ------------------------------------------------------
+      # 6. CodeQL (TypeScript)
+      # ------------------------------------------------------
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - name: Autobuild for CodeQL
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  build-backend:
+    name: Backend - Build, Lint & Test
+    runs-on: ubuntu-latest
+    needs: security-scan
+    defaults:
+      run:
+        working-directory: api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: api/dist/
+          retention-days: 7
+
+  build-frontend:
+    name: Frontend - Build, Lint & Test
+    runs-on: ubuntu-latest
+    needs: security-scan
+    defaults:
+      run:
+        working-directory: web-app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: web-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test -- --browsers=ChromeHeadless --watch=false
+
+      - name: Build application
+        run: npm run build:prod
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: web-app/dist/expense-tracker-web/
+          retention-days: 7
