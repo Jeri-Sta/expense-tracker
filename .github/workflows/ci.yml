@@ -190,12 +190,6 @@ jobs:
         with:
           scan-type: config
           scan-ref: .
-
-  codeql:
-    name: 🔎 CodeQL Advanced Analysis
-    needs: security-scan
-    uses: ./.github/workflows/codeql.yml
-    secrets: inherit
     
   build-backend:
     name: Backend - Build, Lint & Test
