@@ -1,0 +1,54 @@
+name: Atualizar Changelog para Dependabot
+
+on:
+  pull_request:
+    paths:
+      - "api/package.json"
+      - "api/package-lock.json"
+      - "web-app/package.json"
+      - "web-app/package-lock.json"
+    types: [opened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-changelog:
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch da PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Atualizar seção no CHANGELOG
+        run: |
+          CHANGELOG="CHANGELOG.md"
+          TEMP="CHANGELOG.tmp"
+          TITLE="${{ github.event.pull_request.title }}"
+
+          awk -v insert="$TITLE" '
+            BEGIN {done=0}
+            /### 📦 Atualizações de Dependências/ && !done {
+              print
+              print "- " insert
+              done=1
+              next
+            }
+            # Remove a linha padrão de placeholder
+            /- Adicione atualizações de dependências aqui/ {next}
+
+            {print}
+          ' "$CHANGELOG" > "$TEMP"
+
+          mv "$TEMP" "$CHANGELOG"
+
+      - name: Commit atualizado
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs(changelog): atualizar changelog com PR do dependabot"
+          file_pattern: "CHANGELOG.md"
