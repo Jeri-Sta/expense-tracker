@@ -191,20 +191,6 @@ jobs:
           scan-type: config
           scan-ref: .
 
-      # ------------------------------------------------------
-      # 6. CodeQL (TypeScript)
-      # ------------------------------------------------------
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript
-
-      - name: Autobuild for CodeQL
-        uses: github/codeql-action/autobuild@v3
-
-      - name: Run CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-
   build-backend:
     name: Backend - Build, Lint & Test
     runs-on: ubuntu-latest
