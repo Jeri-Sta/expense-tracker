@@ -1,1 +1,49 @@
+name: CodeQL
 
+on: []  # impede que apareça na interface como workflow próprio
+
+jobs:
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: javascript-typescript
+          build-mode: manual
+        - language: actions
+          build-mode: none
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Manual build for JS/TS (backend + frontend)
+        if: matrix.language == 'javascript-typescript'
+        run: |
+          cd api
+          npm install
+          npm run build
+          cd ..
+          cd web-app
+          npm install
+          npm run build:prod
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
