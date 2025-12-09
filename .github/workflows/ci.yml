@@ -146,6 +146,20 @@ jobs:
           node-version: '18'
 
       # ------------------------------------------------------
+      # Install deps for backend
+      # ------------------------------------------------------
+      - name: 📦 Install backend dependencies
+        working-directory: api
+        run: npm ci
+
+      # ------------------------------------------------------
+      # Install deps for frontend
+      # ------------------------------------------------------
+      - name: 📦 Install frontend dependencies
+        working-directory: web-app
+        run: npm ci
+
+      # ------------------------------------------------------
       # 2. Snyk - Backend
       # ------------------------------------------------------
       - name: 🛡️ Snyk Scan (Backend)
