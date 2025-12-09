@@ -8,7 +8,6 @@ on:
       - "web-app/package.json"
       - "web-app/package-lock.json"
     types: [opened, synchronize]
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,22 +15,23 @@ permissions:
 
 jobs:
   update-changelog:
-    if: contains(github.event.pull_request.user.login, 'dependabot')
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout branch da PR
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
 
       - name: Atualizar seção no CHANGELOG
         run: |
           CHANGELOG="CHANGELOG.md"
           TEMP="CHANGELOG.tmp"
 
-          # Extrair nome da dependência da própria PR (ex: bump axios from 1.5.0 to 1.6.0)
           TITLE="${{ github.event.pull_request.title }}"
 
-          # Inserir abaixo de: "### 📦 Atualizações de Dependências"
           awk -v insert="$TITLE" '
             BEGIN {done=0}
             /### 📦 Atualizações de Dependências/ && !done {
@@ -49,4 +49,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "docs(changelog): atualizar changelog com PR do dependabot"
-          branch: ${{ github.event.pull_request.head.ref }}
+          file_pattern: "CHANGELOG.md"
