@@ -2,83 +2,54 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
-O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
-e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
-
-## [Em Desenvolvimento]
-
-### ✨ Novas Funcionalidades
-- Adicionada funcionalidade de reverter o pagamento de uma transação marcada como paga
-
-### 🔧 Melhorias
-- Adicione melhorias e otimizações aqui
-
-### 🐛 Correções
-- Adicione correções de bugs aqui
-
----
-
-## [1.0.1] - 2025-12-08
-
-### ✨ Novas Funcionalidades
-- Estrutura e instrução oficial para testes automatizados no backend (Jest)
-- Adição de exemplo de teste unitário para UsersService
-- Criação do guia de padrões de projeto para o frontend Angular, documentado em `.github/instructions/frontend-patterns.instructions.md` para uso em futuras implementações
-
-### 🔧 Melhorias
-- Refatoração completa do backend seguindo padrões DDD (Domain-Driven Design)
-- Padronização de nomenclatura, organização de pastas e separação de responsabilidades
-- Remoção de duplicidades e códigos obsoletos
-- Tipagem mais forte em services (remoção de any)
-- Atualização e detalhamento das instruções de backend para futuras implementações
-
-### 🐛 Correções
-- Ajuste na configuração do Jest para reconhecer testes em src e test
-
----
-
-## [1.0.0] - 2025-12-06
-
-### ✨ Novas Funcionalidades
-- Sistema completo de gestão de despesas pessoais
-- Módulo de autenticação com JWT
-- Dashboard com gráficos e estatísticas
-- Gestão de transações com categorias
-- Sistema de cartões de crédito
-- Gestão de parcelas e pagamentos
-- Transações recorrentes
-- Interface responsiva com PrimeNG
-- API RESTful com NestJS
-- Banco de dados PostgreSQL com TypeORM
-- Cache com Redis
-- Documentação Swagger
-- Containerização com Docker
-- CI/CD com GitHub Actions
-
-### 🔧 Melhorias
-- Interface intuitiva e moderna
-- Validações robustas no frontend e backend
-- Arquitetura escalável e modular
-- Testes automatizados
-- Linting e formatação de código
-
-### 🐛 Correções
-- Versão inicial estável
-
----
+O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Tipos de Mudanças
 
-- **✨ Novas Funcionalidades** - para novas funcionalidades
-- **🔧 Melhorias** - para mudanças em funcionalidades existentes
+- **✨ Funcionalidades** - para novas funcionalidades adicionadas
 - **🐛 Correções** - para correções de bugs
-- **🔒 Segurança** - para correções de vulnerabilidades
+- **🔄 Melhorias** - para melhorias em funcionalidades existentes
 - **📦 Dependências** - para atualizações de dependências
-- **🗑️ Removido** - para funcionalidades removidas
-- **⚠️ Descontinuado** - para funcionalidades que serão removidas
+- **📚 Documentação** - para mudanças na documentação
+- **🎨 Estilo** - para mudanças que não afetam o código (formatação, etc.)
+- **♻️ Refatoração** - para mudanças que refatoram o código
+- **🧪 Testes** - para adição ou atualização de testes
+- **⚙️ Configuração** - para mudanças em arquivos de configuração
+- **🚀 Deploy** - para mudanças relacionadas ao deploy
 
-## Versionamento Semântico
+## [Em Desenvolvimento]
 
-- **MAJOR** (X.0.0): Mudanças incompatíveis na API
-- **MINOR** (0.X.0): Funcionalidades adicionadas de forma compatível
-- **PATCH** (0.0.X): Correções de bugs compatíveis
+### ✨ Funcionalidades
+
+- Adicione novas funcionalidades aqui
+
+### 🐛 Correções
+
+- Adicione correções aqui
+
+### 📦 Dependências
+
+- Adicione atualizações de dependências aqui
+
+### 🔄 Melhorias
+
+- Adicione melhorias aqui
+
+### 📚 Documentação
+
+- Adicione mudanças na documentação aqui
+
+## [1.0.0] - YYYY-MM-DD
+
+### ✨ Funcionalidades
+
+- Implementação inicial do projeto expense-tracker
+
+### 🐛 Correções
+
+- Correções iniciais de estabilidade
+
+### 📚 Documentação
+
+- Documentação inicial do projeto
