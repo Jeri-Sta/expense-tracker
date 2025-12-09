@@ -16,8 +16,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 ### 🐛 Correções
 - Adicione correções de bugs aqui
 
-### 📦 Dependências
-- Adicione alterações de dependências aqui
+### 📦 Atualizações de Dependências
+- Adicione atualizações de dependências aqui
 
 ---
 
