@@ -180,29 +180,74 @@ function updateChangelog(newVersion, changelogContent) {
   logStep('6', 'Atualizando CHANGELOG...');
 
   const currentDate = new Date().toISOString().split('T')[0];
-  const fullChangelogContent = fs.readFileSync(CHANGELOG_PATH, 'utf-8');
+  const fullChangelog = fs.readFileSync(CHANGELOG_PATH, 'utf-8');
 
-  // Extrai a seção Em Desenvolvimento
-  const emDesenvolvimentoRegex = /## \[Em Desenvolvimento\][\s\S]*?---\s*/;
-  const emDesenvolvimentoMatch = fullChangelogContent.match(emDesenvolvimentoRegex);
-  if (!emDesenvolvimentoMatch) {
-    throw new Error('Seção "Em Desenvolvimento" não encontrada para atualização do changelog.');
+  //
+  // 1. Regex da seção completa "[Em Desenvolvimento]"
+  //
+  const devSectionRegex = /## \[Em Desenvolvimento\][\s\S]*?---/;
+  const devMatch = fullChangelog.match(devSectionRegex);
+
+  if (!devMatch) {
+    throw new Error('Seção "Em Desenvolvimento" não encontrada no CHANGELOG.md');
   }
-  const emDesenvolvimentoSection = emDesenvolvimentoMatch[0];
 
-  // Remove a seção Em Desenvolvimento do changelog
-  const changelogWithoutDev = fullChangelogContent.replace(emDesenvolvimentoRegex, '');
+  const devSectionFull = devMatch[0];
 
-  // Monta a nova versão
-  const versionSection = `## [${newVersion}] - ${currentDate}
-\n${changelogContent}\n\n---\n`;
+  //
+  // 2. Remove a seção [Em Desenvolvimento] do changelog
+  //
+  const changelogWithoutDev = fullChangelog.replace(devSectionRegex, '').trim();
 
-  // Monta o novo changelog: Em Desenvolvimento no topo, depois nova versão, depois o restante
-  const updatedChangelog = `${emDesenvolvimentoSection}${versionSection}${changelogWithoutDev.trim() ? '\n' + changelogWithoutDev.trim() : ''}`;
+  //
+  // 3. Monta a nova versão com o conteúdo extraído
+  //
+  const versionSection =
+`## [${newVersion}] - ${currentDate}
 
-  fs.writeFileSync(CHANGELOG_PATH, updatedChangelog);
-  logSuccess('CHANGELOG atualizado');
+${changelogContent}
+
+---
+`;
+
+  //
+  // 4. Recria a seção Em Desenvolvimento do zero
+  //
+  const newDevSection =
+`## [Em Desenvolvimento]
+
+### ✨ Novas Funcionalidades
+- Adicione novas funcionalidades aqui
+
+### 🔧 Melhorias
+- Adicione melhorias e otimizações aqui
+
+### 🐛 Correções
+- Adicione correções de bugs aqui
+
+### 📦 Atualizações de Dependências
+- Adicione atualizações de dependências aqui
+
+---
+`;
+
+  //
+  // 5. Concatena tudo no novo formato final
+  //
+  const finalChangelog =
+`${newDevSection}
+${versionSection}
+${changelogWithoutDev}
+`.trim() + '\n';
+
+  //
+  // 6. Grava no arquivo
+  //
+  fs.writeFileSync(CHANGELOG_PATH, finalChangelog);
+
+  logSuccess('CHANGELOG atualizado e seção "Em Desenvolvimento" reiniciada');
 }
+
 
 // Função para extrair release notes do changelog
 function extractReleaseNotes(changelogContent) {
