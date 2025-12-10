@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CardTransactionService } from '../../services/card-transaction.service';
@@ -57,14 +57,14 @@ export class CardTransactionsComponent implements OnInit {
     value: i + 2,
   }));
 
-  constructor(
-    private readonly fb: FormBuilder,
-    private readonly cardTransactionService: CardTransactionService,
-    private readonly creditCardService: CreditCardService,
-    private readonly categoryService: CategoryService,
-    private readonly messageService: MessageService,
-    private readonly confirmationService: ConfirmationService,
-  ) {
+  private readonly fb = inject(FormBuilder);
+  private readonly cardTransactionService = inject(CardTransactionService);
+  private readonly creditCardService = inject(CreditCardService);
+  private readonly categoryService = inject(CategoryService);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
+
+  constructor() {
     this.selectedPeriod = this.cardTransactionService.getCurrentPeriod();
   }
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { RecurringTransaction } from '../../../../core/services/recurring-transaction.service';
 import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
 import { parseLocalDate } from '../../../../shared/utils/date.utils';
@@ -31,7 +31,7 @@ export class UpcomingRecurringWidgetComponent implements OnInit, OnChanges {
   // Filtered recurring transactions
   filteredRecurring: RecurringTransaction[] = [];
 
-  constructor(private readonly utils: DashboardUtilsService) {}
+  private readonly utils = inject(DashboardUtilsService);
 
   ngOnInit(): void {
     this.loadViewTypeFromStorage();
