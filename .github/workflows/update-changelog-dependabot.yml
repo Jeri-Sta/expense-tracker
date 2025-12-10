@@ -31,6 +31,13 @@ jobs:
           TEMP="CHANGELOG.tmp"
           TITLE="${{ github.event.pull_request.title }}"
 
+          # Se o título já existe, sair sem fazer nada
+          if grep -Fxq "- $TITLE" "$CHANGELOG"; then
+            echo "Entrada já existe no CHANGELOG. Nada a fazer."
+            exit 0
+          fi
+
+          # Atualiza normalmente
           awk -v insert="$TITLE" '
             BEGIN {done=0}
             /### 📦 Atualizações de Dependências/ && !done {
@@ -39,9 +46,7 @@ jobs:
               done=1
               next
             }
-            # Remove a linha padrão de placeholder
             /- Adicione atualizações de dependências aqui/ {next}
-
             {print}
           ' "$CHANGELOG" > "$TEMP"
 
