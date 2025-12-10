@@ -4,7 +4,7 @@
 - Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
-- Adicione melhorias e otimizações aqui
+- Melhorado filtros na tela de transações
 
 ### 🐛 Correções
 - Adicione correções de bugs aqui
