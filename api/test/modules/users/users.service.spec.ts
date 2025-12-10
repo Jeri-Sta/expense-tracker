@@ -3,6 +3,7 @@ import { UsersService } from '../../../src/modules/users/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../../../src/modules/users/entities/user.entity';
 import { Repository } from 'typeorm';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 describe('UsersService', () => {
   let service: UsersService;
