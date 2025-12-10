@@ -207,7 +207,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: false
 
       - name: Install dependencies
         run: npm ci
@@ -244,7 +243,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: false
 
       - name: Install dependencies
         run: npm ci
