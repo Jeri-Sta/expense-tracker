@@ -7,6 +7,22 @@
 - Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
+- Adicione correções de bugs aqui
+
+### 📦 Atualizações de Dependências
+- Adicione atualizações de dependências aqui
+
+---
+
+## [1.1.1] - 2025-12-10
+
+### ✨ Novas Funcionalidades
+- Adicione novas funcionalidades aqui
+
+### 🔧 Melhorias
+- Adicione melhorias e otimizações aqui
+
+### 🐛 Correções
 - Corrigido script de geração de versão
 
 ### 📦 Atualizações de Dependências
