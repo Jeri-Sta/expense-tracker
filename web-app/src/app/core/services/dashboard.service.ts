@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -10,7 +10,7 @@ import { DashboardStats, MonthlyNavigationStats } from './transaction.service';
 export class DashboardService {
   private readonly apiUrl = `${environment.apiUrl}/dashboard`;
 
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   getDashboard(year?: number): Observable<DashboardStats> {
     let params = new HttpParams();

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import {
@@ -83,13 +83,12 @@ export class TransactionsComponent implements OnInit {
     { label: 'Inteligência Artificial', value: 'ai' },
   ];
 
-  constructor(
-    private fb: FormBuilder,
-    private transactionService: TransactionService,
-    private categoryService: CategoryService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-  ) {}
+  // Use Angular's `inject()` to satisfy @angular-eslint/prefer-inject
+  private readonly fb = inject(FormBuilder);
+  private readonly transactionService = inject(TransactionService);
+  private readonly categoryService = inject(CategoryService);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   ngOnInit(): void {
     this.initializeForms();

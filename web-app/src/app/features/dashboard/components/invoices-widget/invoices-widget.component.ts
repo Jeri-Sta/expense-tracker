@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
 import { InvoiceSummary, InvoiceStatus } from '../../../../core/services/transaction.service';
@@ -15,10 +15,8 @@ export class InvoicesWidgetComponent {
   @Input() selectedMonthName = '';
   @Input() selectedYear = new Date().getFullYear();
 
-  constructor(
-    private readonly utils: DashboardUtilsService,
-    private readonly router: Router,
-  ) {}
+  private readonly utils = inject(DashboardUtilsService);
+  private readonly router = inject(Router);
 
   get subtitleText(): string {
     if (this.selectedMonthName && this.selectedYear) {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { InstallmentService } from '../../services';
@@ -16,12 +16,11 @@ export class InstallmentListComponent implements OnInit {
   // Math object for template
   Math = Math;
 
-  constructor(
-    private installmentService: InstallmentService,
-    private router: Router,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-  ) {}
+  // Use Angular's `inject()` to satisfy @angular-eslint/prefer-inject
+  private readonly installmentService = inject(InstallmentService);
+  private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   ngOnInit(): void {
     this.loadInstallmentPlans();

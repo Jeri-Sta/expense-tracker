@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -16,13 +16,14 @@ export class InstallmentFormComponent implements OnInit {
   isEditMode = false;
   installmentPlan?: InstallmentPlan;
 
-  constructor(
-    private fb: FormBuilder,
-    private installmentService: InstallmentService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private messageService: MessageService,
-  ) {
+  // Use Angular's `inject()` to satisfy @angular-eslint/prefer-inject
+  private readonly fb = inject(FormBuilder);
+  private readonly installmentService = inject(InstallmentService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly messageService = inject(MessageService);
+
+  constructor() {
     this.initializeForm();
   }
 

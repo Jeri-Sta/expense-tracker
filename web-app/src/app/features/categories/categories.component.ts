@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import {
@@ -46,12 +46,10 @@ export class CategoriesComponent implements OnInit {
   // Color picker
   showColorPicker = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private categoryService: CategoryService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-  ) {}
+  private readonly fb = inject(FormBuilder);
+  private readonly categoryService = inject(CategoryService);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   ngOnInit(): void {
     this.initializeForm();

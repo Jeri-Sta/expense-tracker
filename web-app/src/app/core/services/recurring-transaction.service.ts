@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -67,7 +67,7 @@ export interface UpdateRecurringTransactionDto {
 export class RecurringTransactionService {
   private readonly apiUrl = `${environment.apiUrl}/recurring-transactions`;
 
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   getRecurringTransactions(): Observable<RecurringTransaction[]> {
     return this.http.get<RecurringTransaction[]>(this.apiUrl);
