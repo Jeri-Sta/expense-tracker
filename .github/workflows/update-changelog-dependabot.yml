@@ -29,15 +29,22 @@ jobs:
         run: |
           CHANGELOG="CHANGELOG.md"
           TEMP="CHANGELOG.tmp"
-          TITLE="${{ github.event.pull_request.title }}"
+          RAW_TITLE="${{ github.event.pull_request.title }}"
 
-          # Se o título já existe, sair sem fazer nada
-          if grep -Fxq "- $TITLE" "$CHANGELOG"; then
-            echo "Entrada já existe no CHANGELOG. Nada a fazer."
+          # Normaliza o título para evitar falhas de comparação
+          TITLE="$(echo "$RAW_TITLE" | tr -s ' ' | sed 's/[[:space:]]*$//')"
+
+          # Prepara um padrão escapado para grep
+          SAFE_TITLE="$(printf '%s\n' "- $TITLE" | sed 's/[][\.*^$(){}?+|/]/\\&/g')"
+
+          # Verifica se já existe a linha no changelog
+          if grep -Fqx "$SAFE_TITLE" "$CHANGELOG"; then
+            echo "A entrada já existe no CHANGELOG. Nada a fazer."
             exit 0
           fi
 
-          # Atualiza normalmente
+          echo "Adicionando nova entrada ao CHANGELOG: $TITLE"
+
           awk -v insert="$TITLE" '
             BEGIN {done=0}
             /### 📦 Atualizações de Dependências/ && !done {
