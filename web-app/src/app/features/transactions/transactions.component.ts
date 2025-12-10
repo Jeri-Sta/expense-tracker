@@ -67,9 +67,8 @@ export class TransactionsComponent implements OnInit {
   periodOptions: { label: string; value: string }[] = [];
 
   // Payment status filter
-  selectedPaymentStatus: PaymentStatus | '' = '';
+  selectedPaymentStatus: PaymentStatus | null = null;
   paymentStatusOptions = [
-    { label: 'Todos', value: '' },
     { label: 'Pendente', value: 'pending' as PaymentStatus },
     { label: 'Pago', value: 'paid' as PaymentStatus },
   ];
@@ -101,8 +100,11 @@ export class TransactionsComponent implements OnInit {
 
   loadPeriodOptions(): void {
     this.periodOptions = this.transactionService.getAvailablePeriods();
-    // Start with no period filter (show all transactions)
-    this.selectedPeriod = '';
+    // Default to current competency period
+    this.selectedPeriod = this.transactionService.getCurrentPeriod();
+    if (this.filterForm) {
+      this.filterForm.patchValue({ competencyPeriod: this.selectedPeriod });
+    }
   }
 
   onPeriodChange(): void {
@@ -149,6 +151,7 @@ export class TransactionsComponent implements OnInit {
     this.currentFilters = {
       page: 1,
       limit: this.rows,
+      competencyPeriod: this.selectedPeriod || undefined,
     };
 
     this.transactionService.getTransactions(this.currentFilters).subscribe({
@@ -267,6 +270,8 @@ export class TransactionsComponent implements OnInit {
       this.currentFilters.projectionSource ||
       this.currentFilters.minConfidence;
 
+    this.currentFilters.competencyPeriod = this.selectedPeriod || undefined;
+
     const serviceCall = hasProjectionFilters
       ? this.transactionService.getTransactionsWithProjectionFilters(this.currentFilters)
       : this.transactionService.getTransactions(this.currentFilters);
@@ -336,8 +341,9 @@ export class TransactionsComponent implements OnInit {
 
   clearFilters(): void {
     this.filterForm.reset();
-    this.selectedPeriod = '';
-    this.selectedPaymentStatus = '';
+    this.selectedPeriod = this.transactionService.getCurrentPeriod();
+    this.filterForm.patchValue({ competencyPeriod: this.selectedPeriod });
+    this.selectedPaymentStatus = null;
     this.currentFilters = {
       page: 1,
       limit: this.rows,

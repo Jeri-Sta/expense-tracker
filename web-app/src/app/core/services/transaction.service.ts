@@ -382,7 +382,7 @@ export class TransactionService {
     const now = new Date();
 
     // Last 12 months
-    for (let i = 11; i >= 0; i--) {
+    for (let i = 12; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       periods.push({
@@ -391,8 +391,8 @@ export class TransactionService {
       });
     }
 
-    // Next 6 months
-    for (let i = 1; i <= 6; i++) {
+    // Next 12 months
+    for (let i = 1; i <= 12; i++) {
       const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
       const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       periods.push({
