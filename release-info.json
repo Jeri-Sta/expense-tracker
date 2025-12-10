@@ -1,8 +1,8 @@
 {
-  "oldVersion": "1.0.0",
-  "newVersion": "1.0.1",
-  "versionType": "patch",
-  "releaseNotes": "### ✨ Novas Funcionalidades\n- Estrutura e instrução oficial para testes automatizados no backend (Jest)\n- Adição de exemplo de teste unitário para UsersService\n- Criação do guia de padrões de projeto para o frontend Angular, documentado em `.github/instructions/frontend-patterns.instructions.md` para uso em futuras implementações\n### 🔧 Melhorias\n- Refatoração completa do backend seguindo padrões DDD (Domain-Driven Design)\n- Padronização de nomenclatura, organização de pastas e separação de responsabilidades\n- Remoção de duplicidades e códigos obsoletos\n- Tipagem mais forte em services (remoção de any)\n- Atualização e detalhamento das instruções de backend para futuras implementações\n### 🐛 Correções\n- Ajuste na configuração do Jest para reconhecer testes em src e test",
-  "backupBranch": "backup/release-2025-12-08T12-26-16-926Z",
-  "timestamp": "2025-12-08T12:26:16.961Z"
+  "oldVersion": "1.0.1",
+  "newVersion": "1.1.0",
+  "versionType": "minor",
+  "releaseNotes": "### ✨ Novas Funcionalidades\n- Adicionada funcionalidade de reverter o pagamento de uma transação marcada como paga\n### 🔧 Melhorias\n### 🐛 Correções\n### 📦 Atualizações de Dependências\n- Bump eslint-plugin-prettier from 5.0.0 to 5.5.4 in /api\n- Bump eslint-config-prettier from 9.0.0 to 10.1.8 in /api\n- Bump @typescript-eslint/parser from 6.0.0 to 8.49.0 in /api\n- Bump @typescript-eslint/eslint-plugin from 6.0.0 to 8.49.0 in /api\n- Bump @nestjs/testing from 10.0.0 to 11.1.9 in /api\n- Bump @nestjs/schematics from 10.0.0 to 11.0.9 in /api\n- Bump @nestjs/cli from 10.0.0 to 11.0.14 in /api\n- Bump @nestjs/schedule from 4.0.0 to 6.1.0 in /api\n- Bump @nestjs/typeorm from 10.0.1 to 11.0.0 in /api\n- Bump @nestjs/swagger from 7.1.17 to 11.2.3 in /api\n- Bump @nestjs/platform-express from 10.0.0 to 11.1.9 in /api\n- Bump @nestjs/jwt from 10.2.0 to 11.0.2 in /api\n- Bump @nestjs/config from 3.1.1 to 4.0.2 in /api\n- Bump @nestjs/common from 10.0.0 to 11.1.9 in /api\n- Bump @types/bcryptjs from 2.4.6 to 3.0.0 in /api\n- Bump @nestjs/core from 10.4.20 to 11.1.9 in /api\n- Bump eslint from 8.57.1 to 9.39.1 in /api\n- Bump @nestjs/passport from 10.0.3 to 11.0.5 in /api\n- Bump @angular-eslint/eslint-plugin from 17.5.3 to 21.1.0 in /web-app",
+  "backupBranch": "backup/release-2025-12-10T11-57-17-345Z",
+  "timestamp": "2025-12-10T11:57:17.387Z"
 }

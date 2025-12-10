@@ -1,10 +1,3 @@
-# Changelog
-
-Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
-
-O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
-e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
-
 ## [Em Desenvolvimento]
 
 ### ✨ Novas Funcionalidades
@@ -38,6 +31,47 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Bump @angular-eslint/eslint-plugin from 17.5.3 to 21.1.0 in /web-app
 
 ---
+
+## [1.1.0] - 2025-12-10
+
+### ✨ Novas Funcionalidades
+- Adicionada funcionalidade de reverter o pagamento de uma transação marcada como paga
+
+### 🔧 Melhorias
+- Adicione melhorias e otimizações aqui
+
+### 🐛 Correções
+- Adicione correções de bugs aqui
+
+### 📦 Atualizações de Dependências
+- Bump eslint-plugin-prettier from 5.0.0 to 5.5.4 in /api
+- Bump eslint-config-prettier from 9.0.0 to 10.1.8 in /api
+- Bump @typescript-eslint/parser from 6.0.0 to 8.49.0 in /api
+- Bump @typescript-eslint/eslint-plugin from 6.0.0 to 8.49.0 in /api
+- Bump @nestjs/testing from 10.0.0 to 11.1.9 in /api
+- Bump @nestjs/schematics from 10.0.0 to 11.0.9 in /api
+- Bump @nestjs/cli from 10.0.0 to 11.0.14 in /api
+- Bump @nestjs/schedule from 4.0.0 to 6.1.0 in /api
+- Bump @nestjs/typeorm from 10.0.1 to 11.0.0 in /api
+- Bump @nestjs/swagger from 7.1.17 to 11.2.3 in /api
+- Bump @nestjs/platform-express from 10.0.0 to 11.1.9 in /api
+- Bump @nestjs/jwt from 10.2.0 to 11.0.2 in /api
+- Bump @nestjs/config from 3.1.1 to 4.0.2 in /api
+- Bump @nestjs/common from 10.0.0 to 11.1.9 in /api
+- Bump @types/bcryptjs from 2.4.6 to 3.0.0 in /api
+- Bump @nestjs/core from 10.4.20 to 11.1.9 in /api
+- Bump eslint from 8.57.1 to 9.39.1 in /api
+- Bump @nestjs/passport from 10.0.3 to 11.0.5 in /api
+- Bump @angular-eslint/eslint-plugin from 17.5.3 to 21.1.0 in /web-app
+
+---
+
+# Changelog
+
+Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
+
+O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
+e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [1.0.1] - 2025-12-08
 
