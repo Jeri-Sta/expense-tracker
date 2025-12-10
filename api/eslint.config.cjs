@@ -1,10 +1,10 @@
-// eslint.config.js (ESLint 9)
-import tseslint from "@typescript-eslint/eslint-plugin";
-import tsParser from "@typescript-eslint/parser";
-import prettier from "eslint-plugin-prettier";
-import prettierConfig from "eslint-config-prettier";
+// eslint.config.cjs (CommonJS)
+const tseslint = require("@typescript-eslint/eslint-plugin");
+const tsParser = require("@typescript-eslint/parser");
+const prettier = require("eslint-plugin-prettier");
+const prettierConfig = require("eslint-config-prettier");
 
-export default [
+module.exports = [
   {
     files: ["src/**/*.ts", "apps/**/*.ts", "libs/**/*.ts", "test/**/*.ts"],
     ignores: [".eslintrc.js"],
@@ -13,7 +13,7 @@ export default [
       parser: tsParser,
       parserOptions: {
         project: "./tsconfig.json",
-        tsconfigRootDir: import.meta.dirname,
+        tsconfigRootDir: __dirname,
         sourceType: "module",
       },
     },
@@ -23,16 +23,11 @@ export default [
       prettier: prettier,
     },
 
-    // equivalente ao extends:
     rules: {
-      // @typescript-eslint/recommended
       ...tseslint.configs.recommended.rules,
-
-      // prettier/recommended
       ...prettierConfig.rules,
       "prettier/prettier": "error",
 
-      // suas regras personalizadas
       "@typescript-eslint/interface-name-prefix": "off",
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
