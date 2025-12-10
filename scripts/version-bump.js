@@ -89,8 +89,10 @@ function validateChangelog() {
                          !devSectionContent.match(/### 🔧 Melhorias\s*-\s*Adicione melhorias e otimizações aqui/);
   const hasBugFixes = devSectionContent.includes('### 🐛 Correções') && 
                      !devSectionContent.match(/### 🐛 Correções\s*-\s*Adicione correções de bugs aqui/);
+  const hasDependenciesUpdates = devSectionContent.includes('### 📦 Atualizações de Dependências') &&
+                          !devSectionContent.match(/### 📦 Atualizações de Dependências\s*-\s*Adicione atualizações de dependências aqui/);
   
-  if (!hasNewFeatures && !hasImprovements && !hasBugFixes) {
+  if (!hasNewFeatures && !hasImprovements && !hasBugFixes && !hasDependenciesUpdates) {
     throw new Error('A seção "Em Desenvolvimento" do CHANGELOG.md está vazia ou contém apenas templates. Adicione pelo menos uma mudança antes de fazer o release.');
   }
   
