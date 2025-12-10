@@ -89,7 +89,11 @@ export class CreateRecurringTransactionDto {
   @Length(0, 500)
   readonly notes?: string;
 
-  @ApiPropertyOptional({ description: 'Additional metadata', type: 'object', additionalProperties: true })
+  @ApiPropertyOptional({
+    description: 'Additional metadata',
+    type: 'object',
+    additionalProperties: true,
+  })
   @IsOptional()
   @IsObject()
   readonly metadata?: Record<string, any>;

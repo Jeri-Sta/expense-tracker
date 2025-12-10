@@ -45,7 +45,11 @@ export class RecurringTransactionResponseDto {
   @ApiPropertyOptional({ description: 'Additional notes' })
   readonly notes?: string;
 
-  @ApiPropertyOptional({ description: 'Additional metadata', type: 'object', additionalProperties: true })
+  @ApiPropertyOptional({
+    description: 'Additional metadata',
+    type: 'object',
+    additionalProperties: true,
+  })
   readonly metadata?: Record<string, any>;
 
   @ApiProperty({ description: 'Creation date', type: Date })
