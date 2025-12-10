@@ -163,6 +163,7 @@ jobs:
           exit-code: 1
           ignore-unfixed: true
           severity: MEDIUM,HIGH,CRITICAL
+          trivy-ignorefile: .trivyignore
 
       # -------------------------
       # 3. TRIVY - Dockerfile Scan Backend
