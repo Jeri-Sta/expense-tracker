@@ -183,35 +183,56 @@ function updateChangelog(newVersion, changelogContent) {
   const fullChangelog = fs.readFileSync(CHANGELOG_PATH, 'utf-8');
 
   //
-  // 1. Regex da seção completa "[Em Desenvolvimento]"
+  // 1. Pegamos seção completa [Em Desenvolvimento]
   //
   const devSectionRegex = /## \[Em Desenvolvimento\][\s\S]*?---/;
   const devMatch = fullChangelog.match(devSectionRegex);
-
   if (!devMatch) {
-    throw new Error('Seção "Em Desenvolvimento" não encontrada no CHANGELOG.md');
+    throw new Error('Seção "Em Desenvolvimento" não encontrada');
   }
 
   const devSectionFull = devMatch[0];
 
   //
-  // 2. Remove a seção [Em Desenvolvimento] do changelog
+  // 2. Extraímos somente o conteúdo dentro da seção
+  //
+  const cleanContent = changelogContent.trim();
+
+  //
+  // 3. Remover tópicos vazios (os que ainda têm "Adicione ... aqui")
+  //
+  const cleanedVersionContent = cleanContent
+    .replace(/### ✨ Novas Funcionalidades[\s\S]*?Adicione novas funcionalidades aqui/g, "")
+    .replace(/### 🔧 Melhorias[\s\S]*?Adicione melhorias e otimizações aqui/g, "")
+    .replace(/### 🐛 Correções[\s\S]*?Adicione correções de bugs aqui/g, "")
+    .replace(/### 📦 Atualizações de Dependências[\s\S]*?Adicione atualizações de dependências aqui/g, "")
+    // remover blocos vazios após limpeza
+    .replace(/### [^\n]+\n*\s*\n/g, "")
+    .trim();
+
+  //
+  // 4. Se tudo foi removido e não sobrou nada, então não coloca nada na release
+  //
+  const finalVersionContent = cleanedVersionContent || "*Nenhuma mudança registrada.*";
+
+  //
+  // 5. Remove seção Em Desenvolvimento original do changelog
   //
   const changelogWithoutDev = fullChangelog.replace(devSectionRegex, '').trim();
 
   //
-  // 3. Monta a nova versão com o conteúdo extraído
+  // 6. Nova seção da versão gerada
   //
   const versionSection =
 `## [${newVersion}] - ${currentDate}
 
-${changelogContent}
+${finalVersionContent}
 
 ---
 `;
 
   //
-  // 4. Recria a seção Em Desenvolvimento do zero
+  // 7. Recriar seção "Em Desenvolvimento" limpa
   //
   const newDevSection =
 `## [Em Desenvolvimento]
@@ -232,7 +253,7 @@ ${changelogContent}
 `;
 
   //
-  // 5. Concatena tudo no novo formato final
+  // 8. Montar changelog final
   //
   const finalChangelog =
 `${newDevSection}
@@ -240,12 +261,9 @@ ${versionSection}
 ${changelogWithoutDev}
 `.trim() + '\n';
 
-  //
-  // 6. Grava no arquivo
-  //
   fs.writeFileSync(CHANGELOG_PATH, finalChangelog);
 
-  logSuccess('CHANGELOG atualizado e seção "Em Desenvolvimento" reiniciada');
+  logSuccess('CHANGELOG atualizado (tópicos vazios removidos da versão gerada)');
 }
 
 
