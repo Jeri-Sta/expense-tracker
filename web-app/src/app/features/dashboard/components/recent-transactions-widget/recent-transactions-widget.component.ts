@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
 import { parseLocalDate } from '../../../../shared/utils/date.utils';
 
@@ -32,7 +32,7 @@ export class RecentTransactionsWidgetComponent implements OnInit, OnChanges {
   // Filtered transactions
   filteredTransactions: any[] = [];
 
-  constructor(private readonly utils: DashboardUtilsService) {}
+  private readonly utils = inject(DashboardUtilsService);
 
   ngOnInit(): void {
     this.loadViewTypeFromStorage();

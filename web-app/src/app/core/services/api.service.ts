@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -14,7 +14,7 @@ export interface ApiConfig {
 export class ApiService {
   private readonly baseUrl = environment.apiUrl;
 
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   get<T>(endpoint: string, config?: ApiConfig): Observable<T> {
     return this.http.get<T>(`${this.baseUrl}${endpoint}`, config);

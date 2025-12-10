@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CreditCardService } from '../../services/credit-card.service';
@@ -37,12 +37,10 @@ export class CreditCardListComponent implements OnInit {
   // Days options (1-31)
   daysOptions = Array.from({ length: 31 }, (_, i) => ({ label: `${i + 1}`, value: i + 1 }));
 
-  constructor(
-    private fb: FormBuilder,
-    private creditCardService: CreditCardService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-  ) {}
+  private fb = inject(FormBuilder);
+  private creditCardService = inject(CreditCardService);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   ngOnInit(): void {
     this.initializeForm();

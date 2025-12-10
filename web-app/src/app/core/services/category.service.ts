@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -46,7 +46,7 @@ export interface UpdateCategoryDto {
 export class CategoryService {
   private readonly apiUrl = `${environment.apiUrl}/categories`;
 
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   getCategories(type?: CategoryType): Observable<Category[]> {
     let params = new HttpParams();
