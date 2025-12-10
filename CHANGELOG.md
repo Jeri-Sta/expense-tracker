@@ -1,7 +1,7 @@
 ## [Em Desenvolvimento]
 
 ### ✨ Novas Funcionalidades
-- Adicionada funcionalidade de reverter o pagamento de uma transação marcada como paga
+- Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
 - Adicione melhorias e otimizações aqui
