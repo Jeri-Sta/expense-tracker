@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { InstallmentPlanSummary } from '../../../installments/models';
 
@@ -15,7 +15,7 @@ export class InstallmentPlansWidgetComponent {
   // Math object for template
   Math = Math;
 
-  constructor(private readonly router: Router) {}
+  private readonly router = inject(Router);
 
   onViewDetails(planId: string): void {
     this.viewDetails.emit(planId);

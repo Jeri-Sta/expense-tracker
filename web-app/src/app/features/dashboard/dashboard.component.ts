@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   TransactionService,
@@ -13,7 +13,6 @@ import {
   RecurringTransactionService,
   RecurringTransaction,
 } from '../../core/services/recurring-transaction.service';
-import { CreditCardService } from '../credit-cards/services/credit-card.service';
 import { CardTransactionService } from '../credit-cards/services/card-transaction.service';
 import { CardTransaction } from '../credit-cards/models/card-transaction.model';
 import { InstallmentService } from '../installments/services';
@@ -129,17 +128,16 @@ export class DashboardComponent implements OnInit {
     },
   ];
 
-  constructor(
-    private readonly router: Router,
-    private readonly transactionService: TransactionService,
-    private readonly dashboardService: DashboardService,
-    private readonly categoryService: CategoryService,
-    private readonly recurringTransactionService: RecurringTransactionService,
-    private readonly creditCardService: CreditCardService,
-    private readonly cardTransactionService: CardTransactionService,
-    private readonly installmentService: InstallmentService,
-    private readonly messageService: MessageService,
-  ) {
+  private readonly router = inject(Router);
+  private readonly transactionService = inject(TransactionService);
+  private readonly dashboardService = inject(DashboardService);
+  private readonly categoryService = inject(CategoryService);
+  private readonly recurringTransactionService = inject(RecurringTransactionService);
+  private readonly cardTransactionService = inject(CardTransactionService);
+  private readonly installmentService = inject(InstallmentService);
+  private readonly messageService = inject(MessageService);
+
+  constructor() {
     this.loadActiveTabFromStorage();
   }
 

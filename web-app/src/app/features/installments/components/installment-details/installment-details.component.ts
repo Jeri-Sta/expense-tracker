@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { InstallmentService } from '../../services';
@@ -26,13 +26,12 @@ export class InstallmentDetailsComponent implements OnInit {
   // Math object for template
   Math = Math;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private installmentService: InstallmentService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-  ) {}
+  // Use Angular's `inject()` to satisfy @angular-eslint/prefer-inject
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly installmentService = inject(InstallmentService);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   ngOnInit(): void {
     const id = this.route.snapshot.params['id'];

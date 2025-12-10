@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -15,13 +15,11 @@ export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   isLoading = false;
 
-  constructor(
-    private readonly formBuilder: FormBuilder,
-    private readonly authService: AuthService,
-    private readonly router: Router,
-    private readonly messageService: MessageService,
-    private readonly loadingService: LoadingService,
-  ) {}
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
+  private readonly loadingService = inject(LoadingService);
 
   ngOnInit(): void {
     this.initializeForm();

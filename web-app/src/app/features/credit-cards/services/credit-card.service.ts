@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -10,7 +10,7 @@ import { CreditCard, CreateCreditCardDto, UpdateCreditCardDto } from '../models/
 export class CreditCardService {
   private readonly apiUrl = `${environment.apiUrl}/credit-cards`;
 
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   getAll(): Observable<CreditCard[]> {
     return this.http.get<CreditCard[]>(this.apiUrl);

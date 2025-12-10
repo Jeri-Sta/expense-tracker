@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { InstallmentStats } from '../../../../shared/types/dashboard.types';
 import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
 
@@ -20,7 +20,7 @@ export class FinancingsSummaryWidgetComponent {
   @Input() isLoading = false;
   @Output() navigateToInstallments = new EventEmitter<void>();
 
-  constructor(private readonly utils: DashboardUtilsService) {}
+  private readonly utils = inject(DashboardUtilsService);
 
   formatCurrency(value: number): string {
     return this.utils.formatCurrency(value);

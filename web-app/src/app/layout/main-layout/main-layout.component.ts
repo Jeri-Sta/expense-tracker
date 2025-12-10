@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { filter } from 'rxjs/operators';
@@ -12,10 +12,9 @@ export class MainLayoutComponent implements OnInit {
   sidebarVisible = false;
   currentRoute = '';
 
-  constructor(
-    private router: Router,
-    private authService: AuthService,
-  ) {}
+  // Use Angular's inject() to satisfy @angular-eslint/prefer-inject
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   ngOnInit(): void {
     this.router.events
