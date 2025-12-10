@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { CategoryStats } from '../../../../shared/types/dashboard.types';
 import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
 
@@ -11,7 +11,7 @@ export class CategoryStatsWidgetComponent {
   @Input() categoryStats: CategoryStats[] = [];
   @Input() isLoading = false;
 
-  constructor(private readonly utils: DashboardUtilsService) {}
+  private readonly utils = inject(DashboardUtilsService);
 
   formatCurrency(value: number): string {
     return this.utils.formatCurrency(value);

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
@@ -8,10 +8,8 @@ import { AuthService } from '../services/auth.service';
   providedIn: 'root',
 })
 export class GuestGuard implements CanActivate {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly router: Router,
-  ) {}
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   canActivate(): Observable<boolean> {
     return this.authService.authState$.pipe(

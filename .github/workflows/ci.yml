@@ -163,6 +163,7 @@ jobs:
           exit-code: 1
           ignore-unfixed: true
           severity: MEDIUM,HIGH,CRITICAL
+          trivy-ignorefile: .trivyignore
 
       # -------------------------
       # 3. TRIVY - Dockerfile Scan Backend
@@ -207,7 +208,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: false
 
       - name: Install dependencies
         run: npm ci
@@ -244,7 +244,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: false
 
       - name: Install dependencies
         run: npm ci

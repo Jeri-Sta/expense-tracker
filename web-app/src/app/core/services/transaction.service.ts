@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -225,7 +225,7 @@ export interface MonthlyNavigationStats {
 export class TransactionService {
   private readonly apiUrl = `${environment.apiUrl}/transactions`;
 
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   getTransactions(filters?: TransactionFilters): Observable<PaginatedResponse<Transaction>> {
     let params = new HttpParams();

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { UpcomingPayment } from '../../../../shared/types/dashboard.types';
 import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
@@ -12,10 +12,8 @@ export class UpcomingPaymentsWidgetComponent {
   @Input() upcomingPayments: UpcomingPayment[] = [];
   @Input() isLoading = false;
 
-  constructor(
-    private readonly utils: DashboardUtilsService,
-    private readonly router: Router,
-  ) {}
+  private readonly utils = inject(DashboardUtilsService);
+  private readonly router = inject(Router);
 
   get subtitleText(): string {
     return 'Próximas parcelas a vencer';

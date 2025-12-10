@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import {
   DashboardStats,
   MonthlyExpenseBreakdownItem,
@@ -30,7 +30,7 @@ export class KpiCardsWidgetComponent {
   @Input() selectedMonthName = '';
   @Input() expenseBreakdown: MonthlyExpenseBreakdownItem[] = [];
 
-  constructor(private readonly utils: DashboardUtilsService) {}
+  private readonly utils = inject(DashboardUtilsService);
 
   formatCurrency(value: number): string {
     return this.utils.formatCurrency(value);

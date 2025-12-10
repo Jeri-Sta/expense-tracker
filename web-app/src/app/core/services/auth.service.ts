@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
@@ -21,10 +21,10 @@ export class AuthService {
 
   public readonly authState$ = this.authStateSubject.asObservable();
 
-  constructor(
-    private readonly apiService: ApiService,
-    private readonly storageService: StorageService,
-  ) {
+  private readonly apiService = inject(ApiService);
+  private readonly storageService = inject(StorageService);
+
+  constructor() {
     this.loadAuthState();
   }
 

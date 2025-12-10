@@ -18,6 +18,9 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ### 📦 Atualizações de Dependências
 - Bump @types/bcryptjs from 2.4.6 to 3.0.0 in /api
+- Bump @nestjs/core from 10.4.20 to 11.1.9 in /api
+- Bump eslint from 8.57.1 to 9.39.1 in /api
+- Bump @nestjs/passport from 10.0.3 to 11.0.5 in /api
 - Bump @angular-eslint/eslint-plugin from 17.5.3 to 21.1.0 in /web-app
 
 ---

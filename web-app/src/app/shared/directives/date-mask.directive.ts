@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, OnInit, OnDestroy, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, Input, OnInit, OnDestroy, Renderer2, inject } from '@angular/core';
 
 /**
  * Directive to apply date mask (dd/mm/yyyy or mm/yyyy) to p-calendar input
@@ -14,10 +14,9 @@ export class DateMaskDirective implements OnInit, OnDestroy {
   private observer: MutationObserver | null = null;
   private isProcessing = false;
 
-  constructor(
-    private readonly el: ElementRef,
-    private readonly renderer: Renderer2,
-  ) {}
+  // Use Angular's `inject()` to satisfy @angular-eslint/prefer-inject
+  private readonly el = inject(ElementRef);
+  private readonly renderer = inject(Renderer2);
 
   ngOnInit(): void {
     // p-calendar creates an input element inside, we need to find it
