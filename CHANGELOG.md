@@ -10,7 +10,7 @@
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
+- Bump @angular/platform-browser-dynamic from 17.3.12 to 21.0.4 in /web-app
 
 ---
 
