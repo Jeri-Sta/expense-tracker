@@ -10,7 +10,7 @@
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
+- Bump reflect-metadata from 0.1.14 to 0.2.2 in /api
 
 ---
 
