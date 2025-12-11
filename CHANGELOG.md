@@ -4,7 +4,7 @@
 - Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
-- Melhorado filtros na tela de transações
+- Ajustado filtro de período do mês de vencimento das faturas do cartão para exibir a fatura atual.
 
 ### 🐛 Correções
 - Adicione correções de bugs aqui
