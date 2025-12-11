@@ -10,7 +10,7 @@
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
+- Bump class-validator from 0.14.2 to 0.14.3 in /api
 
 ---
 
