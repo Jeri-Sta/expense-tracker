@@ -4,13 +4,16 @@
 - Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
-- Melhorado filtros na tela de transações
+- Ajustado filtro de período do mês de vencimento das faturas do cartão para exibir a fatura atual.
 
 ### 🐛 Correções
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
 - Bump reflect-metadata from 0.1.14 to 0.2.2 in /api
+- Bump class-validator from 0.14.2 to 0.14.3 in /api
+- Bump typeorm from 0.3.27 to 0.3.28 in /api
+- Bump @types/pg from 8.15.6 to 8.16.0 in /api
 
 ---
 

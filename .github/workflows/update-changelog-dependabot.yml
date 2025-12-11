@@ -7,7 +7,7 @@ on:
       - "api/package-lock.json"
       - "web-app/package.json"
       - "web-app/package-lock.json"
-    types: [opened, synchronize]
+    types: [opened]
 
 permissions:
   contents: write
