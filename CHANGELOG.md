@@ -11,7 +11,6 @@
 
 ### 📦 Atualizações de Dependências
 - Bump typeorm from 0.3.27 to 0.3.28 in /api
-- Bump typeorm from 0.3.27 to 0.3.28 in /api
 - Bump @types/pg from 8.15.6 to 8.16.0 in /api
 
 ---
