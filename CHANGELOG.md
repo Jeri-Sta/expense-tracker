@@ -10,7 +10,7 @@
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
+- Bump @angular-devkit/build-angular from 17.3.17 to 21.0.3 in /web-app
 
 ---
 
