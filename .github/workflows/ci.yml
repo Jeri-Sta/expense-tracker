@@ -221,12 +221,12 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-build
-          path: api/dist/
-          retention-days: 7
+      # - name: Upload build artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: backend-build
+      #     path: api/dist/
+      #     retention-days: 7
 
   build-frontend:
     name: Frontend - Build, Lint & Test
@@ -257,9 +257,9 @@ jobs:
       - name: Build application
         run: npm run build:prod
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: web-app/dist/expense-tracker-web/
-          retention-days: 7
+      # - name: Upload build artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: frontend-build
+      #     path: web-app/dist/expense-tracker-web/
+      #     retention-days: 7
