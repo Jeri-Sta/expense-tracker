@@ -5,6 +5,7 @@
 
 ### 🔧 Melhorias
 - Ajustado filtro de período do mês de vencimento das faturas do cartão para exibir a fatura atual.
+- Ajustado opção de limpeza de projeções para excluir apenas projeções automáticas por padrão.
 
 ### 🐛 Correções
 - Adicione correções de bugs aqui

@@ -462,18 +462,15 @@ export class TransactionsComponent implements OnInit {
     });
   }
 
-  cleanupOldProjections(): void {
-    const currentDate = new Date();
-    const endPeriod = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-
+  cleanupSystemProjections(): void {
     this.confirmationService.confirm({
       message:
-        'Tem certeza que deseja limpar todas as projeções até o mês atual? Esta ação não pode ser desfeita.',
+        'Tem certeza que deseja limpar todas as projeções geradas pelo sistema? Esta ação não pode ser desfeita.',
       header: 'Confirmar Limpeza',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.loading = true;
-        this.transactionService.cleanupProjections(undefined, endPeriod).subscribe({
+        this.transactionService.cleanupProjections(undefined, undefined, false).subscribe({
           next: (result) => {
             this.loading = false;
             this.messageService.add({

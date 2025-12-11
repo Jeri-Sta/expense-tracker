@@ -68,6 +68,36 @@
   }
 }
 
+// Projection action cards (generate / clean / remove all)
+.projection-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: $spacing-md;
+
+  .proj-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    @include card-base;
+
+    .proj-top {
+      // Keep title and description centered and evenly spaced
+      text-align: center;
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .proj-actions {
+      // Ensure buttons stay aligned horizontally and at the bottom
+      display: flex;
+      justify-content: center;
+      gap: $spacing-sm;
+    }
+  }
+}
+
 // Confidence indicators
 .confidence-high {
   color: $color-success !important;

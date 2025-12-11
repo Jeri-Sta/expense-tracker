@@ -318,10 +318,15 @@ export class TransactionService {
     );
   }
 
-  cleanupProjections(startPeriod?: string, endPeriod?: string): Observable<{ deleted: number }> {
+  cleanupProjections(
+    startPeriod?: string,
+    endPeriod?: string,
+    includeManual?: boolean,
+  ): Observable<{ deleted: number }> {
     let params = new HttpParams();
     if (startPeriod) params = params.set('startPeriod', startPeriod);
     if (endPeriod) params = params.set('endPeriod', endPeriod);
+    if (includeManual !== undefined) params = params.set('includeManual', includeManual.toString());
 
     return this.http.delete<{ deleted: number }>(`${this.apiUrl}/projections/cleanup`, { params });
   }

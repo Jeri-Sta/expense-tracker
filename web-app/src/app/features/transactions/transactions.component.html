@@ -151,17 +151,17 @@
       [toggleable]="false"
       styleClass="mb-3"
     >
-      <div class="grid">
-        <div class="col-12 md:col-4">
-          <div class="card border-1 surface-border p-3 h-full">
-            <div class="text-center mb-3">
-              <i class="pi pi-refresh text-blue-500 text-4xl mb-2"></i>
-              <h5 class="m-0">Gerar Projeções</h5>
-            </div>
-            <p class="text-sm text-600 mb-3">
+      <div class="projection-actions">
+        <div class="proj-card">
+          <div class="proj-top">
+            <i class="pi pi-refresh text-blue-500 text-4xl mb-2"></i>
+            <h5 class="m-0">Gerar Projeções</h5>
+            <p class="text-sm text-600 mt-2">
               Cria automaticamente projeções baseadas nas suas transações recorrentes para os
               próximos 6 meses.
             </p>
+          </div>
+          <div class="proj-actions">
             <p-button
               label="Gerar Projeções"
               icon="pi pi-plus-circle"
@@ -173,19 +173,17 @@
           </div>
         </div>
 
-        <div class="col-12 md:col-4">
-          <div class="card border-1 surface-border p-3 h-full">
-            <div class="text-center mb-3">
-              <i class="pi pi-calendar-times text-orange-500 text-4xl mb-2"></i>
-              <h5 class="m-0">Limpar Antigas</h5>
-            </div>
-            <p class="text-sm text-600 mb-3">
-              Remove projeções de períodos passados que já não são mais relevantes.
-            </p>
+        <div class="proj-card">
+          <div class="proj-top">
+            <i class="pi pi-calendar-times text-orange-500 text-4xl mb-2"></i>
+            <h5 class="m-0">Limpar Projeções Automáticas</h5>
+            <p class="text-sm text-600 mt-2">Remove projeções automáticas geradas pelo sistema.</p>
+          </div>
+          <div class="proj-actions">
             <p-button
-              label="Limpar Antigas"
+              label="Limpar Projeções Automáticas"
               icon="pi pi-trash"
-              (onClick)="cleanupOldProjections()"
+              (onClick)="cleanupSystemProjections()"
               [loading]="loading"
               styleClass="w-full p-button-warning"
               size="small"
@@ -193,15 +191,13 @@
           </div>
         </div>
 
-        <div class="col-12 md:col-4">
-          <div class="card border-1 surface-border p-3 h-full">
-            <div class="text-center mb-3">
-              <i class="pi pi-times-circle text-red-500 text-4xl mb-2"></i>
-              <h5 class="m-0">Remover Todas</h5>
-            </div>
-            <p class="text-sm text-600 mb-3">
-              Remove completamente todas as projeções existentes no sistema.
-            </p>
+        <div class="proj-card">
+          <div class="proj-top">
+            <i class="pi pi-times-circle text-red-500 text-4xl mb-2"></i>
+            <h5 class="m-0">Remover Todas</h5>
+            <p class="text-sm text-600 mt-2">Remove completamente todas as projeções existentes no sistema.</p>
+          </div>
+          <div class="proj-actions">
             <p-button
               label="Remover Todas"
               icon="pi pi-ban"
