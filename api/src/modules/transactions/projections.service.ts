@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import { Repository, Between, MoreThanOrEqual, LessThanOrEqual, Not } from 'typeorm';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { RecurringTransaction } from '../recurring-transactions/entities/recurring-transaction.entity';
 import { GenerateProjectionsDto } from '../transactions/dto/generate-projections.dto';
@@ -336,6 +336,7 @@ export class ProjectionsService {
     userId: string,
     startPeriod?: string,
     endPeriod?: string,
+    includeManual?: boolean,
   ): Promise<number> {
     const whereCondition: any = {
       userId,
@@ -350,24 +351,17 @@ export class ProjectionsService {
       whereCondition.competencyPeriod = LessThanOrEqual(endPeriod);
     }
 
+    if (includeManual === false) {
+      whereCondition.projectionSource = Not('manual');
+    }
+
+    this.logger.log(
+      `Cleaning up projections for user ${userId} with conditions: ${JSON.stringify(whereCondition)}`,
+    );
+
     const result = await this.transactionsRepository.delete(whereCondition);
 
     this.logger.log(`Cleaned up ${result.affected} projected transactions`);
-    return result.affected || 0;
-  }
-
-  async cleanupOldProjections(userId: string): Promise<number> {
-    // Remove projections older than current month
-    const currentDate = new Date();
-    const currentPeriod = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-
-    const result = await this.transactionsRepository.delete({
-      userId,
-      isProjected: true,
-      competencyPeriod: LessThanOrEqual(currentPeriod),
-    });
-
-    this.logger.log(`Cleaned up ${result.affected} old projected transactions`);
     return result.affected || 0;
   }
 

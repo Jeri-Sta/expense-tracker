@@ -241,13 +241,19 @@ export class TransactionsController {
   })
   @ApiQuery({ name: 'startPeriod', required: false, description: 'Start period (YYYY-MM)' })
   @ApiQuery({ name: 'endPeriod', required: false, description: 'End period (YYYY-MM)' })
+  @ApiQuery({
+    name: 'includeManual',
+    required: false,
+    description: 'Include manual projections in cleanup',
+  })
   cleanupProjections(
     @GetUser() user: User,
     @Query('startPeriod') startPeriod?: string,
     @Query('endPeriod') endPeriod?: string,
+    @Query('includeManual') includeManual?: boolean,
   ): Promise<{ deleted: number }> {
     return this.projectionsService
-      .cleanupProjections(user.id, startPeriod, endPeriod)
+      .cleanupProjections(user.id, startPeriod, endPeriod, includeManual)
       .then((deleted) => ({ deleted }));
   }
 
