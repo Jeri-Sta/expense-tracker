@@ -10,7 +10,7 @@
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
+- Bump @types/express from 4.17.25 to 5.0.6 in /api
 
 ---
 
