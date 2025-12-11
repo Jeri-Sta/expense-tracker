@@ -167,8 +167,14 @@ export class CardTransactionService {
   // Helper to get current period
   getCurrentPeriod(): string {
     const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
+    let year = now.getFullYear();
+    let month = String(now.getMonth() + 2).padStart(2, '0');
+
+    if (month === '13') {
+      year += 1;
+      month = '01';
+    }
+
     return `${year}-${month}`;
   }
 
