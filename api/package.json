@@ -35,7 +35,7 @@
     "@nestjs/typeorm": "^11.0.0",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.0",
+    "class-validator": "^0.14.3",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
@@ -44,7 +44,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.0",
-    "typeorm": "^0.3.17",
+    "typeorm": "^0.3.28",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -57,7 +57,7 @@
     "@types/node": "^20.3.1",
     "@types/passport-jwt": "^3.0.13",
     "@types/passport-local": "^1.0.38",
-    "@types/pg": "^8.10.9",
+    "@types/pg": "^8.16.0",
     "@types/supertest": "^2.0.12",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^8.49.0",
