@@ -11,6 +11,7 @@
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
+- Bump @angular/compiler-cli from 17.3.12 to 20.3.15 in /web-app
 - Bump @types/express from 4.17.25 to 5.0.6 in /api
 - Bump class-validator from 0.14.2 to 0.14.3 in /api
 - Bump typeorm from 0.3.27 to 0.3.28 in /api
