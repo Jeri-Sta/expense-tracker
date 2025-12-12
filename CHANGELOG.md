@@ -11,6 +11,7 @@
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
+- Bump ts-jest from 29.4.5 to 29.4.6 in /api
 - Bump @types/express from 4.17.25 to 5.0.6 in /api
 - Bump class-validator from 0.14.2 to 0.14.3 in /api
 - Bump typeorm from 0.3.27 to 0.3.28 in /api
