@@ -8,7 +8,7 @@
 - Ajustado opção de limpeza de projeções para excluir apenas projeções automáticas por padrão.
 
 ### 🐛 Correções
-- Adicione correções de bugs aqui
+- Corrigida duplicação de parcelas do financiamento no dashboard quando a parcela é paga.
 
 ### 📦 Atualizações de Dependências
 - Bump @types/express from 4.17.25 to 5.0.6 in /api

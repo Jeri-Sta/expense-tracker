@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { InstallmentPlan } from '../installments/entities/installment-plan.entity';
 import { Installment } from '../installments/entities/installment.entity';
@@ -788,17 +788,6 @@ export class DashboardService {
     return summaries;
   }
 
-  private async getCardExpensesForPeriod(userId: string, period: string): Promise<number> {
-    const result = await this.cardTransactionRepository
-      .createQueryBuilder('transaction')
-      .select('SUM(transaction.amount)', 'total')
-      .where('transaction.userId = :userId', { userId })
-      .andWhere('transaction.invoicePeriod = :period', { period })
-      .getRawOne();
-
-    return Number(result?.total || 0);
-  }
-
   /**
    * Calcula despesas de cartão de crédito baseado na data de vencimento da fatura.
    * Se o dia de vencimento <= dia de fechamento, a fatura vence no mês seguinte ao período.
@@ -1002,13 +991,32 @@ export class DashboardService {
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
 
-    // 3a. Get all installments DUE in this month (regardless of payment status)
+    // 3a. Get all installments DUE in this month but exclude installments
+    // that were already paid in a different month (i.e. paidDate exists and
+    // is outside the current month range). We keep installments that are
+    // unpaid or that were paid within this month.
     const installmentsDueThisMonth = await this.installmentRepository
       .createQueryBuilder('installment')
       .leftJoinAndSelect('installment.installmentPlan', 'plan')
       .where('plan.userId = :userId', { userId })
       .andWhere('installment.dueDate >= :startOfMonth', { startOfMonth })
       .andWhere('installment.dueDate <= :endOfMonth', { endOfMonth })
+      .andWhere(
+        new Brackets((qb) => {
+          // Keep installments that are not paid, OR that were paid within the month
+          qb.where('installment.status != :paidStatus', {
+            paidStatus: InstallmentStatus.PAID,
+          });
+          qb.orWhere(
+            '(installment.status = :paidStatus AND installment.paidDate >= :startOfMonth AND installment.paidDate <= :endOfMonth)',
+            {
+              paidStatus: InstallmentStatus.PAID,
+              startOfMonth,
+              endOfMonth,
+            },
+          );
+        }),
+      )
       .getMany();
 
     // 3b. Get installments PAID in this month but DUE in other months (early payments / adiantamentos)
