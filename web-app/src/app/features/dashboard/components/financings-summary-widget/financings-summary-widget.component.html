@@ -66,7 +66,11 @@
             <span class="text-color-secondary text-sm">Valor pago do total</span>
             <span class="font-bold text-color">{{ getInstallmentProgress().toFixed(1) }}%</span>
           </div>
-          <p-progressBar [value]="getInstallmentProgress()" styleClass="progress-bar-custom">
+          <p-progressBar
+            [value]="getInstallmentProgress().toFixed(1)"
+            [showValue]="false"
+            styleClass="progress-bar-custom"
+          >
           </p-progressBar>
         </div>
       </div>

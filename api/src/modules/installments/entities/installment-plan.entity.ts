@@ -67,7 +67,7 @@ export class InstallmentPlan extends BaseEntity {
 
   // Virtual properties
   get remainingAmount(): number {
-    return this.totalAmount - this.totalPaid;
+    return this.installmentValue * (this.totalInstallments - this.paidInstallments);
   }
 
   get remainingInstallments(): number {

@@ -10,6 +10,8 @@ import { InstallmentPlanSummary } from '../../../installments/models';
 export class InstallmentPlansWidgetComponent {
   @Input() installmentPlans: InstallmentPlanSummary[] = [];
   @Input() isLoading = false;
+  @Input() selectedMonth!: number;
+  @Input() selectedYear!: number;
   @Output() viewDetails = new EventEmitter<string>();
 
   // Math object for template
@@ -65,6 +67,19 @@ export class InstallmentPlansWidgetComponent {
   }
 
   getActivePlans(): InstallmentPlanSummary[] {
-    return this.installmentPlans.filter((plan) => plan.isActive);
+    const startOfMonth = new Date(this.selectedYear, this.selectedMonth, 1);
+    const endOfMonth = new Date(this.selectedYear, this.selectedMonth + 1, 0, 23, 59, 59);
+
+    return this.installmentPlans.filter((plan) => {
+      if (!plan.isActive) {
+        return false;
+      }
+
+      const planStart = new Date(plan.startDate);
+      const planEnd = new Date(plan.endDate);
+
+      // Plano ativo se houver interseção de período
+      return planStart <= endOfMonth && planEnd >= startOfMonth;
+    });
   }
 }

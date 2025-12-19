@@ -95,6 +95,9 @@ export class InstallmentsService {
       return {
         id: plan.id,
         name: plan.name,
+        startDate: plan.startDate,
+        endDate: plan.endDate,
+        installmentValue: plan.installmentValue,
         financedAmount: plan.financedAmount,
         totalAmount: plan.totalAmount,
         totalInterest: plan.totalInterest,

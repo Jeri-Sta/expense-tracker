@@ -52,6 +52,8 @@ export interface InstallmentPlan {
 export interface InstallmentPlanSummary {
   id: string;
   name: string;
+  startDate: Date;
+  endDate: Date;
   financedAmount: number;
   totalAmount: number;
   totalInterest: number;
