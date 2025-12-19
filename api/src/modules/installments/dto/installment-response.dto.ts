@@ -127,6 +127,12 @@ export class InstallmentPlanSummaryDto {
   name: string;
 
   @ApiProperty()
+  startDate: Date;
+
+  @ApiProperty()
+  endDate: Date;
+
+  @ApiProperty()
   financedAmount: number;
 
   @ApiProperty()

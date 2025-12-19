@@ -451,10 +451,22 @@ export class DashboardService {
 
   private async getInstallmentsSummary(userId: string, year?: number, month?: number) {
     // Get all active installment plans
-    const plans = await this.installmentPlanRepository.find({
-      where: { userId, isActive: true },
-      relations: ['installments'],
-    });
+    const startOfPeriod = month !== undefined ? new Date(year, month, 1) : new Date(year, 0, 1);
+
+    const endOfPeriod =
+      month !== undefined
+        ? new Date(year, month + 1, 0, 23, 59, 59)
+        : new Date(year, 11, 31, 23, 59, 59);
+
+    const qb = this.installmentPlanRepository
+      .createQueryBuilder('plan')
+      .leftJoinAndSelect('plan.installments', 'installment')
+      .where('plan.userId = :userId', { userId })
+      .andWhere('plan.isActive = true')
+      .andWhere('plan.startDate <= :endOfPeriod', { endOfPeriod })
+      .andWhere('plan.endDate >= :startOfPeriod', { startOfPeriod });
+
+    const plans = await qb.getMany();
 
     if (!plans.length) {
       return {
