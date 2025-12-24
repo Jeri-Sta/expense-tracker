@@ -13,6 +13,8 @@ import {
 } from '../../models/card-transaction.model';
 import { CreditCard } from '../../models/credit-card.model';
 import { parseLocalDate } from '../../../../shared/utils/date.utils';
+import { normalizeIcon } from '@shared/utils/icon.utils';
+import { TransactionType } from '@core/types/common.types';
 
 @Component({
   selector: 'app-card-transactions',
@@ -82,7 +84,7 @@ export class CardTransactionsComponent implements OnInit {
       amount: [0, [Validators.required, Validators.min(0.01)]],
       transactionDate: [new Date(), Validators.required],
       creditCardId: ['', Validators.required],
-      categoryId: [''],
+      categoryId: ['', Validators.required],
       isInstallment: [false],
       totalInstallments: [{ value: 2, disabled: true }],
     });
@@ -473,5 +475,24 @@ export class CardTransactionsComponent implements OnInit {
     }
 
     return grouped;
+  }
+
+  normalizeIcon(icon: string): string {
+    return normalizeIcon(icon);
+  }
+
+  getCategoryDropdownOptions(): any[] {
+    const currentType = 'expense' as TransactionType;
+
+    return this.getCategoriesByType(currentType).map((cat) => ({
+      label: cat.name,
+      value: cat.id,
+      icon: this.normalizeIcon(cat.icon),
+      color: cat.color,
+    }));
+  }
+
+  getCategoriesByType(type: TransactionType): Category[] {
+    return this.categories.filter((cat) => cat.type === type);
   }
 }

@@ -176,7 +176,10 @@
         </td>
         <td>
           <div class="flex align-items-center gap-2" *ngIf="transaction.categoryName">
-            <div class="color-dot" [style.background-color]="transaction.categoryColor"></div>
+            <i
+              [class]="normalizeIcon(transaction.categoryIcon)"
+              [style.color]="transaction.categoryColor"
+            ></i>
             <span>{{ transaction.categoryName }}</span>
           </div>
           <span class="text-color-secondary" *ngIf="!transaction.categoryName">-</span>
@@ -281,7 +284,7 @@
     <form [formGroup]="transactionForm">
       <!-- Credit Card -->
       <div class="field">
-        <label for="creditCardId" class="required-field">Cartão</label>
+        <label for="creditCardId">Cartão <span class="required-asterisk">*</span></label>
         <p-dropdown
           id="creditCardId"
           formControlName="creditCardId"
@@ -315,7 +318,7 @@
 
       <!-- Description -->
       <div class="field">
-        <label for="description" class="required-field">Descrição</label>
+        <label for="description">Descrição <span class="required-asterisk">*</span></label>
         <input
           pInputText
           id="description"
@@ -333,7 +336,7 @@
 
       <!-- Amount -->
       <div class="field">
-        <label for="amount" class="required-field">Valor Total</label>
+        <label for="amount">Valor Total <span class="required-asterisk">*</span></label>
         <p-inputNumber
           id="amount"
           formControlName="amount"
@@ -353,7 +356,7 @@
 
       <!-- Transaction Date -->
       <div class="field">
-        <label for="transactionDate" class="required-field">Data da Compra</label>
+        <label for="transactionDate">Data da Compra <span class="required-asterisk">*</span></label>
         <p-calendar
           appDateMask="date"
           id="transactionDate"
@@ -363,34 +366,46 @@
           appendTo="body"
           [class.ng-invalid]="submitted && transactionForm.get('transactionDate')?.invalid"
         ></p-calendar>
+        <small
+          class="p-error"
+          *ngIf="submitted && transactionForm.get('transactionDate')?.hasError('required')"
+        >
+          Data da Compra é obrigatória
+        </small>
       </div>
 
       <!-- Category -->
       <div class="field">
-        <label for="categoryId">Categoria</label>
+        <label for="categoryId" class="block text-sm font-medium mb-2">
+          Categoria <span class="required-asterisk">*</span>
+        </label>
         <p-dropdown
           id="categoryId"
           formControlName="categoryId"
-          [options]="categories"
-          optionLabel="name"
-          optionValue="id"
-          placeholder="Selecione uma categoria"
-          [showClear]="true"
+          [options]="getCategoryDropdownOptions()"
+          placeholder="Selecione a categoria"
+          styleClass="w-full"
           appendTo="body"
         >
-          <ng-template pTemplate="selectedItem" let-category>
+          <ng-template let-category pTemplate="selectedItem">
             <div class="flex align-items-center gap-2" *ngIf="category">
-              <div class="color-dot" [style.background-color]="category.color"></div>
-              <span>{{ category.name }}</span>
+              <i [class]="category.icon" [style.color]="category.color"></i>
+              <span>{{ category.label }}</span>
             </div>
           </ng-template>
-          <ng-template pTemplate="item" let-category>
+          <ng-template let-category pTemplate="item">
             <div class="flex align-items-center gap-2">
-              <div class="color-dot" [style.background-color]="category.color"></div>
-              <span>{{ category.name }}</span>
+              <i [class]="category.icon" [style.color]="category.color"></i>
+              <span>{{ category.label }}</span>
             </div>
           </ng-template>
         </p-dropdown>
+        <small
+          class="p-error"
+          *ngIf="submitted && transactionForm.get('categoryId')?.hasError('required')"
+        >
+          Categoria é obrigatória
+        </small>
       </div>
 
       <!-- Installment Toggle -->
