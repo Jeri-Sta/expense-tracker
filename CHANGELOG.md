@@ -6,6 +6,7 @@
 ### 🔧 Melhorias
 - Ajustado filtro de período do mês de vencimento das faturas do cartão para exibir a fatura atual.
 - Ajustado opção de limpeza de projeções para excluir apenas projeções automáticas por padrão.
+- Ajustes de estilização e melhoria de visualização de financiamentos ativos e finalizados.
 
 ### 🐛 Correções
 - Corrigida duplicação de parcelas do financiamento no dashboard quando a parcela é paga.
@@ -21,7 +22,7 @@
 ## [1.1.1] - 2025-12-10
 
 ### 🐛 Correções
-- Corrigido script de geração de versão
+-   Corrigido script de geração de versão
 
 ---
 

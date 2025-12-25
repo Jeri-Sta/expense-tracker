@@ -27,7 +27,7 @@
           <div class="title-section">
             <h3 class="plan-name">{{ plan.name }}</h3>
             <p-tag
-              [value]="plan.isActive ? 'Ativo' : 'Inativo'"
+              [value]="plan.isActive ? 'Ativo' : 'Finalizado'"
               [severity]="plan.isActive ? 'success' : 'secondary'"
             >
             </p-tag>
@@ -73,6 +73,7 @@
             <p-progressBar
               [value]="plan.completionPercentage"
               [styleClass]="getProgressBarClass(plan.completionPercentage)"
+              [showValue]="false"
             >
             </p-progressBar>
           </div>

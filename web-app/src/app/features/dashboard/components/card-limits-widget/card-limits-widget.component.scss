@@ -1,10 +1,22 @@
 @import 'variables';
 @import 'mixins';
 
+.data-card {
+  @include card-base;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  border-radius: $border-radius-lg;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-md !important;
+  }
+}
+
 .card-header {
   background: var(--surface-section);
   border-bottom: 1px solid var(--surface-border);
-  border-radius: $border-radius-lg $border-radius-lg 0 0;
 
   h5 {
     color: var(--text-color);

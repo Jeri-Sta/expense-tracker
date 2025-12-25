@@ -270,6 +270,10 @@ export class InstallmentsService {
       0,
     );
 
+    if (plan.paidInstallments >= plan.totalInstallments) {
+      plan.isActive = false;
+    }
+
     await this.installmentPlanRepository.save(plan);
   }
 

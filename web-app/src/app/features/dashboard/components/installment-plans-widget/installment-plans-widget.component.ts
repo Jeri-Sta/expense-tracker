@@ -66,15 +66,11 @@ export class InstallmentPlansWidgetComponent {
     return 'text-success';
   }
 
-  getActivePlans(): InstallmentPlanSummary[] {
+  getPlans(): InstallmentPlanSummary[] {
     const startOfMonth = new Date(this.selectedYear, this.selectedMonth, 1);
     const endOfMonth = new Date(this.selectedYear, this.selectedMonth + 1, 0, 23, 59, 59);
 
     return this.installmentPlans.filter((plan) => {
-      if (!plan.isActive) {
-        return false;
-      }
-
       const planStart = new Date(plan.startDate);
       const planEnd = new Date(plan.endDate);
 

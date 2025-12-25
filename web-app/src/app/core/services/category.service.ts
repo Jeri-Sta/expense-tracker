@@ -118,6 +118,7 @@ export class CategoryService {
       'pi pi-save',
       'pi pi-arrow-up',
       'pi pi-arrow-down',
+      'pi pi-ticket',
     ];
   }
 
@@ -136,6 +137,17 @@ export class CategoryService {
       '#84CC16', // lime
       '#06B6D4', // cyan
       '#A855F7', // violet
+      '#000000', // black
+      '#374151', // dark gray
+      '#D97706', // amber
+      '#B91C1C', // dark red
+      '#1E3A8A', // dark blue
+      '#065F46', // dark green
+      '#7C3AED', // dark purple
+      '#DB2777', // dark pink
+      '#FBBF24', // golden yellow
+      '#22D3EE', // bright cyan
+      '#4ADE80', // bright green
     ];
   }
 }
