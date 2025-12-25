@@ -462,7 +462,6 @@ export class DashboardService {
       .createQueryBuilder('plan')
       .leftJoinAndSelect('plan.installments', 'installment')
       .where('plan.userId = :userId', { userId })
-      .andWhere('plan.isActive = true')
       .andWhere('plan.startDate <= :endOfPeriod', { endOfPeriod })
       .andWhere('plan.endDate >= :startOfPeriod', { startOfPeriod });
 

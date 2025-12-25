@@ -4,6 +4,13 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--surface-border);
+  border-radius: $border-radius-md;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-md !important;
+  }
 }
 
 .card-content {
@@ -15,7 +22,7 @@
 .card-header {
   background: var(--surface-section);
   border-bottom: 1px solid var(--surface-border);
-  border-radius: 12px 12px 0 0;
+  border-radius: 6px 6px 0 0;
 
   h5 {
     color: var(--text-color);

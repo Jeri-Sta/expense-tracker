@@ -404,7 +404,7 @@ export class DashboardComponent implements OnInit {
   loadInstallmentPlans(): void {
     this.installmentService.getAll().subscribe({
       next: (plans) => {
-        this.installmentPlans = plans.filter((plan) => plan.isActive);
+        this.installmentPlans = plans;
         this.validateActiveTabIndex();
       },
       error: (error) => {
