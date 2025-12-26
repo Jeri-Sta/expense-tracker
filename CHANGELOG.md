@@ -12,6 +12,7 @@
 - Corrigida duplicação de parcelas do financiamento no dashboard quando a parcela é paga.
 
 ### 📦 Atualizações de Dependências
+- Bump redis from 4.7.1 to 5.10.0 in /api
 - Bump @types/express from 4.17.25 to 5.0.6 in /api
 - Bump class-validator from 0.14.2 to 0.14.3 in /api
 - Bump typeorm from 0.3.27 to 0.3.28 in /api
