@@ -81,7 +81,6 @@ export class TransactionsComponent implements OnInit {
   projectionSources = [
     { label: 'Transações Recorrentes', value: 'recurring' },
     { label: 'Manual', value: 'manual' },
-    { label: 'Inteligência Artificial', value: 'ai' },
   ];
 
   // Use Angular's `inject()` to satisfy @angular-eslint/prefer-inject

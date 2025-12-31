@@ -41,7 +41,7 @@ export class Transaction extends BaseEntity {
   isProjected: boolean;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
-  projectionSource: string; // 'recurring' | 'manual' | 'ai'
+  projectionSource: string; // 'recurring' | 'manual'
 
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   confidenceScore: number; // 0-100 confidence level
