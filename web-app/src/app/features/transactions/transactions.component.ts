@@ -40,7 +40,9 @@ export class TransactionsComponent implements OnInit {
 
   // Dialog states
   transactionDialog = false;
+  newMode = false;
   editMode = false;
+  cloneMode = false;
   submitted = false;
 
   // Forms
@@ -544,7 +546,9 @@ export class TransactionsComponent implements OnInit {
 
   openNew(): void {
     this.selectedTransaction = {} as Transaction;
+    this.newMode = true;
     this.editMode = false;
+    this.cloneMode = false;
     this.submitted = false;
     this.transactionForm.reset({
       type: 'expense',
@@ -561,6 +565,30 @@ export class TransactionsComponent implements OnInit {
   editTransaction(transaction: Transaction): void {
     this.selectedTransaction = { ...transaction };
     this.editMode = true;
+    this.cloneMode = false;
+    this.newMode = false;
+    this.submitted = false;
+
+    this.transactionForm.patchValue({
+      description: transaction.description,
+      amount: transaction.amount,
+      type: transaction.type,
+      categoryId: transaction.category.id,
+      transactionDate: parseLocalDate(transaction.transactionDate),
+      competencyPeriod: parseCompetencyPeriod(transaction.competencyPeriod),
+      notes: transaction.notes || '',
+      isProjected: transaction.isProjected || false,
+      projectionSource: transaction.projectionSource || 'manual',
+      confidenceScore: transaction.confidenceScore || 80,
+    });
+
+    this.transactionDialog = true;
+  }
+
+  cloneTransaction(transaction: Transaction): void {
+    this.cloneMode = true;
+    this.editMode = false;
+    this.newMode = false;
     this.submitted = false;
 
     this.transactionForm.patchValue({
@@ -990,5 +1018,16 @@ export class TransactionsComponent implements OnInit {
         });
       },
     });
+  }
+
+  getDialogHeader(): string {
+    if (this.editMode) {
+      return 'Editar Transação';
+    } else if (this.cloneMode) {
+      return 'Duplicar Transação';
+    } else if (this.newMode) {
+      return 'Nova Transação';
+    }
+    return 'Transação';
   }
 }

@@ -353,6 +353,12 @@
                 pTooltip="Reverter Pagamento"
               ></p-button>
               <p-button
+                icon="pi pi-clone"
+                (click)="cloneTransaction(transaction)"
+                styleClass="p-button-text p-button-sm"
+                pTooltip="Duplicar"
+              ></p-button>
+              <p-button
                 icon="pi pi-pencil"
                 (click)="editTransaction(transaction)"
                 styleClass="p-button-text p-button-sm"
@@ -389,7 +395,7 @@
 
   <!-- Transaction Dialog -->
   <p-dialog
-    header="{{ editingTransaction ? 'Editar Transação' : 'Nova Transação' }}"
+    [header]="getDialogHeader()"
     [(visible)]="showTransactionDialog"
     [modal]="true"
     [closable]="true"

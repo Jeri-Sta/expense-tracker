@@ -44,7 +44,9 @@ export class CardTransactionsComponent implements OnInit {
 
   // Dialog states
   transactionDialog = false;
+  newMode = false;
   editMode = false;
+  cloneMode = false;
   submitted = false;
 
   // Forms
@@ -206,7 +208,9 @@ export class CardTransactionsComponent implements OnInit {
 
   openNew(): void {
     this.selectedTransaction = {} as CardTransaction;
+    this.newMode = true;
     this.editMode = false;
+    this.cloneMode = false;
     this.submitted = false;
     this.transactionForm.reset({
       transactionDate: new Date(),
@@ -223,17 +227,36 @@ export class CardTransactionsComponent implements OnInit {
   }
 
   editTransaction(transaction: CardTransaction): void {
-    if (transaction.parentTransactionId) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Atenção',
-        detail: 'Edite a transação principal para alterar todas as parcelas',
-      });
-      return;
-    }
-
     this.selectedTransaction = { ...transaction };
     this.editMode = true;
+    this.newMode = false;
+    this.cloneMode = false;
+    this.submitted = false;
+
+    this.transactionForm.patchValue({
+      description: transaction.description,
+      amount: transaction.isInstallment
+        ? transaction.amount * (transaction.totalInstallments || 1)
+        : transaction.amount,
+      transactionDate: parseLocalDate(transaction.transactionDate),
+      creditCardId: transaction.creditCardId,
+      categoryId: transaction.categoryId || '',
+      isInstallment: transaction.isInstallment,
+      totalInstallments: transaction.totalInstallments || 2,
+    });
+
+    // Disable installment fields in edit mode
+    this.transactionForm.get('isInstallment')?.disable();
+    this.transactionForm.get('totalInstallments')?.disable();
+    this.transactionForm.get('creditCardId')?.disable();
+
+    this.transactionDialog = true;
+  }
+
+  cloneTransaction(transaction: CardTransaction): void {
+    this.cloneMode = true;
+    this.newMode = false;
+    this.editMode = false;
     this.submitted = false;
 
     this.transactionForm.patchValue({
@@ -494,5 +517,15 @@ export class CardTransactionsComponent implements OnInit {
 
   getCategoriesByType(type: TransactionType): Category[] {
     return this.categories.filter((cat) => cat.type === type);
+  }
+
+  getDialogHeader(): string {
+    if (this.editMode) {
+      return 'Editar Transação';
+    } else if (this.cloneMode) {
+      return 'Duplicar Transação';
+    } else {
+      return 'Nova Transação';
+    }
   }
 }

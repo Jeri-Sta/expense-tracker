@@ -197,6 +197,15 @@
         <td>
           <div class="table-actions">
             <p-button
+              icon="pi pi-clone"
+              severity="info"
+              size="small"
+              [text]="true"
+              (onClick)="cloneTransaction(transaction)"
+              pTooltip="Duplicar"
+              [disabled]="transaction.parentTransactionId"
+            ></p-button>
+            <p-button
               icon="pi pi-pencil"
               severity="secondary"
               size="small"
@@ -273,7 +282,7 @@
 <!-- Transaction Dialog -->
 <p-dialog
   [(visible)]="transactionDialog"
-  [header]="editMode ? 'Editar Transação' : 'Nova Transação'"
+  [header]="getDialogHeader()"
   [modal]="true"
   [style]="{ width: '500px' }"
   [draggable]="false"
