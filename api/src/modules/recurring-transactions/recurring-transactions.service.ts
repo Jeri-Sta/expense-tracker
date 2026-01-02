@@ -283,4 +283,41 @@ export class RecurringTransactionsService {
       updatedAt: recurringTransaction.updatedAt,
     };
   }
+
+  async skip(id: string, userId: string): Promise<void> {
+    const recurringTransaction = await this.recurringTransactionsRepository.findOne({
+      where: { id, userId },
+    });
+
+    if (!recurringTransaction) {
+      throw new NotFoundException('Recurring transaction not found');
+    }
+
+    if (!recurringTransaction.isActive) {
+      throw new ForbiddenException('Recurring transaction is not active');
+    }
+
+    if (recurringTransaction.isCompleted) {
+      throw new ForbiddenException('Recurring transaction is already completed');
+    }
+
+    const nextExecution = this.calculateNextExecution(
+      recurringTransaction.nextExecution,
+      recurringTransaction.frequency,
+      recurringTransaction.interval,
+    );
+
+    const isCompleted = this.isRecurringCompleted(
+      recurringTransaction.executionCount,
+      recurringTransaction.maxExecutions,
+      nextExecution,
+      recurringTransaction.endDate,
+    );
+
+    await this.recurringTransactionsRepository.update(id, {
+      nextExecution: isCompleted ? null : nextExecution,
+      isCompleted,
+      isActive: isCompleted ? false : recurringTransaction.isActive,
+    });
+  }
 }

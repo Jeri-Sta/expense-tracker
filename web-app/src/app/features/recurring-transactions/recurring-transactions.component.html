@@ -177,11 +177,20 @@
               ></p-button>
               <p-button
                 icon="pi pi-play"
-                severity="info"
+                severity="success"
                 size="small"
                 [text]="true"
                 (onClick)="executeTransaction(transaction)"
                 pTooltip="Executar Agora"
+                [disabled]="!transaction.isActive || transaction.isCompleted"
+              ></p-button>
+              <p-button
+                icon="pi pi-step-forward"
+                severity="info"
+                size="small"
+                [text]="true"
+                (onClick)="skipTransaction(transaction)"
+                pTooltip="Pular Próxima Execução"
                 [disabled]="!transaction.isActive || transaction.isCompleted"
               ></p-button>
               <p-button
