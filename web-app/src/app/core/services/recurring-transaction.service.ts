@@ -153,4 +153,8 @@ export class RecurringTransactionService {
 
     return nextDate;
   }
+
+  skipRecurringTransaction(id: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/skip`, {});
+  }
 }

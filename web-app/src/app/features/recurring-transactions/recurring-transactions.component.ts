@@ -450,4 +450,31 @@ export class RecurringTransactionsComponent implements OnInit {
       { label: 'Data limite', value: 'date' },
     ];
   }
+
+  skipTransaction(transaction: RecurringTransaction): void {
+    this.confirmationService.confirm({
+      message: `Pular a próxima execução da transação "${transaction.description}"?`,
+      header: 'Confirmar Pulo',
+      icon: 'pi pi-question-circle',
+      accept: () => {
+        this.recurringTransactionService.skipRecurringTransaction(transaction.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: 'Próxima execução pulada com sucesso',
+            });
+            this.loadRecurringTransactions();
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro',
+              detail: 'Erro ao pular próxima execução',
+            });
+          },
+        });
+      },
+    });
+  }
 }

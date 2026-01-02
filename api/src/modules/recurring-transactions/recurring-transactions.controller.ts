@@ -98,4 +98,14 @@ export class RecurringTransactionsController {
   execute(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.recurringTransactionsService.execute(id, user.id);
   }
+
+  @Post(':id/skip')
+  @ApiOperation({ summary: 'Skip next occurrence of recurring transaction' })
+  @ApiResponse({
+    status: 200,
+    description: 'Recurring transaction skipped successfully',
+  })
+  skip(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    return this.recurringTransactionsService.skip(id, user.id);
+  }
 }
