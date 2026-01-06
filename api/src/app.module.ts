@@ -24,7 +24,7 @@ import { CardTransactionsModule } from './modules/card-transactions/card-transac
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig, databaseConfig],
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: ['.env.local', '.env', '../.env'],
     }),
 
     // Database
