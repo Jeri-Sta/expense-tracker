@@ -12,4 +12,7 @@ export default registerAs('database', () => ({
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV === 'development',
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  extra: {
+    family: 4, // Use IPv4, helpful in some Docker setups
+  },
 }));
