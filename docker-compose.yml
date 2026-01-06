@@ -1,21 +1,21 @@
-version: "3.8"
+#version: "3.8"
 
 services:
-    postgres:
-        image: postgres:17-alpine
-        container_name: expense-tracker-db
-        restart: unless-stopped
-        environment:
-            POSTGRES_DB: expense_tracker
-            POSTGRES_USER: admin
-            POSTGRES_PASSWORD: admin123
-        ports:
-            - "5432:5432"
-        volumes:
-            - postgres_data:/var/lib/postgresql/data
-            - ./database-setup/init-scripts:/docker-entrypoint-initdb.d
-        networks:
-            - expense-tracker-network
+    # postgres:
+    #     image: postgres:17-alpine
+    #     container_name: expense-tracker-db
+    #     restart: unless-stopped
+    #     environment:
+    #         POSTGRES_DB: expense_tracker
+    #         POSTGRES_USER: admin
+    #         POSTGRES_PASSWORD: admin123
+    #     ports:
+    #         - "5432:5432"
+    #     volumes:
+    #         - postgres_data:/var/lib/postgresql/data
+    #         - ./database-setup/init-scripts:/docker-entrypoint-initdb.d
+    #     networks:
+    #         - expense-tracker-network
 
     # redis:
     #     image: redis:7-alpine
@@ -39,19 +39,19 @@ services:
             - "3000:3000"
         environment:
             NODE_ENV: development
-            DB_HOST: postgres
+            NODE_OPTIONS: --dns-result-order=ipv4first
+            DB_HOST: db.veonwumwkwnpafhhlnms.supabase.co
             DB_PORT: 5432
-            DB_USERNAME: admin
-            DB_PASSWORD: admin123
-            DB_NAME: expense_tracker
-            REDIS_HOST: redis
-            REDIS_PORT: 6379
+            DB_USERNAME: postgres
+            DB_PASSWORD: Miri98532414@
+            DB_SSL: "true"
+            DB_NAME: postgres
             JWT_SECRET: your-super-secret-jwt-key-change-in-production
         volumes:
             - ./api:/app
             - /app/node_modules
-        depends_on:
-            - postgres
+        # depends_on:
+        #     - postgres
         networks:
             - expense-tracker-network
 
