@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
 
 dotenv.config();
 
@@ -14,5 +15,15 @@ export const AppDataSource = new DataSource({
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  ssl:
+    process.env.DB_SSL === 'true'
+      ? {
+          cert: fs.readFileSync(process.env.DB_CA_CERTIFICATE_PATH),
+          key: fs.readFileSync(process.env.DB_KEY_PATH),
+          rejectUnauthorized: false,
+        }
+      : false,
+  extra: {
+    family: 4,
+  },
 });

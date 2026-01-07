@@ -17,6 +17,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { InstallmentsModule } from './modules/installments/installments.module';
 import { CreditCardsModule } from './modules/credit-cards/credit-cards.module';
 import { CardTransactionsModule } from './modules/card-transactions/card-transactions.module';
+import { join } from 'path/win32';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { CardTransactionsModule } from './modules/card-transactions/card-transac
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig, databaseConfig],
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: [join(process.cwd(), '.env')],
     }),
 
     // Database
