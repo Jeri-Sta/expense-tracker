@@ -24,7 +24,7 @@ async function bootstrap() {
       'http://localhost:4200',
       'http://localhost:3000',
       'http://192.168.1.5:4200',
-      process.env.CLOUDFLARE_URL,
+      process.env.FRONTEND_URL,
     ],
     credentials: true,
   });
