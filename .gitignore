@@ -10,6 +10,8 @@ dist/
 .env
 .env.local
 .env.production
+*.key
+*.crt
 
 # Database
 *.db

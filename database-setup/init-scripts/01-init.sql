@@ -17,7 +17,7 @@ END $$;
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     "firstName" VARCHAR(255) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Categories table
 CREATE TABLE IF NOT EXISTS categories (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
     description TEXT,
     type VARCHAR(20) NOT NULL CHECK (type IN ('income', 'expense')),
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS categories (
 
 -- Credit cards table
 CREATE TABLE IF NOT EXISTS credit_cards (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
     color VARCHAR(7) DEFAULT '#3B82F6',
     "closingDay" INTEGER NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS credit_cards (
 
 -- Invoices table
 CREATE TABLE IF NOT EXISTS invoices (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     period VARCHAR(7) NOT NULL,
     status invoice_status DEFAULT 'open',
     "totalAmount" DECIMAL(12,2) DEFAULT 0,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS invoices (
 
 -- Transactions table
 CREATE TABLE IF NOT EXISTS transactions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     description VARCHAR(255) NOT NULL,
     amount DECIMAL(12,2) NOT NULL,
     type VARCHAR(20) NOT NULL CHECK (type IN ('income', 'expense')),
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS transactions (
 
 -- Card transactions table
 CREATE TABLE IF NOT EXISTS card_transactions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     description VARCHAR(255) NOT NULL,
     amount DECIMAL(12,2) NOT NULL,
     "transactionDate" DATE NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS card_transactions (
 
 -- Installment plans table
 CREATE TABLE IF NOT EXISTS installment_plans (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     "financedAmount" DECIMAL(10,2) NOT NULL,
     "installmentValue" DECIMAL(10,2) NOT NULL,
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS installment_plans (
 
 -- Installments table
 CREATE TABLE IF NOT EXISTS installments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "installmentNumber" INTEGER NOT NULL,
     "originalAmount" DECIMAL(10,2) NOT NULL,
     "paidAmount" DECIMAL(10,2),
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS installments (
 
 -- Recurring transactions table
 CREATE TABLE IF NOT EXISTS recurring_transactions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     amount DECIMAL(10,2) NOT NULL,
     description VARCHAR(255) NOT NULL,
     type VARCHAR(20) NOT NULL CHECK (type IN ('income', 'expense')),
