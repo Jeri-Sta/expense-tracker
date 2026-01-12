@@ -29,4 +29,7 @@ export class CreditCard extends BaseEntity {
 
   @Column()
   userId: string;
+
+  @Column()
+  workspaceId: string;
 }

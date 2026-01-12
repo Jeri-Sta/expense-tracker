@@ -88,6 +88,12 @@
             text-overflow: ellipsis;
           }
         }
+
+        .nav-divider {
+          height: 1px;
+          background: var(--surface-border);
+          margin: 0.75rem 0.75rem;
+        }
       }
     }
   }

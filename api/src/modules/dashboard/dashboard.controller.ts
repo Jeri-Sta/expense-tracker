@@ -21,7 +21,7 @@ export class DashboardController {
   @ApiQuery({ name: 'year', required: false, description: 'Year for dashboard data' })
   async getDashboard(@GetUser() user: User, @Query('year') year?: string): Promise<DashboardStats> {
     const targetYear = year ? Number.parseInt(year, 10) : undefined;
-    return this.dashboardService.getDashboardStats(user.id, targetYear);
+    return this.dashboardService.getDashboardStats(user.id, user.workspaceId, targetYear);
   }
 
   @Get('monthly/:year/:month')
@@ -37,6 +37,7 @@ export class DashboardController {
   ): Promise<MonthlyNavigationStats> {
     return this.dashboardService.getMonthlyDashboardStats(
       user.id,
+      user.workspaceId,
       Number.parseInt(year, 10),
       Number.parseInt(month, 10),
     );

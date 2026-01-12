@@ -50,6 +50,7 @@ export class ProjectionsService {
 
   async generateRecurringProjections(
     userId: string,
+    workspaceId: string,
     generateDto: GenerateProjectionsDto,
   ): Promise<ProjectionResult> {
     this.logger.log(
@@ -62,13 +63,19 @@ export class ProjectionsService {
 
     // Clean existing projections if requested
     if (generateDto.overrideExisting) {
-      await this.cleanupProjections(userId, generateDto.startPeriod, generateDto.endPeriod);
+      await this.cleanupProjections(
+        userId,
+        workspaceId,
+        generateDto.startPeriod,
+        generateDto.endPeriod,
+      );
     }
 
     // Get active recurring transactions
     const recurringTransactions = await this.recurringRepository.find({
       where: {
         userId,
+        workspaceId,
         isActive: true,
         isCompleted: false,
       },
@@ -120,6 +127,7 @@ export class ProjectionsService {
       const existing = await this.transactionsRepository.findOne({
         where: {
           userId: recurring.userId,
+          workspaceId: recurring.workspaceId,
           recurringTransactionId: recurring.id,
           competencyPeriod,
           isProjected: true,
@@ -134,6 +142,7 @@ export class ProjectionsService {
           transactionDate: currentDate,
           competencyPeriod,
           userId: recurring.userId,
+          workspaceId: recurring.workspaceId,
           categoryId: recurring.categoryId,
           isProjected: true,
           projectionSource: 'recurring',
@@ -179,6 +188,7 @@ export class ProjectionsService {
 
   async getMonthlyProjections(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
   ): Promise<TransactionResponseDto[]> {
@@ -187,6 +197,7 @@ export class ProjectionsService {
     const projections = await this.transactionsRepository.find({
       where: {
         userId,
+        workspaceId,
         competencyPeriod,
         isProjected: true,
       },
@@ -199,6 +210,7 @@ export class ProjectionsService {
 
   async getMonthlyStatsWithProjections(
     userId: string,
+    workspaceId: string,
     year: number,
     month?: number,
   ): Promise<MonthlyStatsWithProjections[]> {
@@ -206,12 +218,12 @@ export class ProjectionsService {
 
     if (month) {
       // Single month stats
-      const stat = await this.calculateMonthStats(userId, year, month);
+      const stat = await this.calculateMonthStats(userId, workspaceId, year, month);
       stats.push(stat);
     } else {
       // Full year stats
       for (let m = 1; m <= 12; m++) {
-        const stat = await this.calculateMonthStats(userId, year, m);
+        const stat = await this.calculateMonthStats(userId, workspaceId, year, m);
         stats.push(stat);
       }
     }
@@ -221,17 +233,17 @@ export class ProjectionsService {
 
   private async calculateMonthStats(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
   ): Promise<MonthlyStatsWithProjections> {
     const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
 
-    this.logger.debug(`Calculating stats for period: ${competencyPeriod}, user: ${userId}`);
-
     // Real transactions
     const realTransactions = await this.transactionsRepository.find({
       where: {
         userId,
+        workspaceId,
         competencyPeriod,
         isProjected: false,
       },
@@ -256,6 +268,7 @@ export class ProjectionsService {
     const projectedTransactions = await this.transactionsRepository.find({
       where: {
         userId,
+        workspaceId,
         competencyPeriod,
         isProjected: true,
       },
@@ -274,6 +287,7 @@ export class ProjectionsService {
       .createQueryBuilder('installment')
       .leftJoinAndSelect('installment.installmentPlan', 'plan')
       .where('plan.userId = :userId', { userId })
+      .andWhere('plan.workspaceId = :workspaceId', { workspaceId })
       .andWhere('installment.status != :paidStatus', { paidStatus: InstallmentStatus.PAID })
       .andWhere('installment.dueDate >= :startOfMonth', { startOfMonth })
       .andWhere('installment.dueDate <= :endOfMonth', { endOfMonth })
@@ -284,6 +298,7 @@ export class ProjectionsService {
       .createQueryBuilder('installment')
       .leftJoinAndSelect('installment.installmentPlan', 'plan')
       .where('plan.userId = :userId', { userId })
+      .andWhere('plan.workspaceId = :workspaceId', { workspaceId })
       .andWhere('installment.status = :paidStatus', { paidStatus: InstallmentStatus.PAID })
       .andWhere('installment.paidDate >= :startOfMonth', { startOfMonth })
       .andWhere('installment.paidDate <= :endOfMonth', { endOfMonth })
@@ -304,7 +319,12 @@ export class ProjectionsService {
     ].reduce((sum, amount) => sum + amount, 0);
 
     // Calculate card expenses based on invoice due date
-    const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(userId, year, month);
+    const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(
+      userId,
+      workspaceId,
+      year,
+      month,
+    );
 
     const totalRealExpenses = realExpenses + installmentExpenses + cardExpenses;
 
@@ -334,12 +354,14 @@ export class ProjectionsService {
 
   async cleanupProjections(
     userId: string,
+    workspaceId: string,
     startPeriod?: string,
     endPeriod?: string,
     includeManual?: boolean,
   ): Promise<number> {
     const whereCondition: any = {
       userId,
+      workspaceId,
       isProjected: true,
     };
 
@@ -354,10 +376,6 @@ export class ProjectionsService {
     if (includeManual === false) {
       whereCondition.projectionSource = Not('manual');
     }
-
-    this.logger.log(
-      `Cleaning up projections for user ${userId} with conditions: ${JSON.stringify(whereCondition)}`,
-    );
 
     const result = await this.transactionsRepository.delete(whereCondition);
 
@@ -402,11 +420,12 @@ export class ProjectionsService {
    */
   private async getCardExpensesByInvoiceDueMonth(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
   ): Promise<number> {
     const creditCards = await this.creditCardRepository.find({
-      where: { userId, isActive: true },
+      where: { userId, workspaceId, isActive: true },
     });
 
     if (creditCards.length === 0) {

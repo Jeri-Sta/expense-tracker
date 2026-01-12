@@ -51,6 +51,8 @@ export class MainLayoutComponent implements OnInit {
         return 'Cartões de Crédito';
       case this.currentRoute === '/credit-cards/transactions':
         return 'Faturas de Cartão';
+      case this.currentRoute === '/settings':
+        return 'Configurações';
       default:
         return 'Expense Tracker';
     }
@@ -72,6 +74,8 @@ export class MainLayoutComponent implements OnInit {
         return 'pi pi-wallet';
       case this.currentRoute === '/credit-cards/transactions':
         return 'pi pi-file';
+      case this.currentRoute === '/settings':
+        return 'pi pi-cog';
       default:
         return 'pi pi-home';
     }

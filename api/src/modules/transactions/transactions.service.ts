@@ -27,6 +27,7 @@ export class TransactionsService {
 
   async create(
     userId: string,
+    workspaceId: string,
     createTransactionDto: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
     // Validate competency period format
@@ -37,6 +38,7 @@ export class TransactionsService {
     const transaction = this.transactionsRepository.create({
       ...createTransactionDto,
       userId,
+      workspaceId,
       transactionDate: parseLocalDate(createTransactionDto.transactionDate),
     });
 
@@ -46,9 +48,10 @@ export class TransactionsService {
 
   async findAll(
     userId: string,
+    workspaceId: string,
     filterDto: TransactionsFilterDto | ProjectionFiltersDto,
   ): Promise<PaginatedResult<TransactionResponseDto>> {
-    const queryBuilder = this.createFilteredQuery(userId, filterDto);
+    const queryBuilder = this.createFilteredQuery(userId, workspaceId, filterDto);
 
     // Add pagination
     const offset = (filterDto.page - 1) * filterDto.limit;
@@ -68,14 +71,14 @@ export class TransactionsService {
     };
   }
 
-  async findOne(id: string, userId: string): Promise<TransactionResponseDto> {
+  async findOne(id: string, userId: string, workspaceId: string): Promise<TransactionResponseDto> {
     const transaction = await this.findOneWithRelations(id);
 
     if (!transaction) {
       throw new NotFoundException('Transaction not found');
     }
 
-    if (transaction.userId !== userId) {
+    if (transaction.userId !== userId || transaction.workspaceId !== workspaceId) {
       throw new ForbiddenException('You can only access your own transactions');
     }
 
@@ -85,6 +88,7 @@ export class TransactionsService {
   async update(
     id: string,
     userId: string,
+    workspaceId: string,
     updateTransactionDto: UpdateTransactionDto,
   ): Promise<TransactionResponseDto> {
     const transaction = await this.transactionsRepository.findOne({
@@ -96,7 +100,7 @@ export class TransactionsService {
       throw new NotFoundException('Transaction not found');
     }
 
-    if (transaction.userId !== userId) {
+    if (transaction.userId !== userId || transaction.workspaceId !== workspaceId) {
       throw new ForbiddenException('You can only update your own transactions');
     }
 
@@ -118,7 +122,7 @@ export class TransactionsService {
     return this.mapToResponseDto(await this.findOneWithRelations(savedTransaction.id));
   }
 
-  async remove(id: string, userId: string): Promise<void> {
+  async remove(id: string, userId: string, workspaceId: string): Promise<void> {
     const transaction = await this.transactionsRepository.findOne({
       where: { id },
     });
@@ -127,7 +131,7 @@ export class TransactionsService {
       throw new NotFoundException('Transaction not found');
     }
 
-    if (transaction.userId !== userId) {
+    if (transaction.userId !== userId || transaction.workspaceId !== workspaceId) {
       throw new ForbiddenException('You can only delete your own transactions');
     }
 
@@ -136,6 +140,7 @@ export class TransactionsService {
 
   async getMonthlyStats(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
   ): Promise<{
@@ -150,7 +155,10 @@ export class TransactionsService {
       this.transactionsRepository
         .createQueryBuilder('transaction')
         .select('COALESCE(SUM(transaction.amount), 0)', 'total')
-        .where('transaction.userId = :userId', { userId })
+        .where('transaction.userId = :userId AND transaction.workspaceId = :workspaceId', {
+          userId,
+          workspaceId,
+        })
         .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
         .andWhere('transaction.type = :type', { type: 'income' })
         .getRawOne(),
@@ -158,7 +166,10 @@ export class TransactionsService {
       this.transactionsRepository
         .createQueryBuilder('transaction')
         .select('COALESCE(SUM(transaction.amount), 0)', 'total')
-        .where('transaction.userId = :userId', { userId })
+        .where('transaction.userId = :userId AND transaction.workspaceId = :workspaceId', {
+          userId,
+          workspaceId,
+        })
         .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
         .andWhere('transaction.type = :type', { type: 'expense' })
         .getRawOne(),
@@ -166,7 +177,10 @@ export class TransactionsService {
       this.transactionsRepository
         .createQueryBuilder('transaction')
         .select('COUNT(transaction.id)', 'count')
-        .where('transaction.userId = :userId', { userId })
+        .where('transaction.userId = :userId AND transaction.workspaceId = :workspaceId', {
+          userId,
+          workspaceId,
+        })
         .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
         .getRawOne(),
     ]);
@@ -191,12 +205,16 @@ export class TransactionsService {
 
   private createFilteredQuery(
     userId: string,
+    workspaceId: string,
     filterDto: TransactionsFilterDto | ProjectionFiltersDto,
   ): SelectQueryBuilder<Transaction> {
     const queryBuilder = this.transactionsRepository
       .createQueryBuilder('transaction')
       .leftJoinAndSelect('transaction.category', 'category')
-      .where('transaction.userId = :userId', { userId });
+      .where('transaction.userId = :userId AND transaction.workspaceId = :workspaceId', {
+        userId,
+        workspaceId,
+      });
 
     if (filterDto.type) {
       queryBuilder.andWhere('transaction.type = :type', { type: filterDto.type });
@@ -265,7 +283,7 @@ export class TransactionsService {
     return queryBuilder;
   }
 
-  async getYearlyMonthlyStats(userId: string, year: number) {
+  async getYearlyMonthlyStats(userId: string, workspaceId: string, year: number) {
     const stats = [];
 
     for (let month = 1; month <= 12; month++) {
@@ -279,7 +297,10 @@ export class TransactionsService {
           "SUM(CASE WHEN transaction.type = 'expense' THEN transaction.amount ELSE 0 END) as totalExpenses",
           'COUNT(*) as transactionCount',
         ])
-        .where('transaction.userId = :userId', { userId })
+        .where('transaction.userId = :userId AND transaction.workspaceId = :workspaceId', {
+          userId,
+          workspaceId,
+        })
         .andWhere('transaction.transactionDate >= :startDate', { startDate })
         .andWhere('transaction.transactionDate <= :endDate', { endDate })
         .getRawOne();
@@ -329,7 +350,12 @@ export class TransactionsService {
     };
   }
 
-  async markAsPaid(id: string, userId: string, paidDate?: string): Promise<TransactionResponseDto> {
+  async markAsPaid(
+    id: string,
+    userId: string,
+    workspaceId: string,
+    paidDate?: string,
+  ): Promise<TransactionResponseDto> {
     const transaction = await this.transactionsRepository.findOne({
       where: { id },
       relations: ['category'],
@@ -339,7 +365,7 @@ export class TransactionsService {
       throw new NotFoundException('Transaction not found');
     }
 
-    if (transaction.userId !== userId) {
+    if (transaction.userId !== userId || transaction.workspaceId !== workspaceId) {
       throw new ForbiddenException('You can only update your own transactions');
     }
 
@@ -374,7 +400,11 @@ export class TransactionsService {
     return regex.test(period);
   }
 
-  async revertPayment(id: string, userId: string): Promise<TransactionResponseDto> {
+  async revertPayment(
+    id: string,
+    userId: string,
+    workspaceId: string,
+  ): Promise<TransactionResponseDto> {
     const transaction = await this.transactionsRepository.findOne({
       where: { id },
       relations: ['category'],
@@ -384,7 +414,7 @@ export class TransactionsService {
       throw new NotFoundException('Transaction not found');
     }
 
-    if (transaction.userId !== userId) {
+    if (transaction.userId !== userId || transaction.workspaceId !== workspaceId) {
       throw new ForbiddenException('You can only update your own transactions');
     }
 

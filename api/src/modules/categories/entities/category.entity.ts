@@ -38,6 +38,9 @@ export class Category extends BaseEntity {
   @Column()
   userId: string;
 
+  @Column()
+  workspaceId: string;
+
   @OneToMany(() => Transaction, (transaction) => transaction.category)
   transactions: Transaction[];
 }

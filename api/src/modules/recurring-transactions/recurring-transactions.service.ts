@@ -25,10 +25,15 @@ export class RecurringTransactionsService {
 
   async create(
     userId: string,
+    workspaceId: string,
     createRecurringTransactionDto: CreateRecurringTransactionDto,
   ): Promise<RecurringTransactionResponseDto> {
     // Verify category belongs to user
-    await this.categoriesService.findOne(createRecurringTransactionDto.categoryId, userId);
+    await this.categoriesService.findOne(
+      createRecurringTransactionDto.categoryId,
+      userId,
+      workspaceId,
+    );
 
     const recurringTransaction = this.recurringTransactionsRepository.create({
       ...createRecurringTransactionDto,
@@ -37,18 +42,19 @@ export class RecurringTransactionsService {
         ? parseLocalDate(createRecurringTransactionDto.endDate)
         : undefined,
       userId,
+      workspaceId,
       executionCount: 0,
       isCompleted: false,
     });
 
     const savedRecurringTransaction =
       await this.recurringTransactionsRepository.save(recurringTransaction);
-    return this.findOne(savedRecurringTransaction.id, userId);
+    return this.findOne(savedRecurringTransaction.id, userId, workspaceId);
   }
 
-  async findAll(userId: string): Promise<RecurringTransactionResponseDto[]> {
+  async findAll(userId: string, workspaceId: string): Promise<RecurringTransactionResponseDto[]> {
     const recurringTransactions = await this.recurringTransactionsRepository.find({
-      where: { userId },
+      where: { userId, workspaceId },
       relations: ['category'],
       order: {
         nextExecution: 'ASC',
@@ -59,7 +65,11 @@ export class RecurringTransactionsService {
     return recurringTransactions.map(this.mapToResponseDto);
   }
 
-  async findOne(id: string, userId: string): Promise<RecurringTransactionResponseDto> {
+  async findOne(
+    id: string,
+    userId: string,
+    workspaceId: string,
+  ): Promise<RecurringTransactionResponseDto> {
     const recurringTransaction = await this.recurringTransactionsRepository.findOne({
       where: { id },
       relations: ['category'],
@@ -69,7 +79,10 @@ export class RecurringTransactionsService {
       throw new NotFoundException('Recurring transaction not found');
     }
 
-    if (recurringTransaction.userId !== userId) {
+    if (
+      recurringTransaction.userId !== userId ||
+      recurringTransaction.workspaceId !== workspaceId
+    ) {
       throw new ForbiddenException('You can only access your own recurring transactions');
     }
 
@@ -79,10 +92,11 @@ export class RecurringTransactionsService {
   async update(
     id: string,
     userId: string,
+    workspaceId: string,
     updateRecurringTransactionDto: UpdateRecurringTransactionDto,
   ): Promise<RecurringTransactionResponseDto> {
     const recurringTransaction = await this.recurringTransactionsRepository.findOne({
-      where: { id, userId },
+      where: { id, userId, workspaceId },
     });
 
     if (!recurringTransaction) {
@@ -91,7 +105,11 @@ export class RecurringTransactionsService {
 
     // Verify category belongs to user if categoryId is being updated
     if (updateRecurringTransactionDto.categoryId) {
-      await this.categoriesService.findOne(updateRecurringTransactionDto.categoryId, userId);
+      await this.categoriesService.findOne(
+        updateRecurringTransactionDto.categoryId,
+        userId,
+        workspaceId,
+      );
     }
 
     // Convert string dates to Date objects if provided
@@ -106,12 +124,12 @@ export class RecurringTransactionsService {
     Object.assign(recurringTransaction, updateData);
     await this.recurringTransactionsRepository.save(recurringTransaction);
 
-    return this.findOne(id, userId);
+    return this.findOne(id, userId, workspaceId);
   }
 
-  async remove(id: string, userId: string): Promise<void> {
+  async remove(id: string, userId: string, workspaceId: string): Promise<void> {
     const recurringTransaction = await this.recurringTransactionsRepository.findOne({
-      where: { id, userId },
+      where: { id, userId, workspaceId },
     });
 
     if (!recurringTransaction) {
@@ -121,9 +139,9 @@ export class RecurringTransactionsService {
     await this.recurringTransactionsRepository.delete(id);
   }
 
-  async execute(id: string, userId: string): Promise<void> {
+  async execute(id: string, userId: string, workspaceId: string): Promise<void> {
     const recurringTransaction = await this.recurringTransactionsRepository.findOne({
-      where: { id, userId },
+      where: { id, userId, workspaceId },
       relations: ['category'],
     });
 
@@ -141,7 +159,7 @@ export class RecurringTransactionsService {
 
     // Create the actual transaction using the scheduled execution date
     const executionDate = parseLocalDate(recurringTransaction.nextExecution);
-    await this.transactionsService.create(userId, {
+    await this.transactionsService.create(userId, workspaceId, {
       description: `${recurringTransaction.description} (Recurring)`,
       amount: recurringTransaction.amount,
       type: recurringTransaction.type,
@@ -284,9 +302,9 @@ export class RecurringTransactionsService {
     };
   }
 
-  async skip(id: string, userId: string): Promise<void> {
+  async skip(id: string, userId: string, workspaceId: string): Promise<void> {
     const recurringTransaction = await this.recurringTransactionsRepository.findOne({
-      where: { id, userId },
+      where: { id, userId, workspaceId },
     });
 
     if (!recurringTransaction) {

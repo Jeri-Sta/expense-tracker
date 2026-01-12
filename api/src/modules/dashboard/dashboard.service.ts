@@ -131,7 +131,11 @@ export class DashboardService {
     private readonly projectionsService: ProjectionsService,
   ) {}
 
-  async getDashboardStats(userId: string, year?: number): Promise<DashboardStats> {
+  async getDashboardStats(
+    userId: string,
+    workspaceId: string,
+    year?: number,
+  ): Promise<DashboardStats> {
     const currentDate = new Date();
     const targetYear = year || currentDate.getFullYear();
     const currentMonth = currentDate.getMonth() + 1;
@@ -139,6 +143,7 @@ export class DashboardService {
     // Get current month stats with projections
     const currentMonthStats = await this.projectionsService.getMonthlyStatsWithProjections(
       userId,
+      workspaceId,
       targetYear,
       currentMonth,
     );
@@ -146,35 +151,57 @@ export class DashboardService {
     // Get full year overview
     const yearlyOverview = await this.projectionsService.getMonthlyStatsWithProjections(
       userId,
+      workspaceId,
       targetYear,
     );
 
     // Get transactions for current month (not just recent, but all for the month)
     const competencyPeriod = `${targetYear}-${String(currentMonth).padStart(2, '0')}`;
-    const recentTransactions = await this.getTransactionsForPeriod(userId, competencyPeriod);
+    const recentTransactions = await this.getTransactionsForPeriod(
+      userId,
+      workspaceId,
+      competencyPeriod,
+    );
 
     // Get top categories for current month
-    const topCategories = await this.getTopCategories(userId, targetYear, currentMonth);
+    const topCategories = await this.getTopCategories(
+      userId,
+      workspaceId,
+      targetYear,
+      currentMonth,
+    );
 
     // Get installments summary (with paid installments for current month)
-    const installments = await this.getInstallmentsSummary(userId, targetYear, currentMonth);
+    const installments = await this.getInstallmentsSummary(
+      userId,
+      workspaceId,
+      targetYear,
+      currentMonth,
+    );
 
     // Get credit cards summary (based on invoice due date)
-    const creditCards = await this.getCreditCardsSummary(userId, targetYear, currentMonth);
+    const creditCards = await this.getCreditCardsSummary(
+      userId,
+      workspaceId,
+      targetYear,
+      currentMonth,
+    );
 
     // Get card installments summary (based on invoice due date)
     const cardInstallments = await this.getCardInstallmentsSummary(
       userId,
+      workspaceId,
       targetYear,
       currentMonth,
     );
 
     // Get invoices summary (based on invoice due date)
-    const invoices = await this.getInvoicesSummary(userId, targetYear, currentMonth);
+    const invoices = await this.getInvoicesSummary(userId, workspaceId, targetYear, currentMonth);
 
     // Get card expenses based on invoice due date (not invoice period)
     const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(
       userId,
+      workspaceId,
       targetYear,
       currentMonth,
     );
@@ -182,6 +209,7 @@ export class DashboardService {
     // Get monthly expense breakdown
     const expenseBreakdown = await this.getMonthlyExpenseBreakdown(
       userId,
+      workspaceId,
       targetYear,
       currentMonth,
       creditCards,
@@ -220,34 +248,44 @@ export class DashboardService {
 
   async getMonthlyDashboardStats(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
   ): Promise<MonthlyNavigationStats> {
     // Get specific month stats with projections
     const monthStats = await this.projectionsService.getMonthlyStatsWithProjections(
       userId,
+      workspaceId,
       year,
       month,
     );
 
     // Get all transactions for the month
     const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
-    const monthTransactions = await this.getTransactionsForPeriod(userId, competencyPeriod);
+    const monthTransactions = await this.getTransactionsForPeriod(
+      userId,
+      workspaceId,
+      competencyPeriod,
+    );
 
     // Get top categories for the month (includes card transaction categories by due date)
-    const topCategories = await this.getTopCategories(userId, year, month);
-
+    const topCategories = await this.getTopCategories(userId, workspaceId, year, month);
     // Get installments summary for the selected month
-    const installments = await this.getInstallmentsSummary(userId, year, month);
+    const installments = await this.getInstallmentsSummary(userId, workspaceId, year, month);
 
     // Get credit cards summary (based on invoice due date)
-    const creditCards = await this.getCreditCardsSummary(userId, year, month);
+    const creditCards = await this.getCreditCardsSummary(userId, workspaceId, year, month);
 
     // Get card installments summary (based on invoice due date)
-    const cardInstallments = await this.getCardInstallmentsSummary(userId, year, month);
+    const cardInstallments = await this.getCardInstallmentsSummary(
+      userId,
+      workspaceId,
+      year,
+      month,
+    );
 
     // Get invoices summary (based on invoice due date)
-    const invoices = await this.getInvoicesSummary(userId, year, month);
+    const invoices = await this.getInvoicesSummary(userId, workspaceId, year, month);
 
     const stats = monthStats[0] || {
       period: competencyPeriod,
@@ -266,6 +304,7 @@ export class DashboardService {
     // Get monthly expense breakdown
     const expenseBreakdown = await this.getMonthlyExpenseBreakdown(
       userId,
+      workspaceId,
       year,
       month,
       creditCards,
@@ -285,9 +324,9 @@ export class DashboardService {
     };
   }
 
-  private async getRecentTransactions(userId: string, limit: number = 10) {
+  private async getRecentTransactions(userId: string, workspaceId: string, limit: number = 10) {
     const transactions = await this.transactionsRepository.find({
-      where: { userId },
+      where: { userId, workspaceId },
       relations: ['category'],
       order: { transactionDate: 'DESC' },
       take: limit,
@@ -318,10 +357,16 @@ export class DashboardService {
     }));
   }
 
-  private async getTransactionsForPeriod(userId: string, competencyPeriod: string, limit?: number) {
+  private async getTransactionsForPeriod(
+    userId: string,
+    workspaceId: string,
+    competencyPeriod: string,
+    limit?: number,
+  ) {
     const findOptions: any = {
       where: {
         userId,
+        workspaceId,
         competencyPeriod,
       },
       relations: ['category'],
@@ -360,7 +405,7 @@ export class DashboardService {
     }));
   }
 
-  private async getTopCategories(userId: string, year: number, month: number) {
+  private async getTopCategories(userId: string, workspaceId: string, year: number, month: number) {
     const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
 
     // Get regular transaction categories
@@ -379,13 +424,19 @@ export class DashboardService {
       ])
       .leftJoin('transaction.category', 'category')
       .where('transaction.userId = :userId', { userId })
+      .andWhere('transaction.workspaceId = :workspaceId', { workspaceId })
       .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
       .andWhere('transaction.type = :type', { type: TransactionType.EXPENSE })
       .groupBy('category.id, category.name, category.color, category.icon, transaction.type')
       .getRawMany();
 
     // Get card transaction categories based on invoice due date
-    const cardCategories = await this.getCardExpensesByCategoryForDueMonth(userId, year, month);
+    const cardCategories = await this.getCardExpensesByCategoryForDueMonth(
+      userId,
+      workspaceId,
+      year,
+      month,
+    );
 
     // Merge categories from both sources
     const categoryMap = new Map<
@@ -449,7 +500,12 @@ export class DashboardService {
     return sortedCategories;
   }
 
-  private async getInstallmentsSummary(userId: string, year?: number, month?: number) {
+  private async getInstallmentsSummary(
+    userId: string,
+    workspaceId: string,
+    year?: number,
+    month?: number,
+  ) {
     // Get all active installment plans
     const startOfPeriod = month !== undefined ? new Date(year, month, 1) : new Date(year, 0, 1);
 
@@ -462,6 +518,7 @@ export class DashboardService {
       .createQueryBuilder('plan')
       .leftJoinAndSelect('plan.installments', 'installment')
       .where('plan.userId = :userId', { userId })
+      .andWhere('plan.workspaceId = :workspaceId', { workspaceId })
       .andWhere('plan.startDate <= :endOfPeriod', { endOfPeriod })
       .andWhere('plan.endDate >= :startOfPeriod', { startOfPeriod });
 
@@ -492,6 +549,7 @@ export class DashboardService {
       .createQueryBuilder('installment')
       .leftJoinAndSelect('installment.installmentPlan', 'plan')
       .where('plan.userId = :userId', { userId })
+      .andWhere('plan.workspaceId = :workspaceId', { workspaceId })
       .andWhere('installment.status = :status', { status: InstallmentStatus.PENDING })
       .andWhere('installment.dueDate >= :today', { today })
       .orderBy('installment.dueDate', 'ASC')
@@ -526,6 +584,7 @@ export class DashboardService {
         .createQueryBuilder('installment')
         .leftJoinAndSelect('installment.installmentPlan', 'plan')
         .where('plan.userId = :userId', { userId })
+        .andWhere('plan.workspaceId = :workspaceId', { workspaceId })
         .andWhere('installment.status = :status', { status: InstallmentStatus.PAID })
         .andWhere('installment.paidDate >= :startDate', { startDate })
         .andWhere('installment.paidDate <= :endDate', { endDate })
@@ -588,11 +647,12 @@ export class DashboardService {
 
   private async getCreditCardsSummary(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
   ): Promise<CreditCardSummary[]> {
     const creditCards = await this.creditCardRepository.find({
-      where: { userId, isActive: true },
+      where: { userId, workspaceId, isActive: true },
       order: { name: 'ASC' },
     });
 
@@ -654,11 +714,12 @@ export class DashboardService {
 
   private async getInvoicesSummary(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
   ): Promise<InvoiceSummary[]> {
     const creditCards = await this.creditCardRepository.find({
-      where: { userId, isActive: true },
+      where: { userId, workspaceId, isActive: true },
       order: { name: 'ASC' },
     });
 
@@ -725,12 +786,13 @@ export class DashboardService {
 
   private async getCardInstallmentsSummary(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
   ): Promise<CardInstallmentSummary[]> {
     // Get all credit cards to determine invoice periods based on due date
     const creditCards = await this.creditCardRepository.find({
-      where: { userId, isActive: true },
+      where: { userId, workspaceId, isActive: true },
     });
 
     if (creditCards.length === 0) {
@@ -807,12 +869,13 @@ export class DashboardService {
    */
   async getCardExpensesByInvoiceDueMonth(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
   ): Promise<number> {
     // Get all credit cards for the user
     const creditCards = await this.creditCardRepository.find({
-      where: { userId, isActive: true },
+      where: { userId, workspaceId, isActive: true },
     });
 
     if (creditCards.length === 0) {
@@ -883,11 +946,12 @@ export class DashboardService {
    */
   async getCardExpensesByCategoryForDueMonth(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
   ): Promise<any[]> {
     const creditCards = await this.creditCardRepository.find({
-      where: { userId, isActive: true },
+      where: { userId, workspaceId, isActive: true },
     });
 
     if (creditCards.length === 0) {
@@ -953,6 +1017,7 @@ export class DashboardService {
    */
   private async getMonthlyExpenseBreakdown(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
     creditCards: CreditCardSummary[],
@@ -966,6 +1031,7 @@ export class DashboardService {
       .createQueryBuilder('transaction')
       .select('SUM(transaction.amount)', 'total')
       .where('transaction.userId = :userId', { userId })
+      .andWhere('transaction.workspaceId = :workspaceId', { workspaceId })
       .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
       .andWhere('transaction.type = :type', { type: TransactionType.EXPENSE })
       .andWhere('(transaction.isProjected = false OR transaction.isProjected IS NULL)')
@@ -1010,6 +1076,7 @@ export class DashboardService {
       .createQueryBuilder('installment')
       .leftJoinAndSelect('installment.installmentPlan', 'plan')
       .where('plan.userId = :userId', { userId })
+      .andWhere('plan.workspaceId = :workspaceId', { workspaceId })
       .andWhere('installment.dueDate >= :startOfMonth', { startOfMonth })
       .andWhere('installment.dueDate <= :endOfMonth', { endOfMonth })
       .andWhere(
@@ -1035,6 +1102,7 @@ export class DashboardService {
       .createQueryBuilder('installment')
       .leftJoinAndSelect('installment.installmentPlan', 'plan')
       .where('plan.userId = :userId', { userId })
+      .andWhere('plan.workspaceId = :workspaceId', { workspaceId })
       .andWhere('installment.status = :status', { status: InstallmentStatus.PAID })
       .andWhere('installment.paidDate >= :startOfMonth', { startOfMonth })
       .andWhere('installment.paidDate <= :endOfMonth', { endOfMonth })

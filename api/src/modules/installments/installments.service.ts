@@ -23,6 +23,7 @@ export class InstallmentsService {
 
   async create(
     userId: string,
+    workspaceId: string,
     createDto: CreateInstallmentPlanDto,
   ): Promise<InstallmentPlanResponseDto> {
     const {
@@ -58,6 +59,7 @@ export class InstallmentsService {
       description,
       metadata,
       userId,
+      workspaceId,
     });
 
     const savedPlan = await this.installmentPlanRepository.save(installmentPlan);
@@ -65,15 +67,15 @@ export class InstallmentsService {
     // Gerar todas as parcelas
     await this.generateInstallments(savedPlan);
 
-    return this.findOne(userId, savedPlan.id);
+    return this.findOne(userId, workspaceId, savedPlan.id);
   }
 
-  async findAll(userId: string): Promise<InstallmentPlanSummaryDto[]> {
+  async findAll(userId: string, workspaceId: string): Promise<InstallmentPlanSummaryDto[]> {
     const plans = await this.installmentPlanRepository
       .createQueryBuilder('plan')
       .leftJoin('plan.installments', 'installment')
       .addSelect(['installment.id', 'installment.dueDate', 'installment.status'])
-      .where('plan.userId = :userId', { userId })
+      .where('plan.userId = :userId AND plan.workspaceId = :workspaceId', { userId, workspaceId })
       .orderBy('plan.createdAt', 'DESC')
       .getMany();
 
@@ -115,9 +117,13 @@ export class InstallmentsService {
     });
   }
 
-  async findOne(userId: string, id: string): Promise<InstallmentPlanResponseDto> {
+  async findOne(
+    userId: string,
+    workspaceId: string,
+    id: string,
+  ): Promise<InstallmentPlanResponseDto> {
     const plan = await this.installmentPlanRepository.findOne({
-      where: { id, userId },
+      where: { id, userId, workspaceId },
       relations: ['installments'],
       order: {
         installments: { installmentNumber: 'ASC' },
@@ -144,11 +150,12 @@ export class InstallmentsService {
 
   async update(
     userId: string,
+    workspaceId: string,
     id: string,
     updateDto: UpdateInstallmentPlanDto,
   ): Promise<InstallmentPlanResponseDto> {
     const plan = await this.installmentPlanRepository.findOne({
-      where: { id, userId },
+      where: { id, userId, workspaceId },
     });
 
     if (!plan) {
@@ -158,12 +165,12 @@ export class InstallmentsService {
     Object.assign(plan, updateDto);
     await this.installmentPlanRepository.save(plan);
 
-    return this.findOne(userId, id);
+    return this.findOne(userId, workspaceId, id);
   }
 
-  async remove(userId: string, id: string): Promise<void> {
+  async remove(userId: string, workspaceId: string, id: string): Promise<void> {
     const plan = await this.installmentPlanRepository.findOne({
-      where: { id, userId },
+      where: { id, userId, workspaceId },
       relations: ['installments'],
     });
 
@@ -188,6 +195,7 @@ export class InstallmentsService {
 
   async payInstallment(
     userId: string,
+    workspaceId: string,
     installmentId: string,
     payDto: PayInstallmentDto,
   ): Promise<void> {
@@ -196,7 +204,11 @@ export class InstallmentsService {
       relations: ['installmentPlan'],
     });
 
-    if (!installment?.installmentPlan || installment.installmentPlan?.userId !== userId) {
+    if (
+      !installment?.installmentPlan ||
+      installment.installmentPlan?.userId !== userId ||
+      installment.installmentPlan?.workspaceId !== workspaceId
+    ) {
       throw new NotFoundException('Parcela não encontrada');
     }
 
@@ -280,13 +292,17 @@ export class InstallmentsService {
   /**
    * Exclui o pagamento de uma parcela, retornando-a ao status de pendente ou vencida
    */
-  async deletePayment(userId: string, installmentId: string): Promise<void> {
+  async deletePayment(userId: string, workspaceId: string, installmentId: string): Promise<void> {
     const installment = await this.installmentRepository.findOne({
       where: { id: installmentId },
       relations: ['installmentPlan'],
     });
 
-    if (!installment?.installmentPlan || installment.installmentPlan?.userId !== userId) {
+    if (
+      !installment?.installmentPlan ||
+      installment.installmentPlan?.userId !== userId ||
+      installment.installmentPlan?.workspaceId !== workspaceId
+    ) {
       throw new NotFoundException('Parcela não encontrada');
     }
 
@@ -318,12 +334,14 @@ export class InstallmentsService {
   /**
    * Retorna parcelas pagas em um determinado mês/ano baseado na paidDate
    * @param userId ID do usuário
+   * @param workspaceId ID do workspace
    * @param year Ano
    * @param month Mês (1-12)
    * @returns Lista de parcelas pagas no mês com informações do plano
    */
   async getPaidInstallmentsForMonth(
     userId: string,
+    workspaceId: string,
     year: number,
     month: number,
   ): Promise<
@@ -346,6 +364,7 @@ export class InstallmentsService {
       .createQueryBuilder('installment')
       .leftJoinAndSelect('installment.installmentPlan', 'plan')
       .where('plan.userId = :userId', { userId })
+      .andWhere('plan.workspaceId = :workspaceId', { workspaceId })
       .andWhere('installment.status = :status', { status: InstallmentStatus.PAID })
       .andWhere('installment.paidDate >= :startDate', { startDate })
       .andWhere('installment.paidDate <= :endDate', { endDate })

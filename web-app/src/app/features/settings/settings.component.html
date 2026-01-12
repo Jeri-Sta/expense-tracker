@@ -1,0 +1,16 @@
+<div class="card">
+  <div class="settings-header">
+    <h1>Configurações</h1>
+    <p class="subtitle">Gerencie sua workspace e membros</p>
+  </div>
+
+  <!-- Workspace Owner Section -->
+  <div *ngIf="isWorkspaceOwner" class="owner-section">
+    <app-workspace-management></app-workspace-management>
+  </div>
+
+  <!-- Members List (visible to all users) -->
+  <div class="members-section">
+    <app-members-list></app-members-list>
+  </div>
+</div>

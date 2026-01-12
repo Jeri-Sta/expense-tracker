@@ -3,6 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from '../users/users.service';
+import { WorkspacesService } from '../workspaces/workspaces.service';
+import { InvitationsService } from '../invitations/invitations.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
@@ -12,11 +14,18 @@ import { User } from '../users/entities/user.entity';
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
+    private readonly workspacesService: WorkspacesService,
+    private readonly invitationsService: InvitationsService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
+  async register(registerDto: RegisterDto, invitationToken?: string): Promise<AuthResponseDto> {
+    // Check if this is an invitation-based registration
+    if (invitationToken) {
+      return this.registerFromInvitation(registerDto, invitationToken);
+    }
+
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
@@ -26,9 +35,39 @@ export class AuthService {
     const userData = {
       ...registerDto,
       password: hashedPassword,
+      isInvitedUser: false,
     };
 
     const user = await this.usersService.create(userData);
+
+    // Auto-create workspace for new user
+    const workspace = await this.workspacesService.createWorkspace(user.id, {
+      name: 'Personal Workspace',
+    });
+
+    const tokens = await this.generateTokens(user);
+
+    return {
+      ...tokens,
+      user: this.mapToUserResponse(user),
+    };
+  }
+
+  private async registerFromInvitation(
+    registerDto: RegisterDto,
+    invitationToken: string,
+  ): Promise<AuthResponseDto> {
+    // Accept invitation and create user
+    const hashedPassword = await bcrypt.hash(registerDto.password, 12);
+
+    const { user, workspace } = await this.invitationsService.acceptInvitation(
+      invitationToken,
+      registerDto.email,
+      registerDto.firstName,
+      registerDto.lastName,
+      registerDto.password,
+    );
+
     const tokens = await this.generateTokens(user);
 
     return {
@@ -50,6 +89,14 @@ export class AuthService {
 
     // Update last login
     await this.usersService.updateLastLogin(user.id);
+
+    // Auto-create workspace for existing users without workspace
+    if (!user.workspaceId && !user.isInvitedUser) {
+      const workspace = await this.workspacesService.createWorkspace(user.id, {
+        name: 'Personal Workspace',
+      });
+      user.workspaceId = workspace.id;
+    }
 
     const tokens = await this.generateTokens(user);
 
@@ -78,6 +125,9 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.role,
+      isInvitedUser: user.isInvitedUser,
+      canInvite: user.canInvite(),
+      workspaceId: user.workspaceId,
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
@@ -100,6 +150,9 @@ export class AuthService {
       isActive: user.isActive,
       createdAt: user.createdAt,
       lastLoginAt: user.lastLoginAt,
+      isInvitedUser: user.isInvitedUser,
+      canInvite: user.canInvite(),
+      workspaceId: user.workspaceId,
     };
   }
 }

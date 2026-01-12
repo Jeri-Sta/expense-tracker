@@ -14,12 +14,19 @@ export class CategoriesService {
     private readonly categoriesRepository: Repository<Category>,
   ) {}
 
-  async create(userId: string, createCategoryDto: CreateCategoryDto): Promise<CategoryResponseDto> {
+  async create(
+    userId: string,
+    workspaceId: string,
+    createCategoryDto: CreateCategoryDto,
+  ): Promise<CategoryResponseDto> {
     // Get the next sort order
     const maxSortOrder = await this.categoriesRepository
       .createQueryBuilder('category')
       .select('MAX(category.sortOrder)', 'max')
-      .where('category.userId = :userId', { userId })
+      .where('category.userId = :userId AND category.workspaceId = :workspaceId', {
+        userId,
+        workspaceId,
+      })
       .andWhere('category.type = :type', { type: createCategoryDto.type })
       .getRawOne();
 
@@ -28,6 +35,7 @@ export class CategoriesService {
     const category = this.categoriesRepository.create({
       ...createCategoryDto,
       userId,
+      workspaceId,
       sortOrder,
     });
 
@@ -35,12 +43,19 @@ export class CategoriesService {
     return this.mapToResponseDto(savedCategory);
   }
 
-  async findAll(userId: string, type?: CategoryType): Promise<CategoryResponseDto[]> {
+  async findAll(
+    userId: string,
+    workspaceId: string,
+    type?: CategoryType,
+  ): Promise<CategoryResponseDto[]> {
     const queryBuilder = this.categoriesRepository
       .createQueryBuilder('category')
       .leftJoin('category.transactions', 'transaction')
       .addSelect('COUNT(transaction.id)', 'transactionCount')
-      .where('category.userId = :userId', { userId })
+      .where('category.userId = :userId AND category.workspaceId = :workspaceId', {
+        userId,
+        workspaceId,
+      })
       .andWhere('category.isActive = :isActive', { isActive: true })
       .groupBy('category.id')
       .orderBy('category.sortOrder', 'ASC')
@@ -58,17 +73,14 @@ export class CategoriesService {
     }));
   }
 
-  async findOne(id: string, userId: string): Promise<CategoryResponseDto> {
+  async findOne(id: string, userId: string, workspaceId: string): Promise<CategoryResponseDto> {
     const category = await this.categoriesRepository.findOne({
-      where: { id },
+      where: { id, userId, workspaceId },
+      relations: ['transactions'],
     });
 
     if (!category) {
       throw new NotFoundException('Category not found');
-    }
-
-    if (category.userId !== userId) {
-      throw new ForbiddenException('You can only access your own categories');
     }
 
     return this.mapToResponseDto(category);
@@ -77,6 +89,7 @@ export class CategoriesService {
   async update(
     id: string,
     userId: string,
+    workspaceId: string,
     updateCategoryDto: UpdateCategoryDto,
   ): Promise<CategoryResponseDto> {
     const category = await this.categoriesRepository.findOne({
@@ -87,7 +100,7 @@ export class CategoriesService {
       throw new NotFoundException('Category not found');
     }
 
-    if (category.userId !== userId) {
+    if (category.userId !== userId || category.workspaceId !== workspaceId) {
       throw new ForbiddenException('You can only update your own categories');
     }
 
@@ -96,7 +109,7 @@ export class CategoriesService {
     return this.mapToResponseDto(savedCategory);
   }
 
-  async remove(id: string, userId: string): Promise<void> {
+  async remove(id: string, userId: string, workspaceId: string): Promise<void> {
     const category = await this.categoriesRepository.findOne({
       where: { id },
       relations: ['transactions'],
@@ -106,7 +119,7 @@ export class CategoriesService {
       throw new NotFoundException('Category not found');
     }
 
-    if (category.userId !== userId) {
+    if (category.userId !== userId || category.workspaceId !== workspaceId) {
       throw new ForbiddenException('You can only delete your own categories');
     }
 
@@ -120,7 +133,35 @@ export class CategoriesService {
     }
   }
 
-  async getDefaultCategories(userId: string): Promise<void> {
+  async reorderCategories(
+    userId: string,
+    workspaceId: string,
+    categories: Array<{ id: string; sortOrder: number }>,
+  ): Promise<void> {
+    for (const category of categories) {
+      const existingCategory = await this.categoriesRepository.findOne({
+        where: { id: category.id, userId, workspaceId },
+      });
+
+      if (!existingCategory) {
+        throw new NotFoundException(`Category ${category.id} not found`);
+      }
+
+      await this.categoriesRepository.update(category.id, {
+        sortOrder: category.sortOrder,
+      });
+    }
+  }
+
+  async getByType(
+    userId: string,
+    workspaceId: string,
+    type: CategoryType,
+  ): Promise<CategoryResponseDto[]> {
+    return this.findAll(userId, workspaceId, type);
+  }
+
+  async getDefaultCategories(userId: string, workspaceId: string): Promise<void> {
     // Create default categories for new users
     const defaultCategories = [
       // Income categories
@@ -147,6 +188,7 @@ export class CategoriesService {
       this.categoriesRepository.create({
         ...cat,
         userId,
+        workspaceId,
         sortOrder: index + 1,
       }),
     );

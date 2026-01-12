@@ -38,7 +38,7 @@ export class CategoriesController {
     @GetUser() user: User,
     @Body() createCategoryDto: CreateCategoryDto,
   ): Promise<CategoryResponseDto> {
-    return this.categoriesService.create(user.id, createCategoryDto);
+    return this.categoriesService.create(user.id, user.workspaceId, createCategoryDto);
   }
 
   @Get()
@@ -58,7 +58,7 @@ export class CategoriesController {
     @GetUser() user: User,
     @Query('type') type?: CategoryType,
   ): Promise<CategoryResponseDto[]> {
-    return this.categoriesService.findAll(user.id, type);
+    return this.categoriesService.findAll(user.id, user.workspaceId, type);
   }
 
   @Post('defaults')
@@ -68,7 +68,7 @@ export class CategoriesController {
     description: 'Default categories created successfully',
   })
   createDefaults(@GetUser() user: User): Promise<void> {
-    return this.categoriesService.getDefaultCategories(user.id);
+    return this.categoriesService.getDefaultCategories(user.id, user.workspaceId);
   }
 
   @Get(':id')
@@ -82,7 +82,7 @@ export class CategoriesController {
     @GetUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<CategoryResponseDto> {
-    return this.categoriesService.findOne(id, user.id);
+    return this.categoriesService.findOne(id, user.id, user.workspaceId);
   }
 
   @Patch(':id')
@@ -97,7 +97,7 @@ export class CategoriesController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ): Promise<CategoryResponseDto> {
-    return this.categoriesService.update(id, user.id, updateCategoryDto);
+    return this.categoriesService.update(id, user.id, user.workspaceId, updateCategoryDto);
   }
 
   @Delete(':id')
@@ -107,6 +107,6 @@ export class CategoriesController {
     description: 'Category deleted successfully',
   })
   remove(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    return this.categoriesService.remove(id, user.id);
+    return this.categoriesService.remove(id, user.id, user.workspaceId);
   }
 }

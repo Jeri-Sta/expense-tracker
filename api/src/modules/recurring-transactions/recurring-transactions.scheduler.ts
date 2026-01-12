@@ -28,7 +28,11 @@ export class RecurringTransactionsScheduler {
 
       for (const transaction of dueTransactions) {
         try {
-          await this.recurringTransactionsService.execute(transaction.id, transaction.userId);
+          await this.recurringTransactionsService.execute(
+            transaction.id,
+            transaction.userId,
+            transaction.workspaceId,
+          );
           successCount++;
         } catch (error) {
           this.logger.error(

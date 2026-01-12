@@ -44,7 +44,7 @@ export class TransactionsController {
     @GetUser() user: User,
     @Body() createTransactionDto: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
-    return this.transactionsService.create(user.id, createTransactionDto);
+    return this.transactionsService.create(user.id, user.workspaceId, createTransactionDto);
   }
 
   @Get()
@@ -80,7 +80,7 @@ export class TransactionsController {
     @GetUser() user: User,
     @Query() filterDto: TransactionsFilterDto,
   ): Promise<PaginatedResult<TransactionResponseDto>> {
-    return this.transactionsService.findAll(user.id, filterDto);
+    return this.transactionsService.findAll(user.id, user.workspaceId, filterDto);
   }
 
   @Get('stats/monthly')
@@ -92,7 +92,7 @@ export class TransactionsController {
   @ApiQuery({ name: 'year', required: false, description: 'Year for statistics' })
   getYearlyMonthlyStats(@GetUser() user: User, @Query('year') year?: string) {
     const targetYear = year ? Number.parseInt(year, 10) : new Date().getFullYear();
-    return this.transactionsService.getYearlyMonthlyStats(user.id, targetYear);
+    return this.transactionsService.getYearlyMonthlyStats(user.id, user.workspaceId, targetYear);
   }
 
   @Get('stats/monthly/:year/:month')
@@ -108,6 +108,7 @@ export class TransactionsController {
   ) {
     return this.transactionsService.getMonthlyStats(
       user.id,
+      user.workspaceId,
       Number.parseInt(year, 10),
       Number.parseInt(month, 10),
     );
@@ -124,7 +125,7 @@ export class TransactionsController {
     @GetUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<TransactionResponseDto> {
-    return this.transactionsService.findOne(id, user.id);
+    return this.transactionsService.findOne(id, user.id, user.workspaceId);
   }
 
   @Patch(':id')
@@ -139,7 +140,7 @@ export class TransactionsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTransactionDto: UpdateTransactionDto,
   ): Promise<TransactionResponseDto> {
-    return this.transactionsService.update(id, user.id, updateTransactionDto);
+    return this.transactionsService.update(id, user.id, user.workspaceId, updateTransactionDto);
   }
 
   @Delete(':id')
@@ -149,7 +150,7 @@ export class TransactionsController {
     description: 'Transaction deleted successfully',
   })
   remove(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    return this.transactionsService.remove(id, user.id);
+    return this.transactionsService.remove(id, user.id, user.workspaceId);
   }
 
   @Patch(':id/pay')
@@ -178,7 +179,7 @@ export class TransactionsController {
     @GetUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<TransactionResponseDto> {
-    return this.transactionsService.revertPayment(id, user.id);
+    return this.transactionsService.revertPayment(id, user.id, user.workspaceId);
   }
 
   // Projection endpoints
@@ -192,7 +193,11 @@ export class TransactionsController {
     @GetUser() user: User,
     @Body() generateDto: GenerateProjectionsDto,
   ): Promise<ProjectionResult> {
-    return this.projectionsService.generateRecurringProjections(user.id, generateDto);
+    return this.projectionsService.generateRecurringProjections(
+      user.id,
+      user.workspaceId,
+      generateDto,
+    );
   }
 
   @Get('projections/monthly/:year/:month')
@@ -208,6 +213,7 @@ export class TransactionsController {
   ): Promise<TransactionResponseDto[]> {
     return this.projectionsService.getMonthlyProjections(
       user.id,
+      user.workspaceId,
       Number.parseInt(year, 10),
       Number.parseInt(month, 10),
     );
@@ -228,6 +234,7 @@ export class TransactionsController {
     const targetMonth = month ? Number.parseInt(month, 10) : undefined;
     return this.projectionsService.getMonthlyStatsWithProjections(
       user.id,
+      user.workspaceId,
       Number.parseInt(year, 10),
       targetMonth,
     );
@@ -253,7 +260,7 @@ export class TransactionsController {
     @Query('includeManual') includeManual?: boolean,
   ): Promise<{ deleted: number }> {
     return this.projectionsService
-      .cleanupProjections(user.id, startPeriod, endPeriod, includeManual)
+      .cleanupProjections(user.id, user.workspaceId, startPeriod, endPeriod, includeManual)
       .then((deleted) => ({ deleted }));
   }
 
@@ -278,6 +285,6 @@ export class TransactionsController {
     @GetUser() user: User,
     @Query() filterDto: ProjectionFiltersDto,
   ): Promise<PaginatedResult<TransactionResponseDto>> {
-    return this.transactionsService.findAll(user.id, filterDto);
+    return this.transactionsService.findAll(user.id, user.workspaceId, filterDto);
   }
 }

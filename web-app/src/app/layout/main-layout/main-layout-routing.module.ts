@@ -50,6 +50,11 @@ const routes: Routes = [
             (m) => m.CreditCardsModule,
           ),
       },
+      {
+        path: 'settings',
+        loadChildren: () =>
+          import('../../features/settings/settings.module').then((m) => m.SettingsModule),
+      },
     ],
   },
 ];

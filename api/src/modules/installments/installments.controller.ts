@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Request,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -21,6 +20,7 @@ import {
   InstallmentPlanResponseDto,
   InstallmentPlanSummaryDto,
 } from './dto';
+import { GetUser } from '@/common/decorators/get-user.decorator';
 
 @ApiTags('Installments')
 @Controller('installments')
@@ -41,10 +41,10 @@ export class InstallmentsController {
     description: 'Dados inválidos',
   })
   async create(
-    @Request() req,
+    @GetUser() user,
     @Body() createInstallmentPlanDto: CreateInstallmentPlanDto,
   ): Promise<InstallmentPlanResponseDto> {
-    return this.installmentsService.create(req.user.id, createInstallmentPlanDto);
+    return this.installmentsService.create(user.id, user.workspaceId, createInstallmentPlanDto);
   }
 
   @Get()
@@ -54,8 +54,8 @@ export class InstallmentsController {
     description: 'Lista de planos de financiamento',
     type: [InstallmentPlanSummaryDto],
   })
-  async findAll(@Request() req): Promise<InstallmentPlanSummaryDto[]> {
-    return this.installmentsService.findAll(req.user.id);
+  async findAll(@GetUser() user: any): Promise<InstallmentPlanSummaryDto[]> {
+    return this.installmentsService.findAll(user.id, user.workspaceId);
   }
 
   @Get(':id')
@@ -73,8 +73,11 @@ export class InstallmentsController {
     status: 404,
     description: 'Plano de financiamento não encontrado',
   })
-  async findOne(@Request() req, @Param('id') id: string): Promise<InstallmentPlanResponseDto> {
-    return this.installmentsService.findOne(req.user.id, id);
+  async findOne(
+    @GetUser() user: any,
+    @Param('id') id: string,
+  ): Promise<InstallmentPlanResponseDto> {
+    return this.installmentsService.findOne(user.id, user.workspaceId, id);
   }
 
   @Patch(':id')
@@ -93,11 +96,11 @@ export class InstallmentsController {
     description: 'Plano de financiamento não encontrado',
   })
   async update(
-    @Request() req,
+    @GetUser() user,
     @Param('id') id: string,
     @Body() updateInstallmentPlanDto: UpdateInstallmentPlanDto,
   ): Promise<InstallmentPlanResponseDto> {
-    return this.installmentsService.update(req.user.id, id, updateInstallmentPlanDto);
+    return this.installmentsService.update(user.id, user.workspaceId, id, updateInstallmentPlanDto);
   }
 
   @Delete(':id')
@@ -119,8 +122,8 @@ export class InstallmentsController {
     description: 'Não é possível excluir plano com parcelas pagas',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Request() req, @Param('id') id: string): Promise<void> {
-    return this.installmentsService.remove(req.user.id, id);
+  async remove(@GetUser() user: any, @Param('id') id: string): Promise<void> {
+    return this.installmentsService.remove(user.id, user.workspaceId, id);
   }
 
   @Post(':installmentId/pay')
@@ -143,11 +146,16 @@ export class InstallmentsController {
   })
   @HttpCode(HttpStatus.OK)
   async payInstallment(
-    @Request() req,
+    @GetUser() user: any,
     @Param('installmentId') installmentId: string,
     @Body() payInstallmentDto: PayInstallmentDto,
   ): Promise<{ message: string }> {
-    await this.installmentsService.payInstallment(req.user.id, installmentId, payInstallmentDto);
+    await this.installmentsService.payInstallment(
+      user.id,
+      user.workspaceId,
+      installmentId,
+      payInstallmentDto,
+    );
     return { message: 'Parcela paga com sucesso' };
   }
 
@@ -171,9 +179,9 @@ export class InstallmentsController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePayment(
-    @Request() req,
+    @GetUser() user: any,
     @Param('installmentId') installmentId: string,
   ): Promise<void> {
-    return this.installmentsService.deletePayment(req.user.id, installmentId);
+    return this.installmentsService.deletePayment(user.id, user.workspaceId, installmentId);
   }
 }

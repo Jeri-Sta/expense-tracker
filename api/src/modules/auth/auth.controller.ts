@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -20,8 +20,11 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, description: 'User successfully registered', type: AuthResponseDto })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
-  async register(@Body() registerDto: RegisterDto): Promise<AuthResponseDto> {
-    return this.authService.register(registerDto);
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Query('token') invitationToken?: string,
+  ): Promise<AuthResponseDto> {
+    return this.authService.register(registerDto, invitationToken);
   }
 
   @Post('login')

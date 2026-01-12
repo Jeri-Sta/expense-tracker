@@ -62,6 +62,9 @@ export class CardTransaction extends BaseEntity {
   @Column()
   userId: string;
 
+  @Column()
+  workspaceId: string;
+
   // Computed property for display
   get installmentLabel(): string {
     if (!this.isInstallment || !this.installmentNumber || !this.totalInstallments) {
