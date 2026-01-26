@@ -1,0 +1,57 @@
+@import 'variables';
+@import 'mixins';
+
+.members-card {
+  background: linear-gradient(135deg, var(--surface-card) 0%, var(--surface-50) 100%);
+  overflow: hidden;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md !important;
+  }
+}
+
+.card-header {
+  @include flex-between;
+  background: var(--surface-section);
+  border-bottom: 1px solid var(--surface-border);
+  padding: $spacing-md;
+  border-left: 4px solid var(--primary-color);
+  border-radius: 4px 4px 0 0;
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .badge {
+    @include flex-center;
+    width: 28px;
+    height: 28px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: $spacing-xl;
+  color: var(--text-color-secondary);
+}
+
+.empty-state {
+  text-align: center;
+  padding: $spacing-xl;
+  color: var(--text-color-secondary);
+}
+
+.member-name {
+  font-weight: 500;
+}

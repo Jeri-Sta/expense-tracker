@@ -28,6 +28,15 @@ export class UserResponseDto {
 
   @ApiProperty()
   lastLoginAt: Date;
+
+  @ApiProperty()
+  isInvitedUser: boolean;
+
+  @ApiProperty()
+  canInvite: boolean;
+
+  @ApiProperty()
+  workspaceId: string;
 }
 
 export class AuthResponseDto {

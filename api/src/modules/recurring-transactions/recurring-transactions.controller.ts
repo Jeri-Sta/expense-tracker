@@ -36,7 +36,11 @@ export class RecurringTransactionsController {
     @GetUser() user: User,
     @Body() createRecurringTransactionDto: CreateRecurringTransactionDto,
   ): Promise<RecurringTransactionResponseDto> {
-    return this.recurringTransactionsService.create(user.id, createRecurringTransactionDto);
+    return this.recurringTransactionsService.create(
+      user.id,
+      user.workspaceId,
+      createRecurringTransactionDto,
+    );
   }
 
   @Get()
@@ -47,7 +51,7 @@ export class RecurringTransactionsController {
     type: [RecurringTransactionResponseDto],
   })
   findAll(@GetUser() user: User): Promise<RecurringTransactionResponseDto[]> {
-    return this.recurringTransactionsService.findAll(user.id);
+    return this.recurringTransactionsService.findAll(user.workspaceId);
   }
 
   @Get(':id')
@@ -61,7 +65,7 @@ export class RecurringTransactionsController {
     @GetUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<RecurringTransactionResponseDto> {
-    return this.recurringTransactionsService.findOne(id, user.id);
+    return this.recurringTransactionsService.findOne(id, user.workspaceId);
   }
 
   @Patch(':id')
@@ -76,7 +80,12 @@ export class RecurringTransactionsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateRecurringTransactionDto: UpdateRecurringTransactionDto,
   ): Promise<RecurringTransactionResponseDto> {
-    return this.recurringTransactionsService.update(id, user.id, updateRecurringTransactionDto);
+    return this.recurringTransactionsService.update(
+      id,
+      user.id,
+      user.workspaceId,
+      updateRecurringTransactionDto,
+    );
   }
 
   @Delete(':id')
@@ -86,7 +95,7 @@ export class RecurringTransactionsController {
     description: 'Recurring transaction deleted successfully',
   })
   remove(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    return this.recurringTransactionsService.remove(id, user.id);
+    return this.recurringTransactionsService.remove(id, user.workspaceId);
   }
 
   @Post(':id/execute')
@@ -96,7 +105,7 @@ export class RecurringTransactionsController {
     description: 'Recurring transaction executed successfully',
   })
   execute(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    return this.recurringTransactionsService.execute(id, user.id);
+    return this.recurringTransactionsService.execute(id, user.id, user.workspaceId);
   }
 
   @Post(':id/skip')
@@ -106,6 +115,6 @@ export class RecurringTransactionsController {
     description: 'Recurring transaction skipped successfully',
   })
   skip(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    return this.recurringTransactionsService.skip(id, user.id);
+    return this.recurringTransactionsService.skip(id, user.workspaceId);
   }
 }

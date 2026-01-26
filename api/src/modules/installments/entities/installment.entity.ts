@@ -2,6 +2,7 @@ import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { InstallmentStatus } from '../../../common/enums';
 import { InstallmentPlan } from './installment-plan.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('installments')
 export class Installment extends BaseEntity {
@@ -43,6 +44,16 @@ export class Installment extends BaseEntity {
 
   @Column()
   installmentPlanId: string;
+
+  @ManyToOne(() => User, (user) => user.creditCards)
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @Column()
+  userId: string;
+
+  @Column()
+  workspaceId: string;
 
   // Virtual properties
   get remainingAmount(): number {

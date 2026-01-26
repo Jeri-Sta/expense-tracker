@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoadingService } from '../../../core/services/loading.service';
@@ -14,15 +14,23 @@ import { RegisterRequest } from '../../../core/models/auth.model';
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   isLoading = false;
+  invitationToken: string | null = null;
+  invitedEmail: string | null = null;
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly messageService = inject(MessageService);
   private readonly loadingService = inject(LoadingService);
 
   ngOnInit(): void {
-    this.initializeForm();
+    // Check for invitation token and email in query params
+    this.route.queryParams.subscribe((params) => {
+      this.invitationToken = params['token'] || null;
+      this.invitedEmail = params['email'] || null;
+      this.initializeForm();
+    });
   }
 
   private initializeForm(): void {
@@ -30,7 +38,10 @@ export class RegisterComponent implements OnInit {
       {
         firstName: ['', [Validators.required, Validators.maxLength(50)]],
         lastName: ['', [Validators.required, Validators.maxLength(50)]],
-        email: ['', [Validators.required, Validators.email]],
+        email: [
+          { value: this.invitedEmail || '', disabled: !!this.invitedEmail },
+          [Validators.required, Validators.email],
+        ],
         password: ['', [Validators.required, Validators.minLength(8)]],
         confirmPassword: ['', [Validators.required]],
       },
@@ -61,16 +72,18 @@ export class RegisterComponent implements OnInit {
       const userData: RegisterRequest = {
         firstName: this.registerForm.value.firstName,
         lastName: this.registerForm.value.lastName,
-        email: this.registerForm.value.email,
+        email: this.invitedEmail || this.registerForm.value.email,
         password: this.registerForm.value.password,
       };
 
-      this.authService.register(userData).subscribe({
+      this.authService.register(userData, this.invitationToken || undefined).subscribe({
         next: (response) => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Conta Criada',
-            detail: `Bem-vindo, ${response.user.firstName}! Sua conta foi criada com sucesso.`,
+            summary: this.invitationToken ? 'Convite Aceito' : 'Conta Criada',
+            detail: this.invitationToken
+              ? `Bem-vindo, ${response.user.firstName}! Você agora faz parte da workspace.`
+              : `Bem-vindo, ${response.user.firstName}! Sua conta foi criada com sucesso.`,
           });
           this.router.navigate(['/dashboard']);
         },

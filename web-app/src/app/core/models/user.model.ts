@@ -13,4 +13,7 @@ export interface User {
   isActive: boolean;
   createdAt: Date;
   lastLoginAt: Date;
+  isInvitedUser: boolean;
+  canInvite: boolean;
+  workspaceId: string;
 }

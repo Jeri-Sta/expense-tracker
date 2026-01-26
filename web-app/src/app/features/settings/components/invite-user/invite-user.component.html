@@ -1,0 +1,58 @@
+<form [formGroup]="inviteForm" (ngSubmit)="onSubmit()">
+  <div class="form-content">
+    <div class="form-group">
+      <label for="invitedEmail">Email do Convidado</label>
+      <p-inputGroup>
+        <input
+          pInputText
+          id="invitedEmail"
+          type="email"
+          formControlName="invitedEmail"
+          placeholder="exemplo@email.com"
+          [ngClass]="{ 'ng-invalid ng-touched': invitedEmail?.invalid && invitedEmail?.touched }"
+        />
+      </p-inputGroup>
+      <small class="p-error" *ngIf="invitedEmail?.invalid && invitedEmail?.touched">
+        <span *ngIf="invitedEmail?.errors?.['required']">
+          Email é obrigatório
+        </span>
+        <span *ngIf="invitedEmail?.errors?.['email']">
+          Email inválido
+        </span>
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="firstName">Primeiro Nome</label>
+      <p-inputGroup>
+        <input
+          pInputText
+          id="firstName"
+          type="text"
+          formControlName="firstName"
+          placeholder="João"
+          [ngClass]="{ 'ng-invalid ng-touched': firstName?.invalid && firstName?.touched }"
+        />
+      </p-inputGroup>
+      <small class="p-error" *ngIf="firstName?.invalid && firstName?.touched">
+        <span *ngIf="firstName?.errors?.['required']">
+          Primeiro nome é obrigatório
+        </span>
+        <span *ngIf="firstName?.errors?.['maxlength']">
+          Máximo 50 caracteres
+        </span>
+      </small>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button
+      pButton
+      type="submit"
+      label="Enviar Convite"
+      icon="pi pi-send"
+      [loading]="isLoading"
+      [disabled]="isLoading || inviteForm.invalid"
+    ></button>
+  </div>
+</form>

@@ -1,21 +1,21 @@
 #version: "3.8"
 
 services:
-    # postgres:
-    #     image: postgres:17-alpine
-    #     container_name: expense-tracker-db
-    #     restart: unless-stopped
-    #     environment:
-    #         POSTGRES_DB: expense_tracker
-    #         POSTGRES_USER: admin
-    #         POSTGRES_PASSWORD: admin123
-    #     ports:
-    #         - "5432:5432"
-    #     volumes:
-    #         - postgres_data:/var/lib/postgresql/data
-    #         - ./database-setup/init-scripts:/docker-entrypoint-initdb.d
-    #     networks:
-    #         - expense-tracker-network
+    postgres:
+        image: postgres:17-alpine
+        container_name: expense-tracker-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: expense_tracker
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin123
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+            - ./database-setup/init-scripts:/docker-entrypoint-initdb.d
+        networks:
+            - expense-tracker-network
 
     # redis:
     #     image: redis:7-alpine

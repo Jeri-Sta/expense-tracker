@@ -10,8 +10,8 @@ export default registerAs('database', () => ({
   database: process.env.DB_NAME || 'expense_tracker',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
-  synchronize: process.env.NODE_ENV !== 'production',
-  logging: process.env.NODE_ENV === 'development',
+  synchronize: false,
+  logging: process.env.DB_LOGGING === 'true',
   ssl:
     process.env.DB_SSL === 'true'
       ? {

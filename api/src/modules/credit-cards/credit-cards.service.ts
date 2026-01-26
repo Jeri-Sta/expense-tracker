@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreditCard } from './entities/credit-card.entity';
@@ -16,36 +16,37 @@ export class CreditCardsService {
     private readonly cardTransactionRepository: Repository<CardTransaction>,
   ) {}
 
-  async create(userId: string, createDto: CreateCreditCardDto): Promise<CreditCardResponseDto> {
+  async create(
+    userId: string,
+    workspaceId: string,
+    createDto: CreateCreditCardDto,
+  ): Promise<CreditCardResponseDto> {
     const creditCard = this.creditCardRepository.create({
       ...createDto,
       userId,
+      workspaceId,
     });
 
     const savedCard = await this.creditCardRepository.save(creditCard);
     return this.mapToResponseDto(savedCard);
   }
 
-  async findAll(userId: string): Promise<CreditCardResponseDto[]> {
+  async findAll(workspaceId: string): Promise<CreditCardResponseDto[]> {
     const cards = await this.creditCardRepository.find({
-      where: { userId, isActive: true },
+      where: { workspaceId, isActive: true },
       order: { name: 'ASC' },
     });
 
     return Promise.all(cards.map((card) => this.mapToResponseDtoWithUsage(card)));
   }
 
-  async findOne(id: string, userId: string): Promise<CreditCardResponseDto> {
+  async findOne(id: string, workspaceId: string): Promise<CreditCardResponseDto> {
     const card = await this.creditCardRepository.findOne({
-      where: { id },
+      where: { id, workspaceId },
     });
 
     if (!card) {
       throw new NotFoundException('Credit card not found');
-    }
-
-    if (card.userId !== userId) {
-      throw new ForbiddenException('You can only access your own credit cards');
     }
 
     return this.mapToResponseDtoWithUsage(card);
@@ -53,19 +54,15 @@ export class CreditCardsService {
 
   async update(
     id: string,
-    userId: string,
+    workspaceId: string,
     updateDto: UpdateCreditCardDto,
   ): Promise<CreditCardResponseDto> {
     const card = await this.creditCardRepository.findOne({
-      where: { id },
+      where: { id, workspaceId },
     });
 
     if (!card) {
       throw new NotFoundException('Credit card not found');
-    }
-
-    if (card.userId !== userId) {
-      throw new ForbiddenException('You can only update your own credit cards');
     }
 
     Object.assign(card, updateDto);
@@ -73,25 +70,21 @@ export class CreditCardsService {
     return this.mapToResponseDtoWithUsage(savedCard);
   }
 
-  async remove(id: string, userId: string): Promise<void> {
+  async remove(id: string, workspaceId: string): Promise<void> {
     const card = await this.creditCardRepository.findOne({
-      where: { id },
+      where: { id, workspaceId },
     });
 
     if (!card) {
       throw new NotFoundException('Credit card not found');
     }
 
-    if (card.userId !== userId) {
-      throw new ForbiddenException('You can only delete your own credit cards');
-    }
-
     // Soft delete by setting isActive to false
     await this.creditCardRepository.update(id, { isActive: false });
   }
 
-  async getCardWithUsage(id: string, userId: string): Promise<CreditCardResponseDto> {
-    return this.findOne(id, userId);
+  async getCardWithUsage(id: string, workspaceId: string): Promise<CreditCardResponseDto> {
+    return this.findOne(id, workspaceId);
   }
 
   /**

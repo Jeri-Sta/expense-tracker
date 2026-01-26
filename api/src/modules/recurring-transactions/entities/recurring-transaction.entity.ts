@@ -68,4 +68,7 @@ export class RecurringTransaction extends BaseEntity {
 
   @Column({ nullable: true })
   categoryId: string;
+
+  @Column()
+  workspaceId: string;
 }

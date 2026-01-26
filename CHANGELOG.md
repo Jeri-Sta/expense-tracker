@@ -4,6 +4,7 @@
 - Adicione novas funcionalidades aqui
 - Adicionada funcionaldiade de duplicação de transações.
 - Adicionada possibilidade de pular execução de recorrência.
+- Adicionado sistema de invite de usuários.
 
 ### 🔧 Melhorias
 - Ajustado filtro de período do mês de vencimento das faturas do cartão para exibir a fatura atual.

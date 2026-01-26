@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { HttpParams } from '@angular/common/http';
 import { ApiService } from './api.service';
 import { StorageService } from './storage.service';
 import { LoginRequest, RegisterRequest, AuthResponse, AuthState } from '../models/auth.model';
@@ -40,6 +41,18 @@ export class AuthService {
     return this.authStateSubject.value.token;
   }
 
+  isWorkspaceOwner(): boolean {
+    return this.currentUser ? this.currentUser.canInvite : false;
+  }
+
+  getWorkspaceId(): string | null {
+    return this.currentUser ? this.currentUser.workspaceId : null;
+  }
+
+  isInvitedUser(): boolean {
+    return this.currentUser ? this.currentUser.isInvitedUser : false;
+  }
+
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.apiService.post<AuthResponse>('/auth/login', credentials).pipe(
       tap((response) => this.setAuthState(response)),
@@ -50,8 +63,12 @@ export class AuthService {
     );
   }
 
-  register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/register', userData).pipe(
+  register(userData: RegisterRequest, invitationToken?: string): Observable<AuthResponse> {
+    let params = new HttpParams();
+    if (invitationToken) {
+      params = params.set('token', invitationToken);
+    }
+    return this.apiService.post<AuthResponse>('/auth/register', userData, { params }).pipe(
       tap((response) => this.setAuthState(response)),
       catchError((error) => {
         console.error('Register error:', error);

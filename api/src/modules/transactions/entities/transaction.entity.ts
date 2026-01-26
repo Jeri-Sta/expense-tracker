@@ -71,4 +71,7 @@ export class Transaction extends BaseEntity {
 
   @Column({ nullable: true })
   categoryId: string;
+
+  @Column()
+  workspaceId: string;
 }

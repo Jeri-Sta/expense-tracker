@@ -59,6 +59,9 @@ export class InstallmentPlan extends BaseEntity {
   @Column()
   userId: string;
 
+  @Column()
+  workspaceId: string;
+
   @OneToMany(() => Installment, (installment) => installment.installmentPlan, {
     cascade: ['remove'],
     onDelete: 'CASCADE',

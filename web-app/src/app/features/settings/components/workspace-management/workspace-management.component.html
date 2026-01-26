@@ -1,0 +1,85 @@
+<div class="workspace-management">
+  <p-card class="management-card">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <h2>Convidar Usuários</h2>
+      </div>
+    </ng-template>
+
+    <app-invite-user
+      (invitationSent)="onInvitationSent()"
+    ></app-invite-user>
+  </p-card>
+
+  <!-- Pending Invitations -->
+  <p-card class="invitations-card" [hidden]="pendingInvitations.length === 0">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <h2>Convites Pendentes</h2>
+        <span class="badge">{{ pendingInvitations.length }}</span>
+      </div>
+    </ng-template>
+
+    <div *ngIf="isLoading" class="loading">
+      <p>Carregando...</p>
+    </div>
+
+    <p-table
+      *ngIf="!isLoading && pendingInvitations.length > 0"
+      [value]="pendingInvitations"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="invitedEmail" scope="col">
+            Email <p-sortIcon field="invitedEmail"></p-sortIcon>
+          </th>
+          <th pSortableColumn="createdAt" scope="col">
+            Data <p-sortIcon field="createdAt"></p-sortIcon>
+          </th>
+          <th scope="col">Expiração</th>
+          <th style="width: 200px" scope="col">Ações</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-invitation>
+        <tr>
+          <td>{{ invitation.invitedEmail }}</td>
+          <td>{{ invitation.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <span class="expiry-badge">
+              {{ getExpiryStatus(invitation.expiresAt) }}
+            </span>
+          </td>
+          <td>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-replay"
+              class="p-button-rounded p-button-info p-button-sm mr-2"
+              pTooltip="Reenviar convite"
+              (click)="resendInvitation(invitation)"
+            ></button>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-times"
+              class="p-button-rounded p-button-danger p-button-sm"
+              pTooltip="Cancelar convite"
+              (click)="cancelInvitation(invitation)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center">
+            Nenhum convite pendente
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-confirmDialog></p-confirmDialog>

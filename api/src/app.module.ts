@@ -17,6 +17,9 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { InstallmentsModule } from './modules/installments/installments.module';
 import { CreditCardsModule } from './modules/credit-cards/credit-cards.module';
 import { CardTransactionsModule } from './modules/card-transactions/card-transactions.module';
+import { WorkspacesModule } from './modules/workspaces/workspaces.module';
+import { InvitationsModule } from './modules/invitations/invitations.module';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -49,6 +52,9 @@ import { CardTransactionsModule } from './modules/card-transactions/card-transac
     InstallmentsModule,
     CreditCardsModule,
     CardTransactionsModule,
+    WorkspacesModule,
+    EmailModule,
+    InvitationsModule,
   ],
 })
 export class AppModule {}

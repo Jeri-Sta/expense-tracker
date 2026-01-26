@@ -1,0 +1,64 @@
+@import 'variables';
+@import 'mixins';
+
+.workspace-management {
+  .management-card, .invitations-card {
+    padding: $spacing-lg;
+    overflow: hidden;
+    border-radius: $border-radius-lg;
+    margin-bottom: $spacing-2xl;
+    box-shadow: $shadow-sm;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-md !important;
+    }
+  }
+
+  .card-header {
+    @include flex-between;
+    background: var(--surface-section);
+    border-bottom: 1px solid var(--surface-border);
+    padding: $spacing-md;
+    border-left: 4px solid var(--primary-color);
+    border-radius: 4px 4px 0 0;
+
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .badge {
+      @include flex-center;
+      width: 24px;
+      height: 24px;
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  }
+
+  .loading {
+    text-align: center;
+    padding: $spacing-xl;
+    color: var(--text-color-secondary);
+  }
+
+  .expiry-badge {
+    display: inline-block;
+    padding: $spacing-xs $spacing-sm;
+    background-color: #fef3c7;
+    color: #92400e;
+    border-radius: $border-radius-sm;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .mr-2 {
+    margin-right: $spacing-sm;
+  }
+}

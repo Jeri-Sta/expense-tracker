@@ -43,4 +43,7 @@ export class Invoice extends BaseEntity {
 
   @Column()
   userId: string;
+
+  @Column()
+  workspaceId: string;
 }
