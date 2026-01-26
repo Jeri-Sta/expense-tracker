@@ -55,7 +55,7 @@ export class InstallmentsController {
     type: [InstallmentPlanSummaryDto],
   })
   async findAll(@GetUser() user: any): Promise<InstallmentPlanSummaryDto[]> {
-    return this.installmentsService.findAll(user.id, user.workspaceId);
+    return this.installmentsService.findAll(user.workspaceId);
   }
 
   @Get(':id')
@@ -77,7 +77,7 @@ export class InstallmentsController {
     @GetUser() user: any,
     @Param('id') id: string,
   ): Promise<InstallmentPlanResponseDto> {
-    return this.installmentsService.findOne(user.id, user.workspaceId, id);
+    return this.installmentsService.findOne(user.workspaceId, id);
   }
 
   @Patch(':id')
@@ -123,7 +123,7 @@ export class InstallmentsController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@GetUser() user: any, @Param('id') id: string): Promise<void> {
-    return this.installmentsService.remove(user.id, user.workspaceId, id);
+    return this.installmentsService.remove(user.workspaceId, id);
   }
 
   @Post(':installmentId/pay')
@@ -151,7 +151,6 @@ export class InstallmentsController {
     @Body() payInstallmentDto: PayInstallmentDto,
   ): Promise<{ message: string }> {
     await this.installmentsService.payInstallment(
-      user.id,
       user.workspaceId,
       installmentId,
       payInstallmentDto,
@@ -182,6 +181,6 @@ export class InstallmentsController {
     @GetUser() user: any,
     @Param('installmentId') installmentId: string,
   ): Promise<void> {
-    return this.installmentsService.deletePayment(user.id, user.workspaceId, installmentId);
+    return this.installmentsService.deletePayment(user.workspaceId, installmentId);
   }
 }

@@ -55,7 +55,7 @@ export class CardTransactionsController {
     @GetUser() user: User,
     @Query() filterDto: CardTransactionFilterDto,
   ): Promise<PaginatedCardTransactionsResponse> {
-    return this.cardTransactionsService.findAllPaginated(user.id, user.workspaceId, filterDto);
+    return this.cardTransactionsService.findAllPaginated(user.workspaceId, filterDto);
   }
 
   @Get('by-due-month/:year/:month')
@@ -73,7 +73,6 @@ export class CardTransactionsController {
     @Query('creditCardId') creditCardId?: string,
   ): Promise<CardTransactionResponseDto[]> {
     return this.cardTransactionsService.findByDueMonth(
-      user.id,
       user.workspaceId,
       Number.parseInt(year, 10),
       Number.parseInt(month, 10),
@@ -93,7 +92,7 @@ export class CardTransactionsController {
     @GetUser() user: User,
     @Query('period') period?: string,
   ): Promise<CardTransactionResponseDto[]> {
-    return this.cardTransactionsService.getPendingInstallments(user.id, user.workspaceId, period);
+    return this.cardTransactionsService.getPendingInstallments(user.workspaceId, period);
   }
 
   @Get(':id')
@@ -107,7 +106,7 @@ export class CardTransactionsController {
     @GetUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<CardTransactionResponseDto> {
-    return this.cardTransactionsService.findOne(id, user.id, user.workspaceId);
+    return this.cardTransactionsService.findOne(id, user.workspaceId);
   }
 
   @Patch(':id')
@@ -148,7 +147,7 @@ export class CardTransactionsController {
     @GetUser() user: User,
     @Query('creditCardId') creditCardId?: string,
   ): Promise<InvoiceResponseDto[]> {
-    return this.cardTransactionsService.getInvoices(user.id, user.workspaceId, creditCardId);
+    return this.cardTransactionsService.getInvoices(user.workspaceId, creditCardId);
   }
 
   @Get('invoices/by-due-month/:year/:month')
@@ -166,7 +165,6 @@ export class CardTransactionsController {
     @Query('creditCardId') creditCardId?: string,
   ): Promise<InvoiceResponseDto[]> {
     return this.cardTransactionsService.getInvoicesByDueMonth(
-      user.id,
       user.workspaceId,
       Number.parseInt(year, 10),
       Number.parseInt(month, 10),
@@ -186,7 +184,7 @@ export class CardTransactionsController {
     @Param('creditCardId', ParseUUIDPipe) creditCardId: string,
     @Param('period') period: string,
   ): Promise<InvoiceResponseDto> {
-    return this.cardTransactionsService.getInvoice(creditCardId, period, user.id, user.workspaceId);
+    return this.cardTransactionsService.getInvoice(creditCardId, period, user.workspaceId);
   }
 
   @Patch('invoices/:creditCardId/:period/status')
@@ -205,7 +203,6 @@ export class CardTransactionsController {
     return this.cardTransactionsService.updateInvoiceStatus(
       creditCardId,
       period,
-      user.id,
       user.workspaceId,
       updateDto,
     );

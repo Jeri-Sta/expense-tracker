@@ -67,15 +67,15 @@ export class InstallmentsService {
     // Gerar todas as parcelas
     await this.generateInstallments(savedPlan);
 
-    return this.findOne(userId, workspaceId, savedPlan.id);
+    return this.findOne(workspaceId, savedPlan.id);
   }
 
-  async findAll(userId: string, workspaceId: string): Promise<InstallmentPlanSummaryDto[]> {
+  async findAll(workspaceId: string): Promise<InstallmentPlanSummaryDto[]> {
     const plans = await this.installmentPlanRepository
       .createQueryBuilder('plan')
       .leftJoin('plan.installments', 'installment')
       .addSelect(['installment.id', 'installment.dueDate', 'installment.status'])
-      .where('plan.userId = :userId AND plan.workspaceId = :workspaceId', { userId, workspaceId })
+      .where('plan.workspaceId = :workspaceId', { workspaceId })
       .orderBy('plan.createdAt', 'DESC')
       .getMany();
 
@@ -117,13 +117,9 @@ export class InstallmentsService {
     });
   }
 
-  async findOne(
-    userId: string,
-    workspaceId: string,
-    id: string,
-  ): Promise<InstallmentPlanResponseDto> {
+  async findOne(workspaceId: string, id: string): Promise<InstallmentPlanResponseDto> {
     const plan = await this.installmentPlanRepository.findOne({
-      where: { id, userId, workspaceId },
+      where: { id, workspaceId },
       relations: ['installments'],
       order: {
         installments: { installmentNumber: 'ASC' },
@@ -155,7 +151,7 @@ export class InstallmentsService {
     updateDto: UpdateInstallmentPlanDto,
   ): Promise<InstallmentPlanResponseDto> {
     const plan = await this.installmentPlanRepository.findOne({
-      where: { id, userId, workspaceId },
+      where: { id, workspaceId },
     });
 
     if (!plan) {
@@ -165,12 +161,12 @@ export class InstallmentsService {
     Object.assign(plan, updateDto);
     await this.installmentPlanRepository.save(plan);
 
-    return this.findOne(userId, workspaceId, id);
+    return this.findOne(workspaceId, id);
   }
 
-  async remove(userId: string, workspaceId: string, id: string): Promise<void> {
+  async remove(workspaceId: string, id: string): Promise<void> {
     const plan = await this.installmentPlanRepository.findOne({
-      where: { id, userId, workspaceId },
+      where: { id, workspaceId },
       relations: ['installments'],
     });
 
@@ -194,7 +190,6 @@ export class InstallmentsService {
   }
 
   async payInstallment(
-    userId: string,
     workspaceId: string,
     installmentId: string,
     payDto: PayInstallmentDto,
@@ -204,11 +199,7 @@ export class InstallmentsService {
       relations: ['installmentPlan'],
     });
 
-    if (
-      !installment?.installmentPlan ||
-      installment.installmentPlan?.userId !== userId ||
-      installment.installmentPlan?.workspaceId !== workspaceId
-    ) {
+    if (!installment?.installmentPlan || installment.installmentPlan?.workspaceId !== workspaceId) {
       throw new NotFoundException('Parcela não encontrada');
     }
 
@@ -292,17 +283,13 @@ export class InstallmentsService {
   /**
    * Exclui o pagamento de uma parcela, retornando-a ao status de pendente ou vencida
    */
-  async deletePayment(userId: string, workspaceId: string, installmentId: string): Promise<void> {
+  async deletePayment(workspaceId: string, installmentId: string): Promise<void> {
     const installment = await this.installmentRepository.findOne({
       where: { id: installmentId },
       relations: ['installmentPlan'],
     });
 
-    if (
-      !installment?.installmentPlan ||
-      installment.installmentPlan?.userId !== userId ||
-      installment.installmentPlan?.workspaceId !== workspaceId
-    ) {
+    if (!installment?.installmentPlan || installment.installmentPlan?.workspaceId !== workspaceId) {
       throw new NotFoundException('Parcela não encontrada');
     }
 
@@ -340,7 +327,6 @@ export class InstallmentsService {
    * @returns Lista de parcelas pagas no mês com informações do plano
    */
   async getPaidInstallmentsForMonth(
-    userId: string,
     workspaceId: string,
     year: number,
     month: number,
@@ -363,8 +349,7 @@ export class InstallmentsService {
     const paidInstallments = await this.installmentRepository
       .createQueryBuilder('installment')
       .leftJoinAndSelect('installment.installmentPlan', 'plan')
-      .where('plan.userId = :userId', { userId })
-      .andWhere('plan.workspaceId = :workspaceId', { workspaceId })
+      .where('plan.workspaceId = :workspaceId', { workspaceId })
       .andWhere('installment.status = :status', { status: InstallmentStatus.PAID })
       .andWhere('installment.paidDate >= :startDate', { startDate })
       .andWhere('installment.paidDate <= :endDate', { endDate })

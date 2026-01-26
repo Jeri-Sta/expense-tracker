@@ -45,9 +45,7 @@ export class InvitationsService {
     }
 
     if (workspace.ownerId !== userId) {
-      throw new ForbiddenException(
-        'Only workspace owner can send invitations',
-      );
+      throw new ForbiddenException('Only workspace owner can send invitations');
     }
 
     // Check if email is same as owner
@@ -87,8 +85,7 @@ export class InvitationsService {
     const hashedToken = await bcrypt.hash(plainToken, 10);
 
     // Create expiry date (7 days from now by default)
-    const expiryDays =
-      this.configService.get<number>('INVITATION_TOKEN_EXPIRY_DAYS', 7);
+    const expiryDays = this.configService.get<number>('INVITATION_TOKEN_EXPIRY_DAYS', 7);
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + expiryDays);
 
@@ -136,10 +133,7 @@ export class InvitationsService {
     // Find matching invitation by comparing token
     let validInvitation: Invitation = null;
     for (const invitation of invitations) {
-      const tokenMatches = await bcrypt.compare(
-        token,
-        invitation.invitationToken,
-      );
+      const tokenMatches = await bcrypt.compare(token, invitation.invitationToken);
       if (tokenMatches && invitation.isTokenValid()) {
         validInvitation = invitation;
         break;
@@ -176,10 +170,7 @@ export class InvitationsService {
     return { user: savedUser, workspace };
   }
 
-  async resendInvitation(
-    invitationId: string,
-    userId: string,
-  ): Promise<InvitationResponseDto> {
+  async resendInvitation(invitationId: string, userId: string): Promise<InvitationResponseDto> {
     const invitation = await this.invitationsRepository.findOne({
       where: { id: invitationId },
       relations: ['workspace'],
@@ -191,9 +182,7 @@ export class InvitationsService {
 
     // Verify user owns workspace
     if (invitation.workspace.ownerId !== userId) {
-      throw new ForbiddenException(
-        'Only workspace owner can resend invitations',
-      );
+      throw new ForbiddenException('Only workspace owner can resend invitations');
     }
 
     // Generate new token
@@ -202,17 +191,14 @@ export class InvitationsService {
     const hashedToken = await bcrypt.hash(plainToken, 10);
 
     // Reset expiry date
-    const expiryDays =
-      this.configService.get<number>('INVITATION_TOKEN_EXPIRY_DAYS', 7);
+    const expiryDays = this.configService.get<number>('INVITATION_TOKEN_EXPIRY_DAYS', 7);
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + expiryDays);
 
     invitation.invitationToken = hashedToken;
     invitation.expiresAt = expiresAt;
 
-    const updatedInvitation = await this.invitationsRepository.save(
-      invitation,
-    );
+    const updatedInvitation = await this.invitationsRepository.save(invitation);
 
     // Send email
     const invitedByUser = await this.usersRepository.findOne({
@@ -229,10 +215,7 @@ export class InvitationsService {
     return this.mapToResponseDto(updatedInvitation);
   }
 
-  async cancelInvitation(
-    invitationId: string,
-    userId: string,
-  ): Promise<void> {
+  async cancelInvitation(invitationId: string, userId: string): Promise<void> {
     const invitation = await this.invitationsRepository.findOne({
       where: { id: invitationId },
       relations: ['workspace'],
@@ -244,9 +227,7 @@ export class InvitationsService {
 
     // Verify user owns workspace
     if (invitation.workspace.ownerId !== userId) {
-      throw new ForbiddenException(
-        'Only workspace owner can cancel invitations',
-      );
+      throw new ForbiddenException('Only workspace owner can cancel invitations');
     }
 
     await this.invitationsRepository.remove(invitation);
@@ -266,9 +247,7 @@ export class InvitationsService {
     }
 
     if (workspace.ownerId !== userId) {
-      throw new ForbiddenException(
-        'Only workspace owner can view invitations',
-      );
+      throw new ForbiddenException('Only workspace owner can view invitations');
     }
 
     const invitations = await this.invitationsRepository.find({

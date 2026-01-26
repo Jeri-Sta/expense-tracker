@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Post,
-  Delete,
-  Patch,
-  Body,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Delete, Patch, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
@@ -31,11 +23,7 @@ export class InvitationsController {
     @GetUser() user: User,
     @Body() sendInvitationDto: SendInvitationDto,
   ): Promise<InvitationResponseDto> {
-    return this.invitationsService.sendInvitation(
-      workspaceId,
-      user.id,
-      sendInvitationDto,
-    );
+    return this.invitationsService.sendInvitation(workspaceId, user.id, sendInvitationDto);
   }
 
   @Patch('accept/:token')
@@ -44,7 +32,7 @@ export class InvitationsController {
     @Param('token') token: string,
     @Body() acceptInvitationDto: AcceptInvitationDto,
   ): Promise<{ accessToken: string; user: any }> {
-    const { user, workspace } = await this.invitationsService.acceptInvitation(
+    const { user } = await this.invitationsService.acceptInvitation(
       token,
       acceptInvitationDto.email,
       acceptInvitationDto.firstName,
@@ -53,13 +41,6 @@ export class InvitationsController {
     );
 
     // Generate JWT token
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      isInvitedUser: user.isInvitedUser,
-      canInvite: user.canInvite(),
-      workspaceId: user.workspaceId,
-    };
 
     // This would normally use JwtService, but we'll handle it in auth module
     return {
@@ -92,10 +73,7 @@ export class InvitationsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Cancel invitation' })
-  async cancelInvitation(
-    @Param('id') invitationId: string,
-    @GetUser() user: User,
-  ): Promise<void> {
+  async cancelInvitation(@Param('id') invitationId: string, @GetUser() user: User): Promise<void> {
     await this.invitationsService.cancelInvitation(invitationId, user.id);
   }
 

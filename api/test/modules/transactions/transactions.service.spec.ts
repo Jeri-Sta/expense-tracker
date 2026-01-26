@@ -49,7 +49,7 @@ describe('TransactionsService', () => {
         .mockImplementation(async (t) => t as DeepPartial<Transaction> & Transaction);
       jest.spyOn(service as any, 'findOneWithRelations').mockResolvedValue(transaction);
 
-      const result = await service.revertPayment('id', 'user1', 'workspace1');
+      const result = await service.revertPayment('id', 'workspace1');
       // After revertPayment the transaction should be pending
       expect(result.paymentStatus).toBe(PaymentStatus.PENDING);
       expect(repo.save).toBeDefined();
@@ -57,9 +57,7 @@ describe('TransactionsService', () => {
 
     it('should throw NotFoundException if transaction not found', async () => {
       jest.spyOn(repo, 'findOne').mockResolvedValue(null);
-      await expect(service.revertPayment('id', 'user1', 'workspace1')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.revertPayment('id', 'workspace1')).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ForbiddenException if user is not owner', async () => {
@@ -69,9 +67,7 @@ describe('TransactionsService', () => {
         paymentStatus: PaymentStatus.PAID,
       } as Transaction;
       jest.spyOn(repo, 'findOne').mockResolvedValue(transaction);
-      await expect(service.revertPayment('id', 'user1', 'workspace1')).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(service.revertPayment('id', 'workspace1')).rejects.toThrow(ForbiddenException);
     });
 
     it('should throw ForbiddenException if transaction is not paid', async () => {
@@ -81,9 +77,7 @@ describe('TransactionsService', () => {
         paymentStatus: PaymentStatus.PENDING,
       } as Transaction;
       jest.spyOn(repo, 'findOne').mockResolvedValue(transaction);
-      await expect(service.revertPayment('id', 'user1', 'workspace1')).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(service.revertPayment('id', 'workspace1')).rejects.toThrow(ForbiddenException);
     });
   });
 

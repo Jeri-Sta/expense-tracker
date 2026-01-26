@@ -51,7 +51,7 @@ export class RecurringTransactionsController {
     type: [RecurringTransactionResponseDto],
   })
   findAll(@GetUser() user: User): Promise<RecurringTransactionResponseDto[]> {
-    return this.recurringTransactionsService.findAll(user.id, user.workspaceId);
+    return this.recurringTransactionsService.findAll(user.workspaceId);
   }
 
   @Get(':id')
@@ -65,7 +65,7 @@ export class RecurringTransactionsController {
     @GetUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<RecurringTransactionResponseDto> {
-    return this.recurringTransactionsService.findOne(id, user.id, user.workspaceId);
+    return this.recurringTransactionsService.findOne(id, user.workspaceId);
   }
 
   @Patch(':id')
@@ -95,7 +95,7 @@ export class RecurringTransactionsController {
     description: 'Recurring transaction deleted successfully',
   })
   remove(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    return this.recurringTransactionsService.remove(id, user.id, user.workspaceId);
+    return this.recurringTransactionsService.remove(id, user.workspaceId);
   }
 
   @Post(':id/execute')
@@ -115,6 +115,6 @@ export class RecurringTransactionsController {
     description: 'Recurring transaction skipped successfully',
   })
   skip(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    return this.recurringTransactionsService.skip(id, user.id, user.workspaceId);
+    return this.recurringTransactionsService.skip(id, user.workspaceId);
   }
 }

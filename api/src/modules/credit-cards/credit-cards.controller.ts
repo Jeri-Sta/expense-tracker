@@ -47,7 +47,7 @@ export class CreditCardsController {
     type: [CreditCardResponseDto],
   })
   findAll(@GetUser() user: User): Promise<CreditCardResponseDto[]> {
-    return this.creditCardsService.findAll(user.id, user.workspaceId);
+    return this.creditCardsService.findAll(user.workspaceId);
   }
 
   @Get(':id')
@@ -61,7 +61,7 @@ export class CreditCardsController {
     @GetUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<CreditCardResponseDto> {
-    return this.creditCardsService.findOne(id, user.id, user.workspaceId);
+    return this.creditCardsService.findOne(id, user.workspaceId);
   }
 
   @Patch(':id')
@@ -76,7 +76,7 @@ export class CreditCardsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDto: UpdateCreditCardDto,
   ): Promise<CreditCardResponseDto> {
-    return this.creditCardsService.update(id, user.id, user.workspaceId, updateDto);
+    return this.creditCardsService.update(id, user.workspaceId, updateDto);
   }
 
   @Delete(':id')
@@ -86,6 +86,6 @@ export class CreditCardsController {
     description: 'Credit card deleted successfully',
   })
   remove(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    return this.creditCardsService.remove(id, user.id, user.workspaceId);
+    return this.creditCardsService.remove(id, user.workspaceId);
   }
 }

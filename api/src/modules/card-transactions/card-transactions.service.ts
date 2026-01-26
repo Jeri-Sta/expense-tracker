@@ -33,7 +33,7 @@ export class CardTransactionsService {
   ): Promise<CardTransactionResponseDto> {
     // Validate credit card belongs to user and workspace
     const creditCard = await this.creditCardRepository.findOne({
-      where: { id: createDto.creditCardId, userId, workspaceId },
+      where: { id: createDto.creditCardId, workspaceId },
     });
 
     if (!creditCard) {
@@ -153,11 +153,9 @@ export class CardTransactionsService {
    * Find all card transactions with pagination and sorting support
    */
   async findAllPaginated(
-    userId: string,
     workspaceId: string,
     filterDto: CardTransactionFilterDto,
   ): Promise<PaginatedCardTransactionsResponse> {
-    Logger.debug(`[CARD-TXN FINDALL] userId: ${userId}, workspaceId: ${workspaceId}`);
     const {
       creditCardId,
       invoicePeriod,
@@ -173,7 +171,7 @@ export class CardTransactionsService {
     const invoicePeriodsToFilter: string[] = [];
     if (dueYear && dueMonth) {
       // Get all credit cards for the user to determine invoice periods
-      const whereCondition: any = { userId, workspaceId, isActive: true };
+      const whereCondition: any = { workspaceId, isActive: true };
       if (creditCardId) {
         whereCondition.id = creditCardId;
       }
@@ -203,8 +201,7 @@ export class CardTransactionsService {
       .leftJoinAndSelect('transaction.creditCard', 'creditCard')
       .leftJoinAndSelect('transaction.category', 'category')
       .leftJoinAndSelect('transaction.parentTransaction', 'parent')
-      .where('transaction.userId = :userId AND transaction.workspaceId = :workspaceId', {
-        userId,
+      .where('transaction.workspaceId = :workspaceId', {
         workspaceId,
       });
 
@@ -285,7 +282,6 @@ export class CardTransactionsService {
   }
 
   async findAll(
-    userId: string,
     workspaceId: string,
     creditCardId?: string,
     invoicePeriod?: string,
@@ -300,8 +296,7 @@ export class CardTransactionsService {
         .leftJoinAndSelect('transaction.creditCard', 'creditCard')
         .leftJoinAndSelect('transaction.category', 'category')
         .leftJoinAndSelect('transaction.parentTransaction', 'parent')
-        .where('transaction.userId = :userId AND transaction.workspaceId = :workspaceId', {
-          userId,
+        .where('transaction.workspaceId = :workspaceId', {
           workspaceId,
         })
         .andWhere('transaction.invoicePeriod = :invoicePeriod', { invoicePeriod });
@@ -354,8 +349,7 @@ export class CardTransactionsService {
       .leftJoinAndSelect('transaction.creditCard', 'creditCard')
       .leftJoinAndSelect('transaction.category', 'category')
       .leftJoinAndSelect('transaction.childTransactions', 'children')
-      .where('transaction.userId = :userId AND transaction.workspaceId = :workspaceId', {
-        userId,
+      .where('transaction.workspaceId = :workspaceId', {
         workspaceId,
       })
       .andWhere('transaction.parentTransactionId IS NULL'); // Only get parent transactions
@@ -371,29 +365,23 @@ export class CardTransactionsService {
   }
 
   async findByCard(
-    userId: string,
     workspaceId: string,
     creditCardId: string,
   ): Promise<CardTransactionResponseDto[]> {
-    return this.findAll(userId, workspaceId, creditCardId);
+    return this.findAll(workspaceId, creditCardId);
   }
 
   async findByInvoice(
-    userId: string,
     workspaceId: string,
     creditCardId: string,
     invoicePeriod: string,
   ): Promise<CardTransactionResponseDto[]> {
-    return this.findAll(userId, workspaceId, creditCardId, invoicePeriod);
+    return this.findAll(workspaceId, creditCardId, invoicePeriod);
   }
 
-  async findOne(
-    id: string,
-    userId: string,
-    workspaceId: string,
-  ): Promise<CardTransactionResponseDto> {
+  async findOne(id: string, workspaceId: string): Promise<CardTransactionResponseDto> {
     const transaction = await this.transactionRepository.findOne({
-      where: { id, userId, workspaceId },
+      where: { id, workspaceId },
       relations: ['creditCard', 'category', 'childTransactions'],
     });
 
@@ -415,7 +403,7 @@ export class CardTransactionsService {
     updateDto: UpdateCardTransactionDto,
   ): Promise<CardTransactionResponseDto> {
     const transaction = await this.transactionRepository.findOne({
-      where: { id, userId, workspaceId },
+      where: { id, workspaceId },
       relations: ['creditCard', 'category', 'childTransactions'],
     });
 
@@ -517,7 +505,7 @@ export class CardTransactionsService {
 
   async remove(id: string, userId: string, workspaceId: string): Promise<void> {
     const transaction = await this.transactionRepository.findOne({
-      where: { id, userId, workspaceId },
+      where: { id, workspaceId },
       relations: ['childTransactions', 'creditCard'],
     });
 
@@ -551,16 +539,11 @@ export class CardTransactionsService {
   }
 
   // Invoice management
-  async getInvoices(
-    userId: string,
-    workspaceId: string,
-    creditCardId?: string,
-  ): Promise<InvoiceResponseDto[]> {
+  async getInvoices(workspaceId: string, creditCardId?: string): Promise<InvoiceResponseDto[]> {
     const queryBuilder = this.invoiceRepository
       .createQueryBuilder('invoice')
       .leftJoinAndSelect('invoice.creditCard', 'creditCard')
-      .where('invoice.userId = :userId AND invoice.workspaceId = :workspaceId', {
-        userId,
+      .where('invoice.workspaceId = :workspaceId', {
         workspaceId,
       });
 
@@ -577,11 +560,10 @@ export class CardTransactionsService {
   async getInvoice(
     creditCardId: string,
     period: string,
-    userId: string,
     workspaceId: string,
   ): Promise<InvoiceResponseDto> {
     const invoice = await this.invoiceRepository.findOne({
-      where: { creditCardId, period, userId, workspaceId },
+      where: { creditCardId, period, workspaceId },
       relations: ['creditCard'],
     });
 
@@ -595,12 +577,11 @@ export class CardTransactionsService {
   async updateInvoiceStatus(
     creditCardId: string,
     period: string,
-    userId: string,
     workspaceId: string,
     updateDto: UpdateInvoiceStatusDto,
   ): Promise<InvoiceResponseDto> {
     let invoice = await this.invoiceRepository.findOne({
-      where: { creditCardId, period, userId, workspaceId },
+      where: { creditCardId, period, workspaceId },
       relations: ['creditCard'],
     });
 
@@ -620,14 +601,13 @@ export class CardTransactionsService {
   }
 
   // Summary methods for dashboard
-  async getCardUsage(userId: string, workspaceId: string, creditCardId: string): Promise<number> {
+  async getCardUsage(workspaceId: string, creditCardId: string): Promise<number> {
     const currentPeriod = this.getCurrentInvoicePeriod();
 
     const result = await this.transactionRepository
       .createQueryBuilder('transaction')
       .select('SUM(transaction.amount)', 'total')
-      .where('transaction.userId = :userId AND transaction.workspaceId = :workspaceId', {
-        userId,
+      .where('transaction.workspaceId = :workspaceId', {
         workspaceId,
       })
       .andWhere('transaction.creditCardId = :creditCardId', { creditCardId })
@@ -638,7 +618,6 @@ export class CardTransactionsService {
   }
 
   async getPendingInstallments(
-    userId: string,
     workspaceId: string,
     period?: string,
   ): Promise<CardTransactionResponseDto[]> {
@@ -648,8 +627,7 @@ export class CardTransactionsService {
       .createQueryBuilder('transaction')
       .leftJoinAndSelect('transaction.creditCard', 'creditCard')
       .leftJoinAndSelect('transaction.category', 'category')
-      .where('transaction.userId = :userId AND transaction.workspaceId = :workspaceId', {
-        userId,
+      .where('transaction.workspaceId = :workspaceId', {
         workspaceId,
       })
       .andWhere('transaction.isInstallment = :isInstallment', { isInstallment: true })
@@ -662,16 +640,11 @@ export class CardTransactionsService {
     return transactions.map((t) => this.mapToResponseDto(t, t.creditCard));
   }
 
-  async getMonthlyCardExpenses(
-    userId: string,
-    workspaceId: string,
-    period: string,
-  ): Promise<number> {
+  async getMonthlyCardExpenses(workspaceId: string, period: string): Promise<number> {
     const result = await this.transactionRepository
       .createQueryBuilder('transaction')
       .select('SUM(transaction.amount)', 'total')
-      .where('transaction.userId = :userId AND transaction.workspaceId = :workspaceId', {
-        userId,
+      .where('transaction.workspaceId = :workspaceId', {
         workspaceId,
       })
       .andWhere('transaction.invoicePeriod = :period', { period })
@@ -685,14 +658,13 @@ export class CardTransactionsService {
    * This returns invoices that have their due date in the target month/year.
    */
   async getInvoicesByDueMonth(
-    userId: string,
     workspaceId: string,
     year: number,
     month: number,
     creditCardId?: string,
   ): Promise<InvoiceResponseDto[]> {
     // Get all credit cards for the user to determine invoice periods
-    const whereCondition: any = { userId, workspaceId, isActive: true };
+    const whereCondition: any = { workspaceId, isActive: true };
     if (creditCardId) {
       whereCondition.id = creditCardId;
     }
@@ -718,7 +690,7 @@ export class CardTransactionsService {
 
       // Get invoice for this card and period
       const invoice = await this.invoiceRepository.findOne({
-        where: { creditCardId: card.id, period: invoicePeriod, userId, workspaceId },
+        where: { creditCardId: card.id, period: invoicePeriod, workspaceId },
         relations: ['creditCard'],
       });
 
@@ -735,14 +707,13 @@ export class CardTransactionsService {
    * This calculates which invoice periods have their due date in the target month/year.
    */
   async findByDueMonth(
-    userId: string,
     workspaceId: string,
     year: number,
     month: number,
     creditCardId?: string,
   ): Promise<CardTransactionResponseDto[]> {
     // Get all credit cards for the user to determine invoice periods
-    const whereCondition: any = { userId, workspaceId, isActive: true };
+    const whereCondition: any = { workspaceId, isActive: true };
     if (creditCardId) {
       whereCondition.id = creditCardId;
     }
@@ -767,7 +738,7 @@ export class CardTransactionsService {
       );
 
       // Get transactions for this card and period
-      const transactions = await this.findAll(userId, workspaceId, card.id, invoicePeriod);
+      const transactions = await this.findAll(workspaceId, card.id, invoicePeriod);
       allTransactions.push(...transactions);
     }
 
