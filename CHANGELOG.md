@@ -10,7 +10,7 @@
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
+- Bump primeng from 17.18.15 to 20.4.0 in /web-app
 
 ---
 
