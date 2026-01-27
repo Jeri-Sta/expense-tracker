@@ -2,19 +2,30 @@
 
 ### ✨ Novas Funcionalidades
 - Adicione novas funcionalidades aqui
+
+### 🔧 Melhorias
+- Adicione melhorias e otimizações aqui
+
+### 🐛 Correções
+- Adicione correções de bugs aqui
+
+### 📦 Atualizações de Dependências
+- Adicione atualizações de dependências aqui
+
+---
+
+## [2.0.0] - 2026-01-27
+
 - Adicionada funcionaldiade de duplicação de transações.
 - Adicionada possibilidade de pular execução de recorrência.
 - Adicionado sistema de invite de usuários.
 
-### 🔧 Melhorias
 - Ajustado filtro de período do mês de vencimento das faturas do cartão para exibir a fatura atual.
 - Ajustado opção de limpeza de projeções para excluir apenas projeções automáticas por padrão.
 - Ajustes de estilização e melhoria de visualização de financiamentos ativos e finalizados.
 
-### 🐛 Correções
 - Corrigida duplicação de parcelas do financiamento no dashboard quando a parcela é paga.
 
-### 📦 Atualizações de Dependências
 - Bump @types/express from 4.17.25 to 5.0.6 in /api
 - Bump class-validator from 0.14.2 to 0.14.3 in /api
 - Bump typeorm from 0.3.27 to 0.3.28 in /api

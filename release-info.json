@@ -1,8 +1,8 @@
 {
-  "oldVersion": "1.1.0",
-  "newVersion": "1.1.1",
-  "versionType": "patch",
-  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n### 🐛 Correções\n- Corrigido script de geração de versão\n### 📦 Atualizações de Dependências",
-  "backupBranch": "backup/release-2025-12-10T12-12-49-213Z",
-  "timestamp": "2025-12-10T12:12:49.260Z"
+  "oldVersion": "1.1.1",
+  "newVersion": "2.0.0",
+  "versionType": "major",
+  "releaseNotes": "### ✨ Novas Funcionalidades\n- Adicionada funcionaldiade de duplicação de transações.\n- Adicionada possibilidade de pular execução de recorrência.\n- Adicionado sistema de invite de usuários.\n### 🔧 Melhorias\n- Ajustado filtro de período do mês de vencimento das faturas do cartão para exibir a fatura atual.\n- Ajustado opção de limpeza de projeções para excluir apenas projeções automáticas por padrão.\n- Ajustes de estilização e melhoria de visualização de financiamentos ativos e finalizados.\n### 🐛 Correções\n- Corrigida duplicação de parcelas do financiamento no dashboard quando a parcela é paga.\n### 📦 Atualizações de Dependências\n- Bump @types/express from 4.17.25 to 5.0.6 in /api\n- Bump class-validator from 0.14.2 to 0.14.3 in /api\n- Bump typeorm from 0.3.27 to 0.3.28 in /api\n- Bump @types/pg from 8.15.6 to 8.16.0 in /api",
+  "backupBranch": "backup/release-2026-01-27T00-57-28-567Z",
+  "timestamp": "2026-01-27T00:57:28.613Z"
 }
