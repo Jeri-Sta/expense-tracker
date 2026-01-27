@@ -8,10 +8,7 @@ import { User } from '../users/entities/user.entity';
 import { EmailModule } from '../email/email.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Invitation, Workspace, User]),
-    EmailModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Invitation, Workspace, User]), EmailModule],
   providers: [InvitationsService],
   controllers: [InvitationsController],
   exports: [InvitationsService],

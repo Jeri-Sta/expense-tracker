@@ -56,7 +56,7 @@ export class InviteUserComponent implements OnInit {
           firstName: this.inviteForm.value.firstName,
         })
         .subscribe({
-          next: (response) => {
+          next: () => {
             this.messageService.add({
               severity: 'success',
               summary: 'Convite Enviado',
@@ -69,8 +69,7 @@ export class InviteUserComponent implements OnInit {
           },
           error: (error) => {
             console.error('Invitation error:', error);
-            const message =
-              error.error?.message || 'Erro ao enviar convite';
+            const message = error.error?.message || 'Erro ao enviar convite';
             this.messageService.add({
               severity: 'error',
               summary: 'Erro ao Enviar Convite',

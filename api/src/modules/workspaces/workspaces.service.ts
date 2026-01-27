@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Workspace } from './entities/workspace.entity';
@@ -102,10 +102,7 @@ export class WorkspacesService {
     return workspace;
   }
 
-  async validateUserBelongsToWorkspace(
-    userId: string,
-    workspaceId: string,
-  ): Promise<boolean> {
+  async validateUserBelongsToWorkspace(userId: string, workspaceId: string): Promise<boolean> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
     });

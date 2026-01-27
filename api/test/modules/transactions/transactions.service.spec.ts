@@ -31,6 +31,7 @@ describe('TransactionsService', () => {
       const transaction = {
         id: 'id',
         userId: 'user1',
+        workspaceId: 'workspace1',
         amount: 100,
         description: 'desc',
         type: 'expense',
@@ -87,13 +88,14 @@ describe('TransactionsService', () => {
         id: 'id',
         userId: 'user1',
         paymentStatus: PaymentStatus.PENDING,
+        workspaceId: 'workspace1',
       } as Transaction;
       jest.spyOn(repo, 'findOne').mockResolvedValue(transaction);
       jest
         .spyOn(repo, 'save')
         .mockImplementation(async (t) => t as DeepPartial<Transaction> & Transaction);
       jest.spyOn(service as any, 'findOneWithRelations').mockResolvedValue(transaction);
-      const result = await service.markAsPaid('id', 'user1', 'workspace1');
+      const result = await service.markAsPaid('id', 'workspace1');
       // markAsPaid should set paymentStatus to paid and set a paidDate
       expect(result.id).toBe(transaction.id);
       expect(result.paymentStatus).toBe(PaymentStatus.PAID);
