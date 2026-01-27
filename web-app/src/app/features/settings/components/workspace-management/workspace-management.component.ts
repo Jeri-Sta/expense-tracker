@@ -3,7 +3,6 @@ import { WorkspaceService, Invitation } from '../../../../core/services/workspac
 import { AuthService } from '../../../../core/services/auth.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { LoadingService } from '../../../../core/services/loading.service';
-import { InviteUserComponent } from '../invite-user/invite-user.component';
 
 @Component({
   selector: 'app-workspace-management',
@@ -83,7 +82,7 @@ export class WorkspaceManagementComponent implements OnInit {
             });
             this.loadPendingInvitations();
           },
-          error: (error) => {
+          error: () => {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
@@ -110,7 +109,7 @@ export class WorkspaceManagementComponent implements OnInit {
             });
             this.loadPendingInvitations();
           },
-          error: (error) => {
+          error: () => {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
@@ -125,9 +124,7 @@ export class WorkspaceManagementComponent implements OnInit {
   getExpiryStatus(expiresAt: Date): string {
     const now = new Date();
     const expiry = new Date(expiresAt);
-    const daysRemaining = Math.floor(
-      (expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-    );
+    const daysRemaining = Math.floor((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
     if (daysRemaining < 0) {
       return 'Expirado';

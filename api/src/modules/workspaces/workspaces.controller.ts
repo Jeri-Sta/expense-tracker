@@ -16,9 +16,7 @@ export class WorkspacesController {
   @Get('me')
   @ApiOperation({ summary: 'Get current user workspace' })
   @ApiResponse({ status: 200, type: WorkspaceResponseDto })
-  async getMyWorkspace(
-    @GetUser() user: User,
-  ): Promise<WorkspaceResponseDto> {
+  async getMyWorkspace(@GetUser() user: User): Promise<WorkspaceResponseDto> {
     return this.workspacesService.getWorkspace(user.id);
   }
 
@@ -30,11 +28,10 @@ export class WorkspacesController {
     @GetUser() user: User,
   ): Promise<WorkspaceResponseDto> {
     // Verify user belongs to workspace
-    const belongsToWorkspace =
-      await this.workspacesService.validateUserBelongsToWorkspace(
-        user.id,
-        id,
-      );
+    const belongsToWorkspace = await this.workspacesService.validateUserBelongsToWorkspace(
+      user.id,
+      id,
+    );
     if (!belongsToWorkspace) {
       throw new Error('Forbidden');
     }
@@ -44,16 +41,12 @@ export class WorkspacesController {
 
   @Get(':id/members')
   @ApiOperation({ summary: 'Get workspace members' })
-  async getMembers(
-    @Param('id') id: string,
-    @GetUser() user: User,
-  ): Promise<any[]> {
+  async getMembers(@Param('id') id: string, @GetUser() user: User): Promise<any[]> {
     // Verify user belongs to workspace
-    const belongsToWorkspace =
-      await this.workspacesService.validateUserBelongsToWorkspace(
-        user.id,
-        id,
-      );
+    const belongsToWorkspace = await this.workspacesService.validateUserBelongsToWorkspace(
+      user.id,
+      id,
+    );
     if (!belongsToWorkspace) {
       throw new Error('Forbidden');
     }

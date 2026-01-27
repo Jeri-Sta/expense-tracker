@@ -20,4 +20,3 @@ export class AcceptInvitationDto {
   @MinLength(6)
   password: string;
 }
-

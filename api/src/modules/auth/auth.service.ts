@@ -40,11 +40,6 @@ export class AuthService {
 
     const user = await this.usersService.create(userData);
 
-    // Auto-create workspace for new user
-    const workspace = await this.workspacesService.createWorkspace(user.id, {
-      name: 'Personal Workspace',
-    });
-
     const tokens = await this.generateTokens(user);
 
     return {
@@ -57,10 +52,7 @@ export class AuthService {
     registerDto: RegisterDto,
     invitationToken: string,
   ): Promise<AuthResponseDto> {
-    // Accept invitation and create user
-    const hashedPassword = await bcrypt.hash(registerDto.password, 12);
-
-    const { user, workspace } = await this.invitationsService.acceptInvitation(
+    const { user } = await this.invitationsService.acceptInvitation(
       invitationToken,
       registerDto.email,
       registerDto.firstName,

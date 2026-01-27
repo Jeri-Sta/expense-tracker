@@ -18,9 +18,7 @@ export class EmailService {
     const pass = this.configService.get<string>('SMTP_PASSWORD');
 
     if (!host || !port) {
-      this.logger.warn(
-        'Email service not configured. Emails will not be sent.',
-      );
+      this.logger.warn('Email service not configured. Emails will not be sent.');
       return;
     }
 
@@ -44,16 +42,11 @@ export class EmailService {
     invitedEmail: string,
   ): Promise<void> {
     if (!this.transporter) {
-      this.logger.warn(
-        `Invitation email to ${to} would be sent but SMTP is not configured`,
-      );
+      this.logger.warn(`Invitation email to ${to} would be sent but SMTP is not configured`);
       return;
     }
 
-    const frontendUrl = this.configService.get<string>(
-      'FRONTEND_URL',
-      'http://localhost:4200',
-    );
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:4200');
     const acceptLink = `${frontendUrl}/auth/register?token=${invitationToken}&email=${encodeURIComponent(
       invitedEmail,
     )}`;
@@ -88,10 +81,7 @@ export class EmailService {
       </html>
     `;
 
-    const from = this.configService.get<string>(
-      'SMTP_FROM',
-      'noreply@expensetacker.com',
-    );
+    const from = this.configService.get<string>('SMTP_FROM', 'noreply@expensetacker.com');
 
     try {
       await this.transporter.sendMail({
