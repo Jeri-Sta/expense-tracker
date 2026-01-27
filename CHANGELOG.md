@@ -10,7 +10,7 @@
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
+- Bump @angular/router from 17.3.12 to 20.3.16 in /web-app
 
 ---
 
