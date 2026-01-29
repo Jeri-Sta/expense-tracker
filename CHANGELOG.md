@@ -7,7 +7,7 @@
 - Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
-- Adicione correções de bugs aqui
+- Corrijido bug na criação de parcelas de financiamentos para incluir userId e workspaceId
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui

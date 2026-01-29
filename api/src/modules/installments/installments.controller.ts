@@ -100,7 +100,7 @@ export class InstallmentsController {
     @Param('id') id: string,
     @Body() updateInstallmentPlanDto: UpdateInstallmentPlanDto,
   ): Promise<InstallmentPlanResponseDto> {
-    return this.installmentsService.update(user.id, user.workspaceId, id, updateInstallmentPlanDto);
+    return this.installmentsService.update(user.workspaceId, id, updateInstallmentPlanDto);
   }
 
   @Delete(':id')

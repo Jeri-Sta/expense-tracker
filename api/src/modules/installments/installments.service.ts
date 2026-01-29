@@ -145,7 +145,6 @@ export class InstallmentsService {
   }
 
   async update(
-    userId: string,
     workspaceId: string,
     id: string,
     updateDto: UpdateInstallmentPlanDto,
@@ -248,6 +247,8 @@ export class InstallmentsService {
         dueDate,
         installmentPlanId: plan.id,
         status: InstallmentStatus.PENDING,
+        userId: plan.userId,
+        workspaceId: plan.workspaceId,
       });
 
       installments.push(installment);
