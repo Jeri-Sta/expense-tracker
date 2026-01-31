@@ -4,7 +4,7 @@
 - Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
-- Adicione melhorias e otimizações aqui
+- Adicionada identificação do usuário logado na sidebar com avatar e informações (nome e email).
 
 ### 🐛 Correções
 - Corrijido bug na criação de parcelas de financiamentos para incluir userId e workspaceId
