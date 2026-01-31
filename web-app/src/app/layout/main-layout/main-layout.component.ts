@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { User } from '../../core/models/user.model';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -24,6 +25,19 @@ export class MainLayoutComponent implements OnInit {
           this.currentRoute = event.urlAfterRedirects;
         }
       });
+  }
+
+  get currentUser(): User | null {
+    return this.authService.currentUser;
+  }
+
+  getUserInitials(): string {
+    const user = this.currentUser;
+    if (!user) return '?';
+
+    const firstInitial = user.firstName?.charAt(0) || '';
+    const lastInitial = user.lastName?.charAt(0) || '';
+    return (firstInitial + lastInitial).toUpperCase();
   }
 
   toggleSidebar(): void {

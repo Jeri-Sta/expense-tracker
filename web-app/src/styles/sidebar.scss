@@ -23,6 +23,69 @@
     }
   }
 
+  // User Identification Card
+  .user-identification-card {
+    display: flex;
+    align-items: center;
+    padding: $spacing-md;
+    margin: $spacing-md;
+    background: var(--surface-ground);
+    border: 1px solid var(--surface-border);
+    border-radius: $spacing-sm;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      background: var(--surface-hover);
+      border-color: var(--primary-color);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+    }
+
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-600) 100%);
+      @include flex-center;
+      flex-shrink: 0;
+      margin-right: $spacing-md;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      .avatar-initials {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: white;
+        text-transform: uppercase;
+      }
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0; // Para permitir ellipsis funcionar
+      overflow: hidden;
+
+      .user-name {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.4;
+        margin-bottom: 2px;
+      }
+
+      .user-email {
+        font-size: 0.8125rem;
+        font-weight: 400;
+        color: var(--text-color-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.3;
+      }
+    }
+  }
+
   // Content area
   .sidebar-content {
     @include flex-column;
@@ -187,6 +250,31 @@
               font-size: 0.8125rem;
             }
           }
+        }
+      }
+    }
+
+    .user-identification-card {
+      padding: $spacing-sm $spacing-sm;
+      margin: $spacing-sm;
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        margin-right: $spacing-sm;
+
+        .avatar-initials {
+          font-size: 1rem;
+        }
+      }
+
+      .user-info {
+        .user-name {
+          font-size: 0.875rem;
+        }
+
+        .user-email {
+          font-size: 0.75rem;
         }
       }
     }

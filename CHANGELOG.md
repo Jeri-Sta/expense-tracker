@@ -4,7 +4,7 @@
 - Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
-- Adicione melhorias e otimizações aqui
+- Adicionada identificação do usuário logado na sidebar com avatar e informações (nome e email).
 
 ### 🐛 Correções
 - Corrijido bug na criação de parcelas de financiamentos para incluir userId e workspaceId
@@ -22,6 +22,7 @@
 - Adicionado sistema de invite de usuários.
 
 ### 🔧 Melhorias
+- Adicionada identificação do usuário logado na sidebar com avatar e informações (nome e email).
 - Ajustado filtro de período do mês de vencimento das faturas do cartão para exibir a fatura atual.
 - Ajustado opção de limpeza de projeções para excluir apenas projeções automáticas por padrão.
 - Ajustes de estilização e melhoria de visualização de financiamentos ativos e finalizados.

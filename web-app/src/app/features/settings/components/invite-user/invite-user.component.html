@@ -13,12 +13,8 @@
         />
       </p-inputGroup>
       <small class="p-error" *ngIf="invitedEmail?.invalid && invitedEmail?.touched">
-        <span *ngIf="invitedEmail?.errors?.['required']">
-          Email é obrigatório
-        </span>
-        <span *ngIf="invitedEmail?.errors?.['email']">
-          Email inválido
-        </span>
+        <span *ngIf="invitedEmail?.errors?.['required']"> Email é obrigatório </span>
+        <span *ngIf="invitedEmail?.errors?.['email']"> Email inválido </span>
       </small>
     </div>
 
@@ -35,12 +31,8 @@
         />
       </p-inputGroup>
       <small class="p-error" *ngIf="firstName?.invalid && firstName?.touched">
-        <span *ngIf="firstName?.errors?.['required']">
-          Primeiro nome é obrigatório
-        </span>
-        <span *ngIf="firstName?.errors?.['maxlength']">
-          Máximo 50 caracteres
-        </span>
+        <span *ngIf="firstName?.errors?.['required']"> Primeiro nome é obrigatório </span>
+        <span *ngIf="firstName?.errors?.['maxlength']"> Máximo 50 caracteres </span>
       </small>
     </div>
   </div>
