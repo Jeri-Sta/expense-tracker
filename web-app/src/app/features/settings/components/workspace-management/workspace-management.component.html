@@ -6,9 +6,7 @@
       </div>
     </ng-template>
 
-    <app-invite-user
-      (invitationSent)="onInvitationSent()"
-    ></app-invite-user>
+    <app-invite-user (invitationSent)="onInvitationSent()"></app-invite-user>
   </p-card>
 
   <!-- Pending Invitations -->
@@ -73,9 +71,7 @@
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="4" class="text-center">
-            Nenhum convite pendente
-          </td>
+          <td colspan="4" class="text-center">Nenhum convite pendente</td>
         </tr>
       </ng-template>
     </p-table>

@@ -58,6 +58,17 @@
     </ng-template>
 
     <div class="sidebar-navigation">
+      <!-- User Identification Card -->
+      <div class="user-identification-card" *ngIf="currentUser">
+        <div class="user-avatar">
+          <span class="avatar-initials">{{ getUserInitials() }}</span>
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ currentUser.fullName }}</div>
+          <div class="user-email">{{ currentUser.email }}</div>
+        </div>
+      </div>
+
       <div class="sidebar-content">
         <!-- Navigation Menu -->
         <nav class="sidebar-nav">

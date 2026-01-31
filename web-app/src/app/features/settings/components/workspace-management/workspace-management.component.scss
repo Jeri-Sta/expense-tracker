@@ -2,7 +2,8 @@
 @import 'mixins';
 
 .workspace-management {
-  .management-card, .invitations-card {
+  .management-card,
+  .invitations-card {
     padding: $spacing-lg;
     overflow: hidden;
     border-radius: $border-radius-lg;

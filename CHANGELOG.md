@@ -22,6 +22,7 @@
 - Adicionado sistema de invite de usuários.
 
 ### 🔧 Melhorias
+- Adicionada identificação do usuário logado na sidebar com avatar e informações (nome e email).
 - Ajustado filtro de período do mês de vencimento das faturas do cartão para exibir a fatura atual.
 - Ajustado opção de limpeza de projeções para excluir apenas projeções automáticas por padrão.
 - Ajustes de estilização e melhoria de visualização de financiamentos ativos e finalizados.
