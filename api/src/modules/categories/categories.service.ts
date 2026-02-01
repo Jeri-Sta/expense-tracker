@@ -15,6 +15,7 @@ export class CategoriesService {
   ) {}
 
   async create(
+    userId: string,
     workspaceId: string,
     createCategoryDto: CreateCategoryDto,
   ): Promise<CategoryResponseDto> {
@@ -22,7 +23,7 @@ export class CategoriesService {
     const maxSortOrder = await this.categoriesRepository
       .createQueryBuilder('category')
       .select('MAX(category.sortOrder)', 'max')
-      .where('category.userId = :userId AND category.workspaceId = :workspaceId', {
+      .where('category.workspaceId = :workspaceId', {
         workspaceId,
       })
       .andWhere('category.type = :type', { type: createCategoryDto.type })
@@ -32,6 +33,7 @@ export class CategoriesService {
 
     const category = this.categoriesRepository.create({
       ...createCategoryDto,
+      userId,
       workspaceId,
       sortOrder,
     });
