@@ -429,7 +429,7 @@ export class TransactionsComponent implements OnInit {
 
   generateProjectionsFromRecurring(): void {
     const currentDate = new Date();
-    const startPeriod = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 2).padStart(2, '0')}`;
+    const startPeriod = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
     const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 7, 0); // 6 months ahead
     const endPeriod = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}`;
 

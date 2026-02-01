@@ -52,13 +52,20 @@ export class ProjectionsService {
     workspaceId: string,
     generateDto: GenerateProjectionsDto,
   ): Promise<ProjectionResult> {
-    const startDate = new Date(`${generateDto.startPeriod}-01`);
-    const endParts = generateDto.endPeriod.split('-');
-    const endDate = new Date(Number.parseInt(endParts[0]), Number.parseInt(endParts[1]), 0); // Last day of month
+    // Normalize period format (accept both YYYY-MM and MM/YYYY)
+    const normalizedStartPeriod = this.normalizePeriodFormat(generateDto.startPeriod);
+    const normalizedEndPeriod = this.normalizePeriodFormat(generateDto.endPeriod);
+
+    const startDate = parseLocalDate(`${normalizedStartPeriod}-01`);
+    const endParts = normalizedEndPeriod.split('-');
+    const endYear = Number.parseInt(endParts[0]);
+    const endMonth = Number.parseInt(endParts[1]);
+    // Last moment of the last day of the month
+    const endDate = new Date(endYear, endMonth, 0, 23, 59, 59, 999);
 
     // Clean existing projections if requested
     if (generateDto.overrideExisting) {
-      await this.cleanupProjections(workspaceId, generateDto.startPeriod, generateDto.endPeriod);
+      await this.cleanupProjections(workspaceId, normalizedStartPeriod, normalizedEndPeriod);
     }
 
     // Get active recurring transactions
@@ -90,7 +97,7 @@ export class ProjectionsService {
 
     return {
       generated: savedProjections.length,
-      period: `${generateDto.startPeriod} to ${generateDto.endPeriod}`,
+      period: `${normalizedStartPeriod} to ${normalizedEndPeriod}`,
       projections: savedProjections,
     };
   }
@@ -105,8 +112,9 @@ export class ProjectionsService {
     let currentDate = parseLocalDate(recurring.nextExecution || startDate);
 
     // Ensure we start within the projection period
-    if (currentDate < startDate) {
-      currentDate = this.getNextExecutionDate(recurring, startDate);
+    // Advance until currentDate is within or after the projection period
+    while (currentDate < startDate) {
+      currentDate = this.getNextExecutionDate(recurring, currentDate);
     }
 
     while (currentDate <= endDate) {
@@ -151,6 +159,30 @@ export class ProjectionsService {
     }
 
     return projections;
+  }
+
+  /**
+   * Normalizes period format to YYYY-MM
+   * Accepts both YYYY-MM and MM/YYYY formats
+   */
+  private normalizePeriodFormat(period: string): string {
+    // Check if format is MM/YYYY (contains /)
+    if (period.includes('/')) {
+      const [month, year] = period.split('/');
+      return `${year}-${month.padStart(2, '0')}`;
+    }
+    
+    // Check if format is YYYY-MM (contains -)
+    if (period.includes('-')) {
+      const parts = period.split('-');
+      // Ensure month has 2 digits
+      if (parts.length === 2) {
+        return `${parts[0]}-${parts[1].padStart(2, '0')}`;
+      }
+    }
+    
+    // If no separator found, throw error
+    throw new Error(`Invalid period format: ${period}. Expected YYYY-MM or MM/YYYY`);
   }
 
   private getNextExecutionDate(recurring: RecurringTransaction, currentDate: Date): Date {

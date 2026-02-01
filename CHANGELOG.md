@@ -7,7 +7,7 @@
 - Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
-- Adicione correções de bugs aqui
+- Corrigido geração de projeções de mês atual.
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
