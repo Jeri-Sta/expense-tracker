@@ -1,0 +1,352 @@
+name: 🚀 Deploy to SquareCloud
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag da versão para deploy (ex: v2.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  validate-tag:
+    name: ✅ Validar Tag
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.validate.outputs.tag_name }}
+      version: ${{ steps.validate.outputs.version }}
+    
+    steps:
+      - name: 📥 Checkout código na tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 1
+      
+      - name: 🔍 Validar formato da tag
+        id: validate
+        run: |
+          TAG="${{ inputs.tag }}"
+          
+          # Verificar se tag existe
+          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "❌ Tag '$TAG' não encontrada no repositório"
+            exit 1
+          fi
+          
+          # Validar formato (v*.*.* ou *.*.*)
+          if [[ ! "$TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
+            echo "❌ Tag deve seguir o formato: v1.2.3 ou 1.2.3"
+            echo "Recebido: $TAG"
+            exit 1
+          fi
+          
+          # Extrair versão (remover 'v' se existir)
+          VERSION="${TAG#v}"
+          
+          echo "✅ Tag válida: $TAG"
+          echo "📦 Versão: $VERSION"
+          
+          echo "tag_name=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  build-backend:
+    name: 🏗️ Build Backend
+    needs: validate-tag
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout código na tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 1
+      
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: api/package-lock.json
+      
+      - name: 📦 Instalar dependências
+        working-directory: api
+        run: npm ci
+      
+      - name: 📦 Criar ZIP do backend
+        working-directory: api
+        run: |
+          echo "📦 Criando ZIP do backend para deploy..."
+          echo "Incluindo apenas arquivos necessários:"
+          echo "  ✅ src/"
+          echo "  ✅ tsconfig.json"
+          echo "  ✅ package.json"
+          echo "  ✅ package-lock.json"
+          echo "  ✅ nest-cli.json"
+          echo "  ✅ eslint.config.cjs"
+          
+          # Criar ZIP com apenas os arquivos necessários
+          zip -r backend-deploy.zip \
+            src \
+            tsconfig.json \
+            package.json \
+            package-lock.json \
+            nest-cli.json \
+            eslint.config.cjs \
+            -x "**/*.spec.ts" \
+            -x "**/*.test.ts"
+          
+          # Verificar conteúdo do ZIP
+          echo ""
+          echo "📋 Conteúdo do ZIP:"
+          unzip -l backend-deploy.zip | head -20
+          
+          # Verificar tamanho
+          SIZE=$(ls -lh backend-deploy.zip | awk '{print $5}')
+          echo ""
+          echo "📊 Tamanho do ZIP: $SIZE"
+          
+          # Mover para diretório raiz para upload
+          mv backend-deploy.zip ../
+      
+      - name: 📤 Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-deploy
+          path: backend-deploy.zip
+          retention-days: 1
+
+  deploy-backend:
+    name: 🚀 Deploy Backend
+    needs: [validate-tag, build-backend]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-deploy
+      
+      - name: 🚀 Upload e Commit na SquareCloud
+        id: commit
+        run: |
+          echo "📤 Enviando backend para SquareCloud..."
+          
+          RESPONSE=$(curl -w "\n%{http_code}" --request POST \
+            --url "https://api.squarecloud.app/v2/apps/${{ secrets.BACKEND_ID }}/commit" \
+            --header "Authorization: ${{ secrets.SQUARE_CLOUD_TOKEN }}" \
+            --form "file=@backend-deploy.zip" \
+            --silent)
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "📊 HTTP Status: $HTTP_CODE"
+          echo "📋 Response: $BODY"
+          
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "✅ Commit realizado com sucesso!"
+          else
+            echo "❌ Falha no commit. Status: $HTTP_CODE"
+            echo "Response: $BODY"
+            exit 1
+          fi
+          
+          # Verificar se response contém "success"
+          if echo "$BODY" | grep -q '"status":\s*"success"'; then
+            echo "✅ Status: success confirmado"
+          else
+            echo "⚠️ Response não contém status success"
+            echo "$BODY"
+          fi
+      
+      - name: ⏳ Aguardar rate limit (3 segundos)
+        run: |
+          echo "⏳ Aguardando 5 segundos (rate limit: 1 req/3s)..."
+          sleep 5
+      
+      - name: 🔄 Restart Backend
+        run: |
+          echo "🔄 Reiniciando backend na SquareCloud..."
+          
+          RESPONSE=$(curl -w "\n%{http_code}" --request POST \
+            --url "https://api.squarecloud.app/v2/apps/${{ secrets.BACKEND_ID }}/restart" \
+            --header "Authorization: ${{ secrets.SQUARE_CLOUD_TOKEN }}" \
+            --silent)
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "📊 HTTP Status: $HTTP_CODE"
+          echo "📋 Response: $BODY"
+          
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "✅ Restart realizado com sucesso!"
+          else
+            echo "❌ Falha no restart. Status: $HTTP_CODE"
+            echo "Response: $BODY"
+            exit 1
+          fi
+          
+          echo ""
+          echo "🎉 Backend deploy concluído com sucesso!"
+
+  build-frontend:
+    name: 🏗️ Build Frontend
+    needs: [validate-tag, deploy-backend]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout código na tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 1
+      
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: web-app/package-lock.json
+      
+      - name: 📦 Instalar dependências
+        working-directory: web-app
+        run: npm ci
+      
+      - name: 🏗️ Build de produção
+        working-directory: web-app
+        run: |
+          echo "🏗️ Executando build de produção do Angular..."
+          npm run build:prod
+          
+          echo "✅ Build concluído!"
+          echo "📁 Verificando diretório dist..."
+          ls -lah dist/
+          ls -lah dist/expense-tracker-web/ | head -20
+      
+      - name: 📦 Criar ZIP do frontend
+        working-directory: web-app
+        run: |
+          echo "📦 Criando ZIP do frontend para deploy..."
+          
+          # Entrar no diretório de build
+          cd dist/expense-tracker-web
+          
+          # Criar ZIP com todos os arquivos na raiz
+          zip -r ../../frontend-deploy.zip .
+          
+          cd ../..
+          
+          # Verificar conteúdo do ZIP
+          echo ""
+          echo "📋 Conteúdo do ZIP:"
+          unzip -l frontend-deploy.zip | head -20
+          
+          # Verificar tamanho
+          SIZE=$(ls -lh frontend-deploy.zip | awk '{print $5}')
+          echo ""
+          echo "📊 Tamanho do ZIP: $SIZE"
+          
+          # Mover para diretório raiz para upload
+          mv frontend-deploy.zip ../
+      
+      - name: 📤 Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-deploy
+          path: frontend-deploy.zip
+          retention-days: 1
+
+  deploy-frontend:
+    name: 🚀 Deploy Frontend
+    needs: [validate-tag, build-frontend]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-deploy
+      
+      - name: 🚀 Upload e Commit na SquareCloud
+        id: commit
+        run: |
+          echo "📤 Enviando frontend para SquareCloud..."
+          
+          RESPONSE=$(curl -w "\n%{http_code}" --request POST \
+            --url "https://api.squarecloud.app/v2/apps/${{ secrets.FRONTEND_ID }}/commit" \
+            --header "Authorization: ${{ secrets.SQUARE_CLOUD_TOKEN }}" \
+            --form "file=@frontend-deploy.zip" \
+            --silent)
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "📊 HTTP Status: $HTTP_CODE"
+          echo "📋 Response: $BODY"
+          
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "✅ Commit realizado com sucesso!"
+          else
+            echo "❌ Falha no commit. Status: $HTTP_CODE"
+            echo "Response: $BODY"
+            exit 1
+          fi
+          
+          # Verificar se response contém "success"
+          if echo "$BODY" | grep -q '"status":\s*"success"'; then
+            echo "✅ Status: success confirmado"
+          else
+            echo "⚠️ Response não contém status success"
+            echo "$BODY"
+          fi
+      
+      - name: ⏳ Aguardar rate limit (3 segundos)
+        run: |
+          echo "⏳ Aguardando 5 segundos (rate limit: 1 req/3s)..."
+          sleep 5
+      
+      - name: 🔄 Restart Frontend
+        run: |
+          echo "🔄 Reiniciando frontend na SquareCloud..."
+          
+          RESPONSE=$(curl -w "\n%{http_code}" --request POST \
+            --url "https://api.squarecloud.app/v2/apps/${{ secrets.FRONTEND_ID }}/restart" \
+            --header "Authorization: ${{ secrets.SQUARE_CLOUD_TOKEN }}" \
+            --silent)
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "📊 HTTP Status: $HTTP_CODE"
+          echo "📋 Response: $BODY"
+          
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "✅ Restart realizado com sucesso!"
+          else
+            echo "❌ Falha no restart. Status: $HTTP_CODE"
+            echo "Response: $BODY"
+            exit 1
+          fi
+          
+          echo ""
+          echo "🎉 Frontend deploy concluído com sucesso!"
+          echo ""
+          echo "═══════════════════════════════════════════"
+          echo "🚀 DEPLOY COMPLETO FINALIZADO COM SUCESSO! 🚀"
+          echo "═══════════════════════════════════════════"
+          echo ""
+          echo "✅ Backend: Deployed & Restarted"
+          echo "✅ Frontend: Deployed & Restarted"
+          echo ""
+          echo "Tag: ${{ needs.validate-tag.outputs.tag_name }}"
+          echo "Versão: ${{ needs.validate-tag.outputs.version }}"
+          echo ""
+          echo "Acesse sua aplicação na SquareCloud!"

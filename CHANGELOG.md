@@ -2,6 +2,7 @@
 
 ### ✨ Novas Funcionalidades
 - Adicione novas funcionalidades aqui
+- Adicionado action de deploy da aplicação.
 
 ### 🔧 Melhorias
 - Adicionada identificação do usuário logado na sidebar com avatar e informações (nome e email).
