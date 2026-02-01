@@ -1,8 +1,8 @@
 {
-  "oldVersion": "2.1.0",
-  "newVersion": "2.1.1",
+  "oldVersion": "2.1.1",
+  "newVersion": "2.1.2",
   "versionType": "patch",
-  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n### 🐛 Correções\n- Correção de crud da categoria.\n### 📦 Atualizações de Dependências",
-  "backupBranch": "backup/release-2026-02-01T14-44-19-641Z",
-  "timestamp": "2026-02-01T14:44:19.684Z"
+  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n### 🐛 Correções\n- Corrigido geração de projeções de mês atual.\n### 📦 Atualizações de Dependências",
+  "backupBranch": "backup/release-2026-02-01T17-10-07-638Z",
+  "timestamp": "2026-02-01T17:10:07.681Z"
 }

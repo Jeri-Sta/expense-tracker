@@ -1,6 +1,6 @@
 {
   "name": "expense-tracker-web",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Personal Expense Tracker Frontend built with Angular and PrimeNG",
   "author": "Your Name",
   "private": true,

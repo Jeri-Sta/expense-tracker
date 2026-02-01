@@ -7,10 +7,25 @@
 - Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
-- Corrigido geração de projeções de mês atual.
+- Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
+
+---
+
+## [2.1.2] - 2026-02-01
+
+### ✨ Novas Funcionalidades
+
+
+### 🔧 Melhorias
+
+
+### 🐛 Correções
+- Corrigido geração de projeções de mês atual.
+
+### 📦 Atualizações de Dependências
 
 ---
 
