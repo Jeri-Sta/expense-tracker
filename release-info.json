@@ -1,8 +1,8 @@
 {
-  "oldVersion": "2.0.0",
-  "newVersion": "2.1.0",
-  "versionType": "minor",
-  "releaseNotes": "### ✨ Novas Funcionalidades\n- Adicionado action de deploy da aplicação.\n### 🔧 Melhorias\n- Adicionada identificação do usuário logado na sidebar com avatar e informações (nome e email).\n### 🐛 Correções\n- Corrigido bug na criação de parcelas de financiamentos para incluir userId e workspaceId\n- Corrigida criação de workspace no registro e login.\n### 📦 Atualizações de Dependências",
-  "backupBranch": "backup/release-2026-02-01T14-22-57-859Z",
-  "timestamp": "2026-02-01T14:22:57.902Z"
+  "oldVersion": "2.1.0",
+  "newVersion": "2.1.1",
+  "versionType": "patch",
+  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n### 🐛 Correções\n- Correção de crud da categoria.\n### 📦 Atualizações de Dependências",
+  "backupBranch": "backup/release-2026-02-01T14-44-19-641Z",
+  "timestamp": "2026-02-01T14:44:19.684Z"
 }

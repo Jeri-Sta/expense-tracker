@@ -2,5 +2,5 @@ export const environment = {
   production: true,
   apiUrl: 'https://expense-tracker-backend.squareweb.app/api',
   appName: 'Personal Expense Tracker',
-  version: '2.1.0',
+  version: '2.1.1',
 };
