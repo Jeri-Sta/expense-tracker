@@ -38,7 +38,7 @@ export class CategoriesController {
     @GetUser() user: User,
     @Body() createCategoryDto: CreateCategoryDto,
   ): Promise<CategoryResponseDto> {
-    return this.categoriesService.create(user.workspaceId, createCategoryDto);
+    return this.categoriesService.create(user.id, user.workspaceId, createCategoryDto);
   }
 
   @Get()
