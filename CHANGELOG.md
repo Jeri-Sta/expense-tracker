@@ -2,6 +2,22 @@
 
 ### ✨ Novas Funcionalidades
 - Adicione novas funcionalidades aqui
+
+### 🔧 Melhorias
+- Adicione melhorias e otimizações aqui
+
+### 🐛 Correções
+- Adicione correções de bugs aqui
+
+### 📦 Atualizações de Dependências
+- Adicione atualizações de dependências aqui
+
+---
+
+## [2.1.0] - 2026-02-01
+
+### ✨ Novas Funcionalidades
+
 - Adicionado action de deploy da aplicação.
 
 ### 🔧 Melhorias
@@ -12,7 +28,6 @@
 - Corrigida criação de workspace no registro e login.
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
 
 ---
 
