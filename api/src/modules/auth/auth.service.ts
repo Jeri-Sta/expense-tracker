@@ -1,6 +1,8 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from '../users/users.service';
 import { WorkspacesService } from '../workspaces/workspaces.service';
@@ -18,6 +20,7 @@ export class AuthService {
     private readonly invitationsService: InvitationsService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
   async register(registerDto: RegisterDto, invitationToken?: string): Promise<AuthResponseDto> {
@@ -38,7 +41,34 @@ export class AuthService {
       isInvitedUser: false,
     };
 
-    const user = await this.usersService.create(userData);
+    // Use transaction to ensure user and workspace are created atomically
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    let user;
+    try {
+      // Create user
+      user = await this.usersService.create(userData);
+
+      // Auto-create personalized workspace for new user
+      const workspaceName = `${registerDto.firstName}'s Workspace`;
+      const workspace = await this.workspacesService.createWorkspace(user.id, {
+        name: workspaceName,
+      });
+
+      // Update user with workspace ID
+      user.workspaceId = workspace.id;
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      // Rollback transaction on error
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      // Release query runner
+      await queryRunner.release();
+    }
 
     const tokens = await this.generateTokens(user);
 
@@ -82,10 +112,13 @@ export class AuthService {
     // Update last login
     await this.usersService.updateLastLogin(user.id);
 
-    // Auto-create workspace for existing users without workspace
+    // Backward compatibility: Auto-create workspace for existing users without workspace
+    // This handles users who registered before the auto-workspace feature was implemented
+    // TODO: This can be removed after all existing users have workspaces (check after 2-3 months)
     if (!user.workspaceId && !user.isInvitedUser) {
+      const workspaceName = `${user.firstName}'s Workspace`;
       const workspace = await this.workspacesService.createWorkspace(user.id, {
-        name: 'Personal Workspace',
+        name: workspaceName,
       });
       user.workspaceId = workspace.id;
     }
