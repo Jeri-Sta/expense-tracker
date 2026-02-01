@@ -7,7 +7,8 @@
 - Adicionada identificação do usuário logado na sidebar com avatar e informações (nome e email).
 
 ### 🐛 Correções
-- Corrijido bug na criação de parcelas de financiamentos para incluir userId e workspaceId
+- Corrigido bug na criação de parcelas de financiamentos para incluir userId e workspaceId
+- Corrigida criação de workspace no registro e login.
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
