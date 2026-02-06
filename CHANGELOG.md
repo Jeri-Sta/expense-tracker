@@ -10,7 +10,7 @@
 - Corrigido gráficos de categorias para não limitar a exibição de categorias.
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
+- Bump @typescript-eslint/eslint-plugin from 7.11.0 to 8.54.0 in /web-app
 
 ---
 
