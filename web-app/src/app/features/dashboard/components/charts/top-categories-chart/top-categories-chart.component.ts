@@ -13,4 +13,11 @@ export class TopCategoriesChartComponent {
   hasData(): boolean {
     return this.chartData?.datasets?.[0]?.data?.length > 0;
   }
+
+  getChartHeight(): string {
+    const dataLength = this.chartData?.datasets?.[0]?.data?.length || 0;
+    // Minimum 200px, add 40px per category, max 600px
+    const height = Math.min(Math.max(200, dataLength * 40), 600);
+    return `${height}px`;
+  }
 }
