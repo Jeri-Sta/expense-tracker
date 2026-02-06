@@ -6,7 +6,8 @@
   <div class="chart-content p-4">
     <div
       class="chart-wrapper"
-      style="position: relative; height: 400px; width: 100%"
+      [style.height]="getChartHeight()"
+      style="position: relative; width: 100%"
       *ngIf="hasData()"
     >
       <p-chart

@@ -415,10 +415,8 @@ export class DashboardService {
       }
     }
 
-    // Sort by total and limit to top 5
-    const sortedCategories = Array.from(categoryMap.values())
-      .sort((a, b) => b.total - a.total)
-      .slice(0, 5);
+    // Sort by total (all categories)
+    const sortedCategories = Array.from(categoryMap.values()).sort((a, b) => b.total - a.total);
 
     return sortedCategories;
   }

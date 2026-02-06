@@ -734,7 +734,7 @@ export class DashboardComponent implements OnInit {
           display: true,
           ticks: {
             color: textColor,
-            maxTicksLimit: 8,
+            autoSkip: false,
             padding: 10,
           },
           grid: {

@@ -171,7 +171,7 @@ export class ProjectionsService {
       const [month, year] = period.split('/');
       return `${year}-${month.padStart(2, '0')}`;
     }
-    
+
     // Check if format is YYYY-MM (contains -)
     if (period.includes('-')) {
       const parts = period.split('-');
@@ -180,7 +180,7 @@ export class ProjectionsService {
         return `${parts[0]}-${parts[1].padStart(2, '0')}`;
       }
     }
-    
+
     // If no separator found, throw error
     throw new Error(`Invalid period format: ${period}. Expected YYYY-MM or MM/YYYY`);
   }
