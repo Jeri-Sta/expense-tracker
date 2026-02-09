@@ -10,7 +10,7 @@
 - Corrigido gráficos de categorias para não limitar a exibição de categorias.
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
+- Bump primeng from 17.18.15 to 20.4.0 in /web-app
 
 ---
 
