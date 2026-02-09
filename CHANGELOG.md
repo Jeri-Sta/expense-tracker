@@ -10,7 +10,7 @@
 - Corrigido gráficos de categorias para não limitar a exibição de categorias.
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
+- Bump @angular/router from 17.3.12 to 20.3.16 in /web-app
 
 ---
 
