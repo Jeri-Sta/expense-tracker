@@ -11,7 +11,7 @@ import { InvitationResponseDto } from './dto/invitation-response.dto';
 @ApiTags('Invitations')
 @Controller('invitations')
 export class InvitationsController {
-  constructor(private invitationsService: InvitationsService) {}
+  constructor(private readonly invitationsService: InvitationsService) {}
 
   @Post('workspaces/:workspaceId/send')
   @UseGuards(JwtAuthGuard)

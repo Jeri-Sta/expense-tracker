@@ -22,7 +22,6 @@
       "@/*": ["src/*"],
       "@config/*": ["src/config/*"],
       "@common/*": ["src/common/*"],
-      "@entities/*": ["src/entities/*"],
       "@modules/*": ["src/modules/*"]
     }
   }

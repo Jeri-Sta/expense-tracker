@@ -311,34 +311,7 @@ export class TransactionsService {
   }
 
   private mapToResponseDto(transaction: Transaction): TransactionResponseDto {
-    return {
-      id: transaction.id,
-      amount: transaction.amount,
-      description: transaction.description,
-      type: transaction.type,
-      transactionDate: transaction.transactionDate,
-      competencyPeriod: transaction.competencyPeriod,
-      notes: transaction.notes,
-      metadata: transaction.metadata,
-      isRecurring: transaction.isRecurring,
-      isProjected: transaction.isProjected ?? false,
-      projectionSource: transaction.projectionSource,
-      confidenceScore: transaction.confidenceScore
-        ? Number(transaction.confidenceScore)
-        : undefined,
-      createdAt: transaction.createdAt,
-      updatedAt: transaction.updatedAt,
-      category: transaction.category
-        ? {
-            id: transaction.category.id,
-            name: transaction.category.name,
-            color: transaction.category.color,
-            icon: transaction.category.icon,
-          }
-        : undefined,
-      paymentStatus: transaction.paymentStatus ?? PaymentStatus.PENDING,
-      paidDate: transaction.paidDate,
-    };
+    return TransactionResponseDto.fromEntity(transaction);
   }
 
   async markAsPaid(
@@ -355,7 +328,6 @@ export class TransactionsService {
       throw new NotFoundException('Transaction not found');
     }
 
-    console.log(transaction.workspaceId, workspaceId);
     if (transaction.workspaceId !== workspaceId) {
       throw new ForbiddenException('You can only update your own transactions');
     }

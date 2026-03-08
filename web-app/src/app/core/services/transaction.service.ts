@@ -3,25 +3,25 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { formatDateToString } from '../../shared/utils/date.utils';
-import { MonthlyExpenseBreakdownItem } from '../../shared/types/dashboard.types';
+import { formatPeriod, getAvailablePeriods } from '../../shared/utils/format.utils';
+import {
+  TransactionType,
+  PaymentStatus,
+  TransactionFilters,
+  PaginatedResponse,
+  Category,
+  InvoiceStatus,
+  MonthlyExpenseBreakdownItem,
+} from '../types/common.types';
 
-export type TransactionType = 'income' | 'expense';
-
-export type PaymentStatus = 'pending' | 'paid';
-
-export interface TransactionFilters {
-  type?: TransactionType;
-  categoryId?: string;
-  startDate?: string;
-  endDate?: string;
-  competencyPeriod?: string;
-  search?: string;
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  sortOrder?: 'ASC' | 'DESC';
-  paymentStatus?: PaymentStatus;
-}
+export type {
+  TransactionType,
+  PaymentStatus,
+  TransactionFilters,
+  PaginatedResponse,
+  Category,
+  InvoiceStatus,
+};
 
 export interface ProjectionFilters extends TransactionFilters {
   includeProjections?: boolean;
@@ -47,14 +47,6 @@ export interface BaseEntity {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
 }
 
 export interface Transaction extends BaseEntity {
@@ -102,16 +94,6 @@ export interface UpdateTransactionDto {
   confidenceScore?: number;
 }
 
-export interface Category extends BaseEntity {
-  name: string;
-  description?: string;
-  type: TransactionType;
-  color: string;
-  icon: string;
-  isActive: boolean;
-  sortOrder: number;
-}
-
 export interface MonthlyStats {
   period: string;
   totalIncome: number;
@@ -134,7 +116,7 @@ export interface MonthlyStatsWithProjections {
   cardExpenses?: number;
 }
 
-export interface DashboardStats {
+export interface DashboardApiResponse {
   currentMonth: MonthlyStatsWithProjections & { cardExpenses?: number };
   yearlyOverview: MonthlyStatsWithProjections[];
   recentTransactions: Transaction[];
@@ -181,8 +163,6 @@ export interface CardInstallmentSummary {
   installmentAmount: number;
   totalRemaining: number;
 }
-
-export type InvoiceStatus = 'open' | 'closed' | 'paid';
 
 export interface InvoiceSummary {
   id: string;
@@ -355,22 +335,7 @@ export class TransactionService {
 
   // Helper to format period for display
   formatPeriod(period: string): string {
-    const [year, month] = period.split('-');
-    const months = [
-      'Janeiro',
-      'Fevereiro',
-      'Março',
-      'Abril',
-      'Maio',
-      'Junho',
-      'Julho',
-      'Agosto',
-      'Setembro',
-      'Outubro',
-      'Novembro',
-      'Dezembro',
-    ];
-    return `${months[Number.parseInt(month) - 1]}/${year}`;
+    return formatPeriod(period);
   }
 
   // Helper to get current period
@@ -381,31 +346,8 @@ export class TransactionService {
     return `${year}-${month}`;
   }
 
-  // Get available periods for filter (last 12 months + next 6 months)
+  // Get available periods for filter (last 12 months + next 12 months)
   getAvailablePeriods(): { label: string; value: string }[] {
-    const periods: { label: string; value: string }[] = [];
-    const now = new Date();
-
-    // Last 12 months
-    for (let i = 12; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      periods.push({
-        label: this.formatPeriod(period),
-        value: period,
-      });
-    }
-
-    // Next 12 months
-    for (let i = 1; i <= 12; i++) {
-      const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
-      const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      periods.push({
-        label: this.formatPeriod(period),
-        value: period,
-      });
-    }
-
-    return periods;
+    return getAvailablePeriods(12, 12);
   }
 }

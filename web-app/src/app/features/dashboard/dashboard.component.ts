@@ -6,9 +6,9 @@ import {
   CreditCardSummary,
   CardInstallmentSummary,
   InvoiceSummary,
+  DashboardApiResponse,
 } from '../../core/services/transaction.service';
 import { DashboardService } from '../../core/services/dashboard.service';
-import { CategoryService, Category } from '../../core/services/category.service';
 import {
   RecurringTransactionService,
   RecurringTransaction,
@@ -19,7 +19,8 @@ import { InstallmentService } from '../installments/services';
 import { InstallmentPlanSummary } from '../installments/models';
 import { MessageService } from 'primeng/api';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
-import { parseLocalDate, formatDateToString } from '../../shared/utils/date.utils';
+import { parseLocalDate } from '../../shared/utils/date.utils';
+import { formatCurrency } from '../../shared/utils/format.utils';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import {
@@ -27,7 +28,7 @@ import {
   CategoryStats,
   InstallmentStats,
   MonthlyExpenseBreakdownItem,
-} from '../../shared/types/dashboard.types';
+} from '../../core/types/common.types';
 
 @Component({
   selector: 'app-dashboard',
@@ -109,33 +110,15 @@ export class DashboardComponent implements OnInit {
   activeTabIndex: number = 0;
   private readonly TAB_STORAGE_KEY = 'dashboard_active_tab';
 
-  // Chart responsive options
-  responsiveOptions: any[] = [
-    {
-      breakpoint: '1024px',
-      numVisible: 3,
-      numScroll: 3,
-    },
-    {
-      breakpoint: '768px',
-      numVisible: 2,
-      numScroll: 2,
-    },
-    {
-      breakpoint: '560px',
-      numVisible: 1,
-      numScroll: 1,
-    },
-  ];
-
   private readonly router = inject(Router);
   private readonly transactionService = inject(TransactionService);
   private readonly dashboardService = inject(DashboardService);
-  private readonly categoryService = inject(CategoryService);
   private readonly recurringTransactionService = inject(RecurringTransactionService);
   private readonly cardTransactionService = inject(CardTransactionService);
   private readonly installmentService = inject(InstallmentService);
   private readonly messageService = inject(MessageService);
+
+  readonly formatCurrency = formatCurrency;
 
   constructor() {
     this.loadActiveTabFromStorage();
@@ -307,81 +290,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  async loadMonthlyStats(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.transactionService.getMonthlyStats(this.selectedYear).subscribe({
-        next: (stats) => {
-          this.updateMonthlyTrendChart(stats);
-          this.updateIncomeVsExpenseChart(stats);
-          this.calculateGrowthRate(stats);
-          resolve();
-        },
-        error: reject,
-      });
-    });
-  }
-
-  async loadCurrentMonthStats(): Promise<void> {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-    return new Promise((resolve, reject) => {
-      this.transactionService
-        .getTransactions({
-          startDate: formatDateToString(startOfMonth),
-          endDate: formatDateToString(endOfMonth),
-          limit: 1000,
-        })
-        .subscribe({
-          next: (response) => {
-            const transactions = response.data;
-            this.calculateCurrentStats(transactions);
-            resolve();
-          },
-          error: reject,
-        });
-    });
-  }
-
-  async loadCategoryStats(): Promise<void> {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-    return new Promise((resolve, reject) => {
-      Promise.all([
-        this.transactionService
-          .getTransactions({
-            startDate: formatDateToString(startOfMonth),
-            endDate: formatDateToString(endOfMonth),
-            limit: 1000,
-          })
-          .toPromise(),
-        this.categoryService.getCategories().toPromise(),
-      ])
-        .then(([transactionResponse, categories]) => {
-          if (transactionResponse && categories) {
-            this.calculateCategoryStats(transactionResponse.data, categories);
-          }
-          resolve();
-        })
-        .catch(reject);
-    });
-  }
-
-  async loadRecentTransactions(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.transactionService.getTransactions({ limit: 5, page: 1 }).subscribe({
-        next: (response) => {
-          this.recentTransactions = response.data;
-          resolve();
-        },
-        error: reject,
-      });
-    });
-  }
-
   async loadUpcomingRecurring(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.recurringTransactionService.getRecurringTransactions().subscribe({
@@ -443,62 +351,6 @@ export class DashboardComponent implements OnInit {
    */
   loadCreditCardData(): void {
     this.loadCardTransactionsForPeriod();
-  }
-
-  calculateCurrentStats(transactions: any[]): void {
-    const income = transactions.filter((t) => t.type === 'income');
-    const expenses = transactions.filter((t) => t.type === 'expense');
-
-    this.currentStats.totalIncome = income.reduce((sum, t) => sum + t.amount, 0);
-    this.currentStats.totalExpenses = expenses.reduce((sum, t) => sum + t.amount, 0);
-    this.currentStats.balance = this.currentStats.totalIncome - this.currentStats.totalExpenses;
-    this.currentStats.transactionCount = transactions.length;
-    this.currentStats.averageTransaction =
-      transactions.length > 0
-        ? (this.currentStats.totalIncome + this.currentStats.totalExpenses) / transactions.length
-        : 0;
-  }
-
-  calculateCategoryStats(transactions: any[], categories: Category[]): void {
-    const categoryStats = new Map<string, CategoryStats>();
-
-    // Initialize category stats
-    categories.forEach((category) => {
-      categoryStats.set(category.id, {
-        categoryId: category.id,
-        categoryName: category.name,
-        categoryColor: category.color,
-        categoryIcon: category.icon,
-        amount: 0,
-        percentage: 0,
-        transactionCount: 0,
-      });
-    });
-
-    // Calculate amounts per category
-    transactions.forEach((transaction) => {
-      const stats = categoryStats.get(transaction.category.id);
-      if (stats) {
-        stats.amount += transaction.amount;
-        stats.transactionCount++;
-      }
-    });
-
-    // Calculate percentages and filter out empty categories
-    const totalAmount = Array.from(categoryStats.values()).reduce(
-      (sum, stat) => sum + stat.amount,
-      0,
-    );
-    this.topCategories = Array.from(categoryStats.values())
-      .filter((stat) => stat.amount > 0)
-      .map((stat) => ({
-        ...stat,
-        percentage: totalAmount > 0 ? (stat.amount / totalAmount) * 100 : 0,
-      }))
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 10);
-
-    this.updateCategoryCharts();
   }
 
   updateMonthlyTrendChart(stats: MonthlyStats[]): void {
@@ -836,13 +688,6 @@ export class DashboardComponent implements OnInit {
     this.loadCreditCardData();
   }
 
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  }
-
   formatDate(date: string): string {
     return new Date(date).toLocaleDateString('pt-BR');
   }
@@ -903,42 +748,6 @@ export class DashboardComponent implements OnInit {
       { label: 'Novembro', value: 11 },
       { label: 'Dezembro', value: 12 },
     ];
-  }
-
-  getChartType(type: string) {
-    return { type: type };
-  }
-
-  getIncomeExpenseOptions() {
-    return this.incomeVsExpenseOptions;
-  }
-
-  getIncomeExpenseData() {
-    return this.incomeVsExpenseData;
-  }
-
-  getMonthlyTrendOptions() {
-    return this.monthlyTrendOptions;
-  }
-
-  getMonthlyTrendData() {
-    return this.monthlyTrendData;
-  }
-
-  getCategoryPieData() {
-    return this.categoryPieData;
-  }
-
-  getCategoryPieOptions() {
-    return this.categoryPieOptions;
-  }
-
-  getExpenseCategoryData() {
-    return this.expenseCategoryData;
-  }
-
-  getExpenseCategoryOptions() {
-    return this.expenseCategoryOptions;
   }
 
   // New helper methods for projections and navigation
@@ -1126,13 +935,7 @@ export class DashboardComponent implements OnInit {
    * This ensures consistency with the "Totais do Mês" widget.
    */
   getActualTotalExpenses(): number {
-    if (this.expenseBreakdown && this.expenseBreakdown.length > 0) {
-      const totalItem = this.expenseBreakdown.find((item) => item.type === 'total');
-      if (totalItem) {
-        return totalItem.amount;
-      }
-    }
-    return this.currentStats.totalExpenses;
+    return this.dashboardService.getActualTotalExpenses(this.currentStats, this.expenseBreakdown);
   }
 
   /**
@@ -1140,7 +943,7 @@ export class DashboardComponent implements OnInit {
    * Balance = totalIncome - actualTotalExpenses
    */
   getActualBalance(): number {
-    return this.currentStats.totalIncome - this.getActualTotalExpenses();
+    return this.dashboardService.getActualBalance(this.currentStats, this.expenseBreakdown);
   }
 
   /**

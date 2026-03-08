@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config';
-import * as fs from 'fs';
+import { buildSslOptions } from './ssl.utils';
 
 export default registerAs('database', () => ({
   type: 'postgres',
@@ -12,14 +12,7 @@ export default registerAs('database', () => ({
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   synchronize: false,
   logging: process.env.DB_LOGGING === 'true',
-  ssl:
-    process.env.DB_SSL === 'true'
-      ? {
-          cert: fs.readFileSync(process.env.DB_CA_CERTIFICATE_PATH),
-          key: fs.readFileSync(process.env.DB_KEY_PATH),
-          rejectUnauthorized: false,
-        }
-      : false,
+  ssl: buildSslOptions(),
   extra: {
     family: 4,
   },

@@ -37,7 +37,7 @@
           label="Nova Transação"
           icon="pi pi-plus"
           size="small"
-          (onClick)="openTransactionDialog()"
+          (onClick)="openNew()"
           styleClass="p-button-primary"
         ></p-button>
       </div>
@@ -383,7 +383,7 @@
               <p-button
                 label="Adicionar Primeira Transação"
                 icon="pi pi-plus"
-                (click)="openTransactionDialog()"
+                (click)="openNew()"
                 styleClass="p-button-primary table-empty-action"
               ></p-button>
             </div>
@@ -412,7 +412,7 @@
         </label>
         <p-dropdown
           formControlName="type"
-          [options]="getTypeOptions()"
+          [options]="transactionTypes"
           optionLabel="label"
           optionValue="value"
           placeholder="Selecione o tipo"

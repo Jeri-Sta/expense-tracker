@@ -11,7 +11,6 @@ import { LoadingService } from '../../core/services/loading.service';
 })
 export class SettingsComponent implements OnInit {
   isWorkspaceOwner = false;
-  isLoading = true;
 
   private readonly authService = inject(AuthService);
   private readonly workspaceService = inject(WorkspaceService);
@@ -21,6 +20,5 @@ export class SettingsComponent implements OnInit {
   ngOnInit(): void {
     this.isWorkspaceOwner = this.authService.isWorkspaceOwner();
     this.loadingService.hide();
-    this.isLoading = false;
   }
 }

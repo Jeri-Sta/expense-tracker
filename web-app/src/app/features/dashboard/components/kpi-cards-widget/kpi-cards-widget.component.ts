@@ -2,8 +2,9 @@ import { Component, inject, Input } from '@angular/core';
 import {
   DashboardStats,
   MonthlyExpenseBreakdownItem,
-} from '../../../../shared/types/dashboard.types';
-import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
+} from '../../../../core/types/common.types';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
+import { DashboardService } from '../../../../core/services/dashboard.service';
 
 @Component({
   selector: 'app-kpi-cards-widget',
@@ -30,21 +31,18 @@ export class KpiCardsWidgetComponent {
   @Input() selectedMonthName = '';
   @Input() expenseBreakdown: MonthlyExpenseBreakdownItem[] = [];
 
-  private readonly utils = inject(DashboardUtilsService);
-
-  formatCurrency(value: number): string {
-    return this.utils.formatCurrency(value);
-  }
+  readonly formatCurrency = formatCurrency;
+  private readonly dashboardService = inject(DashboardService);
 
   getBalanceClass(): string {
     const balance = this.showProjections
       ? this.getTotalProjectedBalance()
       : this.getActualBalance();
-    return this.utils.getBalanceClass(balance);
+    return balance >= 0 ? 'text-green-600' : 'text-red-600';
   }
 
   getProjectionClass(value: number): string {
-    return this.utils.getProjectionClass(value);
+    return value >= 0 ? 'text-blue-600' : 'text-orange-600';
   }
 
   getTotalProjectedIncome(): number {
@@ -55,26 +53,12 @@ export class KpiCardsWidgetComponent {
     return this.getActualTotalExpenses() + this.dashboardData.projectedExpenses;
   }
 
-  /**
-   * Gets the actual total expenses from the breakdown data if available,
-   * otherwise falls back to dashboardData.totalExpenses
-   */
   getActualTotalExpenses(): number {
-    if (this.expenseBreakdown && this.expenseBreakdown.length > 0) {
-      const totalItem = this.expenseBreakdown.find((item) => item.type === 'total');
-      if (totalItem) {
-        return totalItem.amount;
-      }
-    }
-    return this.dashboardData.totalExpenses;
+    return this.dashboardService.getActualTotalExpenses(this.dashboardData, this.expenseBreakdown);
   }
 
-  /**
-   * Gets the actual balance calculated using the correct expenses from breakdown.
-   * Balance = totalIncome - actualTotalExpenses
-   */
   getActualBalance(): number {
-    return this.dashboardData.totalIncome - this.getActualTotalExpenses();
+    return this.dashboardService.getActualBalance(this.dashboardData, this.expenseBreakdown);
   }
 
   getTotalProjectedBalance(): number {

@@ -57,3 +57,28 @@ export function formatCompetencyPeriod(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   return `${year}-${month}`;
 }
+
+/**
+ * Returns the number of days between today (midnight) and a future/past date (midnight).
+ * Positive = date is in the future; negative = date is in the past.
+ *
+ * @param date - Target date as a Date object or string
+ * @returns Number of days (may be negative if overdue)
+ */
+export function getDaysUntilDate(date: Date | string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(date);
+  target.setHours(0, 0, 0, 0);
+  return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+/**
+ * Returns true if the given date is strictly before today (midnight).
+ *
+ * @param date - Target date as a Date object or string
+ * @returns true if the date has already passed
+ */
+export function isDateOverdue(date: Date | string): boolean {
+  return getDaysUntilDate(date) < 0;
+}

@@ -1,13 +1,8 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
+import { InvitationStatus } from '../../../common/enums';
 import { Workspace } from '../../workspaces/entities/workspace.entity';
 import { User } from '../../users/entities/user.entity';
-
-export enum InvitationStatus {
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
-  DECLINED = 'DECLINED',
-}
 
 @Entity('invitations')
 export class Invitation extends BaseEntity {

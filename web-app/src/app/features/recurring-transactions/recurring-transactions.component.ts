@@ -11,6 +11,12 @@ import { CategoryService, Category } from '../../core/services/category.service'
 import { TransactionType } from '../../core/types/common.types';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
 import { parseLocalDate } from '../../shared/utils/date.utils';
+import { formatCurrency } from '../../shared/utils/format.utils';
+import { markFormGroupTouched } from '../../shared/utils/form.utils';
+import {
+  getTransactionTypeLabel,
+  getTransactionTypeClass,
+} from '../../shared/utils/ui.utils';
 
 @Component({
   selector: 'app-recurring-transactions',
@@ -19,13 +25,15 @@ import { parseLocalDate } from '../../shared/utils/date.utils';
 })
 export class RecurringTransactionsComponent implements OnInit {
   normalizeIcon = normalizeIcon;
+  formatCurrency = formatCurrency;
+  getTransactionTypeLabel = getTransactionTypeLabel;
+  getTransactionTypeClass = getTransactionTypeClass;
   recurringTransactions: RecurringTransaction[] = [];
   categories: Category[] = [];
   loading = false;
 
   // Dialog states
   transactionDialog = false;
-  scheduleDialog = false;
   editMode = false;
   submitted = false;
 
@@ -340,42 +348,7 @@ export class RecurringTransactionsComponent implements OnInit {
   }
 
   calculateNextExecution(): void {
-    const frequency = this.transactionForm.get('frequency')?.value;
-    const interval = this.transactionForm.get('interval')?.value || 1;
-    const currentNext = this.transactionForm.get('nextExecution')?.value;
-
-    if (frequency && currentNext) {
-      const _nextDate = this.recurringTransactionService.calculateNextExecution(
-        currentNext,
-        frequency,
-        interval,
-      );
-      // Show preview or validation
-    }
-  }
-
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  }
-
-  formatDate(date: string | Date): string {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.toLocaleDateString('pt-BR');
-  }
-
-  formatDateTime(date: string): string {
-    return new Date(date).toLocaleString('pt-BR');
-  }
-
-  getTransactionTypeLabel(type: TransactionType): string {
-    return type === 'income' ? 'Receita' : 'Despesa';
-  }
-
-  getTransactionTypeClass(type: TransactionType): string {
-    return type === 'income' ? 'text-green-600' : 'text-red-600';
+    // Preview removed — no-op kept for template binding compatibility
   }
 
   getStatusLabel(transaction: RecurringTransaction): string {
@@ -392,6 +365,15 @@ export class RecurringTransactionsComponent implements OnInit {
 
   formatFrequency(frequency: string, interval: number): string {
     return this.recurringTransactionService.formatFrequency(frequency, interval);
+  }
+
+  formatDate(date: string | Date): string {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    return dateObj.toLocaleDateString('pt-BR');
+  }
+
+  formatDateTime(date: string): string {
+    return new Date(date).toLocaleString('pt-BR');
   }
 
   isOverdue(transaction: RecurringTransaction): boolean {
@@ -441,14 +423,6 @@ export class RecurringTransactionsComponent implements OnInit {
       intervals.push({ label: i.toString(), value: i });
     }
     return intervals;
-  }
-
-  getExecutionTypeOptions() {
-    return [
-      { label: 'Indefinido', value: 'indefinite' },
-      { label: 'Número específico', value: 'count' },
-      { label: 'Data limite', value: 'date' },
-    ];
   }
 
   skipTransaction(transaction: RecurringTransaction): void {

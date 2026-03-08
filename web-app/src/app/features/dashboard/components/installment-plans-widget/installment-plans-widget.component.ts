@@ -1,6 +1,9 @@
 import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { InstallmentPlanSummary } from '../../../installments/models';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
+import { getDaysUntilDate } from '../../../../shared/utils/date.utils';
+import { getProgressBarClass } from '../../../../shared/utils/ui.utils';
 
 @Component({
   selector: 'app-installment-plans-widget',
@@ -14,8 +17,9 @@ export class InstallmentPlansWidgetComponent {
   @Input() selectedYear!: number;
   @Output() viewDetails = new EventEmitter<string>();
 
-  // Math object for template
-  Math = Math;
+  formatCurrency = formatCurrency;
+  getProgressBarClass = getProgressBarClass;
+  readonly Math = Math;
 
   private readonly router = inject(Router);
 
@@ -32,31 +36,13 @@ export class InstallmentPlansWidgetComponent {
     this.router.navigate(['/installments/new']);
   }
 
-  getProgressBarClass(percentage: number): string {
-    if (percentage < 30) return 'progress-danger';
-    if (percentage < 70) return 'progress-warning';
-    return 'progress-success';
-  }
-
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
+  getDaysUntilDue(date?: Date | string): number | null {
+    if (!date) return null;
+    return getDaysUntilDate(date);
   }
 
   formatDate(date: Date | string): string {
     return new Date(date).toLocaleDateString('pt-BR');
-  }
-
-  getDaysUntilDue(date?: Date | string): number | null {
-    if (!date) return null;
-    const dueDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    dueDate.setHours(0, 0, 0, 0);
-    const diffTime = dueDate.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 
   getDueDateClass(daysUntilDue: number | null): string {

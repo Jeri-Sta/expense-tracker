@@ -5,6 +5,7 @@ import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoadingService } from '../../../core/services/loading.service';
 import { RegisterRequest } from '../../../core/models/auth.model';
+import { markFormGroupTouched } from '../../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-register',
@@ -13,7 +14,6 @@ import { RegisterRequest } from '../../../core/models/auth.model';
 })
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
-  isLoading = false;
   invitationToken: string | null = null;
   invitedEmail: string | null = null;
 
@@ -66,7 +66,6 @@ export class RegisterComponent implements OnInit {
 
   onSubmit(): void {
     if (this.registerForm.valid) {
-      this.isLoading = true;
       this.loadingService.show();
 
       const userData: RegisterRequest = {
@@ -94,23 +93,14 @@ export class RegisterComponent implements OnInit {
             summary: 'Erro no Registro',
             detail: error.error?.message || 'Erro ao criar conta',
           });
-          this.isLoading = false;
           this.loadingService.hide();
         },
         complete: () => {
-          this.isLoading = false;
           this.loadingService.hide();
         },
       });
     } else {
-      this.markFormGroupTouched();
-    }
-  }
-
-  private markFormGroupTouched(): void {
-    for (const key of Object.keys(this.registerForm.controls)) {
-      const control = this.registerForm.get(key);
-      control?.markAsTouched();
+      markFormGroupTouched(this.registerForm);
     }
   }
 

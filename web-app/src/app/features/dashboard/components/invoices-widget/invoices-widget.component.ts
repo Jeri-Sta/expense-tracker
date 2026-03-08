@@ -1,8 +1,8 @@
 import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
 import { InvoiceSummary, InvoiceStatus } from '../../../../core/services/transaction.service';
 import { parseLocalDate } from '../../../../shared/utils/date.utils';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
 
 @Component({
   selector: 'app-invoices-widget',
@@ -15,8 +15,9 @@ export class InvoicesWidgetComponent {
   @Input() selectedMonthName = '';
   @Input() selectedYear = new Date().getFullYear();
 
-  private readonly utils = inject(DashboardUtilsService);
   private readonly router = inject(Router);
+
+  readonly formatCurrency = formatCurrency;
 
   get subtitleText(): string {
     if (this.selectedMonthName && this.selectedYear) {
@@ -30,10 +31,6 @@ export class InvoicesWidgetComponent {
       return 0;
     }
     return this.invoices.reduce((sum, invoice) => sum + (Number(invoice.totalAmount) || 0), 0);
-  }
-
-  formatCurrency(value: number): string {
-    return this.utils.formatCurrency(value);
   }
 
   formatDate(date: string | Date): string {

@@ -38,3 +38,9 @@ export enum PaymentStatus {
   PENDING = 'pending',
   PAID = 'paid',
 }
+
+export enum InvitationStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  DECLINED = 'DECLINED',
+}

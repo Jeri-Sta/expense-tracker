@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { InvitationStatus } from '../entities/invitation.entity';
+import { InvitationStatus } from '../../../common/enums';
 
 export class InvitationResponseDto {
   @ApiProperty()

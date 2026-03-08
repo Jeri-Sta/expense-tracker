@@ -1,6 +1,7 @@
-import { Component, inject, Input } from '@angular/core';
-import { CategoryStats } from '../../../../shared/types/dashboard.types';
-import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
+import { Component, Input } from '@angular/core';
+import { CategoryStats } from '../../../../core/types/common.types';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
+import { normalizeIcon } from '../../../../shared/utils/icon.utils';
 
 @Component({
   selector: 'app-category-stats-widget',
@@ -11,13 +12,6 @@ export class CategoryStatsWidgetComponent {
   @Input() categoryStats: CategoryStats[] = [];
   @Input() isLoading = false;
 
-  private readonly utils = inject(DashboardUtilsService);
-
-  formatCurrency(value: number): string {
-    return this.utils.formatCurrency(value);
-  }
-
-  normalizeIcon(icon: string): string {
-    return this.utils.normalizeIcon(icon);
-  }
+  readonly formatCurrency = formatCurrency;
+  readonly normalizeIcon = normalizeIcon;
 }

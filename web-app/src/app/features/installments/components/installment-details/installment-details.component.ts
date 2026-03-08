@@ -3,6 +3,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { InstallmentService } from '../../services';
 import { InstallmentPlan, Installment, InstallmentStatus, PayInstallment } from '../../models';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
+import { getDaysUntilDate } from '../../../../shared/utils/date.utils';
+import { getProgressBarClass } from '../../../../shared/utils/ui.utils';
 
 @Component({
   selector: 'app-installment-details',
@@ -23,8 +26,13 @@ export class InstallmentDetailsComponent implements OnInit {
   // Enum for template
   InstallmentStatus = InstallmentStatus;
 
-  // Math object for template
-  Math = Math;
+  formatCurrency = formatCurrency;
+  getProgressBarClass = getProgressBarClass;
+  readonly Math = Math;
+
+  formatDate(date: Date | string): string {
+    return new Date(date).toLocaleDateString('pt-BR');
+  }
 
   // Use Angular's `inject()` to satisfy @angular-eslint/prefer-inject
   private readonly route = inject(ActivatedRoute);
@@ -206,24 +214,8 @@ export class InstallmentDetailsComponent implements OnInit {
     }
   }
 
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  }
-
-  formatDate(date: Date | string): string {
-    return new Date(date).toLocaleDateString('pt-BR');
-  }
-
   getDaysUntilDue(date: Date | string): number {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(date);
-    dueDate.setHours(0, 0, 0, 0);
-    const diffTime = dueDate.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return getDaysUntilDate(date);
   }
 
   getDueDateClass(installment: Installment): string {
@@ -240,17 +232,6 @@ export class InstallmentDetailsComponent implements OnInit {
     return this.installmentPlan?.installments
       ?.filter((i) => i.status === InstallmentStatus.PENDING)
       ?.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
-  }
-
-  getProgressBarClass(percentage: number): string {
-    if (percentage < 30) return 'progress-danger';
-    if (percentage < 70) return 'progress-warning';
-    return 'progress-success';
-  }
-
-  calculateSavings(): number {
-    if (!this.installmentPlan) return 0;
-    return this.installmentPlan.totalDiscount;
   }
 
   onBack(): void {

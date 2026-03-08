@@ -12,6 +12,7 @@ import {
   ProjectionsService,
   MonthlyStatsWithProjections,
 } from '../transactions/projections.service';
+import { getInvoicePeriodsWithDueDateInMonth } from '../../common/utils/invoice.utils';
 
 export interface CreditCardSummary {
   id: string;
@@ -572,7 +573,7 @@ export class DashboardService {
 
     for (const card of creditCards) {
       // Get the invoice period that has due date in the target month
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+      const invoicePeriods = getInvoicePeriodsWithDueDateInMonth(
         card.closingDay,
         card.dueDay,
         year,
@@ -640,7 +641,7 @@ export class DashboardService {
 
     for (const card of creditCards) {
       // Get the invoice period that has due date in the target month
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+      const invoicePeriods = getInvoicePeriodsWithDueDateInMonth(
         card.closingDay,
         card.dueDay,
         year,
@@ -714,7 +715,7 @@ export class DashboardService {
 
     for (const card of creditCards) {
       // Get the invoice period that has due date in the target month
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+      const invoicePeriods = getInvoicePeriodsWithDueDateInMonth(
         card.closingDay,
         card.dueDay,
         year,
@@ -795,7 +796,7 @@ export class DashboardService {
 
     for (const card of creditCards) {
       // Calculate which invoice period(s) have due date in the target month
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+      const invoicePeriods = getInvoicePeriodsWithDueDateInMonth(
         card.closingDay,
         card.dueDay,
         year,
@@ -815,39 +816,6 @@ export class DashboardService {
     }
 
     return totalExpenses;
-  }
-
-  /**
-   * Determina quais períodos de fatura (invoicePeriod) têm vencimento no mês/ano alvo.
-   * Retorna array de períodos no formato YYYY-MM.
-   */
-  private getInvoicePeriodsWithDueDateInMonth(
-    closingDay: number,
-    dueDay: number,
-    targetYear: number,
-    targetMonth: number,
-  ): string[] {
-    const periods: string[] = [];
-
-    // Se dueDay <= closingDay, a fatura do período X vence no mês X+1
-    // Caso contrário, vence no mesmo mês X
-    const dueDateIsNextMonth = dueDay <= closingDay;
-
-    if (dueDateIsNextMonth) {
-      // A fatura que vence no mês alvo é do mês anterior
-      let invoiceMonth = targetMonth - 1;
-      let invoiceYear = targetYear;
-      if (invoiceMonth < 1) {
-        invoiceMonth = 12;
-        invoiceYear -= 1;
-      }
-      periods.push(`${invoiceYear}-${String(invoiceMonth).padStart(2, '0')}`);
-    } else {
-      // A fatura que vence no mês alvo é do próprio mês
-      periods.push(`${targetYear}-${String(targetMonth).padStart(2, '0')}`);
-    }
-
-    return periods;
   }
 
   /**
@@ -872,7 +840,7 @@ export class DashboardService {
     >();
 
     for (const card of creditCards) {
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+      const invoicePeriods = getInvoicePeriodsWithDueDateInMonth(
         card.closingDay,
         card.dueDay,
         year,

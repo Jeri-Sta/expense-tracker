@@ -9,6 +9,7 @@ import {
   Invoice,
   UpdateInvoiceStatusDto,
 } from '../models/card-transaction.model';
+import { formatPeriod, getAvailablePeriods } from '../../../shared/utils/format.utils';
 
 export interface CardTransactionFilterParams {
   page?: number;
@@ -118,22 +119,26 @@ export class CardTransactionService {
 
   // Helper to format period for display
   formatPeriod(period: string): string {
-    const [year, month] = period.split('-');
-    const months = [
-      'Janeiro',
-      'Fevereiro',
-      'Março',
-      'Abril',
-      'Maio',
-      'Junho',
-      'Julho',
-      'Agosto',
-      'Setembro',
-      'Outubro',
-      'Novembro',
-      'Dezembro',
-    ];
-    return `${months[parseInt(month) - 1]}/${year}`;
+    return formatPeriod(period);
+  }
+
+  // Helper to get current period
+  getCurrentPeriod(): string {
+    const now = new Date();
+    let year = now.getFullYear();
+    let month = String(now.getMonth() + 2).padStart(2, '0');
+
+    if (month === '13') {
+      year += 1;
+      month = '01';
+    }
+
+    return `${year}-${month}`;
+  }
+
+  // Get available periods for filter (last 11 months + next 6 months)
+  getAvailablePeriods(): { label: string; value: string }[] {
+    return getAvailablePeriods(11, 6);
   }
 
   /**
@@ -164,45 +169,4 @@ export class CardTransactionService {
     });
   }
 
-  // Helper to get current period
-  getCurrentPeriod(): string {
-    const now = new Date();
-    let year = now.getFullYear();
-    let month = String(now.getMonth() + 2).padStart(2, '0');
-
-    if (month === '13') {
-      year += 1;
-      month = '01';
-    }
-
-    return `${year}-${month}`;
-  }
-
-  // Get available periods for filter (last 12 months + next 6 months)
-  getAvailablePeriods(): { label: string; value: string }[] {
-    const periods: { label: string; value: string }[] = [];
-    const now = new Date();
-
-    // Last 12 months
-    for (let i = 11; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      periods.push({
-        label: this.formatPeriod(period),
-        value: period,
-      });
-    }
-
-    // Next 6 months
-    for (let i = 1; i <= 6; i++) {
-      const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
-      const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      periods.push({
-        label: this.formatPeriod(period),
-        value: period,
-      });
-    }
-
-    return periods;
-  }
 }

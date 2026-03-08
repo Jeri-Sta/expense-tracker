@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CreditCardSummary } from '../../../../core/services/transaction.service';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
 
 @Component({
   selector: 'app-card-limits-widget',
@@ -9,12 +10,7 @@ import { CreditCardSummary } from '../../../../core/services/transaction.service
 export class CardLimitsWidgetComponent {
   @Input() creditCards: CreditCardSummary[] = [];
 
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  }
+  readonly formatCurrency = formatCurrency;
 
   getUsageSeverity(percentage: number): string {
     if (percentage >= 90) return 'danger';

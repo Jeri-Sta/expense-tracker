@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CardTransaction } from '../../../credit-cards/models/card-transaction.model';
 import { normalizeIcon } from '../../../../shared/utils/icon.utils';
+import { formatCurrency, formatPeriod } from '../../../../shared/utils/format.utils';
 
 @Component({
   selector: 'app-card-transactions-widget',
@@ -11,31 +12,11 @@ export class CardTransactionsWidgetComponent {
   @Input() transactions: CardTransaction[] = [];
   @Input() currentPeriod: string = '';
 
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  }
+  readonly formatCurrency = formatCurrency;
 
   formatPeriod(period: string): string {
     if (!period) return '';
-    const [year, month] = period.split('-');
-    const months = [
-      'Janeiro',
-      'Fevereiro',
-      'Março',
-      'Abril',
-      'Maio',
-      'Junho',
-      'Julho',
-      'Agosto',
-      'Setembro',
-      'Outubro',
-      'Novembro',
-      'Dezembro',
-    ];
-    return `${months[Number.parseInt(month, 10) - 1]}/${year}`;
+    return formatPeriod(period);
   }
 
   getTotalAmount(): number {

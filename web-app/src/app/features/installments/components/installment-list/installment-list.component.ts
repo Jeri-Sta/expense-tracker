@@ -3,6 +3,9 @@ import { Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { InstallmentService } from '../../services';
 import { InstallmentPlanSummary } from '../../models';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
+import { getDaysUntilDate } from '../../../../shared/utils/date.utils';
+import { getProgressBarClass } from '../../../../shared/utils/ui.utils';
 
 @Component({
   selector: 'app-installment-list',
@@ -13,8 +16,13 @@ export class InstallmentListComponent implements OnInit {
   installmentPlans: InstallmentPlanSummary[] = [];
   loading = false;
 
-  // Math object for template
-  Math = Math;
+  formatCurrency = formatCurrency;
+  getProgressBarClass = getProgressBarClass;
+  readonly Math = Math;
+
+  formatDate(date: Date | string): string {
+    return new Date(date).toLocaleDateString('pt-BR');
+  }
 
   // Use Angular's `inject()` to satisfy @angular-eslint/prefer-inject
   private readonly installmentService = inject(InstallmentService);
@@ -83,29 +91,9 @@ export class InstallmentListComponent implements OnInit {
     });
   }
 
-  getProgressBarClass(percentage: number): string {
-    if (percentage < 30) return 'progress-danger';
-    if (percentage < 70) return 'progress-warning';
-    return 'progress-success';
-  }
-
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  }
-
-  formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString('pt-BR');
-  }
-
   getDaysUntilDue(date?: Date): number | null {
     if (!date) return null;
-    const today = new Date();
-    const dueDate = new Date(date);
-    const diffTime = dueDate.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return getDaysUntilDate(date);
   }
 
   getDueDateClass(daysUntilDue: number | null): string {

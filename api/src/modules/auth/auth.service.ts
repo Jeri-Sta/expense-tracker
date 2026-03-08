@@ -131,20 +131,6 @@ export class AuthService {
     };
   }
 
-  async validateUser(email: string, password: string): Promise<User | null> {
-    const user = await this.usersService.findByEmail(email);
-    if (!user || !user.isActive) {
-      return null;
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return null;
-    }
-
-    return user;
-  }
-
   private async generateTokens(user: User) {
     const payload = {
       sub: user.id,

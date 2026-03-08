@@ -1,7 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { PaidInstallment } from '../../../../shared/types/dashboard.types';
-import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
+import { PaidInstallment } from '../../../../core/types/common.types';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
 
 @Component({
   selector: 'app-paid-installments-widget',
@@ -15,8 +15,9 @@ export class PaidInstallmentsWidgetComponent {
   @Input() selectedYear = new Date().getFullYear();
 
   // Use Angular's `inject()` to satisfy @angular-eslint/prefer-inject
-  private readonly utils = inject(DashboardUtilsService);
   private readonly router = inject(Router);
+
+  readonly formatCurrency = formatCurrency;
 
   get subtitleText(): string {
     if (this.selectedMonthName && this.selectedYear) {
@@ -39,12 +40,8 @@ export class PaidInstallmentsWidgetComponent {
     return this.paidInstallments.reduce((sum, p) => sum + (Number(p.discountAmount) || 0), 0);
   }
 
-  formatCurrency(value: number): string {
-    return this.utils.formatCurrency(value);
-  }
-
   formatDate(date: string | Date): string {
-    return this.utils.formatDate(date);
+    return new Date(date).toLocaleDateString('pt-BR');
   }
 
   navigateToInstallments(): void {
