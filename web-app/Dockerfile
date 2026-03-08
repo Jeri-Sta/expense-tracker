@@ -1,14 +1,3 @@
-# Multi-stage Dockerfile for Angular Frontend
-
-# Development stage
-FROM node:18-alpine AS development
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-EXPOSE 4200
-CMD ["npm", "run", "start"]
-
 # Build stage
 FROM node:18-alpine AS build
 WORKDIR /app
