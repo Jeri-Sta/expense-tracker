@@ -4,13 +4,28 @@
 - Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
+- Adicione melhorias e otimizações aqui
+
+### 🐛 Correções
+- Adicione correções de bugs aqui
+
+### 📦 Atualizações de Dependências
+- Adicione atualizações de dependências aqui
+
+---
+
+## [2.2.0] - 2026-03-08
+
+### ✨ Novas Funcionalidades
+
+
+### 🔧 Melhorias
 - Refatoração de código.
 
 ### 🐛 Correções
 - Corrigido gráficos de categorias para não limitar a exibição de categorias.
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
 
 ---
 

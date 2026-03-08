@@ -1,8 +1,8 @@
 {
-  "oldVersion": "2.1.1",
-  "newVersion": "2.1.2",
-  "versionType": "patch",
-  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n### 🐛 Correções\n- Corrigido geração de projeções de mês atual.\n### 📦 Atualizações de Dependências",
-  "backupBranch": "backup/release-2026-02-01T17-10-07-638Z",
-  "timestamp": "2026-02-01T17:10:07.681Z"
+  "oldVersion": "2.1.2",
+  "newVersion": "2.2.0",
+  "versionType": "minor",
+  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n- Refatoração de código.\n### 🐛 Correções\n- Corrigido gráficos de categorias para não limitar a exibição de categorias.\n### 📦 Atualizações de Dependências",
+  "backupBranch": "backup/release-2026-03-08T19-42-51-605Z",
+  "timestamp": "2026-03-08T19:42:51.651Z"
 }
