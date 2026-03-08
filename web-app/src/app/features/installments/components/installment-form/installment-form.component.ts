@@ -49,7 +49,6 @@ export class InstallmentFormComponent implements OnInit {
       startDate: [new Date(), Validators.required],
       description: [''],
     });
-
   }
 
   private loadInstallmentPlan(id: string): void {

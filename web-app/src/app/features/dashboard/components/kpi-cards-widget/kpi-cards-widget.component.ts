@@ -1,8 +1,5 @@
 import { Component, inject, Input } from '@angular/core';
-import {
-  DashboardStats,
-  MonthlyExpenseBreakdownItem,
-} from '../../../../core/types/common.types';
+import { DashboardStats, MonthlyExpenseBreakdownItem } from '../../../../core/types/common.types';
 import { formatCurrency } from '../../../../shared/utils/format.utils';
 import { DashboardService } from '../../../../core/services/dashboard.service';
 

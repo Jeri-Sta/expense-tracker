@@ -12,11 +12,7 @@ import { TransactionType } from '../../core/types/common.types';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
 import { parseLocalDate } from '../../shared/utils/date.utils';
 import { formatCurrency } from '../../shared/utils/format.utils';
-import { markFormGroupTouched } from '../../shared/utils/form.utils';
-import {
-  getTransactionTypeLabel,
-  getTransactionTypeClass,
-} from '../../shared/utils/ui.utils';
+import { getTransactionTypeLabel, getTransactionTypeClass } from '../../shared/utils/ui.utils';
 
 @Component({
   selector: 'app-recurring-transactions',

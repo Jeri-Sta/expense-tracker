@@ -47,10 +47,7 @@ export class DashboardService {
    * Gets the actual balance calculated using the correct expenses from breakdown.
    * Balance = totalIncome - actualTotalExpenses
    */
-  getActualBalance(
-    stats: DashboardStats,
-    expenseBreakdown: MonthlyExpenseBreakdownItem[],
-  ): number {
+  getActualBalance(stats: DashboardStats, expenseBreakdown: MonthlyExpenseBreakdownItem[]): number {
     return stats.totalIncome - this.getActualTotalExpenses(stats, expenseBreakdown);
   }
 }

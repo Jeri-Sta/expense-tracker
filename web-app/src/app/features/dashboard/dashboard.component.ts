@@ -6,7 +6,6 @@ import {
   CreditCardSummary,
   CardInstallmentSummary,
   InvoiceSummary,
-  DashboardApiResponse,
 } from '../../core/services/transaction.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import {

@@ -11,12 +11,27 @@ interface RouteMetadata {
 
 const ROUTE_METADATA: { matcher: (route: string) => boolean; meta: RouteMetadata }[] = [
   { matcher: (r) => r === '/dashboard', meta: { title: 'Dashboard', icon: 'pi pi-chart-line' } },
-  { matcher: (r) => r === '/transactions', meta: { title: 'Transações', icon: 'pi pi-credit-card' } },
+  {
+    matcher: (r) => r === '/transactions',
+    meta: { title: 'Transações', icon: 'pi pi-credit-card' },
+  },
   { matcher: (r) => r === '/categories', meta: { title: 'Categorias', icon: 'pi pi-tags' } },
-  { matcher: (r) => r === '/recurring-transactions', meta: { title: 'Transações Recorrentes', icon: 'pi pi-refresh' } },
-  { matcher: (r) => r.startsWith('/installments'), meta: { title: 'Financiamentos', icon: 'pi pi-calculator' } },
-  { matcher: (r) => r === '/credit-cards', meta: { title: 'Cartões de Crédito', icon: 'pi pi-wallet' } },
-  { matcher: (r) => r === '/credit-cards/transactions', meta: { title: 'Faturas de Cartão', icon: 'pi pi-file' } },
+  {
+    matcher: (r) => r === '/recurring-transactions',
+    meta: { title: 'Transações Recorrentes', icon: 'pi pi-refresh' },
+  },
+  {
+    matcher: (r) => r.startsWith('/installments'),
+    meta: { title: 'Financiamentos', icon: 'pi pi-calculator' },
+  },
+  {
+    matcher: (r) => r === '/credit-cards',
+    meta: { title: 'Cartões de Crédito', icon: 'pi pi-wallet' },
+  },
+  {
+    matcher: (r) => r === '/credit-cards/transactions',
+    meta: { title: 'Faturas de Cartão', icon: 'pi pi-file' },
+  },
   { matcher: (r) => r === '/settings', meta: { title: 'Configurações', icon: 'pi pi-cog' } },
 ];
 
