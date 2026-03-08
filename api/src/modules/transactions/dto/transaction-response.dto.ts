@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TransactionType, PaymentStatus } from '../../../common/enums';
+import { Transaction } from '../entities/transaction.entity';
 
 export class TransactionResponseDto {
   @ApiProperty()
@@ -57,4 +58,35 @@ export class TransactionResponseDto {
 
   @ApiProperty({ required: false })
   paidDate?: Date;
+
+  static fromEntity(transaction: Transaction): TransactionResponseDto {
+    return {
+      id: transaction.id,
+      amount: Number(transaction.amount),
+      description: transaction.description,
+      type: transaction.type,
+      transactionDate: transaction.transactionDate,
+      competencyPeriod: transaction.competencyPeriod,
+      notes: transaction.notes,
+      metadata: transaction.metadata,
+      isRecurring: transaction.isRecurring,
+      isProjected: transaction.isProjected ?? false,
+      projectionSource: transaction.projectionSource,
+      confidenceScore: transaction.confidenceScore
+        ? Number(transaction.confidenceScore)
+        : undefined,
+      createdAt: transaction.createdAt,
+      updatedAt: transaction.updatedAt,
+      category: transaction.category
+        ? {
+            id: transaction.category.id,
+            name: transaction.category.name,
+            color: transaction.category.color,
+            icon: transaction.category.icon,
+          }
+        : undefined,
+      paymentStatus: transaction.paymentStatus ?? PaymentStatus.PENDING,
+      paidDate: transaction.paidDate,
+    };
+  }
 }

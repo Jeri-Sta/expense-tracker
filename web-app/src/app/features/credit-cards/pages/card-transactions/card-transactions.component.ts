@@ -13,8 +13,9 @@ import {
 } from '../../models/card-transaction.model';
 import { CreditCard } from '../../models/credit-card.model';
 import { parseLocalDate } from '../../../../shared/utils/date.utils';
-import { normalizeIcon } from '@shared/utils/icon.utils';
-import { TransactionType } from '@core/types/common.types';
+import { normalizeIcon } from '../../../../shared/utils/icon.utils';
+import { TransactionType } from '../../../../core/types/common.types';
+import { formatCurrency, formatPeriod } from '../../../../shared/utils/format.utils';
 
 @Component({
   selector: 'app-card-transactions',
@@ -67,6 +68,8 @@ export class CardTransactionsComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+
+  readonly formatCurrency = formatCurrency;
 
   constructor() {
     this.selectedPeriod = this.cardTransactionService.getCurrentPeriod();
@@ -426,13 +429,6 @@ export class CardTransactionsComponent implements OnInit {
   }
 
   // Helper methods
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  }
-
   formatDate(date: Date): string {
     const d = new Date(date);
     const year = d.getFullYear();
@@ -442,7 +438,7 @@ export class CardTransactionsComponent implements OnInit {
   }
 
   formatPeriod(period: string): string {
-    return this.cardTransactionService.formatPeriod(period);
+    return formatPeriod(period);
   }
 
   getInvoiceStatusLabel(status: InvoiceStatus): string {

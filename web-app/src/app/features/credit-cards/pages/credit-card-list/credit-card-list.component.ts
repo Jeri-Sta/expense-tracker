@@ -7,6 +7,7 @@ import {
   CreateCreditCardDto,
   UpdateCreditCardDto,
 } from '../../models/credit-card.model';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
 
 @Component({
   selector: 'app-credit-card-list',
@@ -41,6 +42,8 @@ export class CreditCardListComponent implements OnInit {
   private creditCardService = inject(CreditCardService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+
+  readonly formatCurrency = formatCurrency;
 
   ngOnInit(): void {
     this.initializeForm();
@@ -218,13 +221,6 @@ export class CreditCardListComponent implements OnInit {
   selectColor(color: string): void {
     this.cardForm.patchValue({ color });
     this.showColorPicker = false;
-  }
-
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
   }
 
   getUsagePercentage(card: CreditCard): number {

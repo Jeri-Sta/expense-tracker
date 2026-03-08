@@ -4,6 +4,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { InstallmentService } from '../../services';
 import { InstallmentPlan, CreateInstallmentPlan } from '../../models';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
+import { markFormGroupTouched } from '../../../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-installment-form',
@@ -47,11 +49,6 @@ export class InstallmentFormComponent implements OnInit {
       startDate: [new Date(), Validators.required],
       description: [''],
     });
-
-    // Listen for value changes to auto-calculate
-    this.form.get('financedAmount')?.valueChanges.subscribe(() => this.autoCalculate());
-    this.form.get('installmentValue')?.valueChanges.subscribe(() => this.autoCalculate());
-    this.form.get('totalInstallments')?.valueChanges.subscribe(() => this.autoCalculate());
   }
 
   private loadInstallmentPlan(id: string): void {
@@ -74,11 +71,6 @@ export class InstallmentFormComponent implements OnInit {
         this.router.navigate(['/installments']);
       },
     });
-  }
-
-  private autoCalculate(): void {
-    // Não é necessário fazer nenhum cálculo automático aqui
-    // Todos os cálculos são feitos nos métodos getter para exibição
   }
 
   getTotalAmount(): number {
@@ -190,19 +182,12 @@ export class InstallmentFormComponent implements OnInit {
         });
       }
     } else {
-      this.markFormGroupTouched();
+      markFormGroupTouched(this.form);
     }
   }
 
   onCancel(): void {
     this.router.navigate(['/installments']);
-  }
-
-  private markFormGroupTouched(): void {
-    for (const key of Object.keys(this.form.controls)) {
-      const control = this.form.get(key);
-      control?.markAsTouched();
-    }
   }
 
   getFieldError(fieldName: string): string {
@@ -217,10 +202,5 @@ export class InstallmentFormComponent implements OnInit {
     return '';
   }
 
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  }
+  formatCurrency = formatCurrency;
 }

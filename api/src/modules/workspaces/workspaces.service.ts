@@ -10,9 +10,9 @@ import { WorkspaceResponseDto } from './dto/workspace-response.dto';
 export class WorkspacesService {
   constructor(
     @InjectRepository(Workspace)
-    private workspacesRepository: Repository<Workspace>,
+    private readonly workspacesRepository: Repository<Workspace>,
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private readonly usersRepository: Repository<User>,
   ) {}
 
   async createWorkspace(
@@ -65,14 +65,7 @@ export class WorkspacesService {
       throw new NotFoundException('Workspace not found');
     }
 
-    return workspace.members.map((member) => ({
-      id: member.id,
-      email: member.email,
-      firstName: member.firstName,
-      lastName: member.lastName,
-      isInvitedUser: member.isInvitedUser,
-      createdAt: member.createdAt,
-    }));
+    return workspace.members.map((member) => this.mapMember(member));
   }
 
   async addMember(workspaceId: string, userId: string): Promise<void> {
@@ -114,20 +107,31 @@ export class WorkspacesService {
     return user.workspaceId === workspaceId;
   }
 
+  private mapMember(member: User): {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    isInvitedUser: boolean;
+    createdAt: Date;
+  } {
+    return {
+      id: member.id,
+      email: member.email,
+      firstName: member.firstName,
+      lastName: member.lastName,
+      isInvitedUser: member.isInvitedUser,
+      createdAt: member.createdAt,
+    };
+  }
+
   private mapToResponseDto(workspace: Workspace): WorkspaceResponseDto {
     return {
       id: workspace.id,
       name: workspace.name,
       ownerId: workspace.ownerId,
       members: workspace.members
-        ? workspace.members.map((member) => ({
-            id: member.id,
-            email: member.email,
-            firstName: member.firstName,
-            lastName: member.lastName,
-            isInvitedUser: member.isInvitedUser,
-            createdAt: member.createdAt,
-          }))
+        ? workspace.members.map((member) => this.mapMember(member))
         : [],
       createdAt: workspace.createdAt,
     };

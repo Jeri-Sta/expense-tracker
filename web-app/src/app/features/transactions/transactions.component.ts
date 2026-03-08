@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { timeout, TimeoutError } from 'rxjs';
 import {
   TransactionService,
   Transaction,
@@ -10,6 +11,7 @@ import {
   PaymentStatus,
 } from '../../core/services/transaction.service';
 import { CategoryService, Category } from '../../core/services/category.service';
+import { StorageService } from '../../core/services/storage.service';
 import { TransactionType } from '../../core/types/common.types';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
 import {
@@ -18,6 +20,8 @@ import {
   formatDateToString,
   formatCompetencyPeriod,
 } from '../../shared/utils/date.utils';
+import { formatCurrency } from '../../shared/utils/format.utils';
+import { getTransactionTypeLabel, getTransactionTypeClass } from '../../shared/utils/ui.utils';
 
 @Component({
   selector: 'app-transactions',
@@ -54,8 +58,8 @@ export class TransactionsComponent implements OnInit {
 
   // Transaction type options
   transactionTypes = [
-    { label: 'Receita', value: 'income' as TransactionType },
-    { label: 'Despesa', value: 'expense' as TransactionType },
+    { label: 'Receita', value: 'income' as TransactionType, icon: 'pi pi-arrow-up' },
+    { label: 'Despesa', value: 'expense' as TransactionType, icon: 'pi pi-arrow-down' },
   ];
 
   // Current filters
@@ -89,6 +93,11 @@ export class TransactionsComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly storageService = inject(StorageService);
+
+  readonly formatCurrency = formatCurrency;
+  readonly getTransactionTypeLabel = getTransactionTypeLabel;
+  readonly getTransactionTypeClass = getTransactionTypeClass;
 
   ngOnInit(): void {
     this.initializeForms();
@@ -126,7 +135,7 @@ export class TransactionsComponent implements OnInit {
   }
 
   private checkAuthAndLoadData(): void {
-    const hasToken = localStorage.getItem('auth_token');
+    const hasToken = this.storageService.has('auth_token');
 
     if (!hasToken) {
       this.loading = false;
@@ -236,14 +245,6 @@ export class TransactionsComponent implements OnInit {
   loadTransactions(event?: any): void {
     this.loading = true;
 
-    // Timeout de segurança para evitar loading infinito
-    setTimeout(() => {
-      if (this.loading) {
-        console.warn('Loading timeout reached, stopping loading indicator');
-        this.loading = false;
-      }
-    }, 15000); // 15 segundos de timeout
-
     // Se há um evento de lazy loading, atualizar os filtros
     if (event) {
       this.first = event.first || 0;
@@ -277,7 +278,7 @@ export class TransactionsComponent implements OnInit {
       ? this.transactionService.getTransactionsWithProjectionFilters(this.currentFilters)
       : this.transactionService.getTransactions(this.currentFilters);
 
-    serviceCall.subscribe({
+    serviceCall.pipe(timeout(15000)).subscribe({
       next: (response) => {
         // Verificar se a resposta tem a estrutura esperada
         if (response && response.data && Array.isArray(response.data)) {
@@ -300,8 +301,10 @@ export class TransactionsComponent implements OnInit {
         this.totalRecords = 0;
         this.loading = false;
 
-        // Verificar se é erro de autenticação
-        if (error.status === 401) {
+        if (error instanceof TimeoutError) {
+          console.warn('Loading timeout reached, stopping loading indicator');
+        } else if (error.status === 401) {
+          // Verificar se é erro de autenticação
           this.messageService.add({
             severity: 'error',
             summary: 'Erro de Autenticação',
@@ -693,13 +696,6 @@ export class TransactionsComponent implements OnInit {
           : parseLocalDate(formValue.transactionDate);
       const transactionDateStr = formatDateToString(transactionDate);
 
-      console.log('Saving transaction:', {
-        transactionDate: transactionDateStr,
-        competencyPeriod: competencyPeriod,
-        formTransactionDate: formValue.transactionDate,
-        formCompetencyPeriod: formValue.competencyPeriod,
-      });
-
       if (this.editMode) {
         const updateDto: UpdateTransactionDto = {
           description: formValue.description,
@@ -778,10 +774,6 @@ export class TransactionsComponent implements OnInit {
     this.transactionForm.reset();
   }
 
-  openTransactionDialog(): void {
-    this.openNew();
-  }
-
   get editingTransaction(): boolean {
     return this.editMode;
   }
@@ -858,30 +850,8 @@ export class TransactionsComponent implements OnInit {
     }
   }
 
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  }
-
   formatDate(date: string): string {
     return new Date(date).toLocaleDateString('pt-BR');
-  }
-
-  getTransactionTypeLabel(type: TransactionType): string {
-    return type === 'income' ? 'Receita' : 'Despesa';
-  }
-
-  getTransactionTypeClass(type: TransactionType): string {
-    return type === 'income' ? 'text-green-600' : 'text-red-600';
-  }
-
-  getTypeOptions() {
-    return [
-      { label: 'Receita', value: 'income', icon: 'pi pi-arrow-up' },
-      { label: 'Despesa', value: 'expense', icon: 'pi pi-arrow-down' },
-    ];
   }
 
   // Payment status methods

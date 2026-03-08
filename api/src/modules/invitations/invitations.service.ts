@@ -9,7 +9,8 @@ import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
-import { Invitation, InvitationStatus } from './entities/invitation.entity';
+import { Invitation } from './entities/invitation.entity';
+import { InvitationStatus } from '../../common/enums';
 import { Workspace } from '../workspaces/entities/workspace.entity';
 import { User } from '../users/entities/user.entity';
 import { EmailService } from '../email/email.service';
@@ -20,13 +21,13 @@ import { InvitationResponseDto } from './dto/invitation-response.dto';
 export class InvitationsService {
   constructor(
     @InjectRepository(Invitation)
-    private invitationsRepository: Repository<Invitation>,
+    private readonly invitationsRepository: Repository<Invitation>,
     @InjectRepository(Workspace)
-    private workspacesRepository: Repository<Workspace>,
+    private readonly workspacesRepository: Repository<Workspace>,
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    private emailService: EmailService,
-    private configService: ConfigService,
+    private readonly usersRepository: Repository<User>,
+    private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
 
   async sendInvitation(
@@ -79,15 +80,7 @@ export class InvitationsService {
       throw new BadRequestException('User already has pending invitation');
     }
 
-    // Generate invitation token
-    const tokenBuffer = crypto.randomBytes(32);
-    const plainToken = tokenBuffer.toString('hex');
-    const hashedToken = await bcrypt.hash(plainToken, 10);
-
-    // Create expiry date (7 days from now by default)
-    const expiryDays = this.configService.get<number>('INVITATION_TOKEN_EXPIRY_DAYS', 7);
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + expiryDays);
+    const { plainToken, hashedToken, expiresAt } = await this.generateInvitationToken();
 
     const invitation = new Invitation();
     invitation.workspaceId = workspaceId;
@@ -185,15 +178,7 @@ export class InvitationsService {
       throw new ForbiddenException('Only workspace owner can resend invitations');
     }
 
-    // Generate new token
-    const tokenBuffer = crypto.randomBytes(32);
-    const plainToken = tokenBuffer.toString('hex');
-    const hashedToken = await bcrypt.hash(plainToken, 10);
-
-    // Reset expiry date
-    const expiryDays = this.configService.get<number>('INVITATION_TOKEN_EXPIRY_DAYS', 7);
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + expiryDays);
+    const { plainToken, hashedToken, expiresAt } = await this.generateInvitationToken();
 
     invitation.invitationToken = hashedToken;
     invitation.expiresAt = expiresAt;
@@ -258,6 +243,19 @@ export class InvitationsService {
     });
 
     return invitations.map((inv) => this.mapToResponseDto(inv));
+  }
+
+  private async generateInvitationToken(): Promise<{
+    plainToken: string;
+    hashedToken: string;
+    expiresAt: Date;
+  }> {
+    const plainToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = await bcrypt.hash(plainToken, 10);
+    const expiryDays = this.configService.get<number>('INVITATION_TOKEN_EXPIRY_DAYS', 7);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + expiryDays);
+    return { plainToken, hashedToken, expiresAt };
   }
 
   private mapToResponseDto(invitation: Invitation): InvitationResponseDto {

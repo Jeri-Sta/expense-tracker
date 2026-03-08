@@ -4,6 +4,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { WorkspaceService } from '../../../../core/services/workspace.service';
 import { MessageService } from 'primeng/api';
 import { LoadingService } from '../../../../core/services/loading.service';
+import { markFormGroupTouched } from '../../../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-invite-user',
@@ -29,7 +30,6 @@ export class InviteUserComponent implements OnInit {
   private initializeForm(): void {
     this.inviteForm = this.formBuilder.group({
       invitedEmail: ['', [Validators.required, Validators.email]],
-      firstName: ['', [Validators.required, Validators.maxLength(50)]],
     });
   }
 
@@ -53,7 +53,6 @@ export class InviteUserComponent implements OnInit {
       this.workspaceService
         .sendInvitation(workspaceId, {
           invitedEmail: this.inviteForm.value.invitedEmail,
-          firstName: this.inviteForm.value.firstName,
         })
         .subscribe({
           next: () => {
@@ -80,22 +79,11 @@ export class InviteUserComponent implements OnInit {
           },
         });
     } else {
-      this.markFormGroupTouched();
-    }
-  }
-
-  private markFormGroupTouched(): void {
-    for (const key of Object.keys(this.inviteForm.controls)) {
-      const control = this.inviteForm.get(key);
-      control?.markAsTouched();
+      markFormGroupTouched(this.inviteForm);
     }
   }
 
   get invitedEmail() {
     return this.inviteForm.get('invitedEmail');
-  }
-
-  get firstName() {
-    return this.inviteForm.get('firstName');
   }
 }

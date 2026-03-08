@@ -69,3 +69,11 @@ export class CardTransactionSummaryDto {
   @ApiProperty()
   installmentCount: number;
 }
+
+export interface PaginatedCardTransactionsResponse {
+  data: any[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

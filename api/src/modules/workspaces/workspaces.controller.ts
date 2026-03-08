@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, UseGuards, Param, ForbiddenException } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
@@ -11,7 +11,7 @@ import { WorkspaceResponseDto } from './dto/workspace-response.dto';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class WorkspacesController {
-  constructor(private workspacesService: WorkspacesService) {}
+  constructor(private readonly workspacesService: WorkspacesService) {}
 
   @Get('me')
   @ApiOperation({ summary: 'Get current user workspace' })
@@ -33,7 +33,7 @@ export class WorkspacesController {
       id,
     );
     if (!belongsToWorkspace) {
-      throw new Error('Forbidden');
+      throw new ForbiddenException();
     }
 
     return this.workspacesService.getWorkspace(user.id);
@@ -48,7 +48,7 @@ export class WorkspacesController {
       id,
     );
     if (!belongsToWorkspace) {
-      throw new Error('Forbidden');
+      throw new ForbiddenException();
     }
 
     return this.workspacesService.getMembers(id);

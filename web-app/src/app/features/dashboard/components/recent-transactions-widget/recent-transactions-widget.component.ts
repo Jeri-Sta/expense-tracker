@@ -1,6 +1,8 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
-import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { parseLocalDate } from '../../../../shared/utils/date.utils';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
+import { normalizeIcon } from '../../../../shared/utils/icon.utils';
+import { getTransactionTypeClass, getTransactionSign } from '../../../../shared/utils/ui.utils';
 
 type TransactionViewType = 'income' | 'expense';
 
@@ -32,7 +34,10 @@ export class RecentTransactionsWidgetComponent implements OnInit, OnChanges {
   // Filtered transactions
   filteredTransactions: any[] = [];
 
-  private readonly utils = inject(DashboardUtilsService);
+  readonly formatCurrency = formatCurrency;
+  readonly normalizeIcon = normalizeIcon;
+  readonly getTransactionColorClass = getTransactionTypeClass;
+  readonly getTransactionSign = getTransactionSign;
 
   ngOnInit(): void {
     this.loadViewTypeFromStorage();
@@ -75,24 +80,8 @@ export class RecentTransactionsWidgetComponent implements OnInit, OnChanges {
     return this.filteredTransactions.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
   }
 
-  formatCurrency(value: number): string {
-    return this.utils.formatCurrency(value);
-  }
-
   formatDate(date: string | Date): string {
-    return this.utils.formatDate(date);
-  }
-
-  normalizeIcon(icon: string): string {
-    return this.utils.normalizeIcon(icon);
-  }
-
-  getTransactionColorClass(type: string): string {
-    return this.utils.getTransactionColorClass(type);
-  }
-
-  getTransactionSign(type: string): string {
-    return this.utils.getTransactionSign(type);
+    return new Date(date).toLocaleDateString('pt-BR');
   }
 
   // Payment status methods

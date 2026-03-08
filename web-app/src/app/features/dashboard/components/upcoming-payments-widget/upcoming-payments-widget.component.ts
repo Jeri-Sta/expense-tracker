@@ -1,7 +1,8 @@
 import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { UpcomingPayment } from '../../../../shared/types/dashboard.types';
-import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
+import { UpcomingPayment } from '../../../../core/types/common.types';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
+import { getDaysUntilDate } from '../../../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-upcoming-payments-widget',
@@ -12,7 +13,8 @@ export class UpcomingPaymentsWidgetComponent {
   @Input() upcomingPayments: UpcomingPayment[] = [];
   @Input() isLoading = false;
 
-  private readonly utils = inject(DashboardUtilsService);
+  formatCurrency = formatCurrency;
+
   private readonly router = inject(Router);
 
   get subtitleText(): string {
@@ -26,21 +28,12 @@ export class UpcomingPaymentsWidgetComponent {
     return this.upcomingPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
   }
 
-  formatCurrency(value: number): string {
-    return this.utils.formatCurrency(value);
+  getDaysUntilDue(date: string | Date): number {
+    return getDaysUntilDate(date);
   }
 
   formatDate(date: string | Date): string {
-    return this.utils.formatDate(date);
-  }
-
-  getDaysUntilDue(date: string | Date): number {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(date);
-    dueDate.setHours(0, 0, 0, 0);
-    const diffTime = dueDate.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return new Date(date).toLocaleDateString('pt-BR');
   }
 
   getDueDateStatusClass(date: string | Date): string {

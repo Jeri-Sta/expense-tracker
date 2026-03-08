@@ -7,8 +7,4 @@ export default registerAs('app', () => ({
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
   apiUrl: process.env.API_URL || 'http://localhost:3000',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:4200',
-  redis: {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: Number.parseInt(process.env.REDIS_PORT, 10) || 6379,
-  },
 }));

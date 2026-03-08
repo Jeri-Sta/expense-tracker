@@ -20,12 +20,13 @@ import {
   InstallmentPlanResponseDto,
   InstallmentPlanSummaryDto,
 } from './dto';
-import { GetUser } from '@/common/decorators/get-user.decorator';
+import { GetUser } from '../../common/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('Installments')
 @Controller('installments')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class InstallmentsController {
   constructor(private readonly installmentsService: InstallmentsService) {}
 
@@ -54,7 +55,7 @@ export class InstallmentsController {
     description: 'Lista de planos de financiamento',
     type: [InstallmentPlanSummaryDto],
   })
-  async findAll(@GetUser() user: any): Promise<InstallmentPlanSummaryDto[]> {
+  async findAll(@GetUser() user: User): Promise<InstallmentPlanSummaryDto[]> {
     return this.installmentsService.findAll(user.workspaceId);
   }
 
@@ -74,7 +75,7 @@ export class InstallmentsController {
     description: 'Plano de financiamento não encontrado',
   })
   async findOne(
-    @GetUser() user: any,
+    @GetUser() user: User,
     @Param('id') id: string,
   ): Promise<InstallmentPlanResponseDto> {
     return this.installmentsService.findOne(user.workspaceId, id);
@@ -122,7 +123,7 @@ export class InstallmentsController {
     description: 'Não é possível excluir plano com parcelas pagas',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@GetUser() user: any, @Param('id') id: string): Promise<void> {
+  async remove(@GetUser() user: User, @Param('id') id: string): Promise<void> {
     return this.installmentsService.remove(user.workspaceId, id);
   }
 
@@ -146,7 +147,7 @@ export class InstallmentsController {
   })
   @HttpCode(HttpStatus.OK)
   async payInstallment(
-    @GetUser() user: any,
+    @GetUser() user: User,
     @Param('installmentId') installmentId: string,
     @Body() payInstallmentDto: PayInstallmentDto,
   ): Promise<{ message: string }> {
@@ -178,7 +179,7 @@ export class InstallmentsController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePayment(
-    @GetUser() user: any,
+    @GetUser() user: User,
     @Param('installmentId') installmentId: string,
   ): Promise<void> {
     return this.installmentsService.deletePayment(user.workspaceId, installmentId);

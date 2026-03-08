@@ -4,6 +4,39 @@ import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/user.model';
 import { filter } from 'rxjs/operators';
 
+interface RouteMetadata {
+  title: string;
+  icon: string;
+}
+
+const ROUTE_METADATA: { matcher: (route: string) => boolean; meta: RouteMetadata }[] = [
+  { matcher: (r) => r === '/dashboard', meta: { title: 'Dashboard', icon: 'pi pi-chart-line' } },
+  {
+    matcher: (r) => r === '/transactions',
+    meta: { title: 'Transações', icon: 'pi pi-credit-card' },
+  },
+  { matcher: (r) => r === '/categories', meta: { title: 'Categorias', icon: 'pi pi-tags' } },
+  {
+    matcher: (r) => r === '/recurring-transactions',
+    meta: { title: 'Transações Recorrentes', icon: 'pi pi-refresh' },
+  },
+  {
+    matcher: (r) => r.startsWith('/installments'),
+    meta: { title: 'Financiamentos', icon: 'pi pi-calculator' },
+  },
+  {
+    matcher: (r) => r === '/credit-cards',
+    meta: { title: 'Cartões de Crédito', icon: 'pi pi-wallet' },
+  },
+  {
+    matcher: (r) => r === '/credit-cards/transactions',
+    meta: { title: 'Faturas de Cartão', icon: 'pi pi-file' },
+  },
+  { matcher: (r) => r === '/settings', meta: { title: 'Configurações', icon: 'pi pi-cog' } },
+];
+
+const DEFAULT_META: RouteMetadata = { title: 'Expense Tracker', icon: 'pi pi-home' };
+
 @Component({
   selector: 'app-main-layout',
   templateUrl: './main-layout.component.html',
@@ -19,11 +52,9 @@ export class MainLayoutComponent implements OnInit {
 
   ngOnInit(): void {
     this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event) => {
-        if (event instanceof NavigationEnd) {
-          this.currentRoute = event.urlAfterRedirects;
-        }
+        this.currentRoute = event.urlAfterRedirects;
       });
   }
 
@@ -49,49 +80,15 @@ export class MainLayoutComponent implements OnInit {
     this.router.navigate(['/auth/login']);
   }
 
+  private getRouteMeta(): RouteMetadata {
+    return ROUTE_METADATA.find((entry) => entry.matcher(this.currentRoute))?.meta ?? DEFAULT_META;
+  }
+
   getPageTitle(): string {
-    switch (true) {
-      case this.currentRoute === '/dashboard':
-        return 'Dashboard';
-      case this.currentRoute === '/transactions':
-        return 'Transações';
-      case this.currentRoute === '/categories':
-        return 'Categorias';
-      case this.currentRoute === '/recurring-transactions':
-        return 'Transações Recorrentes';
-      case this.currentRoute.startsWith('/installments'):
-        return 'Financiamentos';
-      case this.currentRoute === '/credit-cards':
-        return 'Cartões de Crédito';
-      case this.currentRoute === '/credit-cards/transactions':
-        return 'Faturas de Cartão';
-      case this.currentRoute === '/settings':
-        return 'Configurações';
-      default:
-        return 'Expense Tracker';
-    }
+    return this.getRouteMeta().title;
   }
 
   getPageIcon(): string {
-    switch (true) {
-      case this.currentRoute === '/dashboard':
-        return 'pi pi-chart-line';
-      case this.currentRoute === '/transactions':
-        return 'pi pi-credit-card';
-      case this.currentRoute === '/categories':
-        return 'pi pi-tags';
-      case this.currentRoute === '/recurring-transactions':
-        return 'pi pi-refresh';
-      case this.currentRoute.startsWith('/installments'):
-        return 'pi pi-calculator';
-      case this.currentRoute === '/credit-cards':
-        return 'pi pi-wallet';
-      case this.currentRoute === '/credit-cards/transactions':
-        return 'pi pi-file';
-      case this.currentRoute === '/settings':
-        return 'pi pi-cog';
-      default:
-        return 'pi pi-home';
-    }
+    return this.getRouteMeta().icon;
   }
 }

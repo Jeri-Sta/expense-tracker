@@ -5,6 +5,7 @@ import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoadingService } from '../../../core/services/loading.service';
 import { LoginRequest } from '../../../core/models/auth.model';
+import { markFormGroupTouched } from '../../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +14,6 @@ import { LoginRequest } from '../../../core/models/auth.model';
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
-  isLoading = false;
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
@@ -34,7 +34,6 @@ export class LoginComponent implements OnInit {
 
   onSubmit(): void {
     if (this.loginForm.valid) {
-      this.isLoading = true;
       this.loadingService.show();
 
       const credentials: LoginRequest = this.loginForm.value;
@@ -55,24 +54,15 @@ export class LoginComponent implements OnInit {
             summary: 'Erro no Login',
             detail: error.error?.message || 'Credenciais inválidas',
           });
-          this.isLoading = false;
           this.loadingService.hide();
         },
         complete: () => {
-          this.isLoading = false;
           this.loadingService.hide();
         },
       });
     } else {
-      this.markFormGroupTouched();
+      markFormGroupTouched(this.loginForm);
     }
-  }
-
-  private markFormGroupTouched(): void {
-    Object.keys(this.loginForm.controls).forEach((key) => {
-      const control = this.loginForm.get(key);
-      control?.markAsTouched();
-    });
   }
 
   get email() {

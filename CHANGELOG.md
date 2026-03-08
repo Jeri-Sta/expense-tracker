@@ -4,7 +4,7 @@
 - Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
-- Adicione melhorias e otimizações aqui
+- Refatoração de código.
 
 ### 🐛 Correções
 - Corrigido gráficos de categorias para não limitar a exibição de categorias.

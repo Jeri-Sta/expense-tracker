@@ -1,7 +1,9 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { RecurringTransaction } from '../../../../core/services/recurring-transaction.service';
-import { DashboardUtilsService } from '../../../../shared/services/dashboard-utils.service';
 import { parseLocalDate } from '../../../../shared/utils/date.utils';
+import { formatCurrency } from '../../../../shared/utils/format.utils';
+import { normalizeIcon } from '../../../../shared/utils/icon.utils';
+import { getTransactionTypeClass, getTransactionSign } from '../../../../shared/utils/ui.utils';
 
 type TransactionViewType = 'income' | 'expense';
 
@@ -31,7 +33,10 @@ export class UpcomingRecurringWidgetComponent implements OnInit, OnChanges {
   // Filtered recurring transactions
   filteredRecurring: RecurringTransaction[] = [];
 
-  private readonly utils = inject(DashboardUtilsService);
+  formatCurrency = formatCurrency;
+  normalizeIcon = normalizeIcon;
+  getTransactionColorClass = getTransactionTypeClass;
+  getTransactionSign = getTransactionSign;
 
   ngOnInit(): void {
     this.loadViewTypeFromStorage();
@@ -67,26 +72,6 @@ export class UpcomingRecurringWidgetComponent implements OnInit, OnChanges {
     return this.filteredRecurring.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
   }
 
-  formatCurrency(value: number): string {
-    return this.utils.formatCurrency(value);
-  }
-
-  formatDate(date: string | Date): string {
-    return this.utils.formatDate(date);
-  }
-
-  normalizeIcon(icon: string): string {
-    return this.utils.normalizeIcon(icon);
-  }
-
-  getTransactionColorClass(type: string): string {
-    return this.utils.getTransactionColorClass(type);
-  }
-
-  getTransactionSign(type: string): string {
-    return this.utils.getTransactionSign(type);
-  }
-
   getDaysUntilExecution(transaction: RecurringTransaction): number {
     if (!transaction.nextExecution) return 0;
     const today = new Date();
@@ -100,6 +85,10 @@ export class UpcomingRecurringWidgetComponent implements OnInit, OnChanges {
       return false;
     }
     return parseLocalDate(transaction.nextExecution) < new Date();
+  }
+
+  formatDate(date: string | Date): string {
+    return new Date(date).toLocaleDateString('pt-BR');
   }
 
   getFrequencyLabel(frequency: string): string {

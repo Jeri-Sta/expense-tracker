@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CardTransaction } from './entities/card-transaction.entity';
@@ -6,14 +6,18 @@ import { Invoice } from './entities/invoice.entity';
 import { CreditCard } from '../credit-cards/entities/credit-card.entity';
 import { CreateCardTransactionDto } from './dto/create-card-transaction.dto';
 import { UpdateCardTransactionDto } from './dto/update-card-transaction.dto';
-import { CardTransactionResponseDto } from './dto/card-transaction-response.dto';
 import {
-  CardTransactionFilterDto,
+  CardTransactionResponseDto,
   PaginatedCardTransactionsResponse,
-} from './dto/card-transaction-filter.dto';
+} from './dto/card-transaction-response.dto';
+import { CardTransactionFilterDto } from './dto/card-transaction-filter.dto';
 import { InvoiceResponseDto, UpdateInvoiceStatusDto } from './dto/invoice.dto';
 import { InvoiceStatus } from '../../common/enums';
-import { parseLocalDate } from '../../common/utils/date.utils';
+import { parseLocalDate, getCurrentPeriod } from '../../common/utils/date.utils';
+import {
+  calculateInvoicePeriod,
+  getInvoicePeriodsWithDueDateInMonth,
+} from '../../common/utils/invoice.utils';
 
 @Injectable()
 export class CardTransactionsService {
@@ -51,7 +55,7 @@ export class CardTransactionsService {
     }
 
     const transactionDate = parseLocalDate(createDto.transactionDate);
-    const baseInvoicePeriod = this.calculateInvoicePeriod(transactionDate, creditCard.closingDay);
+    const baseInvoicePeriod = calculateInvoicePeriod(transactionDate, creditCard.closingDay);
 
     if (createDto.isInstallment && createDto.totalInstallments) {
       // Create parent transaction (first installment)
@@ -176,15 +180,13 @@ export class CardTransactionsService {
         whereCondition.id = creditCardId;
       }
 
-      Logger.debug('Workspace ID in CardTransactionsService:', workspaceId);
-
       const creditCards = await this.creditCardRepository.find({
         where: whereCondition,
       });
 
       // Calculate which invoice period has due date in the target month for each card
       for (const card of creditCards) {
-        const period = this.getInvoicePeriodWithDueDateInMonth(
+        const [period] = getInvoicePeriodsWithDueDateInMonth(
           card.closingDay,
           card.dueDay,
           dueYear,
@@ -434,7 +436,7 @@ export class CardTransactionsService {
     }
     if (updateDto.transactionDate !== undefined) {
       updateFields.transactionDate = parseLocalDate(updateDto.transactionDate);
-      updateFields.invoicePeriod = this.calculateInvoicePeriod(
+      updateFields.invoicePeriod = calculateInvoicePeriod(
         updateFields.transactionDate,
         transaction.creditCard.closingDay,
       );
@@ -602,7 +604,7 @@ export class CardTransactionsService {
 
   // Summary methods for dashboard
   async getCardUsage(workspaceId: string, creditCardId: string): Promise<number> {
-    const currentPeriod = this.getCurrentInvoicePeriod();
+    const currentPeriod = getCurrentPeriod();
 
     const result = await this.transactionRepository
       .createQueryBuilder('transaction')
@@ -621,7 +623,7 @@ export class CardTransactionsService {
     workspaceId: string,
     period?: string,
   ): Promise<CardTransactionResponseDto[]> {
-    const targetPeriod = period || this.getCurrentInvoicePeriod();
+    const targetPeriod = period || getCurrentPeriod();
 
     const transactions = await this.transactionRepository
       .createQueryBuilder('transaction')
@@ -681,7 +683,7 @@ export class CardTransactionsService {
 
     for (const card of creditCards) {
       // Calculate which invoice period has due date in the target month
-      const invoicePeriod = this.getInvoicePeriodWithDueDateInMonth(
+      const [invoicePeriod] = getInvoicePeriodsWithDueDateInMonth(
         card.closingDay,
         card.dueDay,
         year,
@@ -730,7 +732,7 @@ export class CardTransactionsService {
 
     for (const card of creditCards) {
       // Calculate which invoice period has due date in the target month
-      const invoicePeriod = this.getInvoicePeriodWithDueDateInMonth(
+      const [invoicePeriod] = getInvoicePeriodsWithDueDateInMonth(
         card.closingDay,
         card.dueDay,
         year,
@@ -748,54 +750,7 @@ export class CardTransactionsService {
     );
   }
 
-  /**
-   * Determines which invoice period has its due date in the target month/year.
-   */
-  private getInvoicePeriodWithDueDateInMonth(
-    closingDay: number,
-    dueDay: number,
-    targetYear: number,
-    targetMonth: number,
-  ): string {
-    // If dueDay <= closingDay, the invoice of period X is due in month X+1
-    // Otherwise, it's due in the same month X
-    const dueDateIsNextMonth = dueDay <= closingDay;
-
-    if (dueDateIsNextMonth) {
-      // The invoice that is due in the target month is from the previous month
-      let invoiceMonth = targetMonth - 1;
-      let invoiceYear = targetYear;
-      if (invoiceMonth < 1) {
-        invoiceMonth = 12;
-        invoiceYear -= 1;
-      }
-      return `${invoiceYear}-${String(invoiceMonth).padStart(2, '0')}`;
-    } else {
-      // The invoice that is due in the target month is from the same month
-      return `${targetYear}-${String(targetMonth).padStart(2, '0')}`;
-    }
-  }
-
   // Helper methods
-  private calculateInvoicePeriod(transactionDate: Date, closingDay: number): string {
-    const txDate = new Date(transactionDate);
-    const day = txDate.getDate();
-    let month = txDate.getMonth();
-    let year = txDate.getFullYear();
-
-    // If transaction is on or after closing day, it goes to next month's invoice
-    if (day >= closingDay) {
-      month += 1;
-      if (month > 11) {
-        month = 0;
-        year += 1;
-      }
-    }
-
-    const monthStr = String(month + 1).padStart(2, '0');
-    return `${year}-${monthStr}`;
-  }
-
   private addMonthsToInvoicePeriod(invoicePeriod: string, months: number): string {
     const [yearStr, monthStr] = invoicePeriod.split('-');
     let year = parseInt(yearStr);
@@ -807,13 +762,6 @@ export class CardTransactionsService {
     }
 
     return `${year}-${String(month + 1).padStart(2, '0')}`;
-  }
-
-  private getCurrentInvoicePeriod(): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}`;
   }
 
   private async updateInvoiceTotal(

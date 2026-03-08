@@ -1,3 +1,5 @@
+import { InvoiceStatus } from '../../../core/types/common.types';
+
 export interface CardTransaction {
   id: string;
   description: string;
@@ -38,7 +40,7 @@ export interface UpdateCardTransactionDto {
   categoryId?: string | null;
 }
 
-export type InvoiceStatus = 'open' | 'closed' | 'paid';
+export type { InvoiceStatus };
 
 export interface Invoice {
   id: string;

@@ -8,8 +8,9 @@ import { TransactionResponseDto } from '../transactions/dto/transaction-response
 import { Installment } from '../installments/entities/installment.entity';
 import { CreditCard } from '../credit-cards/entities/credit-card.entity';
 import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
-import { RecurrenceFrequency, InstallmentStatus, PaymentStatus } from '../../common/enums';
+import { RecurrenceFrequency, InstallmentStatus } from '../../common/enums';
 import { parseLocalDate } from '../../common/utils/date.utils';
+import { getInvoicePeriodsWithDueDateInMonth } from '../../common/utils/invoice.utils';
 
 export interface ProjectionResult {
   generated: number;
@@ -264,21 +265,6 @@ export class ProjectionsService {
       },
     });
 
-    this.logger.debug(`Found ${realTransactions.length} real transactions for ${competencyPeriod}`);
-    if (realTransactions.length > 0) {
-      this.logger.debug(
-        'Real transactions:',
-        realTransactions.map((t) => ({
-          id: t.id,
-          description: t.description,
-          amount: t.amount,
-          type: t.type,
-          transactionDate: t.transactionDate,
-          competencyPeriod: t.competencyPeriod,
-        })),
-      );
-    }
-
     // Projected transactions
     const projectedTransactions = await this.transactionsRepository.find({
       where: {
@@ -287,10 +273,6 @@ export class ProjectionsService {
         isProjected: true,
       },
     });
-
-    this.logger.debug(
-      `Found ${projectedTransactions.length} projected transactions for ${competencyPeriod}`,
-    );
 
     // Get installments for the month - use due date for unpaid, paid date for paid
     const startOfMonth = new Date(year, month - 1, 1);
@@ -389,34 +371,7 @@ export class ProjectionsService {
   }
 
   private mapToResponseDto(transaction: Transaction): TransactionResponseDto {
-    return {
-      id: transaction.id,
-      amount: Number(transaction.amount),
-      description: transaction.description,
-      type: transaction.type,
-      transactionDate: transaction.transactionDate,
-      competencyPeriod: transaction.competencyPeriod,
-      notes: transaction.notes,
-      metadata: transaction.metadata,
-      isRecurring: transaction.isRecurring,
-      isProjected: transaction.isProjected,
-      projectionSource: transaction.projectionSource,
-      confidenceScore: transaction.confidenceScore
-        ? Number(transaction.confidenceScore)
-        : undefined,
-      createdAt: transaction.createdAt,
-      updatedAt: transaction.updatedAt,
-      category: transaction.category
-        ? {
-            id: transaction.category.id,
-            name: transaction.category.name,
-            color: transaction.category.color,
-            icon: transaction.category.icon,
-          }
-        : undefined,
-      paymentStatus: transaction.paymentStatus ?? PaymentStatus.PENDING,
-      paidDate: transaction.paidDate,
-    };
+    return TransactionResponseDto.fromEntity(transaction);
   }
 
   /**
@@ -439,7 +394,7 @@ export class ProjectionsService {
     let totalExpenses = 0;
 
     for (const card of creditCards) {
-      const invoicePeriods = this.getInvoicePeriodsWithDueDateInMonth(
+      const invoicePeriods = getInvoicePeriodsWithDueDateInMonth(
         card.closingDay,
         card.dueDay,
         year,
@@ -461,30 +416,4 @@ export class ProjectionsService {
     return totalExpenses;
   }
 
-  /**
-   * Determina quais períodos de fatura têm vencimento no mês/ano alvo.
-   */
-  private getInvoicePeriodsWithDueDateInMonth(
-    closingDay: number,
-    dueDay: number,
-    targetYear: number,
-    targetMonth: number,
-  ): string[] {
-    const periods: string[] = [];
-    const dueDateIsNextMonth = dueDay <= closingDay;
-
-    if (dueDateIsNextMonth) {
-      let invoiceMonth = targetMonth - 1;
-      let invoiceYear = targetYear;
-      if (invoiceMonth < 1) {
-        invoiceMonth = 12;
-        invoiceYear -= 1;
-      }
-      periods.push(`${invoiceYear}-${String(invoiceMonth).padStart(2, '0')}`);
-    } else {
-      periods.push(`${targetYear}-${String(targetMonth).padStart(2, '0')}`);
-    }
-
-    return periods;
-  }
 }

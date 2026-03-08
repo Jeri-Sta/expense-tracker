@@ -63,11 +63,3 @@ export class CardTransactionFilterDto {
   @IsIn(['ASC', 'DESC'])
   sortOrder?: 'ASC' | 'DESC' = 'DESC';
 }
-
-export interface PaginatedCardTransactionsResponse {
-  data: any[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}

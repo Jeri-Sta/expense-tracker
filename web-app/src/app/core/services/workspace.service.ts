@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
@@ -31,7 +30,6 @@ export interface Invitation {
 
 export interface SendInvitationRequest {
   invitedEmail: string;
-  firstName: string;
 }
 
 @Injectable({
@@ -39,7 +37,6 @@ export interface SendInvitationRequest {
 })
 export class WorkspaceService {
   private readonly apiService = inject(ApiService);
-  private readonly http = inject(HttpClient);
 
   getWorkspace(): Observable<Workspace> {
     return this.apiService.get<Workspace>('/workspaces/me');

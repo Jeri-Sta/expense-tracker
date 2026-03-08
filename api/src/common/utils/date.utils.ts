@@ -52,3 +52,12 @@ export function formatCompetencyPeriod(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   return `${year}-${month}`;
 }
+
+/**
+ * Returns the current month as a YYYY-MM period string.
+ *
+ * @returns Period string in YYYY-MM format for today's date
+ */
+export function getCurrentPeriod(): string {
+  return formatCompetencyPeriod(new Date());
+}

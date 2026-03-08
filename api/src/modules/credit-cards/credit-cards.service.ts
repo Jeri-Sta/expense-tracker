@@ -6,6 +6,7 @@ import { CardTransaction } from '../card-transactions/entities/card-transaction.
 import { CreateCreditCardDto } from './dto/create-credit-card.dto';
 import { UpdateCreditCardDto } from './dto/update-credit-card.dto';
 import { CreditCardResponseDto } from './dto/credit-card-response.dto';
+import { getCurrentPeriod } from '../../common/utils/date.utils';
 
 @Injectable()
 export class CreditCardsService {
@@ -83,35 +84,6 @@ export class CreditCardsService {
     await this.creditCardRepository.update(id, { isActive: false });
   }
 
-  async getCardWithUsage(id: string, workspaceId: string): Promise<CreditCardResponseDto> {
-    return this.findOne(id, workspaceId);
-  }
-
-  /**
-   * Calculate the invoice period based on transaction date and card's closing day
-   * @param transactionDate The date of the transaction
-   * @param closingDay The card's invoice closing day
-   * @returns Invoice period in YYYY-MM format
-   */
-  calculateInvoicePeriod(transactionDate: Date, closingDay: number): string {
-    const txDate = new Date(transactionDate);
-    const day = txDate.getDate();
-    let month = txDate.getMonth();
-    let year = txDate.getFullYear();
-
-    // If transaction is after closing day, it goes to next month's invoice
-    if (day > closingDay) {
-      month += 1;
-      if (month > 11) {
-        month = 0;
-        year += 1;
-      }
-    }
-
-    const monthStr = String(month + 1).padStart(2, '0');
-    return `${year}-${monthStr}`;
-  }
-
   private mapToResponseDto(card: CreditCard): CreditCardResponseDto {
     return {
       id: card.id,
@@ -130,7 +102,7 @@ export class CreditCardsService {
     // Calculate used limit from card transactions
     // For installment transactions, we need to count all remaining installments (from current period onwards)
     // For non-installment transactions, only count current period
-    const currentPeriod = this.getCurrentInvoicePeriod();
+    const currentPeriod = getCurrentPeriod();
 
     // 1. Sum of non-installment transactions in current period
     const nonInstallmentResult = await this.cardTransactionRepository
@@ -163,11 +135,5 @@ export class CreditCardsService {
       availableLimit,
     };
   }
-
-  private getCurrentInvoicePeriod(): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}`;
-  }
 }
+
