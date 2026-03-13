@@ -7,7 +7,7 @@
 - Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
-- Adicione correções de bugs aqui
+- Correção de versionamento
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
