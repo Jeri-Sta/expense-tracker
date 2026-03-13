@@ -7,10 +7,25 @@
 - Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
-- Correção de versionamento
+- Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
+
+---
+
+## [2.2.1] - 2026-03-13
+
+### ✨ Novas Funcionalidades
+
+
+### 🔧 Melhorias
+
+
+### 🐛 Correções
+- Correção de versionamento
+
+### 📦 Atualizações de Dependências
 
 ---
 

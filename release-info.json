@@ -1,8 +1,8 @@
 {
-  "oldVersion": "2.1.2",
-  "newVersion": "2.2.0",
-  "versionType": "minor",
-  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n- Refatoração de código.\n### 🐛 Correções\n- Corrigido gráficos de categorias para não limitar a exibição de categorias.\n### 📦 Atualizações de Dependências",
-  "backupBranch": "backup/release-2026-03-08T19-42-51-605Z",
-  "timestamp": "2026-03-08T19:42:51.651Z"
+  "oldVersion": "2.2.0",
+  "newVersion": "2.2.1",
+  "versionType": "patch",
+  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n### 🐛 Correções\n- Correção de versionamento\n### 📦 Atualizações de Dependências",
+  "backupBranch": "backup/release-2026-03-13T11-01-29-632Z",
+  "timestamp": "2026-03-13T11:01:29.682Z"
 }
