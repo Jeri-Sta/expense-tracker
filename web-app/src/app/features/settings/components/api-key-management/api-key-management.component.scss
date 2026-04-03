@@ -1,0 +1,136 @@
+@import 'variables';
+@import 'mixins';
+
+.api-key-management {
+  .api-key-card {
+    padding: $spacing-lg;
+    overflow: hidden;
+    border-radius: $border-radius-lg;
+    margin-bottom: $spacing-2xl;
+    box-shadow: $shadow-sm;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-md !important;
+    }
+  }
+
+  .card-header {
+    @include flex-between;
+    background: var(--surface-section);
+    border-bottom: 1px solid var(--surface-border);
+    padding: $spacing-md;
+    border-left: 4px solid var(--primary-color);
+    border-radius: 4px 4px 0 0;
+
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+  }
+
+  .loading {
+    text-align: center;
+    padding: $spacing-xl;
+    color: var(--text-color-secondary);
+  }
+
+  .no-key-state {
+    padding: $spacing-xl 0;
+
+    .empty-state {
+      @include flex-column;
+      align-items: center;
+      text-align: center;
+      gap: $spacing-md;
+
+      i {
+        font-size: 3rem;
+        color: var(--text-color-secondary);
+        opacity: 0.5;
+      }
+
+      p {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text-color);
+
+        &.description {
+          font-size: 0.875rem;
+          color: var(--text-color-secondary);
+        }
+      }
+    }
+  }
+
+  .key-info {
+    padding: $spacing-md 0;
+
+    .key-display {
+      margin-bottom: $spacing-lg;
+
+      .key-warning {
+        @include flex-between;
+        padding: $spacing-sm $spacing-md;
+        background-color: #fef3c7;
+        color: #92400e;
+        border-radius: $border-radius-sm;
+        margin-bottom: $spacing-md;
+        font-size: 0.875rem;
+        font-weight: 500;
+        gap: $spacing-sm;
+
+        i {
+          font-size: 1rem;
+        }
+      }
+
+      .key-value-row {
+        @include flex-between;
+        background: var(--surface-0);
+        border: 1px solid var(--surface-border);
+        border-radius: $border-radius-md;
+        padding: $spacing-md;
+
+        .key-text {
+          font-family: 'Courier New', monospace;
+          font-size: 0.875rem;
+          color: var(--text-color);
+          word-break: break-all;
+          user-select: all;
+        }
+      }
+    }
+
+    .key-details {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-lg;
+
+      .detail-row {
+        @include flex-between;
+        padding: $spacing-sm 0;
+        border-bottom: 1px solid var(--surface-border);
+
+        .label {
+          font-weight: 600;
+          color: var(--text-color-secondary);
+          font-size: 0.875rem;
+        }
+
+        .value {
+          font-size: 0.875rem;
+          color: var(--text-color);
+        }
+      }
+    }
+
+    .actions-row {
+      @include flex-between;
+      gap: $spacing-md;
+    }
+  }
+}

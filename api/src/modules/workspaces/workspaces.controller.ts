@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards, Param, ForbiddenException } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtOrApiKeyAuthGuard } from '../../common/guards/jwt-or-api-key-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { WorkspacesService } from './workspaces.service';
@@ -8,7 +8,7 @@ import { WorkspaceResponseDto } from './dto/workspace-response.dto';
 
 @ApiTags('Workspaces')
 @Controller('workspaces')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtOrApiKeyAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class WorkspacesController {
   constructor(private readonly workspacesService: WorkspacesService) {}

@@ -1,0 +1,94 @@
+<div class="api-key-management">
+  <p-card class="api-key-card">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <h2>Chave de API</h2>
+      </div>
+    </ng-template>
+
+    <div *ngIf="isLoading" class="loading">
+      <p>Carregando...</p>
+    </div>
+
+    <div *ngIf="!isLoading && !apiKeyInfo" class="no-key-state">
+      <div class="empty-state">
+        <i class="pi pi-key text-muted"></i>
+        <p>Nenhuma chave de API gerada</p>
+        <p class="description">
+          Gere uma chave para acessar seus dados via API externa.
+        </p>
+        <button
+          pButton
+          type="button"
+          label="Gerar Chave de API"
+          icon="pi pi-plus"
+          class="p-button-primary"
+          (click)="generateKey()"
+        ></button>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && apiKeyInfo" class="key-info">
+      <div class="key-display" *ngIf="showGeneratedKey">
+        <div class="key-warning">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>Copie esta chave agora. Ela não será exibida novamente.</span>
+        </div>
+        <div class="key-value-row">
+          <code class="key-text">{{ generatedKey }}</code>
+          <button
+            pButton
+            type="button"
+            [icon]="copiedKey ? 'pi pi-check' : 'pi pi-copy'"
+            class="p-button-rounded p-button-text"
+            pTooltip="Copiar chave"
+            (click)="copyToClipboard(generatedKey)"
+          ></button>
+        </div>
+      </div>
+
+      <div class="key-details">
+        <div class="detail-row">
+          <span class="label">Status:</span>
+          <p-tag
+            [value]="apiKeyInfo.isActive ? 'Ativa' : 'Inativa'"
+            [severity]="apiKeyInfo.isActive ? 'success' : 'danger'"
+          ></p-tag>
+        </div>
+        <div class="detail-row">
+          <span class="label">Criada em:</span>
+          <span class="value">{{ apiKeyInfo.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="detail-row" *ngIf="apiKeyInfo.lastUsedAt">
+          <span class="label">Último uso:</span>
+          <span class="value">{{ apiKeyInfo.lastUsedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="detail-row" *ngIf="!apiKeyInfo.lastUsedAt">
+          <span class="label">Último uso:</span>
+          <span class="value text-muted">Nunca utilizada</span>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button
+          pButton
+          type="button"
+          label="Revogar Chave"
+          icon="pi pi-ban"
+          class="p-button-danger p-button-outlined"
+          (click)="revokeKey()"
+        ></button>
+        <button
+          pButton
+          type="button"
+          label="Gerar Nova Chave"
+          icon="pi pi-refresh"
+          class="p-button-primary"
+          (click)="generateKey()"
+        ></button>
+      </div>
+    </div>
+  </p-card>
+</div>
+
+<p-confirmDialog></p-confirmDialog>

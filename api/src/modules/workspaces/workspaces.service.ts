@@ -130,9 +130,7 @@ export class WorkspacesService {
       id: workspace.id,
       name: workspace.name,
       ownerId: workspace.ownerId,
-      members: workspace.members
-        ? workspace.members.map((member) => this.mapMember(member))
-        : [],
+      members: workspace.members ? workspace.members.map((member) => this.mapMember(member)) : [],
       createdAt: workspace.createdAt,
     };
   }

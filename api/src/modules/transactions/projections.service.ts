@@ -415,5 +415,4 @@ export class ProjectionsService {
 
     return totalExpenses;
   }
-
 }
