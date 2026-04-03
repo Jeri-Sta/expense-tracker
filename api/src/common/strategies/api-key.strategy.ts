@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Strategy } from 'passport';
+import * as passport from 'passport';
 import { ApiKeysService } from '../../modules/api-keys/api-keys.service';
 
 @Injectable()
@@ -7,6 +8,7 @@ export class ApiKeyStrategy extends Strategy {
   constructor(private readonly apiKeysService: ApiKeysService) {
     super();
     this.name = 'api-key';
+    passport.use(this);
   }
 
   authenticate(req: any): void {
