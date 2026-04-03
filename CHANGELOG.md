@@ -1,7 +1,7 @@
 ## [Em Desenvolvimento]
 
 ### ✨ Novas Funcionalidades
-- Adicionada funcionalidade de api keys.
+- Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
 - Adicione melhorias e otimizações aqui
@@ -11,6 +11,21 @@
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
+
+---
+
+## [2.3.0] - 2026-04-03
+
+### ✨ Novas Funcionalidades
+- Adicionada funcionalidade de api keys.
+
+### 🔧 Melhorias
+
+
+### 🐛 Correções
+
+
+### 📦 Atualizações de Dependências
 
 ---
 

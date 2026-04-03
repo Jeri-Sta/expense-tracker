@@ -1,8 +1,8 @@
 {
-  "oldVersion": "2.2.0",
-  "newVersion": "2.2.1",
-  "versionType": "patch",
-  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n### 🐛 Correções\n- Correção de versionamento\n### 📦 Atualizações de Dependências",
-  "backupBranch": "backup/release-2026-03-13T11-01-29-632Z",
-  "timestamp": "2026-03-13T11:01:29.682Z"
+  "oldVersion": "2.2.1",
+  "newVersion": "2.3.0",
+  "versionType": "minor",
+  "releaseNotes": "### ✨ Novas Funcionalidades\n- Adicionada funcionalidade de api keys.\n### 🔧 Melhorias\n### 🐛 Correções\n### 📦 Atualizações de Dependências",
+  "backupBranch": "backup/release-2026-04-03T19-33-45-194Z",
+  "timestamp": "2026-04-03T19:33:45.236Z"
 }
