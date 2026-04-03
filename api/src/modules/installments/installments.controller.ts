@@ -11,7 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtOrApiKeyAuthGuard } from '../../common/guards/jwt-or-api-key-auth.guard';
 import { InstallmentsService } from './installments.service';
 import {
   CreateInstallmentPlanDto,
@@ -25,7 +25,7 @@ import { User } from '../users/entities/user.entity';
 
 @ApiTags('Installments')
 @Controller('installments')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtOrApiKeyAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class InstallmentsController {
   constructor(private readonly installmentsService: InstallmentsService) {}

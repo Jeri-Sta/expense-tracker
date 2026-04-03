@@ -11,11 +11,13 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { WorkspaceManagementComponent } from './components/workspace-management/workspace-management.component';
 import { InviteUserComponent } from './components/invite-user/invite-user.component';
 import { MembersListComponent } from './components/members-list/members-list.component';
+import { ApiKeyManagementComponent } from './components/api-key-management/api-key-management.component';
 import { SettingsComponent } from './settings.component';
 import { SettingsRoutingModule } from './settings-routing.module';
 
@@ -25,6 +27,7 @@ import { SettingsRoutingModule } from './settings-routing.module';
     WorkspaceManagementComponent,
     InviteUserComponent,
     MembersListComponent,
+    ApiKeyManagementComponent,
   ],
   imports: [
     CommonModule,
@@ -40,6 +43,7 @@ import { SettingsRoutingModule } from './settings-routing.module';
     ConfirmDialogModule,
     DialogModule,
     TagModule,
+    TooltipModule,
     SettingsRoutingModule,
   ],
   providers: [MessageService, ConfirmationService],

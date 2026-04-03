@@ -20,6 +20,7 @@ import { CardTransactionsModule } from './modules/card-transactions/card-transac
 import { WorkspacesModule } from './modules/workspaces/workspaces.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
 import { EmailModule } from './modules/email/email.module';
+import { ApiKeysModule } from './modules/api-keys/api-keys.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { EmailModule } from './modules/email/email.module';
     WorkspacesModule,
     EmailModule,
     InvitationsModule,
+    ApiKeysModule,
   ],
 })
 export class AppModule {}

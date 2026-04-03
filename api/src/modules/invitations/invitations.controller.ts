@@ -1,6 +1,6 @@
 import { Controller, Post, Delete, Patch, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtOrApiKeyAuthGuard } from '../../common/guards/jwt-or-api-key-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { InvitationsService } from './invitations.service';
@@ -14,7 +14,7 @@ export class InvitationsController {
   constructor(private readonly invitationsService: InvitationsService) {}
 
   @Post('workspaces/:workspaceId/send')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtOrApiKeyAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Send workspace invitation' })
   @ApiResponse({ status: 201, type: InvitationResponseDto })
@@ -58,7 +58,7 @@ export class InvitationsController {
   }
 
   @Patch(':id/resend')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtOrApiKeyAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Resend invitation' })
   @ApiResponse({ status: 200, type: InvitationResponseDto })
@@ -70,7 +70,7 @@ export class InvitationsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtOrApiKeyAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Cancel invitation' })
   async cancelInvitation(@Param('id') invitationId: string, @GetUser() user: User): Promise<void> {
@@ -78,7 +78,7 @@ export class InvitationsController {
   }
 
   @Post('workspaces/:workspaceId/pending')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtOrApiKeyAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get pending invitations for workspace' })
   @ApiResponse({ status: 200, type: [InvitationResponseDto] })

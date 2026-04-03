@@ -10,7 +10,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtOrApiKeyAuthGuard } from '../../common/guards/jwt-or-api-key-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { RecurringTransactionsService } from './recurring-transactions.service';
 import { CreateRecurringTransactionDto } from './dto/create-recurring-transaction.dto';
@@ -20,7 +20,7 @@ import { User } from '../users/entities/user.entity';
 
 @ApiTags('Recurring Transactions')
 @Controller('recurring-transactions')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtOrApiKeyAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class RecurringTransactionsController {
   constructor(private readonly recurringTransactionsService: RecurringTransactionsService) {}

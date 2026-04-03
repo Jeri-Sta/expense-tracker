@@ -32,6 +32,21 @@ export interface SendInvitationRequest {
   invitedEmail: string;
 }
 
+export interface ApiKeyInfo {
+  isActive: boolean;
+  createdAt: Date;
+  lastUsedAt: Date | null;
+  expiresAt: Date | null;
+}
+
+export interface GeneratedApiKey {
+  key: string;
+  isActive: boolean;
+  createdAt: Date;
+  lastUsedAt: Date | null;
+  expiresAt: Date | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -73,5 +88,17 @@ export class WorkspaceService {
       firstName,
       password,
     });
+  }
+
+  generateApiKey(): Observable<GeneratedApiKey> {
+    return this.apiService.post<GeneratedApiKey>('/api-keys', {});
+  }
+
+  getApiKeyInfo(): Observable<ApiKeyInfo | null> {
+    return this.apiService.get<ApiKeyInfo | null>('/api-keys');
+  }
+
+  revokeApiKey(): Observable<{ message: string }> {
+    return this.apiService.delete<{ message: string }>('/api-keys');
   }
 }
