@@ -1,7 +1,7 @@
 ## [Em Desenvolvimento]
 
 ### ✨ Novas Funcionalidades
-- Adicione novas funcionalidades aqui
+- Adicionada funcionalidade de api keys.
 
 ### 🔧 Melhorias
 - Adicione melhorias e otimizações aqui
