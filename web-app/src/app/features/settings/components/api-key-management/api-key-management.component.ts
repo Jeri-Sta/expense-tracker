@@ -70,7 +70,8 @@ export class ApiKeyManagementComponent implements OnInit {
 
   revokeKey(): void {
     this.confirmationService.confirm({
-      message: 'Tem certeza que deseja revogar esta chave de API? Ela deixará de funcionar imediatamente.',
+      message:
+        'Tem certeza que deseja revogar esta chave de API? Ela deixará de funcionar imediatamente.',
       header: 'Revogar Chave de API',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -101,22 +102,25 @@ export class ApiKeyManagementComponent implements OnInit {
   }
 
   copyToClipboard(text: string): void {
-    navigator.clipboard.writeText(text).then(() => {
-      this.copiedKey = true;
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Copiado',
-        detail: 'Chave copiada para a área de transferência',
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        this.copiedKey = true;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Copiado',
+          detail: 'Chave copiada para a área de transferência',
+        });
+        setTimeout(() => {
+          this.copiedKey = false;
+        }, 2000);
+      })
+      .catch(() => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Não foi possível copiar a chave',
+        });
       });
-      setTimeout(() => {
-        this.copiedKey = false;
-      }, 2000);
-    }).catch(() => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'Não foi possível copiar a chave',
-      });
-    });
   }
 }
