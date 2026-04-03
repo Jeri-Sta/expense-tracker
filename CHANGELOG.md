@@ -7,10 +7,25 @@
 - Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
-- Ajuste de strategy de api.
+- Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
+
+---
+
+## [2.3.1] - 2026-04-03
+
+### ✨ Novas Funcionalidades
+
+
+### 🔧 Melhorias
+
+
+### 🐛 Correções
+- Ajuste de strategy de api.
+
+### 📦 Atualizações de Dependências
 
 ---
 
