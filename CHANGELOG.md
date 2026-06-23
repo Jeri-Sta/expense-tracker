@@ -7,10 +7,25 @@
 - Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
-- Corrigido bug de não alterar categoria.
+- Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
+
+---
+
+## [2.4.1] - 2026-06-23
+
+### ✨ Novas Funcionalidades
+
+
+### 🔧 Melhorias
+
+
+### 🐛 Correções
+- Corrigido bug de não alterar categoria.
+
+### 📦 Atualizações de Dependências
 
 ---
 

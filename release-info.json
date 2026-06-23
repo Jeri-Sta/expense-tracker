@@ -1,8 +1,8 @@
 {
-  "oldVersion": "2.3.1",
-  "newVersion": "2.4.0",
-  "versionType": "minor",
-  "releaseNotes": "### ✨ Novas Funcionalidades\n- Adicionado sistema de metas de gastos.\n### 🔧 Melhorias\n### 🐛 Correções\n### 📦 Atualizações de Dependências",
-  "backupBranch": "backup/release-2026-06-23T11-07-50-860Z",
-  "timestamp": "2026-06-23T11:07:50.907Z"
+  "oldVersion": "2.4.0",
+  "newVersion": "2.4.1",
+  "versionType": "patch",
+  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n### 🐛 Correções\n- Corrigido bug de não alterar categoria.\n### 📦 Atualizações de Dependências",
+  "backupBranch": "backup/release-2026-06-23T21-33-51-734Z",
+  "timestamp": "2026-06-23T21:33:51.783Z"
 }
