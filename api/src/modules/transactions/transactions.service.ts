@@ -112,6 +112,12 @@ export class TransactionsService {
 
     Object.assign(transaction, updateTransactionDto);
 
+    if (updateTransactionDto.categoryId !== undefined) {
+      transaction.category = updateTransactionDto.categoryId
+        ? ({ id: updateTransactionDto.categoryId } as any)
+        : null;
+    }
+
     if (updateTransactionDto.transactionDate) {
       transaction.transactionDate = parseLocalDate(updateTransactionDto.transactionDate);
     }
