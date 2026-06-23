@@ -7,7 +7,7 @@
 - Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
-- Adicione correções de bugs aqui
+- Corrigido bug de não alterar categoria.
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
