@@ -25,6 +25,10 @@ export interface Installment {
 
 export interface InstallmentPlan {
   id: string;
+  categoryId?: string;
+  categoryName?: string;
+  categoryColor?: string;
+  categoryIcon?: string;
   name: string;
   financedAmount: number;
   installmentValue: number;
@@ -51,6 +55,10 @@ export interface InstallmentPlan {
 
 export interface InstallmentPlanSummary {
   id: string;
+  categoryId?: string;
+  categoryName?: string;
+  categoryColor?: string;
+  categoryIcon?: string;
   name: string;
   startDate: Date;
   endDate: Date;
@@ -70,6 +78,7 @@ export interface InstallmentPlanSummary {
 }
 
 export interface CreateInstallmentPlan {
+  categoryId: string;
   name: string;
   financedAmount: number;
   installmentValue: number;

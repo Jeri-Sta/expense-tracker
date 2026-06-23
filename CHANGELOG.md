@@ -1,7 +1,7 @@
 ## [Em Desenvolvimento]
 
 ### ✨ Novas Funcionalidades
-- Adicione novas funcionalidades aqui
+- Adicionado sistema de metas de gastos.
 
 ### 🔧 Melhorias
 - Adicione melhorias e otimizações aqui

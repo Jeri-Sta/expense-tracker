@@ -90,6 +90,9 @@
                 {{ category.transactionCount }} transação(ões)
               </div>
               <div>Ordem: {{ category.sortOrder }}</div>
+              <div *ngIf="category.monthlyBudget" class="mt-1">
+                <i class="pi pi-target mr-1"></i>Meta: {{ formatCurrencyValue(category.monthlyBudget) }}
+              </div>
             </div>
           </div>
 
@@ -298,6 +301,20 @@
       <small class="text-color-secondary">
         Ordem para exibição da categoria (0 = primeiro). Menor número aparece primeiro.
       </small>
+    </div>
+
+    <div class="field col-12" *ngIf="categoryForm.get('type')?.value === 'expense'">
+      <label for="monthlyBudget" class="font-bold">Meta de Gasto Mensal</label>
+      <p-inputNumber
+        id="monthlyBudget"
+        formControlName="monthlyBudget"
+        mode="currency"
+        currency="BRL"
+        locale="pt-BR"
+        styleClass="w-full"
+        placeholder="R$ 0,00 (opcional)"
+        [min]="0.01"
+      ></p-inputNumber>
     </div>
 
     <div class="field col-12" *ngIf="!editMode">

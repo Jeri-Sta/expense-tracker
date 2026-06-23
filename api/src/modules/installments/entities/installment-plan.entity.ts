@@ -1,6 +1,7 @@
 import { Entity, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
+import { Category } from '../../categories/entities/category.entity';
 import { Installment } from './installment.entity';
 
 @Entity('installment_plans')
@@ -52,6 +53,13 @@ export class InstallmentPlan extends BaseEntity {
   paidInstallments: number;
 
   // Relationships
+  @Column({ nullable: true })
+  categoryId: string;
+
+  @ManyToOne(() => Category, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
+
   @ManyToOne(() => User, (user) => user.installmentPlans)
   @JoinColumn({ name: 'userId' })
   user: User;

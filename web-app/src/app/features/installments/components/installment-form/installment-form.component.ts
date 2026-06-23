@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { InstallmentService } from '../../services';
 import { InstallmentPlan, CreateInstallmentPlan } from '../../models';
+import { CategoryService, Category } from '../../../../core/services/category.service';
 import { formatCurrency } from '../../../../shared/utils/format.utils';
 import { markFormGroupTouched } from '../../../../shared/utils/form.utils';
 
@@ -17,10 +18,12 @@ export class InstallmentFormComponent implements OnInit {
   loading = false;
   isEditMode = false;
   installmentPlan?: InstallmentPlan;
+  expenseCategories: Category[] = [];
 
   // Use Angular's `inject()` to satisfy @angular-eslint/prefer-inject
   private readonly fb = inject(FormBuilder);
   private readonly installmentService = inject(InstallmentService);
+  private readonly categoryService = inject(CategoryService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly messageService = inject(MessageService);
@@ -30,6 +33,7 @@ export class InstallmentFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadExpenseCategories();
     const id = this.route.snapshot.params['id'];
     if (id) {
       this.isEditMode = true;
@@ -37,8 +41,24 @@ export class InstallmentFormComponent implements OnInit {
     }
   }
 
+  private loadExpenseCategories(): void {
+    this.categoryService.getCategories('expense').subscribe({
+      next: (categories) => {
+        this.expenseCategories = categories;
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao carregar categorias',
+        });
+      },
+    });
+  }
+
   private initializeForm(): void {
     this.form = this.fb.group({
+      categoryId: [null, Validators.required],
       name: ['', [Validators.required, Validators.minLength(3)]],
       financedAmount: ['', [Validators.required, Validators.min(0.01), Validators.max(999999999)]],
       installmentValue: [
@@ -57,6 +77,7 @@ export class InstallmentFormComponent implements OnInit {
       next: (plan) => {
         this.installmentPlan = plan;
         this.form.patchValue({
+          categoryId: plan.categoryId,
           name: plan.name,
           description: plan.description,
         });
@@ -125,6 +146,7 @@ export class InstallmentFormComponent implements OnInit {
     if (this.form.valid) {
       const formData = this.form.value;
       const data: CreateInstallmentPlan = {
+        categoryId: formData.categoryId,
         name: formData.name,
         financedAmount: formData.financedAmount,
         installmentValue: formData.installmentValue,
@@ -138,6 +160,7 @@ export class InstallmentFormComponent implements OnInit {
       if (this.isEditMode && this.installmentPlan) {
         // Update mode (limited fields)
         const updateData = {
+          categoryId: formData.categoryId,
           name: data.name,
           description: data.description,
         };

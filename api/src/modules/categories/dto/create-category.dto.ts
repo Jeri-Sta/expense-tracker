@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsEnum, IsString, IsOptional, IsHexColor, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsEnum, IsString, IsOptional, IsHexColor, MaxLength, IsNumber, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { CategoryType } from '../../../common/enums';
 
@@ -48,4 +48,14 @@ export class CreateCategoryDto {
   @IsOptional()
   @MaxLength(50)
   icon?: string;
+
+  @ApiProperty({
+    description: 'Monthly spending budget limit',
+    required: false,
+    example: 500,
+  })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0.01)
+  monthlyBudget?: number;
 }

@@ -1,0 +1,78 @@
+<div class="budget-goals-widget">
+  <h3 class="widget-title">
+    <i class="pi pi-target"></i>
+    Metas de Gasto por Categoria
+  </h3>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <p-progressSpinner styleClass="w-3rem h-3rem"></p-progressSpinner>
+  </div>
+
+  <div class="goals-list" *ngIf="!isLoading">
+    <div class="goal-card" *ngFor="let goal of goals" [class.over-budget]="goal.isOverBudget">
+      <!-- Category Header -->
+      <div class="goal-header">
+        <div class="category-info">
+          <i
+            [class]="normalizeIcon(goal.icon || 'pi pi-tag')"
+            [style.color]="goal.color"
+            class="category-icon"
+          ></i>
+          <div class="category-details">
+            <span class="category-name">{{ goal.name }}</span>
+            <span class="category-badge" [style.background-color]="goal.isOverBudget ? '#EF444422' : '#10B98122'" [style.color]="goal.isOverBudget ? '#EF4444' : '#10B981'">
+              <i class="pi" [class.pi-check-circle]="!goal.isOverBudget" [class.pi-exclamation-circle]="goal.isOverBudget"></i>
+              {{ goal.isOverBudget ? 'Acima da meta' : 'Dentro da meta' }}
+            </span>
+          </div>
+        </div>
+        <div class="goal-amounts">
+          <span class="actual-amount" [class.over]="goal.isOverBudget">
+            {{ formatCurrency(goal.actual) }}
+          </span>
+          <span class="budget-amount">de {{ formatCurrency(goal.budget) }}</span>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-container">
+        <p-progressBar
+          [value]="getProgressValue(goal)"
+          [showValue]="false"
+          [style]="{ height: '8px' }"
+          [styleClass]="goal.isOverBudget ? 'progress-danger' : 'progress-success'"
+        ></p-progressBar>
+        <div class="progress-labels">
+          <span class="progress-pct" [style.color]="getProgressColor(goal)">
+            {{ (getProgressValue(goal) | number: '1.0-0') }}%
+          </span>
+          <span class="remaining-label" *ngIf="!goal.isOverBudget">
+            Restam {{ formatCurrency(getRemainingAmount(goal)) }}
+          </span>
+          <span class="over-label" *ngIf="goal.isOverBudget">
+            Excedeu {{ formatCurrency(getOverAmount(goal)) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="breakdown" *ngIf="goal.breakdown.transactions > 0 || goal.breakdown.cards > 0 || goal.breakdown.installments > 0">
+        <span class="breakdown-item" *ngIf="goal.breakdown.transactions > 0">
+          <i class="pi pi-list"></i> Transações: {{ formatCurrency(goal.breakdown.transactions) }}
+        </span>
+        <span class="breakdown-item" *ngIf="goal.breakdown.cards > 0">
+          <i class="pi pi-credit-card"></i> Cartões: {{ formatCurrency(goal.breakdown.cards) }}
+        </span>
+        <span class="breakdown-item" *ngIf="goal.breakdown.installments > 0">
+          <i class="pi pi-calendar"></i> Financiamentos: {{ formatCurrency(goal.breakdown.installments) }}
+        </span>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="goals.length === 0">
+      <i class="pi pi-target text-4xl text-color-secondary"></i>
+      <p class="text-color-secondary">Nenhuma meta configurada para este mês.</p>
+      <small class="text-color-secondary">Configure metas nas categorias de despesa para acompanhar seus gastos.</small>
+    </div>
+  </div>
+</div>

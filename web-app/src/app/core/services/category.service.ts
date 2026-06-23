@@ -19,6 +19,7 @@ export interface Category extends BaseEntity {
   icon: string;
   isActive: boolean;
   sortOrder: number;
+  monthlyBudget?: number;
   transactionCount?: number;
 }
 
@@ -28,6 +29,7 @@ export interface CreateCategoryDto {
   type: CategoryType;
   color: string;
   icon: string;
+  monthlyBudget?: number;
 }
 
 export interface UpdateCategoryDto {
@@ -38,6 +40,7 @@ export interface UpdateCategoryDto {
   icon?: string;
   isActive?: boolean;
   sortOrder?: number;
+  monthlyBudget?: number;
 }
 
 @Injectable({

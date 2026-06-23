@@ -11,6 +11,7 @@ import { Installment } from '../installments/entities/installment.entity';
 import { CreditCard } from '../credit-cards/entities/credit-card.entity';
 import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
 import { Invoice } from '../card-transactions/entities/invoice.entity';
+import { Category } from '../categories/entities/category.entity';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { Invoice } from '../card-transactions/entities/invoice.entity';
       CreditCard,
       CardTransaction,
       Invoice,
+      Category,
     ]),
     TransactionsModule,
     CategoriesModule,

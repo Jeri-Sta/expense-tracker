@@ -35,6 +35,7 @@ export class InstallmentsService {
       interestRate,
       description,
       metadata,
+      categoryId,
     } = createDto;
 
     // Calcular valores totais e juros
@@ -58,6 +59,7 @@ export class InstallmentsService {
       endDate,
       description,
       metadata,
+      categoryId,
       userId,
       workspaceId,
     });
@@ -75,6 +77,7 @@ export class InstallmentsService {
       .createQueryBuilder('plan')
       .leftJoin('plan.installments', 'installment')
       .addSelect(['installment.id', 'installment.dueDate', 'installment.status'])
+      .leftJoinAndSelect('plan.category', 'category')
       .where('plan.workspaceId = :workspaceId', { workspaceId })
       .orderBy('plan.createdAt', 'DESC')
       .getMany();
@@ -96,6 +99,10 @@ export class InstallmentsService {
 
       return {
         id: plan.id,
+        categoryId: plan.categoryId,
+        categoryName: plan.category?.name,
+        categoryColor: plan.category?.color,
+        categoryIcon: plan.category?.icon,
         name: plan.name,
         startDate: plan.startDate,
         endDate: plan.endDate,
@@ -120,7 +127,7 @@ export class InstallmentsService {
   async findOne(workspaceId: string, id: string): Promise<InstallmentPlanResponseDto> {
     const plan = await this.installmentPlanRepository.findOne({
       where: { id, workspaceId },
-      relations: ['installments'],
+      relations: ['installments', 'category'],
       order: {
         installments: { installmentNumber: 'ASC' },
       },
@@ -132,6 +139,10 @@ export class InstallmentsService {
 
     return {
       ...plan,
+      categoryId: plan.categoryId,
+      categoryName: plan.category?.name,
+      categoryColor: plan.category?.color,
+      categoryIcon: plan.category?.icon,
       installments: plan.installments.map((installment) => ({
         ...installment,
         remainingAmount: installment.remainingAmount,

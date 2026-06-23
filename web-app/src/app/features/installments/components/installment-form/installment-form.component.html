@@ -27,6 +27,38 @@
 
           <div class="field-grid">
             <div class="field">
+              <label for="categoryId">Categoria *</label>
+              <p-dropdown
+                id="categoryId"
+                formControlName="categoryId"
+                [options]="expenseCategories"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Selecione uma categoria"
+                [filter]="true"
+                filterBy="name"
+                appendTo="body"
+                [class.ng-invalid]="form.get('categoryId')?.invalid && form.get('categoryId')?.touched"
+              >
+                <ng-template pTemplate="selectedItem" let-cat>
+                  <span *ngIf="cat">
+                    <i [class]="cat.icon" [style.color]="cat.color" style="margin-right:0.5rem"></i>
+                    {{ cat.name }}
+                  </span>
+                </ng-template>
+                <ng-template pTemplate="item" let-cat>
+                  <span>
+                    <i [class]="cat.icon" [style.color]="cat.color" style="margin-right:0.5rem"></i>
+                    {{ cat.name }}
+                  </span>
+                </ng-template>
+              </p-dropdown>
+              <small class="error-message" *ngIf="form.get('categoryId')?.invalid && form.get('categoryId')?.touched">
+                Categoria é obrigatória
+              </small>
+            </div>
+
+            <div class="field">
               <label for="name">Nome do Financiamento *</label>
               <input
                 id="name"

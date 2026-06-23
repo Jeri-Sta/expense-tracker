@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, Repository } from 'typeorm';
+import { Brackets, IsNull, Not, Repository } from 'typeorm';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { InstallmentPlan } from '../installments/entities/installment-plan.entity';
 import { Installment } from '../installments/entities/installment.entity';
 import { CreditCard } from '../credit-cards/entities/credit-card.entity';
 import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
 import { Invoice } from '../card-transactions/entities/invoice.entity';
+import { Category } from '../categories/entities/category.entity';
 import { InstallmentStatus, TransactionType, InvoiceStatus } from '../../common/enums';
 import {
   ProjectionsService,
@@ -93,6 +94,21 @@ export interface DashboardStats {
   expenseBreakdown: MonthlyExpenseBreakdownItem[];
 }
 
+export interface BudgetGoalItem {
+  categoryId: string;
+  name: string;
+  color: string;
+  icon?: string;
+  budget: number;
+  actual: number;
+  isOverBudget: boolean;
+  breakdown: {
+    transactions: number;
+    cards: number;
+    installments: number;
+  };
+}
+
 export interface MonthlyNavigationStats {
   year: number;
   month: number;
@@ -129,6 +145,8 @@ export class DashboardService {
     private readonly cardTransactionRepository: Repository<CardTransaction>,
     @InjectRepository(Invoice)
     private readonly invoiceRepository: Repository<Invoice>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
     private readonly projectionsService: ProjectionsService,
   ) {}
 
@@ -1076,5 +1094,91 @@ export class DashboardService {
     }
 
     return breakdown;
+  }
+
+  async getBudgetGoals(
+    workspaceId: string,
+    year: number,
+    month: number,
+  ): Promise<BudgetGoalItem[]> {
+    // 1. Load all categories with a budget set
+    const budgetCategories = await this.categoryRepository.find({
+      where: { workspaceId, monthlyBudget: Not(IsNull()), isActive: true },
+    });
+
+    if (budgetCategories.length === 0) {
+      return [];
+    }
+
+    const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
+
+    // 2. Regular expense transactions grouped by category
+    const transactionResults = await this.transactionsRepository
+      .createQueryBuilder('t')
+      .select('t.categoryId', 'categoryId')
+      .addSelect('SUM(t.amount)', 'total')
+      .where('t.workspaceId = :workspaceId', { workspaceId })
+      .andWhere('t.type = :type', { type: TransactionType.EXPENSE })
+      .andWhere('t.competencyPeriod = :period', { period: competencyPeriod })
+      .andWhere('t.isProjected = false')
+      .groupBy('t.categoryId')
+      .getRawMany();
+
+    const transactionMap = new Map<string, number>();
+    for (const r of transactionResults) {
+      if (r.categoryId) transactionMap.set(r.categoryId, Number(r.total || 0));
+    }
+
+    // 3. Card transactions grouped by category (by invoice due month)
+    const cardResults = await this.getCardExpensesByCategoryForDueMonth(workspaceId, year, month);
+    const cardMap = new Map<string, number>();
+    for (const r of cardResults) {
+      if (r.id) cardMap.set(r.id, Number(r.total || 0));
+    }
+
+    // 4. Installment amounts grouped by category (due in month)
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+
+    const installmentResults = await this.installmentRepository
+      .createQueryBuilder('i')
+      .select('plan.categoryId', 'categoryId')
+      .addSelect(
+        `SUM(CASE WHEN i.status = 'paid' THEN i.paidAmount ELSE i.originalAmount END)`,
+        'total',
+      )
+      .innerJoin('i.installmentPlan', 'plan')
+      .where('plan.workspaceId = :workspaceId', { workspaceId })
+      .andWhere('i.dueDate >= :startOfMonth', { startOfMonth })
+      .andWhere('i.dueDate <= :endOfMonth', { endOfMonth })
+      .andWhere('i.status != :cancelled', { cancelled: InstallmentStatus.CANCELLED })
+      .andWhere('plan.categoryId IS NOT NULL')
+      .groupBy('plan.categoryId')
+      .getRawMany();
+
+    const installmentMap = new Map<string, number>();
+    for (const r of installmentResults) {
+      if (r.categoryId) installmentMap.set(r.categoryId, Number(r.total || 0));
+    }
+
+    // 5. Merge and return only budget categories
+    return budgetCategories.map((cat) => {
+      const transactions = transactionMap.get(cat.id) || 0;
+      const cards = cardMap.get(cat.id) || 0;
+      const installments = installmentMap.get(cat.id) || 0;
+      const actual = transactions + cards + installments;
+      const budget = Number(cat.monthlyBudget);
+
+      return {
+        categoryId: cat.id,
+        name: cat.name,
+        color: cat.color,
+        icon: cat.icon,
+        budget,
+        actual,
+        isOverBudget: actual > budget,
+        breakdown: { transactions, cards, installments },
+      };
+    });
   }
 }

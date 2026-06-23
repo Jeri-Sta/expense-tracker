@@ -38,6 +38,7 @@ import { MonthlyExpenseBreakdownWidgetComponent } from './components/monthly-exp
 import { InvoicesWidgetComponent } from './components/invoices-widget/invoices-widget.component';
 import { UpcomingPaymentsWidgetComponent } from './components/upcoming-payments-widget/upcoming-payments-widget.component';
 import { PaidInstallmentsWidgetComponent } from './components/paid-installments-widget/paid-installments-widget.component';
+import { BudgetGoalsWidgetComponent } from './components/budget-goals-widget/budget-goals-widget.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +60,7 @@ import { PaidInstallmentsWidgetComponent } from './components/paid-installments-
     InvoicesWidgetComponent,
     UpcomingPaymentsWidgetComponent,
     PaidInstallmentsWidgetComponent,
+    BudgetGoalsWidgetComponent,
   ],
   imports: [
     CommonModule,

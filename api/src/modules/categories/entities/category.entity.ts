@@ -30,6 +30,9 @@ export class Category extends BaseEntity {
   @Column({ default: 0 })
   sortOrder: number;
 
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  monthlyBudget: number;
+
   // Relationships
   @ManyToOne(() => User, (user) => user.categories)
   @JoinColumn({ name: 'userId' })
