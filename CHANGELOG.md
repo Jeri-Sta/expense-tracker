@@ -1,7 +1,7 @@
 ## [Em Desenvolvimento]
 
 ### ✨ Novas Funcionalidades
-- Adicionado sistema de metas de gastos.
+- Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
 - Adicione melhorias e otimizações aqui
@@ -11,6 +11,21 @@
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
+
+---
+
+## [2.4.0] - 2026-06-23
+
+### ✨ Novas Funcionalidades
+- Adicionado sistema de metas de gastos.
+
+### 🔧 Melhorias
+
+
+### 🐛 Correções
+
+
+### 📦 Atualizações de Dependências
 
 ---
 
