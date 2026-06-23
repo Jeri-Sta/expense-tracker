@@ -7,10 +7,25 @@
 - Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
-- Corrigido bugs de metas no dashboard.
+- Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
+
+---
+
+## [2.4.2] - 2026-06-23
+
+### ✨ Novas Funcionalidades
+
+
+### 🔧 Melhorias
+
+
+### 🐛 Correções
+- Corrigido bugs de metas no dashboard.
+
+### 📦 Atualizações de Dependências
 
 ---
 

@@ -1,8 +1,8 @@
 {
-  "oldVersion": "2.4.0",
-  "newVersion": "2.4.1",
+  "oldVersion": "2.4.1",
+  "newVersion": "2.4.2",
   "versionType": "patch",
-  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n### 🐛 Correções\n- Corrigido bug de não alterar categoria.\n### 📦 Atualizações de Dependências",
-  "backupBranch": "backup/release-2026-06-23T21-33-51-734Z",
-  "timestamp": "2026-06-23T21:33:51.783Z"
+  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n### 🐛 Correções\n- Corrigido bugs de metas no dashboard.\n### 📦 Atualizações de Dependências",
+  "backupBranch": "backup/release-2026-06-23T23-24-18-474Z",
+  "timestamp": "2026-06-23T23:24:18.524Z"
 }
