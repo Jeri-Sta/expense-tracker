@@ -23,6 +23,7 @@ import { formatCurrency } from '../../shared/utils/format.utils';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import {
+  BudgetGoalItem,
   DashboardStats,
   CategoryStats,
   InstallmentStats,
@@ -92,6 +93,10 @@ export class DashboardComponent implements OnInit {
   // Expense breakdown data
   expenseBreakdown: MonthlyExpenseBreakdownItem[] = [];
 
+  // Budget goals data
+  budgetGoals: BudgetGoalItem[] = [];
+  budgetGoalsLoading = false;
+
   // Date range for analysis
   selectedYear = new Date().getFullYear();
   selectedMonth = new Date().getMonth() + 1;
@@ -137,11 +142,17 @@ export class DashboardComponent implements OnInit {
     return this.installmentStats.totalPlans > 0;
   }
 
+  // Getter to check if there are budget goals to display
+  get hasBudgetGoals(): boolean {
+    return this.budgetGoals.length > 0;
+  }
+
   // Get the total number of visible tabs
   private getVisibleTabCount(): number {
     let count = 1; // Visão Geral is always visible
     if (this.hasCardData) count++;
     if (this.hasFinancingData) count++;
+    if (this.hasBudgetGoals) count++;
     return count;
   }
 
@@ -226,7 +237,7 @@ export class DashboardComponent implements OnInit {
           this.loadUpcomingRecurring(); // Still load recurring transactions
           this.loadCardTransactionsForPeriod(); // Load card transactions for display
           this.loading = false;
-          this.validateActiveTabIndex();
+          this.loadBudgetGoals();
         },
         error: (error) => {
           console.error('Error loading dashboard data:', error);
@@ -274,7 +285,7 @@ export class DashboardComponent implements OnInit {
           this.loadYearlyTrend();
           this.loadCardTransactionsForPeriod(); // Load card transactions for display
           this.loading = false;
-          this.validateActiveTabIndex();
+          this.loadBudgetGoals();
         },
         error: (error) => {
           console.error('Error loading monthly data:', error);
@@ -287,6 +298,18 @@ export class DashboardComponent implements OnInit {
         },
       });
     }
+  }
+
+  loadBudgetGoals(): void {
+    this.budgetGoalsLoading = true;
+    this.dashboardService
+      .getBudgetGoals(this.selectedYear, this.selectedMonth)
+      .pipe(catchError(() => of([])))
+      .subscribe((goals) => {
+        this.budgetGoals = goals;
+        this.budgetGoalsLoading = false;
+        this.validateActiveTabIndex();
+      });
   }
 
   async loadUpcomingRecurring(): Promise<void> {

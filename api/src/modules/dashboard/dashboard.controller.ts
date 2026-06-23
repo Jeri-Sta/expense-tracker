@@ -2,7 +2,7 @@ import { Controller, Get, UseGuards, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtOrApiKeyAuthGuard } from '../../common/guards/jwt-or-api-key-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
-import { DashboardService, DashboardStats, MonthlyNavigationStats } from './dashboard.service';
+import { DashboardService, DashboardStats, MonthlyNavigationStats, BudgetGoalItem } from './dashboard.service';
 import { User } from '../users/entities/user.entity';
 
 @ApiTags('Dashboard')
@@ -36,6 +36,24 @@ export class DashboardController {
     @Param('month') month: string,
   ): Promise<MonthlyNavigationStats> {
     return this.dashboardService.getMonthlyDashboardStats(
+      user.workspaceId,
+      Number.parseInt(year, 10),
+      Number.parseInt(month, 10),
+    );
+  }
+
+  @Get('budget-goals/:year/:month')
+  @ApiOperation({ summary: 'Get budget goals vs actual spending per category' })
+  @ApiResponse({
+    status: 200,
+    description: 'Budget goals retrieved successfully',
+  })
+  async getBudgetGoals(
+    @GetUser() user: User,
+    @Param('year') year: string,
+    @Param('month') month: string,
+  ): Promise<BudgetGoalItem[]> {
+    return this.dashboardService.getBudgetGoals(
       user.workspaceId,
       Number.parseInt(year, 10),
       Number.parseInt(month, 10),

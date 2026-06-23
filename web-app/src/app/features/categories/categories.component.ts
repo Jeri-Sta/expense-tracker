@@ -9,6 +9,7 @@ import {
 } from '../../core/services/category.service';
 import { CategoryType } from '../../core/types/common.types';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
+import { formatCurrency } from '../../shared/utils/format.utils';
 
 @Component({
   selector: 'app-categories',
@@ -65,6 +66,7 @@ export class CategoriesComponent implements OnInit {
       color: ['#6B7280', Validators.required],
       icon: ['pi pi-tag', Validators.required],
       sortOrder: [0, [Validators.min(0)]],
+      monthlyBudget: [null, [Validators.min(0.01)]],
     });
   }
 
@@ -131,6 +133,7 @@ export class CategoriesComponent implements OnInit {
       color: category.color,
       icon: category.icon,
       sortOrder: category.sortOrder,
+      monthlyBudget: category.monthlyBudget || null,
     });
 
     this.categoryDialog = true;
@@ -214,6 +217,7 @@ export class CategoriesComponent implements OnInit {
           color: formValue.color,
           icon: formValue.icon,
           sortOrder: formValue.sortOrder,
+          monthlyBudget: formValue.monthlyBudget || undefined,
         };
 
         this.categoryService.updateCategory(this.selectedCategory.id, updateDto).subscribe({
@@ -242,6 +246,7 @@ export class CategoriesComponent implements OnInit {
           type: formValue.type,
           color: formValue.color,
           icon: formValue.icon,
+          monthlyBudget: formValue.monthlyBudget || undefined,
         };
 
         this.categoryService.createCategory(createDto).subscribe({
@@ -366,5 +371,9 @@ export class CategoriesComponent implements OnInit {
   // Método para normalizar ícones antigos
   normalizeIcon(icon: string): string {
     return normalizeIcon(icon);
+  }
+
+  formatCurrencyValue(value: number): string {
+    return formatCurrency(value);
   }
 }

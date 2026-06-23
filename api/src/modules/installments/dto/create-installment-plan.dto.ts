@@ -1,8 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsDate, Min, IsNotEmpty } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsDate, Min, IsNotEmpty, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateInstallmentPlanDto {
+  @ApiProperty({
+    example: 'uuid-da-categoria',
+    description: 'ID da categoria do financiamento',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  categoryId: string;
+
   @ApiProperty({
     example: 'Financiamento do Carro',
     description: 'Nome do plano de financiamento',

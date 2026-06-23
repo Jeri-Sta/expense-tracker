@@ -262,5 +262,17 @@
         </div>
       </div>
     </p-tabPanel>
+
+    <!-- Metas -->
+    <p-tabPanel header="Metas" leftIcon="pi pi-check-circle" *ngIf="hasBudgetGoals">
+      <div class="grid">
+        <div class="col-12">
+          <app-budget-goals-widget
+            [goals]="budgetGoals"
+            [isLoading]="budgetGoalsLoading"
+          ></app-budget-goals-widget>
+        </div>
+      </div>
+    </p-tabPanel>
   </p-tabView>
 </div>

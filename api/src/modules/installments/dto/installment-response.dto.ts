@@ -52,6 +52,18 @@ export class InstallmentPlanResponseDto {
   @ApiProperty()
   id: string;
 
+  @ApiProperty({ nullable: true })
+  categoryId?: string;
+
+  @ApiProperty({ nullable: true })
+  categoryName?: string;
+
+  @ApiProperty({ nullable: true })
+  categoryColor?: string;
+
+  @ApiProperty({ nullable: true })
+  categoryIcon?: string;
+
   @ApiProperty()
   name: string;
 
@@ -122,6 +134,18 @@ export class InstallmentPlanResponseDto {
 export class InstallmentPlanSummaryDto {
   @ApiProperty()
   id: string;
+
+  @ApiProperty({ nullable: true })
+  categoryId?: string;
+
+  @ApiProperty({ nullable: true })
+  categoryName?: string;
+
+  @ApiProperty({ nullable: true })
+  categoryColor?: string;
+
+  @ApiProperty({ nullable: true })
+  categoryIcon?: string;
 
   @ApiProperty()
   name: string;

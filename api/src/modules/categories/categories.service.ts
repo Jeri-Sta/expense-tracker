@@ -193,6 +193,7 @@ export class CategoriesService {
       icon: category.icon,
       isActive: category.isActive,
       sortOrder: category.sortOrder,
+      monthlyBudget: category.monthlyBudget ? Number(category.monthlyBudget) : undefined,
       createdAt: category.createdAt,
       updatedAt: category.updatedAt,
     };

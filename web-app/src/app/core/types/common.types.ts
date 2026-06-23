@@ -20,6 +20,7 @@ export interface Category extends BaseEntity {
   icon: string;
   isActive: boolean;
   sortOrder: number;
+  monthlyBudget?: number;
 }
 
 export interface ApiResponse<T> {
@@ -138,4 +139,19 @@ export interface MonthlyExpenseBreakdownItem {
   color?: string;
   icon?: string;
   discountAmount?: number;
+}
+
+export interface BudgetGoalItem {
+  categoryId: string;
+  name: string;
+  color: string;
+  icon?: string;
+  budget: number;
+  actual: number;
+  isOverBudget: boolean;
+  breakdown: {
+    transactions: number;
+    cards: number;
+    installments: number;
+  };
 }

@@ -32,6 +32,9 @@ export class CategoryResponseDto {
   @ApiProperty()
   updatedAt: Date;
 
+  @ApiProperty({ nullable: true })
+  monthlyBudget?: number;
+
   @ApiProperty({ description: 'Number of transactions using this category' })
   transactionCount?: number;
 }

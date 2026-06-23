@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { DashboardApiResponse, MonthlyNavigationStats } from './transaction.service';
-import { DashboardStats, MonthlyExpenseBreakdownItem } from '../types/common.types';
+import { BudgetGoalItem, DashboardStats, MonthlyExpenseBreakdownItem } from '../types/common.types';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +23,10 @@ export class DashboardService {
 
   getMonthlyStats(year: number, month: number): Observable<MonthlyNavigationStats> {
     return this.http.get<MonthlyNavigationStats>(`${this.apiUrl}/monthly/${year}/${month}`);
+  }
+
+  getBudgetGoals(year: number, month: number): Observable<BudgetGoalItem[]> {
+    return this.http.get<BudgetGoalItem[]>(`${this.apiUrl}/budget-goals/${year}/${month}`);
   }
 
   /**
