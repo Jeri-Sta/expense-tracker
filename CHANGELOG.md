@@ -7,7 +7,7 @@
 - Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
-- Adicione correções de bugs aqui
+- Corrigido bugs de metas no dashboard.
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
