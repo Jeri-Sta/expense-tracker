@@ -1120,7 +1120,6 @@ export class DashboardService {
       .where('t.workspaceId = :workspaceId', { workspaceId })
       .andWhere('t.type = :type', { type: TransactionType.EXPENSE })
       .andWhere('t.competencyPeriod = :period', { period: competencyPeriod })
-      .andWhere('t.isProjected = false')
       .groupBy('t.categoryId')
       .getRawMany();
 

@@ -90,6 +90,7 @@ export interface CreateInstallmentPlan {
 }
 
 export interface UpdateInstallmentPlan {
+  categoryId?: string;
   name?: string;
   description?: string;
   metadata?: Record<string, any>;

@@ -80,6 +80,10 @@ export class InstallmentFormComponent implements OnInit {
           categoryId: plan.categoryId,
           name: plan.name,
           description: plan.description,
+          financedAmount: plan.financedAmount,
+          installmentValue: plan.installmentValue,
+          totalInstallments: plan.totalInstallments,
+          startDate: plan.startDate ? new Date(plan.startDate) : new Date(),
         });
         this.loading = false;
       },
