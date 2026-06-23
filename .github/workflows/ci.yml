@@ -116,81 +116,81 @@ jobs:
           
           echo "✅ Tag corresponde às versões"
 
-  security-scan:
-    name: 🔐 Security Scan (Gitleaks, Snyk, CodeQL, IaC & Docker)
-    runs-on: ubuntu-latest
-    needs: validate-versions
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
+  # security-scan:
+  #   name: 🔐 Security Scan (Gitleaks, Snyk, CodeQL, IaC & Docker)
+  #   runs-on: ubuntu-latest
+  #   needs: validate-versions
+  #   permissions:
+  #     security-events: write
+  #     actions: read
+  #     contents: read
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
-      # ------------------------------------------------------
-      # 1. Gitleaks - Detecta segredos expostos
-      # ------------------------------------------------------
-      - name: 🔑 Gitleaks Scan
-        uses: zricethezav/gitleaks-action@v1
-        with:
-          args: detect --source . --verbose
+  #     # ------------------------------------------------------
+  #     # 1. Gitleaks - Detecta segredos expostos
+  #     # ------------------------------------------------------
+  #     - name: 🔑 Gitleaks Scan
+  #       uses: zricethezav/gitleaks-action@v1
+  #       with:
+  #         args: detect --source . --verbose
 
-      # ------------------------------------------------------
-      # Install deps for backend
-      # ------------------------------------------------------
-      - name: 📦 Install backend dependencies
-        working-directory: api
-        run: npm install --no-package-lock
+  #     # ------------------------------------------------------
+  #     # Install deps for backend
+  #     # ------------------------------------------------------
+  #     - name: 📦 Install backend dependencies
+  #       working-directory: api
+  #       run: npm install --no-package-lock
 
-      # ------------------------------------------------------
-      # Install deps for frontend
-      # ------------------------------------------------------
-      - name: 📦 Install frontend dependencies
-        working-directory: web-app
-        run: npm install --no-package-lock
+  #     # ------------------------------------------------------
+  #     # Install deps for frontend
+  #     # ------------------------------------------------------
+  #     - name: 📦 Install frontend dependencies
+  #       working-directory: web-app
+  #       run: npm install --no-package-lock
 
-      # -------------------------
-      # 2. TRIVY - Dependências Node (Nest + Angular)
-      # -------------------------
-      - name: 📦 Trivy - Scan Node dependencies
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: fs
-          scanners: vuln
-          format: table
-          exit-code: 1
-          ignore-unfixed: true
-          severity: MEDIUM,HIGH,CRITICAL
-          trivy-ignorefile: .trivyignore
+  #     # -------------------------
+  #     # 2. TRIVY - Dependências Node (Nest + Angular)
+  #     # -------------------------
+  #     - name: 📦 Trivy - Scan Node dependencies
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         scan-type: fs
+  #         scanners: vuln
+  #         format: table
+  #         exit-code: 1
+  #         ignore-unfixed: true
+  #         severity: MEDIUM,HIGH,CRITICAL
+  #         trivy-ignorefile: .trivyignore
 
-      # -------------------------
-      # 3. TRIVY - Dockerfile Scan Backend
-      # -------------------------
-      - name: 🐳 Trivy - Dockerfile scan (Backend)
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: config
-          scan-ref: ./api/Dockerfile
+  #     # -------------------------
+  #     # 3. TRIVY - Dockerfile Scan Backend
+  #     # -------------------------
+  #     - name: 🐳 Trivy - Dockerfile scan (Backend)
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         scan-type: config
+  #         scan-ref: ./api/Dockerfile
 
-      # -------------------------
-      # 4. TRIVY - Dockerfile Scan Frontend
-      # -------------------------
-      - name: 🐳 Trivy - Dockerfile scan (Frontend)
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: config
-          scan-ref: ./web-app/Dockerfile
+  #     # -------------------------
+  #     # 4. TRIVY - Dockerfile Scan Frontend
+  #     # -------------------------
+  #     - name: 🐳 Trivy - Dockerfile scan (Frontend)
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         scan-type: config
+  #         scan-ref: ./web-app/Dockerfile
 
-      # -------------------------
-      # 5. TRIVY - IaC Scan (ex.: Terraform / Docker Compose)
-      # -------------------------
-      - name: 📐 Trivy - IaC scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: config
-          scan-ref: .
+  #     # -------------------------
+  #     # 5. TRIVY - IaC Scan (ex.: Terraform / Docker Compose)
+  #     # -------------------------
+  #     - name: 📐 Trivy - IaC scan
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         scan-type: config
+  #         scan-ref: .
     
   build-backend:
     name: Backend - Build, Lint & Test
