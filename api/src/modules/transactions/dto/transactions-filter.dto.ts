@@ -1,4 +1,13 @@
-import { IsOptional, IsEnum, IsDateString, IsUUID, IsString, IsNumber, Min } from 'class-validator';
+import {
+  IsOptional,
+  IsEnum,
+  IsDateString,
+  IsUUID,
+  IsString,
+  IsNumber,
+  Min,
+  IsIn,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { TransactionType, PaymentStatus } from '../../../common/enums';
@@ -56,10 +65,12 @@ export class TransactionsFilterDto {
   @ApiProperty({ required: false, default: 'transactionDate' })
   @IsOptional()
   @IsString()
+  @IsIn(['transactionDate', 'description', 'amount', 'createdAt', 'competencyPeriod'])
   sortBy?: string = 'transactionDate';
 
   @ApiProperty({ required: false, default: 'DESC' })
   @IsOptional()
   @IsString()
+  @IsIn(['ASC', 'DESC'])
   sortOrder?: 'ASC' | 'DESC' = 'DESC';
 }

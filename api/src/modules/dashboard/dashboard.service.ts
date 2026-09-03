@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, IsNull, Not, Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { InstallmentPlan } from '../installments/entities/installment-plan.entity';
 import { Installment } from '../installments/entities/installment.entity';
@@ -109,6 +109,14 @@ export interface BudgetGoalItem {
   };
 }
 
+export function reconcileMonthlyTotals<T extends { totalIncome: number }>(
+  stats: T,
+  breakdown: MonthlyExpenseBreakdownItem[],
+): T & { totalExpenses: number; balance: number } {
+  const totalExpenses = breakdown.find((item) => item.type === 'total')?.amount ?? 0;
+  return { ...stats, totalExpenses, balance: stats.totalIncome - totalExpenses };
+}
+
 export interface MonthlyNavigationStats {
   year: number;
   month: number;
@@ -192,7 +200,7 @@ export class DashboardService {
     const invoices = await this.getInvoicesSummary(workspaceId, targetYear, currentMonth);
 
     // Get card expenses based on invoice due date (not invoice period)
-    const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(
+    const cardExpenses = await this.getCardExpensesByCompetencyMonth(
       workspaceId,
       targetYear,
       currentMonth,
@@ -221,10 +229,8 @@ export class DashboardService {
 
     return {
       currentMonth: {
-        ...currentMonthData,
+        ...reconcileMonthlyTotals(currentMonthData, expenseBreakdown),
         cardExpenses,
-        totalExpenses: currentMonthData.totalExpenses + cardExpenses,
-        balance: currentMonthData.totalIncome - (currentMonthData.totalExpenses + cardExpenses),
       },
       yearlyOverview,
       recentTransactions,
@@ -292,7 +298,7 @@ export class DashboardService {
     return {
       year,
       month,
-      stats,
+      stats: reconcileMonthlyTotals(stats, expenseBreakdown),
       recentTransactions: monthTransactions,
       topCategories,
       installments,
@@ -370,11 +376,12 @@ export class DashboardService {
       .where('transaction.workspaceId = :workspaceId', { workspaceId })
       .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
       .andWhere('transaction.type = :type', { type: TransactionType.EXPENSE })
+      .andWhere('transaction.isProjected = false')
       .groupBy('category.id, category.name, category.color, category.icon, transaction.type')
       .getRawMany();
 
     // Get card transaction categories based on invoice due date
-    const cardCategories = await this.getCardExpensesByCategoryForDueMonth(
+    const cardCategories = await this.getCardExpensesByCategoryForCompetencyMonth(
       workspaceId,
       year,
       month,
@@ -790,119 +797,52 @@ export class DashboardService {
     return summaries;
   }
 
-  /**
-   * Calcula despesas de cartão de crédito baseado na data de vencimento da fatura.
-   * Se o dia de vencimento <= dia de fechamento, a fatura vence no mês seguinte ao período.
-   * Exemplo: Cartão fecha dia 10, vence dia 20 -> fatura de nov vence em nov
-   * Exemplo: Cartão fecha dia 25, vence dia 5 -> fatura de nov vence em dez
-   */
-  async getCardExpensesByInvoiceDueMonth(
+  async getCardExpensesByCompetencyMonth(
     workspaceId: string,
     year: number,
     month: number,
   ): Promise<number> {
-    // Get all credit cards for the user
-    const creditCards = await this.creditCardRepository.find({
-      where: { workspaceId, isActive: true },
-    });
+    const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
+    const result = await this.cardTransactionRepository
+      .createQueryBuilder('transaction')
+      .select('SUM(transaction.amount)', 'total')
+      .where('transaction.workspaceId = :workspaceId', { workspaceId })
+      .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+      .getRawOne();
 
-    if (creditCards.length === 0) {
-      return 0;
-    }
-
-    let totalExpenses = 0;
-
-    for (const card of creditCards) {
-      // Calculate which invoice period(s) have due date in the target month
-      const invoicePeriods = getInvoicePeriodsWithDueDateInMonth(
-        card.closingDay,
-        card.dueDay,
-        year,
-        month,
-      );
-
-      for (const period of invoicePeriods) {
-        const result = await this.cardTransactionRepository
-          .createQueryBuilder('transaction')
-          .select('SUM(transaction.amount)', 'total')
-          .where('transaction.creditCardId = :cardId', { cardId: card.id })
-          .andWhere('transaction.invoicePeriod = :period', { period })
-          .getRawOne();
-
-        totalExpenses += Number(result?.total || 0);
-      }
-    }
-
-    return totalExpenses;
+    return Number(result?.total || 0);
   }
 
-  /**
-   * Obtém despesas de cartão por categoria para um mês específico (baseado na data de vencimento).
-   */
-  async getCardExpensesByCategoryForDueMonth(
+  async getCardExpensesByCategoryForCompetencyMonth(
     workspaceId: string,
     year: number,
     month: number,
   ): Promise<any[]> {
-    const creditCards = await this.creditCardRepository.find({
-      where: { workspaceId, isActive: true },
-    });
+    const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
+    const result = await this.cardTransactionRepository
+      .createQueryBuilder('transaction')
+      .select([
+        'category.id as id',
+        'category.name as name',
+        'category.color as color',
+        'category.icon as icon',
+        'SUM(transaction.amount) as total',
+        'COUNT(transaction.id) as count',
+      ])
+      .leftJoin('transaction.category', 'category')
+      .where('transaction.workspaceId = :workspaceId', { workspaceId })
+      .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+      .groupBy('category.id, category.name, category.color, category.icon')
+      .getRawMany();
 
-    if (creditCards.length === 0) {
-      return [];
-    }
-
-    const categoryTotals = new Map<
-      string,
-      { id: string | null; name: string; color: string; icon: string; total: number; count: number }
-    >();
-
-    for (const card of creditCards) {
-      const invoicePeriods = getInvoicePeriodsWithDueDateInMonth(
-        card.closingDay,
-        card.dueDay,
-        year,
-        month,
-      );
-
-      for (const period of invoicePeriods) {
-        const result = await this.cardTransactionRepository
-          .createQueryBuilder('transaction')
-          .select([
-            'category.id as id',
-            'category.name as name',
-            'category.color as color',
-            'category.icon as icon',
-            'SUM(transaction.amount) as total',
-            'COUNT(transaction.id) as count',
-          ])
-          .leftJoin('transaction.category', 'category')
-          .where('transaction.creditCardId = :cardId', { cardId: card.id })
-          .andWhere('transaction.invoicePeriod = :period', { period })
-          .groupBy('category.id, category.name, category.color, category.icon')
-          .getRawMany();
-
-        for (const item of result) {
-          const key = item.id || 'uncategorized';
-          const existing = categoryTotals.get(key);
-          if (existing) {
-            existing.total += Number(item.total || 0);
-            existing.count += Number(item.count || 0);
-          } else {
-            categoryTotals.set(key, {
-              id: item.id,
-              name: item.name || 'Sem categoria',
-              color: item.color || '#808080',
-              icon: item.icon || 'credit_card',
-              total: Number(item.total || 0),
-              count: Number(item.count || 0),
-            });
-          }
-        }
-      }
-    }
-
-    return Array.from(categoryTotals.values());
+    return result.map((item) => ({
+      id: item.id,
+      name: item.name || 'Sem categoria',
+      color: item.color || '#808080',
+      icon: item.icon || 'credit_card',
+      total: Number(item.total || 0),
+      count: Number(item.count || 0),
+    }));
   }
 
   /**
@@ -942,82 +882,44 @@ export class DashboardService {
       grandTotal += regularExpenses;
     }
 
-    // 2. Credit card invoices - one item per card with invoice amount > 0
+    // 2. Credit card expenses by competency - one item per card
     for (const card of creditCards) {
-      if (card.currentInvoiceAmount > 0) {
+      const result = await this.cardTransactionRepository
+        .createQueryBuilder('transaction')
+        .select('SUM(transaction.amount)', 'total')
+        .where('transaction.creditCardId = :cardId', { cardId: card.id })
+        .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+        .getRawOne();
+      const amount = Number(result?.total || 0);
+      if (amount > 0) {
         breakdown.push({
           type: 'credit-card',
           name: card.name,
-          amount: card.currentInvoiceAmount,
+          amount,
           icon: 'credit_card',
           color: card.color || '#9C27B0',
         });
-        grandTotal += card.currentInvoiceAmount;
+        grandTotal += amount;
       }
     }
 
-    // 3. Financings - Get installments due in this month + early payments from other months
+    // 3. Financings by competency (the installment due month)
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
 
-    // 3a. Get all installments DUE in this month but exclude installments
-    // that were already paid in a different month (i.e. paidDate exists and
-    // is outside the current month range). We keep installments that are
-    // unpaid or that were paid within this month.
     const installmentsDueThisMonth = await this.installmentRepository
       .createQueryBuilder('installment')
       .leftJoinAndSelect('installment.installmentPlan', 'plan')
       .where('plan.workspaceId = :workspaceId', { workspaceId })
       .andWhere('installment.dueDate >= :startOfMonth', { startOfMonth })
       .andWhere('installment.dueDate <= :endOfMonth', { endOfMonth })
-      .andWhere(
-        new Brackets((qb) => {
-          // Keep installments that are not paid, OR that were paid within the month
-          qb.where('installment.status != :paidStatus', {
-            paidStatus: InstallmentStatus.PAID,
-          });
-          qb.orWhere(
-            '(installment.status = :paidStatus AND installment.paidDate >= :startOfMonth AND installment.paidDate <= :endOfMonth)',
-            {
-              paidStatus: InstallmentStatus.PAID,
-              startOfMonth,
-              endOfMonth,
-            },
-          );
-        }),
-      )
+      .andWhere('installment.status != :cancelled', { cancelled: InstallmentStatus.CANCELLED })
       .getMany();
 
-    // 3b. Get installments PAID in this month but DUE in other months (early payments / adiantamentos)
-    const earlyPayments = await this.installmentRepository
-      .createQueryBuilder('installment')
-      .leftJoinAndSelect('installment.installmentPlan', 'plan')
-      .where('plan.workspaceId = :workspaceId', { workspaceId })
-      .andWhere('installment.status = :status', { status: InstallmentStatus.PAID })
-      .andWhere('installment.paidDate >= :startOfMonth', { startOfMonth })
-      .andWhere('installment.paidDate <= :endOfMonth', { endOfMonth })
-      .andWhere('(installment.dueDate < :startOfMonth OR installment.dueDate > :endOfMonth)', {
-        startOfMonth,
-        endOfMonth,
-      })
-      .getMany();
-
-    // Aggregate by plan
-    const planTotals = new Map<
-      string,
-      {
-        name: string;
-        dueAmount: number; // Amount due this month (original or paid)
-        earlyPaymentAmount: number; // Amount from early payments
-        discountAmount: number;
-      }
-    >();
-
-    // Process installments due this month
+    const planTotals = new Map<string, { name: string; amount: number; discountAmount: number }>();
     for (const installment of installmentsDueThisMonth) {
       const planId = installment.installmentPlan.id;
       const existing = planTotals.get(planId);
-      // Use paidAmount if paid, otherwise originalAmount
       const amount =
         installment.status === InstallmentStatus.PAID
           ? Number(installment.paidAmount || installment.originalAmount)
@@ -1026,59 +928,28 @@ export class DashboardService {
         installment.status === InstallmentStatus.PAID ? Number(installment.discountAmount || 0) : 0;
 
       if (existing) {
-        existing.dueAmount += amount;
+        existing.amount += amount;
         existing.discountAmount += discount;
       } else {
         planTotals.set(planId, {
           name: installment.installmentPlan.name,
-          dueAmount: amount,
-          earlyPaymentAmount: 0,
+          amount,
           discountAmount: discount,
         });
       }
     }
 
-    // Process early payments (paid this month but due in other months)
-    for (const installment of earlyPayments) {
-      const planId = installment.installmentPlan.id;
-      const existing = planTotals.get(planId);
-      const amount = Number(installment.paidAmount || installment.originalAmount);
-      const discount = Number(installment.discountAmount || 0);
-
-      if (existing) {
-        existing.earlyPaymentAmount += amount;
-        existing.discountAmount += discount;
-      } else {
-        planTotals.set(planId, {
-          name: installment.installmentPlan.name,
-          dueAmount: 0,
-          earlyPaymentAmount: amount,
-          discountAmount: discount,
-        });
-      }
-    }
-
-    // Add financing items to breakdown
     for (const [_, plan] of planTotals) {
-      const totalAmount = plan.dueAmount + plan.earlyPaymentAmount;
-      if (totalAmount > 0) {
-        // Build description based on what we have
-        let name = plan.name;
-        if (plan.earlyPaymentAmount > 0 && plan.dueAmount > 0) {
-          name = `${plan.name} (+ adiantamento)`;
-        } else if (plan.earlyPaymentAmount > 0 && plan.dueAmount === 0) {
-          name = `${plan.name} (adiantamento)`;
-        }
-
+      if (plan.amount > 0) {
         breakdown.push({
           type: 'financing',
-          name,
-          amount: totalAmount,
+          name: plan.name,
+          amount: plan.amount,
           icon: 'account_balance',
           color: '#FF9800',
           discountAmount: plan.discountAmount > 0 ? plan.discountAmount : undefined,
         });
-        grandTotal += totalAmount;
+        grandTotal += plan.amount;
       }
     }
 
@@ -1120,6 +991,7 @@ export class DashboardService {
       .where('t.workspaceId = :workspaceId', { workspaceId })
       .andWhere('t.type = :type', { type: TransactionType.EXPENSE })
       .andWhere('t.competencyPeriod = :period', { period: competencyPeriod })
+      .andWhere('t.isProjected = false')
       .groupBy('t.categoryId')
       .getRawMany();
 
@@ -1128,8 +1000,12 @@ export class DashboardService {
       if (r.categoryId) transactionMap.set(r.categoryId, Number(r.total || 0));
     }
 
-    // 3. Card transactions grouped by category (by invoice due month)
-    const cardResults = await this.getCardExpensesByCategoryForDueMonth(workspaceId, year, month);
+    // 3. Card transactions grouped by category and competency
+    const cardResults = await this.getCardExpensesByCategoryForCompetencyMonth(
+      workspaceId,
+      year,
+      month,
+    );
     const cardMap = new Map<string, number>();
     for (const r of cardResults) {
       if (r.id) cardMap.set(r.id, Number(r.total || 0));

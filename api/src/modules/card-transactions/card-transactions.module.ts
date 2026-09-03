@@ -5,9 +5,10 @@ import { CardTransactionsController } from './card-transactions.controller';
 import { CardTransaction } from './entities/card-transaction.entity';
 import { Invoice } from './entities/invoice.entity';
 import { CreditCard } from '../credit-cards/entities/credit-card.entity';
+import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CardTransaction, Invoice, CreditCard])],
+  imports: [TypeOrmModule.forFeature([CardTransaction, Invoice, CreditCard]), CategoriesModule],
   controllers: [CardTransactionsController],
   providers: [CardTransactionsService],
   exports: [CardTransactionsService],

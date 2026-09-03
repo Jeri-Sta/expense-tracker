@@ -9,6 +9,7 @@ import { ProjectionFiltersDto } from './dto/projection-filters.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
 import { parseLocalDate } from '../../common/utils/date.utils';
 import { PaymentStatus } from '../../common/enums';
+import { CategoriesService } from '../categories/categories.service';
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -23,6 +24,7 @@ export class TransactionsService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionsRepository: Repository<Transaction>,
+    private readonly categoriesService: CategoriesService,
   ) {}
 
   async create(
@@ -30,6 +32,11 @@ export class TransactionsService {
     workspaceId: string,
     createTransactionDto: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
+    await this.categoriesService.validateForTransaction(
+      createTransactionDto.categoryId,
+      workspaceId,
+      createTransactionDto.type,
+    );
     // Validate competency period format
     if (!this.isValidCompetencyPeriod(createTransactionDto.competencyPeriod)) {
       throw new Error('Competency period must be in YYYY-MM format');
@@ -110,6 +117,14 @@ export class TransactionsService {
       throw new Error('Competency period must be in YYYY-MM format');
     }
 
+    await this.categoriesService.validateForTransaction(
+      updateTransactionDto.categoryId !== undefined
+        ? updateTransactionDto.categoryId
+        : transaction.categoryId,
+      workspaceId,
+      updateTransactionDto.type || transaction.type,
+    );
+
     Object.assign(transaction, updateTransactionDto);
 
     if (updateTransactionDto.categoryId !== undefined) {
@@ -163,6 +178,7 @@ export class TransactionsService {
         })
         .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
         .andWhere('transaction.type = :type', { type: 'income' })
+        .andWhere('transaction.isProjected = false')
         .getRawOne(),
 
       this.transactionsRepository
@@ -173,6 +189,7 @@ export class TransactionsService {
         })
         .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
         .andWhere('transaction.type = :type', { type: 'expense' })
+        .andWhere('transaction.isProjected = false')
         .getRawOne(),
 
       this.transactionsRepository
@@ -182,6 +199,7 @@ export class TransactionsService {
           workspaceId,
         })
         .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+        .andWhere('transaction.isProjected = false')
         .getRawOne(),
     ]);
 
@@ -285,8 +303,7 @@ export class TransactionsService {
     const stats = [];
 
     for (let month = 1; month <= 12; month++) {
-      const startDate = new Date(year, month - 1, 1);
-      const endDate = new Date(year, month, 0);
+      const competencyPeriod = `${year}-${month.toString().padStart(2, '0')}`;
 
       const result = await this.transactionsRepository
         .createQueryBuilder('transaction')
@@ -298,8 +315,8 @@ export class TransactionsService {
         .where('transaction.workspaceId = :workspaceId', {
           workspaceId,
         })
-        .andWhere('transaction.transactionDate >= :startDate', { startDate })
-        .andWhere('transaction.transactionDate <= :endDate', { endDate })
+        .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+        .andWhere('transaction.isProjected = false')
         .getRawOne();
 
       stats.push({
@@ -365,7 +382,7 @@ export class TransactionsService {
   }
 
   private isValidCompetencyPeriod(period: string): boolean {
-    const regex = /^\d{4}-\d{2}$/;
+    const regex = /^\d{4}-(0[1-9]|1[0-2])$/;
     return regex.test(period);
   }
 

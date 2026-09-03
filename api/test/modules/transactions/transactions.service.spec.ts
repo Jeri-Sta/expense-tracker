@@ -6,6 +6,7 @@ import { TransactionsService } from '../../../src/modules/transactions/transacti
 import { Transaction } from '../../../src/modules/transactions/entities/transaction.entity';
 import { PaymentStatus } from '../../../src/common/enums';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { CategoriesService } from '../../../src/modules/categories/categories.service';
 
 describe('TransactionsService', () => {
   let service: TransactionsService;
@@ -15,6 +16,10 @@ describe('TransactionsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TransactionsService,
+        {
+          provide: CategoriesService,
+          useValue: { validateForTransaction: jest.fn() },
+        },
         {
           provide: getRepositoryToken(Transaction),
           useClass: Repository,

@@ -27,6 +27,7 @@ export class CardTransactionsComponent implements OnInit {
   creditCards: CreditCard[] = [];
   categories: Category[] = [];
   invoices: Invoice[] = [];
+  allInvoices: Invoice[] = [];
   loading = false;
 
   // Pagination
@@ -81,6 +82,7 @@ export class CardTransactionsComponent implements OnInit {
     this.loadCreditCards();
     this.loadCategories();
     this.loadTransactions();
+    this.loadInvoiceOptions();
   }
 
   initializeForm(): void {
@@ -88,6 +90,7 @@ export class CardTransactionsComponent implements OnInit {
       description: ['', [Validators.required, Validators.maxLength(255)]],
       amount: [0, [Validators.required, Validators.min(0.01)]],
       transactionDate: [new Date(), Validators.required],
+      invoiceDuePeriod: ['', Validators.required],
       creditCardId: ['', Validators.required],
       categoryId: ['', Validators.required],
       isInstallment: [false],
@@ -153,7 +156,7 @@ export class CardTransactionsComponent implements OnInit {
     // Parse year and month from selectedPeriod (e.g., "2024-12")
     const [year, month] = this.selectedPeriod.split('-').map(Number);
 
-    // Use paginated endpoint with sorting - filter by due month instead of invoice period
+    // The selected month filters the competency explicitly assigned to each transaction.
     this.cardTransactionService
       .getTransactionsPaginated({
         page,
@@ -207,6 +210,14 @@ export class CardTransactionsComponent implements OnInit {
   onFilterChange(): void {
     this.first = 0; // Reset to first page on filter change
     this.loadTransactions();
+    this.loadInvoiceOptions();
+  }
+
+  private loadInvoiceOptions(): void {
+    this.cardTransactionService.getInvoices().subscribe({
+      next: (invoices) => (this.allInvoices = invoices),
+      error: (error) => console.error('Error loading invoice options:', error),
+    });
   }
 
   openNew(): void {
@@ -217,6 +228,7 @@ export class CardTransactionsComponent implements OnInit {
     this.submitted = false;
     this.transactionForm.reset({
       transactionDate: new Date(),
+      invoiceDuePeriod: this.selectedPeriod,
       creditCardId: this.selectedCardId || '',
       isInstallment: false,
       totalInstallments: 2,
@@ -230,6 +242,18 @@ export class CardTransactionsComponent implements OnInit {
   }
 
   editTransaction(transaction: CardTransaction): void {
+    this.cardTransactionService.getById(transaction.id).subscribe({
+      next: (details) => this.openEditForm(details),
+      error: () =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao carregar a transação',
+        }),
+    });
+  }
+
+  private openEditForm(transaction: CardTransaction): void {
     this.selectedTransaction = { ...transaction };
     this.editMode = true;
     this.newMode = false;
@@ -238,10 +262,9 @@ export class CardTransactionsComponent implements OnInit {
 
     this.transactionForm.patchValue({
       description: transaction.description,
-      amount: transaction.isInstallment
-        ? transaction.amount * (transaction.totalInstallments || 1)
-        : transaction.amount,
+      amount: this.getPurchaseAmount(transaction),
       transactionDate: parseLocalDate(transaction.transactionDate),
+      invoiceDuePeriod: transaction.competencyPeriod,
       creditCardId: transaction.creditCardId,
       categoryId: transaction.categoryId || '',
       isInstallment: transaction.isInstallment,
@@ -257,6 +280,18 @@ export class CardTransactionsComponent implements OnInit {
   }
 
   cloneTransaction(transaction: CardTransaction): void {
+    this.cardTransactionService.getById(transaction.id).subscribe({
+      next: (details) => this.openCloneForm(details),
+      error: () =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao carregar a transação',
+        }),
+    });
+  }
+
+  private openCloneForm(transaction: CardTransaction): void {
     this.cloneMode = true;
     this.newMode = false;
     this.editMode = false;
@@ -264,10 +299,9 @@ export class CardTransactionsComponent implements OnInit {
 
     this.transactionForm.patchValue({
       description: transaction.description,
-      amount: transaction.isInstallment
-        ? transaction.amount * (transaction.totalInstallments || 1)
-        : transaction.amount,
+      amount: this.getPurchaseAmount(transaction),
       transactionDate: parseLocalDate(transaction.transactionDate),
+      invoiceDuePeriod: transaction.competencyPeriod,
       creditCardId: transaction.creditCardId,
       categoryId: transaction.categoryId || '',
       isInstallment: transaction.isInstallment,
@@ -280,6 +314,15 @@ export class CardTransactionsComponent implements OnInit {
     this.transactionForm.get('creditCardId')?.disable();
 
     this.transactionDialog = true;
+  }
+
+  private getPurchaseAmount(transaction: CardTransaction): number {
+    return transaction.isInstallment
+      ? [transaction, ...(transaction.childTransactions || [])].reduce(
+          (sum, installment) => sum + Number(installment.amount),
+          0,
+        )
+      : Number(transaction.amount);
   }
 
   deleteTransaction(transaction: CardTransaction): void {
@@ -329,19 +372,17 @@ export class CardTransactionsComponent implements OnInit {
     const formValue = this.transactionForm.getRawValue();
 
     if (this.editMode) {
-      // For installment transactions, divide the total amount by number of installments
-      // because the form shows the total but we need to save the installment amount
-      let amount = formValue.amount;
-      if (this.selectedTransaction.isInstallment && this.selectedTransaction.totalInstallments) {
-        amount = Number((formValue.amount / this.selectedTransaction.totalInstallments).toFixed(2));
-      }
-
       const updateData: UpdateCardTransactionDto = {
         description: formValue.description,
-        amount: amount,
         transactionDate: this.formatDate(formValue.transactionDate),
         categoryId: formValue.categoryId ? formValue.categoryId : null,
       };
+      if (Number(formValue.amount) !== this.getPurchaseAmount(this.selectedTransaction)) {
+        updateData.amount = formValue.amount;
+      }
+      if (formValue.invoiceDuePeriod !== this.selectedTransaction.competencyPeriod) {
+        updateData.invoiceDuePeriod = formValue.invoiceDuePeriod;
+      }
 
       this.cardTransactionService.update(this.selectedTransaction.id, updateData).subscribe({
         next: () => {
@@ -367,6 +408,7 @@ export class CardTransactionsComponent implements OnInit {
         description: formValue.description,
         amount: formValue.amount,
         transactionDate: this.formatDate(formValue.transactionDate),
+        invoiceDuePeriod: formValue.invoiceDuePeriod,
         creditCardId: formValue.creditCardId,
         categoryId: formValue.categoryId || undefined,
         isInstallment: formValue.isInstallment,
@@ -439,6 +481,20 @@ export class CardTransactionsComponent implements OnInit {
 
   formatPeriod(period: string): string {
     return formatPeriod(period);
+  }
+
+  getInvoicePeriodOptions(): { label: string; value: string; disabled: boolean }[] {
+    const cardId = this.transactionForm?.get('creditCardId')?.value;
+    return this.periodOptions.map((option) => ({
+      ...option,
+      disabled: this.allInvoices.some(
+        (invoice) =>
+          invoice.creditCardId === cardId &&
+          invoice.status !== 'open' &&
+          invoice.dueDate &&
+          String(invoice.dueDate).slice(0, 7) === option.value,
+      ),
+    }));
   }
 
   getInvoiceStatusLabel(status: InvoiceStatus): string {

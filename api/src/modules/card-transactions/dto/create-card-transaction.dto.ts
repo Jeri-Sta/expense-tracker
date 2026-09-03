@@ -6,6 +6,7 @@ import {
   IsBoolean,
   IsDateString,
   IsUUID,
+  Matches,
   Min,
   Max,
   MaxLength,
@@ -36,6 +37,14 @@ export class CreateCardTransactionDto {
   })
   @IsDateString()
   transactionDate: string;
+
+  @ApiProperty({
+    description: 'Invoice due period (YYYY-MM)',
+    example: '2025-12',
+  })
+  @IsNotEmpty()
+  @Matches(/^\d{4}-(0[1-9]|1[0-2])$/)
+  invoiceDuePeriod: string;
 
   @ApiProperty({
     description: 'Credit card ID',

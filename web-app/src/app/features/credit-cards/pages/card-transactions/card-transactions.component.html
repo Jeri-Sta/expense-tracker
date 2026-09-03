@@ -149,6 +149,7 @@
         <th pSortableColumn="transactionDate">
           Data <p-sortIcon field="transactionDate"></p-sortIcon>
         </th>
+        <th>Competência</th>
         <th pSortableColumn="amount" class="text-right">
           Valor <p-sortIcon field="amount"></p-sortIcon>
         </th>
@@ -185,6 +186,7 @@
           <span class="text-color-secondary" *ngIf="!transaction.categoryName">-</span>
         </td>
         <td>{{ transaction.transactionDate | date: 'dd/MM/yyyy' }}</td>
+        <td>{{ formatPeriod(transaction.competencyPeriod) }}</td>
         <td class="text-right font-semibold">{{ formatCurrency(transaction.amount) }}</td>
         <td class="text-center">
           <p-tag
@@ -229,7 +231,7 @@
     </ng-template>
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7">
+        <td colspan="8">
           <div class="table-empty-state">
             <i class="pi pi-file table-empty-icon"></i>
             <span class="table-empty-title">Nenhuma transação encontrada</span>
@@ -290,7 +292,7 @@
   styleClass="p-fluid"
 >
   <ng-template pTemplate="content">
-    <form [formGroup]="transactionForm">
+    <form [formGroup]="transactionForm" novalidate>
       <!-- Credit Card -->
       <div class="field">
         <label for="creditCardId">Cartão <span class="required-asterisk">*</span></label>
@@ -380,6 +382,26 @@
           *ngIf="submitted && transactionForm.get('transactionDate')?.hasError('required')"
         >
           Data da Compra é obrigatória
+        </small>
+      </div>
+
+      <div class="field">
+        <label for="invoiceDuePeriod"> Fatura <span class="required-asterisk">*</span> </label>
+        <p-dropdown
+          id="invoiceDuePeriod"
+          formControlName="invoiceDuePeriod"
+          [options]="getInvoicePeriodOptions()"
+          optionDisabled="disabled"
+          placeholder="Selecione a fatura"
+          appendTo="body"
+          styleClass="w-full"
+        ></p-dropdown>
+        <small class="text-color-secondary block mt-1"> Mês de vencimento da fatura. </small>
+        <small
+          class="p-error"
+          *ngIf="submitted && transactionForm.get('invoiceDuePeriod')?.invalid"
+        >
+          Fatura é obrigatória
         </small>
       </div>
 

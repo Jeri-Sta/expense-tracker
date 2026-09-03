@@ -29,7 +29,11 @@ export class RecurringTransactionsService {
     createRecurringTransactionDto: CreateRecurringTransactionDto,
   ): Promise<RecurringTransactionResponseDto> {
     // Verify category belongs to user
-    await this.categoriesService.findOne(createRecurringTransactionDto.categoryId, workspaceId);
+    await this.categoriesService.validateForTransaction(
+      createRecurringTransactionDto.categoryId,
+      workspaceId,
+      createRecurringTransactionDto.type,
+    );
 
     const recurringTransaction = this.recurringTransactionsRepository.create({
       ...createRecurringTransactionDto,
@@ -93,8 +97,12 @@ export class RecurringTransactionsService {
     }
 
     // Verify category belongs to user if categoryId is being updated
-    if (updateRecurringTransactionDto.categoryId) {
-      await this.categoriesService.findOne(updateRecurringTransactionDto.categoryId, workspaceId);
+    if (updateRecurringTransactionDto.categoryId || updateRecurringTransactionDto.type) {
+      await this.categoriesService.validateForTransaction(
+        updateRecurringTransactionDto.categoryId || recurringTransaction.categoryId,
+        workspaceId,
+        updateRecurringTransactionDto.type || recurringTransaction.type,
+      );
     }
 
     // Convert string dates to Date objects if provided

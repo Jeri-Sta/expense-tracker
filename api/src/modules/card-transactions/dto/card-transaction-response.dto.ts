@@ -16,6 +16,9 @@ export class CardTransactionResponseDto {
   @ApiProperty({ description: 'Invoice period in YYYY-MM format' })
   invoicePeriod: string;
 
+  @ApiProperty({ description: 'Competency period in YYYY-MM format' })
+  competencyPeriod: string;
+
   @ApiProperty()
   isInstallment: boolean;
 

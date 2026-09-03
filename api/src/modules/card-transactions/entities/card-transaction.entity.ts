@@ -18,6 +18,9 @@ export class CardTransaction extends BaseEntity {
   @Column({ type: 'varchar', length: 7 })
   invoicePeriod: string; // YYYY-MM format
 
+  @Column({ type: 'varchar', length: 7 })
+  competencyPeriod: string; // YYYY-MM format
+
   @Column({ default: false })
   isInstallment: boolean;
 

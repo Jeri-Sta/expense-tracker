@@ -336,6 +336,7 @@ O sistema de cartões de crédito permite aos usuários gerenciar seus cartões,
   - **Descrição**: Descrição da compra
   - **Valor Total**: Valor da compra (dividido automaticamente se parcelado)
   - **Data da Transação**: Data da compra
+  - **Competência**: Mês em que a compra entra nos relatórios financeiros, independente da fatura
   - **Parcelamento**: Toggle para ativar parcelamento
     - Número de parcelas (quando ativado)
 
@@ -343,6 +344,7 @@ O sistema de cartões de crédito permite aos usuários gerenciar seus cartões,
   - O sistema calcula automaticamente em qual fatura a transação será incluída
   - Se a data da compra for posterior ao dia de fechamento, vai para a próxima fatura
   - Parcelas futuras são distribuídas automaticamente nas faturas correspondentes
+  - Quando a competência não é informada, ela assume o mês de vencimento da fatura
 
 #### 8.3 Transações Parceladas
 - **Comportamento**:
@@ -350,6 +352,8 @@ O sistema de cartões de crédito permite aos usuários gerenciar seus cartões,
   - Cada parcela é associada à fatura correspondente
   - Transação "pai" mantém referência para todas as parcelas "filhas"
   - Valor dividido igualmente entre as parcelas
+  - Eventuais centavos residuais ficam na última parcela, preservando o valor total da compra
+  - A competência das parcelas avança mês a mês a partir da competência inicial
 
 - **Visualização**:
   - Exibição "X/Y" mostrando parcela atual e total

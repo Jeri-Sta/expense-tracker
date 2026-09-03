@@ -109,6 +109,7 @@ CREATE TABLE IF NOT EXISTS card_transactions (
     amount DECIMAL(12,2) NOT NULL,
     "transactionDate" DATE NOT NULL,
     "invoicePeriod" VARCHAR(7) NOT NULL,
+    "competencyPeriod" VARCHAR(7) NOT NULL,
     "isInstallment" BOOLEAN DEFAULT FALSE,
     "installmentNumber" INTEGER,
     "totalInstallments" INTEGER,

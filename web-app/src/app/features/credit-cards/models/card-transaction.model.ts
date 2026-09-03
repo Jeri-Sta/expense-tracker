@@ -6,6 +6,7 @@ export interface CardTransaction {
   amount: number;
   transactionDate: Date;
   invoicePeriod: string;
+  competencyPeriod: string;
   isInstallment: boolean;
   installmentNumber?: number;
   totalInstallments?: number;
@@ -27,6 +28,7 @@ export interface CreateCardTransactionDto {
   description: string;
   amount: number;
   transactionDate: string;
+  invoiceDuePeriod: string;
   creditCardId: string;
   categoryId?: string;
   isInstallment?: boolean;
@@ -37,6 +39,7 @@ export interface UpdateCardTransactionDto {
   description?: string;
   amount?: number;
   transactionDate?: string;
+  invoiceDuePeriod?: string;
   categoryId?: string | null;
 }
 

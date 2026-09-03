@@ -13,7 +13,7 @@ export class CardTransactionFilterDto {
   @IsString()
   invoicePeriod?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by invoice due year (use with dueMonth)' })
+  @ApiPropertyOptional({ description: 'Filter by competency year (use with dueMonth)' })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -21,7 +21,7 @@ export class CardTransactionFilterDto {
   @Max(2100)
   dueYear?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by invoice due month 1-12 (use with dueYear)' })
+  @ApiPropertyOptional({ description: 'Filter by competency month 1-12 (use with dueYear)' })
   @IsOptional()
   @Type(() => Number)
   @IsInt()

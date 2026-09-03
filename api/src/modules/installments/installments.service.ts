@@ -11,6 +11,8 @@ import {
   InstallmentPlanResponseDto,
   InstallmentPlanSummaryDto,
 } from './dto';
+import { CategoriesService } from '../categories/categories.service';
+import { CategoryType } from '../../common/enums';
 
 @Injectable()
 export class InstallmentsService {
@@ -19,6 +21,7 @@ export class InstallmentsService {
     private readonly installmentPlanRepository: Repository<InstallmentPlan>,
     @InjectRepository(Installment)
     private readonly installmentRepository: Repository<Installment>,
+    private readonly categoriesService: CategoriesService,
   ) {}
 
   async create(
@@ -26,6 +29,11 @@ export class InstallmentsService {
     workspaceId: string,
     createDto: CreateInstallmentPlanDto,
   ): Promise<InstallmentPlanResponseDto> {
+    await this.categoriesService.validateForTransaction(
+      createDto.categoryId,
+      workspaceId,
+      CategoryType.EXPENSE,
+    );
     const {
       name,
       financedAmount,
@@ -166,6 +174,14 @@ export class InstallmentsService {
 
     if (!plan) {
       throw new NotFoundException('Plano de financiamento não encontrado');
+    }
+
+    if (updateDto.categoryId) {
+      await this.categoriesService.validateForTransaction(
+        updateDto.categoryId,
+        workspaceId,
+        CategoryType.EXPENSE,
+      );
     }
 
     Object.assign(plan, updateDto);

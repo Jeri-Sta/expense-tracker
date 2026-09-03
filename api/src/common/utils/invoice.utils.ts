@@ -53,3 +53,28 @@ export function getInvoicePeriodsWithDueDateInMonth(
 
   return [`${targetYear}-${String(targetMonth).padStart(2, '0')}`];
 }
+
+/** Returns the competency period for an invoice, based on its due month. */
+export function getInvoiceCompetencyPeriod(
+  invoicePeriod: string,
+  closingDay: number,
+  dueDay: number,
+): string {
+  if (dueDay > closingDay) {
+    return invoicePeriod;
+  }
+
+  const [year, month] = invoicePeriod.split('-').map(Number);
+  const dueDate = new Date(year, month, 1);
+  return `${dueDate.getFullYear()}-${String(dueDate.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** Converts the user-facing invoice due month to the internal closing period. */
+export function getInvoicePeriodFromDuePeriod(
+  duePeriod: string,
+  closingDay: number,
+  dueDay: number,
+): string {
+  const [year, month] = duePeriod.split('-').map(Number);
+  return getInvoicePeriodsWithDueDateInMonth(closingDay, dueDay, year, month)[0];
+}

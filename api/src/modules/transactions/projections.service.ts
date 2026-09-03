@@ -6,11 +6,9 @@ import { RecurringTransaction } from '../recurring-transactions/entities/recurri
 import { GenerateProjectionsDto } from '../transactions/dto/generate-projections.dto';
 import { TransactionResponseDto } from '../transactions/dto/transaction-response.dto';
 import { Installment } from '../installments/entities/installment.entity';
-import { CreditCard } from '../credit-cards/entities/credit-card.entity';
 import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
 import { RecurrenceFrequency, InstallmentStatus } from '../../common/enums';
 import { parseLocalDate } from '../../common/utils/date.utils';
-import { getInvoicePeriodsWithDueDateInMonth } from '../../common/utils/invoice.utils';
 
 export interface ProjectionResult {
   generated: number;
@@ -43,8 +41,6 @@ export class ProjectionsService {
     private readonly recurringRepository: Repository<RecurringTransaction>,
     @InjectRepository(Installment)
     private readonly installmentRepository: Repository<Installment>,
-    @InjectRepository(CreditCard)
-    private readonly creditCardRepository: Repository<CreditCard>,
     @InjectRepository(CardTransaction)
     private readonly cardTransactionRepository: Repository<CardTransaction>,
   ) {}
@@ -126,7 +122,7 @@ export class ProjectionsService {
         where: {
           workspaceId: recurring.workspaceId,
           recurringTransactionId: recurring.id,
-          competencyPeriod,
+          transactionDate: currentDate,
           isProjected: true,
         },
       });
@@ -198,6 +194,9 @@ export class ProjectionsService {
         break;
       case RecurrenceFrequency.MONTHLY:
         nextDate.setMonth(nextDate.getMonth() + (recurring.interval || 1));
+        break;
+      case RecurrenceFrequency.QUARTERLY:
+        nextDate.setMonth(nextDate.getMonth() + 3 * (recurring.interval || 1));
         break;
       case RecurrenceFrequency.YEARLY:
         nextDate.setFullYear(nextDate.getFullYear() + (recurring.interval || 1));
@@ -274,28 +273,17 @@ export class ProjectionsService {
       },
     });
 
-    // Get installments for the month - use due date for unpaid, paid date for paid
+    // Financing competency is the installment due month, regardless of payment date.
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0);
 
-    // Unpaid installments based on due date
-    const unpaidInstallments = await this.installmentRepository
+    const installments = await this.installmentRepository
       .createQueryBuilder('installment')
       .leftJoinAndSelect('installment.installmentPlan', 'plan')
       .where('plan.workspaceId = :workspaceId', { workspaceId })
-      .andWhere('installment.status != :paidStatus', { paidStatus: InstallmentStatus.PAID })
       .andWhere('installment.dueDate >= :startOfMonth', { startOfMonth })
       .andWhere('installment.dueDate <= :endOfMonth', { endOfMonth })
-      .getMany();
-
-    // Paid installments based on payment date
-    const paidInstallments = await this.installmentRepository
-      .createQueryBuilder('installment')
-      .leftJoinAndSelect('installment.installmentPlan', 'plan')
-      .where('plan.workspaceId = :workspaceId', { workspaceId })
-      .andWhere('installment.status = :paidStatus', { paidStatus: InstallmentStatus.PAID })
-      .andWhere('installment.paidDate >= :startOfMonth', { startOfMonth })
-      .andWhere('installment.paidDate <= :endOfMonth', { endOfMonth })
+      .andWhere('installment.status != :cancelled', { cancelled: InstallmentStatus.CANCELLED })
       .getMany();
 
     const realIncome = realTransactions
@@ -306,14 +294,18 @@ export class ProjectionsService {
       .filter((t) => t.type === 'expense')
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
-    // Add installment expenses: original amount for unpaid, paid amount for paid
-    const installmentExpenses = [
-      ...unpaidInstallments.map((i) => Number(i.originalAmount)),
-      ...paidInstallments.map((i) => Number(i.paidAmount || i.originalAmount)),
-    ].reduce((sum, amount) => sum + amount, 0);
+    const installmentExpenses = installments.reduce(
+      (sum, item) =>
+        sum +
+        Number(
+          item.status === InstallmentStatus.PAID
+            ? item.paidAmount || item.originalAmount
+            : item.originalAmount,
+        ),
+      0,
+    );
 
-    // Calculate card expenses based on invoice due date
-    const cardExpenses = await this.getCardExpensesByInvoiceDueMonth(workspaceId, year, month);
+    const cardExpenses = await this.getCardExpensesByCompetencyMonth(workspaceId, year, month);
 
     const totalRealExpenses = realExpenses + installmentExpenses + cardExpenses;
 
@@ -334,8 +326,7 @@ export class ProjectionsService {
       projectedExpenses,
       projectedBalance: projectedIncome - projectedExpenses,
       hasProjections: projectedTransactions.length > 0,
-      transactionCount:
-        realTransactions.length + unpaidInstallments.length + paidInstallments.length,
+      transactionCount: realTransactions.length + installments.length,
       projectedTransactionCount: projectedTransactions.length,
       cardExpenses,
     };
@@ -374,45 +365,19 @@ export class ProjectionsService {
     return TransactionResponseDto.fromEntity(transaction);
   }
 
-  /**
-   * Calcula despesas de cartão de crédito baseado na data de vencimento da fatura.
-   * Se o dia de vencimento <= dia de fechamento, a fatura vence no mês seguinte ao período.
-   */
-  private async getCardExpensesByInvoiceDueMonth(
+  private async getCardExpensesByCompetencyMonth(
     workspaceId: string,
     year: number,
     month: number,
   ): Promise<number> {
-    const creditCards = await this.creditCardRepository.find({
-      where: { workspaceId, isActive: true },
-    });
+    const competencyPeriod = `${year}-${String(month).padStart(2, '0')}`;
+    const result = await this.cardTransactionRepository
+      .createQueryBuilder('transaction')
+      .select('SUM(transaction.amount)', 'total')
+      .where('transaction.workspaceId = :workspaceId', { workspaceId })
+      .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+      .getRawOne();
 
-    if (creditCards.length === 0) {
-      return 0;
-    }
-
-    let totalExpenses = 0;
-
-    for (const card of creditCards) {
-      const invoicePeriods = getInvoicePeriodsWithDueDateInMonth(
-        card.closingDay,
-        card.dueDay,
-        year,
-        month,
-      );
-
-      for (const period of invoicePeriods) {
-        const result = await this.cardTransactionRepository
-          .createQueryBuilder('transaction')
-          .select('SUM(transaction.amount)', 'total')
-          .where('transaction.creditCardId = :cardId', { cardId: card.id })
-          .andWhere('transaction.invoicePeriod = :period', { period })
-          .getRawOne();
-
-        totalExpenses += Number(result?.total || 0);
-      }
-    }
-
-    return totalExpenses;
+    return Number(result?.total || 0);
   }
 }

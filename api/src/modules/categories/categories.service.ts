@@ -1,11 +1,16 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryResponseDto } from './dto/category-response.dto';
-import { CategoryType } from '../../common/enums';
+import { CategoryType, TransactionType } from '../../common/enums';
 
 @Injectable()
 export class CategoriesService {
@@ -78,6 +83,22 @@ export class CategoriesService {
     }
 
     return this.mapToResponseDto(category);
+  }
+
+  async validateForTransaction(
+    id: string | undefined,
+    workspaceId: string,
+    type: CategoryType | TransactionType,
+  ): Promise<void> {
+    if (!id) return;
+
+    const category = await this.categoriesRepository.findOne({
+      where: { id, workspaceId, isActive: true },
+    });
+    if (!category) throw new NotFoundException('Category not found');
+    if (category.type !== type) {
+      throw new BadRequestException(`Category must be of type ${type}`);
+    }
   }
 
   async update(
