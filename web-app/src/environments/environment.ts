@@ -2,5 +2,5 @@ export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api',
   appName: 'Personal Expense Tracker',
-  version: '2.4.2',
+  version: '2.5.0',
 };

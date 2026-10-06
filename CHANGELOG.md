@@ -4,13 +4,28 @@
 - Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
-- Remoção de coisas inúteis e redefinição visual.
+- Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
+
+---
+
+## [2.5.0] - 2026-10-06
+
+### ✨ Novas Funcionalidades
+
+
+### 🔧 Melhorias
+- Remoção de coisas inúteis e redefinição visual.
+
+### 🐛 Correções
+
+
+### 📦 Atualizações de Dependências
 
 ---
 
