@@ -10,9 +10,6 @@
   flex-direction: column;
   justify-content: center;
   padding: $spacing-md;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
 
   &::before {
     content: '';
@@ -22,11 +19,6 @@
     right: 0;
     height: 3px;
     background: linear-gradient(90deg, var(--primary-500) 0%, var(--primary-600) 100%);
-  }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
   }
 
   .text-green-600 {

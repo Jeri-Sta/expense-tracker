@@ -10,6 +10,7 @@ import {
   UpdateInvoiceStatusDto,
 } from '../models/card-transaction.model';
 import { formatPeriod, getAvailablePeriods } from '../../../shared/utils/format.utils';
+import { suppressGlobalErrorNotification } from '../../../core/interceptors/http-feedback.context';
 
 export interface CardTransactionFilterParams {
   page?: number;
@@ -145,13 +146,19 @@ export class CardTransactionService {
    * Get card transactions by the invoice due month.
    * This returns transactions from invoices that are due in the specified month.
    */
-  getByDueMonth(year: number, month: number, creditCardId?: string): Observable<CardTransaction[]> {
+  getByDueMonth(
+    year: number,
+    month: number,
+    creditCardId?: string,
+    suppressGlobalError = false,
+  ): Observable<CardTransaction[]> {
     let params = new HttpParams();
     if (creditCardId) {
       params = params.set('creditCardId', creditCardId);
     }
     return this.http.get<CardTransaction[]>(`${this.apiUrl}/by-due-month/${year}/${month}`, {
       params,
+      context: suppressGlobalError ? suppressGlobalErrorNotification() : undefined,
     });
   }
 

@@ -1,5 +1,9 @@
 /* Global Styles Entry Point */
 
+@import '@fontsource-variable/manrope';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/600.css';
+
 // 1. Variables & Theme
 @import 'styles/variables';
 @import 'styles/theme';
@@ -13,7 +17,6 @@
 
 // 4. Components
 @import 'styles/components';
-@import 'styles/auth';
 @import 'styles/tables';
 
 // 5. Utilities

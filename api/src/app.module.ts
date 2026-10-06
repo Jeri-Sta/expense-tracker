@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -8,7 +9,6 @@ import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 
 // Modules
-import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
@@ -18,9 +18,8 @@ import { InstallmentsModule } from './modules/installments/installments.module';
 import { CreditCardsModule } from './modules/credit-cards/credit-cards.module';
 import { CardTransactionsModule } from './modules/card-transactions/card-transactions.module';
 import { WorkspacesModule } from './modules/workspaces/workspaces.module';
-import { InvitationsModule } from './modules/invitations/invitations.module';
-import { EmailModule } from './modules/email/email.module';
 import { ApiKeysModule } from './modules/api-keys/api-keys.module';
+import { ApplicationContextGuard } from './common/guards/application-context.guard';
 
 @Module({
   imports: [
@@ -44,7 +43,6 @@ import { ApiKeysModule } from './modules/api-keys/api-keys.module';
     ScheduleModule.forRoot(),
 
     // Feature modules
-    AuthModule,
     UsersModule,
     CategoriesModule,
     TransactionsModule,
@@ -54,9 +52,13 @@ import { ApiKeysModule } from './modules/api-keys/api-keys.module';
     CreditCardsModule,
     CardTransactionsModule,
     WorkspacesModule,
-    EmailModule,
-    InvitationsModule,
     ApiKeysModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ApplicationContextGuard,
+    },
   ],
 })
 export class AppModule {}

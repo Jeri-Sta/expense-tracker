@@ -1,9 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -12,29 +10,10 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = this.usersRepository.create(createUserDto);
-    return this.usersRepository.save(user);
-  }
-
-  async findAll(): Promise<User[]> {
-    return this.usersRepository.find({
-      select: [
-        'id',
-        'email',
-        'firstName',
-        'lastName',
-        'role',
-        'isActive',
-        'createdAt',
-        'lastLoginAt',
-      ],
-    });
-  }
-
-  async findById(id: string): Promise<User | null> {
+  async findApplicationUser(): Promise<User | null> {
     return this.usersRepository.findOne({
-      where: { id },
+      where: { isActive: true },
+      order: { createdAt: 'ASC' },
       select: [
         'id',
         'email',
@@ -43,53 +22,8 @@ export class UsersService {
         'role',
         'isActive',
         'workspaceId',
-        'isInvitedUser',
         'createdAt',
-        'lastLoginAt',
       ],
     });
-  }
-
-  async findByEmail(email: string): Promise<User | null> {
-    return this.usersRepository.findOne({
-      where: { email },
-      select: [
-        'id',
-        'email',
-        'password',
-        'firstName',
-        'lastName',
-        'role',
-        'isActive',
-        'workspaceId',
-        'isInvitedUser',
-        'invitedBy',
-        'createdAt',
-        'lastLoginAt',
-      ],
-    });
-  }
-
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.findById(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    Object.assign(user, updateUserDto);
-    return this.usersRepository.save(user);
-  }
-
-  async updateLastLogin(id: string): Promise<void> {
-    await this.usersRepository.update(id, {
-      lastLoginAt: new Date(),
-    });
-  }
-
-  async remove(id: string): Promise<void> {
-    const result = await this.usersRepository.softDelete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException('User not found');
-    }
   }
 }

@@ -1,0 +1,53 @@
+@import 'variables';
+
+.responsive-actions,
+.desktop-secondary-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.responsive-actions.align-start {
+  justify-content: flex-start;
+}
+
+:host ::ng-deep .responsive-action .p-button,
+:host ::ng-deep .mobile-more-action .p-button {
+  min-height: 44px;
+}
+
+.mobile-more-action {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .responsive-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .desktop-secondary-actions {
+    display: none;
+  }
+
+  .primary-action,
+  .mobile-more-action {
+    display: inline-flex;
+  }
+
+  .primary-action {
+    width: 100%;
+  }
+
+  :host ::ng-deep .primary-action .p-button,
+  :host ::ng-deep .mobile-more-action .p-button {
+    width: 100%;
+  }
+}
+
+:host ::ng-deep .responsive-action-danger .p-menuitem-link {
+  color: $color-danger;
+}

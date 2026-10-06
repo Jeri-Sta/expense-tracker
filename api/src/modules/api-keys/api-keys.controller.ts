@@ -1,6 +1,5 @@
-import { Controller, Post, Get, Delete, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { Controller, Post, Get, Delete } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { ApiKeysService } from './api-keys.service';
@@ -9,8 +8,6 @@ import { ApiKeyInfoDto } from './dto/api-key-info.dto';
 
 @ApiTags('API Keys')
 @Controller('api-keys')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth('JWT-auth')
 export class ApiKeysController {
   constructor(private readonly apiKeysService: ApiKeysService) {}
 

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { DashboardApiResponse, MonthlyNavigationStats } from './transaction.service';
 import { BudgetGoalItem, DashboardStats, MonthlyExpenseBreakdownItem } from '../types/common.types';
+import { suppressGlobalErrorNotification } from '../interceptors/http-feedback.context';
 
 @Injectable({
   providedIn: 'root',
@@ -13,20 +14,35 @@ export class DashboardService {
 
   private readonly http = inject(HttpClient);
 
-  getDashboard(year?: number): Observable<DashboardApiResponse> {
+  getDashboard(year?: number, suppressGlobalError = false): Observable<DashboardApiResponse> {
     let params = new HttpParams();
     if (year) {
       params = params.set('year', year.toString());
     }
-    return this.http.get<DashboardApiResponse>(this.apiUrl, { params });
+    return this.http.get<DashboardApiResponse>(this.apiUrl, {
+      params,
+      context: suppressGlobalError ? suppressGlobalErrorNotification() : undefined,
+    });
   }
 
-  getMonthlyStats(year: number, month: number): Observable<MonthlyNavigationStats> {
-    return this.http.get<MonthlyNavigationStats>(`${this.apiUrl}/monthly/${year}/${month}`);
+  getMonthlyStats(
+    year: number,
+    month: number,
+    suppressGlobalError = false,
+  ): Observable<MonthlyNavigationStats> {
+    return this.http.get<MonthlyNavigationStats>(`${this.apiUrl}/monthly/${year}/${month}`, {
+      context: suppressGlobalError ? suppressGlobalErrorNotification() : undefined,
+    });
   }
 
-  getBudgetGoals(year: number, month: number): Observable<BudgetGoalItem[]> {
-    return this.http.get<BudgetGoalItem[]>(`${this.apiUrl}/budget-goals/${year}/${month}`);
+  getBudgetGoals(
+    year: number,
+    month: number,
+    suppressGlobalError = false,
+  ): Observable<BudgetGoalItem[]> {
+    return this.http.get<BudgetGoalItem[]>(`${this.apiUrl}/budget-goals/${year}/${month}`, {
+      context: suppressGlobalError ? suppressGlobalErrorNotification() : undefined,
+    });
   }
 
   /**

@@ -28,9 +28,13 @@ describe('UsersService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should call repository find', async () => {
-    const findSpy = jest.spyOn(repo, 'find').mockResolvedValue([]);
-    await service.findAll();
-    expect(findSpy).toHaveBeenCalled();
+  it('should return the active application user', async () => {
+    const user = { id: 'user-id', isActive: true } as User;
+    const findOneSpy = jest.spyOn(repo, 'findOne').mockResolvedValue(user);
+
+    await expect(service.findApplicationUser()).resolves.toBe(user);
+    expect(findOneSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { isActive: true } }),
+    );
   });
 });

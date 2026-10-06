@@ -8,11 +8,6 @@
     border-radius: $border-radius-lg;
     margin-bottom: $spacing-2xl;
     box-shadow: $shadow-sm;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: $shadow-md !important;
-    }
   }
 
   .card-header {
@@ -74,8 +69,8 @@
       .key-warning {
         @include flex-between;
         padding: $spacing-sm $spacing-md;
-        background-color: #fef3c7;
-        color: #92400e;
+        background-color: var(--warning-color-soft);
+        color: var(--warning-color);
         border-radius: $border-radius-sm;
         margin-bottom: $spacing-md;
         font-size: 0.875rem;
@@ -95,7 +90,7 @@
         padding: $spacing-md;
 
         .key-text {
-          font-family: 'Courier New', monospace;
+          font-family: var(--font-data);
           font-size: 0.875rem;
           color: var(--text-color);
           word-break: break-all;

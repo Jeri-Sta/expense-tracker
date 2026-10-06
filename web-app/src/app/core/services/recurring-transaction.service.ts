@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Category } from './category.service';
+import { suppressGlobalErrorNotification } from '../interceptors/http-feedback.context';
 
 export type TransactionType = 'income' | 'expense';
 export type RecurrenceFrequency = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
@@ -69,8 +70,10 @@ export class RecurringTransactionService {
 
   private readonly http = inject(HttpClient);
 
-  getRecurringTransactions(): Observable<RecurringTransaction[]> {
-    return this.http.get<RecurringTransaction[]>(this.apiUrl);
+  getRecurringTransactions(suppressGlobalError = false): Observable<RecurringTransaction[]> {
+    return this.http.get<RecurringTransaction[]>(this.apiUrl, {
+      context: suppressGlobalError ? suppressGlobalErrorNotification() : undefined,
+    });
   }
 
   getRecurringTransactionById(id: string): Observable<RecurringTransaction> {

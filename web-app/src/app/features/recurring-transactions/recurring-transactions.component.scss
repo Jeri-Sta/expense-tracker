@@ -3,13 +3,7 @@
 
 // Recurring transaction card styling
 .recurring-card {
-  transition: all 0.3s ease;
   border-left: 4px solid transparent;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-  }
 
   // Status-based styling
   // Active transactions
@@ -34,7 +28,7 @@
     border-left-color: $color-danger;
 
     .surface-card {
-      background: linear-gradient(135deg, var(--surface-card) 0%, rgba(239, 68, 68, 0.05) 100%);
+      background: linear-gradient(135deg, var(--surface-card) 0%, var(--danger-color-soft) 100%);
     }
   }
 }
@@ -119,7 +113,7 @@
 }
 
 // Grid responsive improvements
-@include respond-to(md) {
+@include respond-to($breakpoint-md) {
   .recurring-card {
     margin-bottom: $spacing-md;
   }
@@ -135,12 +129,12 @@
 
 // Dialog responsive
 .p-dialog {
-  @include respond-to(lg) {
+  @include respond-to($breakpoint-lg) {
     width: 90vw !important;
     margin: $spacing-md;
   }
 
-  @include respond-to(sm) {
+  @include respond-to($breakpoint-sm) {
     width: 95vw !important;
     margin: $spacing-sm;
   }

@@ -27,9 +27,6 @@ export class Transaction extends BaseEntity {
   @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any>;
 
-  @Column({ nullable: true })
-  notes: string;
-
   @Column({ default: false })
   isRecurring: boolean;
 

@@ -10,6 +10,8 @@ import {
 import { CategoryType } from '../../core/types/common.types';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
 import { formatCurrency } from '../../shared/utils/format.utils';
+import { ResponsiveAction } from '../../shared/components/responsive-actions/responsive-actions.component';
+import { timeout } from 'rxjs';
 
 @Component({
   selector: 'app-categories',
@@ -19,6 +21,8 @@ import { formatCurrency } from '../../shared/utils/format.utils';
 export class CategoriesComponent implements OnInit {
   categories: Category[] = [];
   loading = false;
+  pageLoading = false;
+  loadError: string | null = null;
 
   // Dialog states
   categoryDialog = false;
@@ -52,6 +56,25 @@ export class CategoriesComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
 
+  get primaryPageAction(): ResponsiveAction {
+    return {
+      label: 'Nova Categoria',
+      icon: 'pi pi-plus',
+      command: () => this.openNew(),
+    };
+  }
+
+  get secondaryPageActions(): ResponsiveAction[] {
+    return [
+      {
+        label: 'Categorias Padrão',
+        icon: 'pi pi-plus-circle',
+        command: () => this.createDefaultCategories(),
+        intent: 'secondary',
+      },
+    ];
+  }
+
   ngOnInit(): void {
     this.initializeForm();
     this.loadPredefinedOptions();
@@ -76,31 +99,36 @@ export class CategoriesComponent implements OnInit {
   }
 
   loadCategories(): void {
-    this.loading = true;
-    this.categoryService.getCategories(this.selectedType).subscribe({
-      next: (categories) => {
-        this.categories = categories.sort((a, b) => {
-          // Sort by type first, then by sortOrder, then by name
-          if (a.type !== b.type) {
-            return a.type === 'income' ? -1 : 1;
-          }
-          if (a.sortOrder !== b.sortOrder) {
-            return a.sortOrder - b.sortOrder;
-          }
-          return a.name.localeCompare(b.name);
-        });
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading categories:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao carregar categorias',
-        });
-        this.loading = false;
-      },
-    });
+    this.pageLoading = true;
+    this.loadError = null;
+    this.categoryService
+      .getCategories(this.selectedType, true)
+      .pipe(timeout(15000))
+      .subscribe({
+        next: (categories) => {
+          this.categories = categories.sort((a, b) => {
+            // Sort by type first, then by sortOrder, then by name
+            if (a.type !== b.type) {
+              return a.type === 'income' ? -1 : 1;
+            }
+            if (a.sortOrder !== b.sortOrder) {
+              return a.sortOrder - b.sortOrder;
+            }
+            return a.name.localeCompare(b.name);
+          });
+          this.pageLoading = false;
+          this.loadError = null;
+        },
+        error: (error) => {
+          console.error('Error loading categories:', error);
+          this.loadError = 'Verifique sua conexão e tente carregar as categorias novamente.';
+          this.pageLoading = false;
+        },
+      });
+  }
+
+  retryLoad(): void {
+    this.loadCategories();
   }
 
   filterByType(type: CategoryType | undefined): void {

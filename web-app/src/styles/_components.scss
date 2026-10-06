@@ -1,25 +1,277 @@
 @import 'variables';
 
-// Custom Scrollbar
-::-webkit-scrollbar {
+// Global scrollbar baseline for every application-owned scroll surface.
+html {
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+* {
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--surface-50);
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--surface-200);
-  border-radius: 4px;
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border: 2px solid var(--scrollbar-track);
+  border-radius: $border-radius-md;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--surface-300);
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
 }
 
-// Global Component Classes (if any)
+*::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-thumb-active);
+}
+
+// Shared surface language. `.card` remains the compatibility alias.
 .card {
   @include card-base;
+}
+
+.content-panel {
+  border-radius: $border-radius-md;
+  color: var(--text-color);
+}
+
+.content-panel--flat {
+  background: transparent;
+}
+
+.content-panel--outlined {
+  background: var(--surface-card);
+  border: $border-width solid var(--surface-border);
+}
+
+.content-panel--elevated {
+  background: var(--surface-overlay);
+  border: $border-width solid var(--surface-border);
+  box-shadow: $shadow-md;
+}
+
+.is-interactive {
+  cursor: pointer;
+  transition:
+    border-color $motion-base $ease-standard,
+    background-color $motion-base $ease-standard,
+    box-shadow $motion-base $ease-standard,
+    transform $motion-base $ease-standard;
+
+  &:hover {
+    border-color: var(--primary-color);
+    box-shadow: $shadow-sm;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+// PrimeNG theme adapter. Feature styles consume semantic tokens, not palette literals.
+.p-component {
+  font-family: var(--font-interface);
+}
+
+.p-button {
+  min-height: 2.5rem;
+  border-radius: $border-radius-sm;
+  font-weight: 650;
+  transition:
+    background-color $motion-fast $ease-standard,
+    border-color $motion-fast $ease-standard,
+    color $motion-fast $ease-standard,
+    box-shadow $motion-fast $ease-standard,
+    transform $motion-fast $ease-standard;
+
+  &:enabled:hover {
+    box-shadow: $shadow-sm;
+  }
+
+  &:enabled:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    box-shadow: var(--focus-ring);
+  }
+
+  &:disabled,
+  &.p-disabled {
+    cursor: not-allowed;
+    opacity: var(--disabled-opacity);
+  }
+
+  &.p-button-loading {
+    min-width: max-content;
+    opacity: var(--busy-opacity);
+  }
+}
+
+.p-button:not(.p-button-outlined):not(.p-button-text):not(.p-button-danger):not(
+    .p-button-success
+  ):not(.p-button-warning) {
+  color: var(--primary-color-text);
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.p-button.p-button-success:not(.p-button-outlined):not(.p-button-text) {
+  color: var(--ink-950);
+  background: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.p-button.p-button-danger:not(.p-button-outlined):not(.p-button-text) {
+  color: var(--ink-950);
+  background: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.p-button.p-button-warning:not(.p-button-outlined):not(.p-button-text) {
+  color: var(--ink-950);
+  background: var(--warning-color);
+  border-color: var(--warning-color);
+}
+
+.p-inputtext,
+.p-dropdown,
+.p-inputnumber-input,
+.p-calendar .p-inputtext,
+textarea {
+  color: var(--text-color);
+  background: var(--surface-ground);
+  border-color: var(--surface-border);
+  border-radius: $border-radius-sm;
+  transition:
+    border-color $motion-fast $ease-standard,
+    box-shadow $motion-fast $ease-standard;
+
+  &:enabled:hover {
+    border-color: var(--surface-400);
+  }
+
+  &:focus,
+  &:focus-visible,
+  &.p-focus {
+    border-color: var(--primary-color);
+    box-shadow: var(--focus-ring);
+  }
+}
+
+textarea {
+  resize: none;
+}
+
+.resize-none {
+  resize: none;
+}
+
+.p-dropdown-panel,
+.p-datepicker,
+.p-menu,
+.p-overlaypanel {
+  color: var(--text-color);
+  background: var(--surface-overlay);
+  border: $border-width solid var(--surface-border);
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-md;
+}
+
+.p-dialog {
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  color: var(--text-color);
+  background: var(--surface-overlay);
+  border: $border-width solid var(--surface-border);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-lg;
+}
+
+.p-dialog .p-dialog-header,
+.p-dialog .p-dialog-content,
+.p-dialog .p-dialog-footer {
+  color: inherit;
+  background: inherit;
+}
+
+.p-tag {
+  border-radius: 999px;
+  font-size: var(--text-caption);
+  font-weight: 650;
+}
+
+.p-toast {
+  z-index: var(--z-toast);
+}
+
+.p-toast .p-toast-message {
+  border: $border-width solid var(--surface-border);
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-lg;
+}
+
+.p-paginator {
+  color: var(--text-color-secondary);
+  background: var(--surface-card);
+  border-color: var(--surface-border);
+}
+
+.p-paginator .p-paginator-element:focus-visible,
+.p-link:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+.p-disabled,
+[aria-disabled='true'] {
+  opacity: var(--disabled-opacity);
+}
+
+@media (max-width: $breakpoint-sm) {
+  .p-button.p-button-icon-only,
+  .p-paginator .p-paginator-element,
+  .p-sidebar .p-sidebar-close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (forced-colors: active) {
+  html,
+  * {
+    scrollbar-color: auto;
+  }
+
+  .content-panel--outlined,
+  .content-panel--elevated,
+  .p-dialog,
+  .p-toast .p-toast-message {
+    border-color: CanvasText;
+  }
 }

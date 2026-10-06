@@ -1,44 +1,130 @@
-// Global variables for dark theme
+// Canonical runtime CSS tokens for the dark theme.
+// Keep accepted values mapped in /DESIGN.md; system-level changes update both.
 :root {
-  --primary-color: #3b82f6;
-  --primary-color-text: #ffffff;
+  // Primitive palette
+  --ink-950: #0b1220;
+  --ledger-900: #111c2e;
+  --ledger-800: #19283a;
+  --ledger-700: #24364a;
+  --mist-400: #9dadbf;
+  --paper-50: #f4f7fb;
+  --signal-blue: #38bdf8;
+  --income-mint: #2dd4a7;
+  --expense-coral: #fb7185;
+  --warning-amber: #fbbf24;
+
+  // Semantic palette
+  --primary-color: var(--signal-blue);
+  --primary-color-text: var(--ink-950);
+  --success-color: var(--income-mint);
+  --danger-color: var(--expense-coral);
+  --warning-color: var(--warning-amber);
+  --info-color: var(--signal-blue);
+  --success-color-soft: rgba(45, 212, 167, 0.12);
+  --danger-color-soft: rgba(251, 113, 133, 0.12);
+  --warning-color-soft: rgba(251, 191, 36, 0.12);
+  --info-color-soft: rgba(56, 189, 248, 0.12);
+
+  // PrimeFlex/PrimeNG compatibility aliases
+  --primary-200: rgba(56, 189, 248, 0.32);
+  --primary-500: var(--signal-blue);
+  --primary-600: #0ea5e9;
+  --blue-50: var(--info-color-soft);
+  --blue-600: var(--signal-blue);
+  --blue-900: var(--paper-50);
+  --green-500: var(--income-mint);
+  --green-600: var(--income-mint);
+  --red-200: rgba(251, 113, 133, 0.32);
+  --red-500: var(--expense-coral);
+  --red-600: var(--expense-coral);
+  --orange-500: var(--warning-amber);
+  --orange-600: var(--warning-amber);
 
   // Surface colors (Dark mode)
-  --surface-0: #1f2937;
-  --surface-50: #374151;
-  --surface-100: #4b5563;
-  --surface-200: #6b7280;
-  --surface-300: #9ca3af;
-  --surface-400: #d1d5db;
-  --surface-500: #e5e7eb;
-  --surface-600: #f3f4f6;
-  --surface-700: #f9fafb;
-  --surface-800: #ffffff;
-  --surface-900: #ffffff;
+  --surface-0: var(--ink-950);
+  --surface-50: var(--ledger-900);
+  --surface-100: var(--ledger-800);
+  --surface-200: var(--ledger-700);
+  --surface-300: #3a5068;
+  --surface-400: #526b84;
+  --surface-500: #72869b;
+  --surface-600: var(--mist-400);
+  --surface-700: #c7d2df;
+  --surface-800: #e1e8f0;
+  --surface-900: var(--paper-50);
 
   // Gray scale
-  --gray-0: #1f2937;
-  --gray-50: #374151;
-  --gray-100: #4b5563;
-  --gray-200: #6b7280;
-  --gray-300: #9ca3af;
-  --gray-400: #d1d5db;
-  --gray-500: #e5e7eb;
-  --gray-600: #f3f4f6;
-  --gray-700: #f9fafb;
-  --gray-800: #ffffff;
-  --gray-900: #ffffff;
+  --gray-0: var(--ink-950);
+  --gray-50: var(--ledger-900);
+  --gray-100: var(--ledger-800);
+  --gray-200: var(--ledger-700);
+  --gray-300: #3a5068;
+  --gray-400: #526b84;
+  --gray-500: #72869b;
+  --gray-600: var(--mist-400);
+  --gray-700: #c7d2df;
+  --gray-800: #e1e8f0;
+  --gray-900: var(--paper-50);
 
   // Text colors
-  --text-color: #e5e7eb;
-  --text-color-secondary: #9ca3af;
-  --border-color: #374151;
+  --text-color: var(--paper-50);
+  --text-color-secondary: var(--mist-400);
+  --border-color: #2a3d52;
 
   // Component specific variables
-  --surface-ground: #1f2937;
-  --surface-section: #374151;
-  --surface-card: #1f2937;
-  --surface-overlay: #374151;
-  --surface-border: #374151;
-  --surface-hover: rgba(255, 255, 255, 0.05);
+  --surface-ground: var(--ink-950);
+  --surface-section: var(--ledger-800);
+  --surface-card: var(--ledger-900);
+  --surface-overlay: var(--ledger-800);
+  --surface-border: var(--border-color);
+  --surface-hover: rgba(56, 189, 248, 0.08);
+  --surface-active: rgba(56, 189, 248, 0.14);
+  --surface-disabled: rgba(157, 173, 191, 0.12);
+
+  // Typography
+  --font-interface: 'Manrope Variable', 'Manrope', system-ui, sans-serif;
+  --font-data: 'IBM Plex Mono', ui-monospace, monospace;
+  --text-page-title: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  --text-section-title: 1.25rem;
+  --text-card-title: 1rem;
+  --text-body: 1rem;
+  --text-caption: 0.8125rem;
+  --text-data: 1rem;
+
+  // Component states
+  --focus-ring-color: rgba(56, 189, 248, 0.48);
+  --focus-ring: 0 0 0 3px var(--focus-ring-color);
+  --disabled-opacity: 0.48;
+  --busy-opacity: 0.72;
+
+  // Scrollbar
+  --scrollbar-track: #0f1929;
+  --scrollbar-thumb: #3a5068;
+  --scrollbar-thumb-hover: #526b84;
+  --scrollbar-thumb-active: var(--signal-blue);
+
+  // Data visualization
+  --chart-1: var(--signal-blue);
+  --chart-2: var(--income-mint);
+  --chart-3: var(--expense-coral);
+  --chart-4: var(--warning-amber);
+  --chart-5: #a78bfa;
+  --chart-5-strong: #8b5cf6;
+  --chart-6: #f472b6;
+  --chart-7: #60a5fa;
+  --chart-8: #34d399;
+  --text-on-color: var(--ink-950);
+  --swatch-border: rgba(244, 247, 251, 0.28);
+  --swatch-inset: rgba(11, 18, 32, 0.32);
+  --backdrop-color: rgba(2, 8, 23, 0.72);
+
+  // Layer scale
+  --z-sticky: 100;
+  --z-dropdown: 200;
+  --z-popover: 300;
+  --z-header: 400;
+  --z-backdrop: 500;
+  --z-dialog: 600;
+  --z-drawer: 700;
+  --z-toast: 900;
 }

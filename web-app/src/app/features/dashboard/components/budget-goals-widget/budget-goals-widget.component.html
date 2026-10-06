@@ -20,8 +20,18 @@
           ></i>
           <div class="category-details">
             <span class="category-name">{{ goal.name }}</span>
-            <span class="category-badge" [style.background-color]="goal.isOverBudget ? '#EF444422' : '#10B98122'" [style.color]="goal.isOverBudget ? '#EF4444' : '#10B981'">
-              <i class="pi" [class.pi-check-circle]="!goal.isOverBudget" [class.pi-exclamation-circle]="goal.isOverBudget"></i>
+            <span
+              class="category-badge"
+              [style.background-color]="
+                goal.isOverBudget ? 'var(--danger-color-soft)' : 'var(--success-color-soft)'
+              "
+              [style.color]="goal.isOverBudget ? 'var(--danger-color)' : 'var(--success-color)'"
+            >
+              <i
+                class="pi"
+                [class.pi-check-circle]="!goal.isOverBudget"
+                [class.pi-exclamation-circle]="goal.isOverBudget"
+              ></i>
               {{ goal.isOverBudget ? 'Acima da meta' : 'Dentro da meta' }}
             </span>
           </div>
@@ -44,7 +54,7 @@
         ></p-progressBar>
         <div class="progress-labels">
           <span class="progress-pct" [style.color]="getProgressColor(goal)">
-            {{ (getProgressValue(goal) | number: '1.0-0') }}%
+            {{ getProgressValue(goal) | number: '1.0-0' }}%
           </span>
           <span class="remaining-label" *ngIf="!goal.isOverBudget">
             Restam {{ formatCurrency(getRemainingAmount(goal)) }}
@@ -56,7 +66,14 @@
       </div>
 
       <!-- Breakdown -->
-      <div class="breakdown" *ngIf="goal.breakdown.transactions > 0 || goal.breakdown.cards > 0 || goal.breakdown.installments > 0">
+      <div
+        class="breakdown"
+        *ngIf="
+          goal.breakdown.transactions > 0 ||
+          goal.breakdown.cards > 0 ||
+          goal.breakdown.installments > 0
+        "
+      >
         <span class="breakdown-item" *ngIf="goal.breakdown.transactions > 0">
           <i class="pi pi-list"></i> Transações: {{ formatCurrency(goal.breakdown.transactions) }}
         </span>
@@ -64,7 +81,8 @@
           <i class="pi pi-credit-card"></i> Cartões: {{ formatCurrency(goal.breakdown.cards) }}
         </span>
         <span class="breakdown-item" *ngIf="goal.breakdown.installments > 0">
-          <i class="pi pi-calendar"></i> Financiamentos: {{ formatCurrency(goal.breakdown.installments) }}
+          <i class="pi pi-calendar"></i> Financiamentos:
+          {{ formatCurrency(goal.breakdown.installments) }}
         </span>
       </div>
     </div>
@@ -72,7 +90,9 @@
     <div class="empty-state" *ngIf="goals.length === 0">
       <i class="pi pi-target text-4xl text-color-secondary"></i>
       <p class="text-color-secondary">Nenhuma meta configurada para este mês.</p>
-      <small class="text-color-secondary">Configure metas nas categorias de despesa para acompanhar seus gastos.</small>
+      <small class="text-color-secondary"
+        >Configure metas nas categorias de despesa para acompanhar seus gastos.</small
+      >
     </div>
   </div>
 </div>

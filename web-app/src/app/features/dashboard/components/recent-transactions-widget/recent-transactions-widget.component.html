@@ -41,13 +41,6 @@
             <div class="text-color-secondary text-sm mt-1">
               {{ transaction.category.name }} • {{ formatDate(transaction.transactionDate) }}
             </div>
-            <div
-              *ngIf="transaction.notes"
-              class="text-color-secondary text-xs mt-1 white-space-nowrap overflow-hidden text-overflow-ellipsis"
-              style="max-width: 200px"
-            >
-              <i class="pi pi-align-left mr-1" style="font-size: 0.7rem"></i>{{ transaction.notes }}
-            </div>
           </div>
         </div>
         <div class="text-right">

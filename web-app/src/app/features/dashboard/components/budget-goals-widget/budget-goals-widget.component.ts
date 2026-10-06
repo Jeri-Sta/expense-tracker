@@ -22,9 +22,9 @@ export class BudgetGoalsWidgetComponent {
 
   getProgressColor(goal: BudgetGoalItem): string {
     const pct = goal.budget > 0 ? (goal.actual / goal.budget) * 100 : 0;
-    if (pct >= 100) return '#EF4444';
-    if (pct >= 80) return '#F59E0B';
-    return '#10B981';
+    if (pct >= 100) return 'var(--danger-color)';
+    if (pct >= 80) return 'var(--warning-color)';
+    return 'var(--success-color)';
   }
 
   getRemainingAmount(goal: BudgetGoalItem): number {

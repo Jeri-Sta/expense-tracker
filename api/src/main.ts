@@ -37,17 +37,6 @@ async function bootstrap() {
     .setTitle('Personal Expense Tracker API')
     .setDescription('Comprehensive personal finance management API')
     .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter JWT token',
-        in: 'header',
-      },
-      'JWT-auth',
-    )
     .addApiKey(
       {
         type: 'apiKey',

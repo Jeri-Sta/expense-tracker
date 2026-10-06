@@ -1,0 +1,15 @@
+<section
+  class="loading-region"
+  [class.is-loading]="loading"
+  [style.min-height]="minimumHeight"
+  [attr.aria-busy]="loading"
+>
+  <ng-content></ng-content>
+  <div class="loading-indicator" *ngIf="loading" role="status" aria-live="polite">
+    <p-progressSpinner
+      strokeWidth="4"
+      [style]="{ width: '2.5rem', height: '2.5rem' }"
+    ></p-progressSpinner>
+    <span>{{ label }}</span>
+  </div>
+</section>

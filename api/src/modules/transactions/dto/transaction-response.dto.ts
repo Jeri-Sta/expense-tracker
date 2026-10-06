@@ -22,9 +22,6 @@ export class TransactionResponseDto {
   competencyPeriod: string;
 
   @ApiProperty()
-  notes?: string;
-
-  @ApiProperty()
   metadata?: Record<string, any>;
 
   @ApiProperty()
@@ -67,7 +64,6 @@ export class TransactionResponseDto {
       type: transaction.type,
       transactionDate: transaction.transactionDate,
       competencyPeriod: transaction.competencyPeriod,
-      notes: transaction.notes,
       metadata: transaction.metadata,
       isRecurring: transaction.isRecurring,
       isProjected: transaction.isProjected ?? false,

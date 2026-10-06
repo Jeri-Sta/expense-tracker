@@ -1,5 +1,8 @@
 body {
-  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  font-family: var(--font-interface);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -12,12 +15,51 @@ h5,
 h6 {
   margin-top: 0;
   margin-bottom: $spacing-md;
-  font-weight: 500;
+  font-weight: 650;
+  line-height: 1.25;
   color: var(--text-color);
+  overflow-wrap: anywhere;
+}
+
+h1,
+.type-page-title {
+  font-size: var(--text-page-title);
+}
+
+h2,
+.type-section-title {
+  font-size: var(--text-section-title);
+}
+
+h3,
+h4,
+h5,
+h6,
+.type-card-title {
+  font-size: var(--text-card-title);
 }
 
 p {
   margin-top: 0;
   margin-bottom: $spacing-md;
   line-height: 1.5;
+}
+
+.type-caption {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--text-color-secondary);
+}
+
+.data-value,
+.currency-value,
+.transaction-mobile-amount,
+.goal-amounts,
+.payment-amount,
+.payment-date,
+.due-date {
+  font-family: var(--font-data);
+  font-size: var(--text-data);
+  font-variant-numeric: tabular-nums slashed-zero;
+  letter-spacing: -0.02em;
 }

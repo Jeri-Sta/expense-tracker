@@ -66,8 +66,14 @@ export class IncomeExpenseChartComponent implements OnInit {
         datasets: [
           {
             data: [income, expenses],
-            backgroundColor: ['#10B981', '#EF4444'],
-            borderColor: ['#059669', '#DC2626'],
+            backgroundColor: [
+              this.getThemeColor('--success-color'),
+              this.getThemeColor('--danger-color'),
+            ],
+            borderColor: [
+              this.getThemeColor('--success-color'),
+              this.getThemeColor('--danger-color'),
+            ],
             borderWidth: 2,
           },
         ],
@@ -81,5 +87,9 @@ export class IncomeExpenseChartComponent implements OnInit {
       return `${this.selectedMonthName} ${this.selectedYear}`;
     }
     return `Distribuição anual de ${this.selectedYear}`;
+  }
+
+  private getThemeColor(token: string): string {
+    return getComputedStyle(document.documentElement).getPropertyValue(token).trim();
   }
 }

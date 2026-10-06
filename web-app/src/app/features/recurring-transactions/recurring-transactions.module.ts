@@ -20,6 +20,7 @@ import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ChipModule } from 'primeng/chip';
+import { CheckboxModule } from 'primeng/checkbox';
 
 // Components
 import { RecurringTransactionsComponent } from './recurring-transactions.component';
@@ -54,6 +55,7 @@ import { SharedModule } from '../../shared/shared.module';
     ProgressSpinnerModule,
     ToggleButtonModule,
     ChipModule,
+    CheckboxModule,
     SharedModule,
   ],
 })

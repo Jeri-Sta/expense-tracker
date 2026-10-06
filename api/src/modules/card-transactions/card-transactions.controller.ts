@@ -7,11 +7,9 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { JwtOrApiKeyAuthGuard } from '../../common/guards/jwt-or-api-key-auth.guard';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { CardTransactionsService } from './card-transactions.service';
 import { CreateCardTransactionDto } from './dto/create-card-transaction.dto';
@@ -26,8 +24,6 @@ import { User } from '../users/entities/user.entity';
 
 @ApiTags('Card Transactions')
 @Controller('card-transactions')
-@UseGuards(JwtOrApiKeyAuthGuard)
-@ApiBearerAuth('JWT-auth')
 export class CardTransactionsController {
   constructor(private readonly cardTransactionsService: CardTransactionsService) {}
 

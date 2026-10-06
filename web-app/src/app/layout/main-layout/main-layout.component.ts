@@ -1,7 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
-import { User } from '../../core/models/user.model';
 import { filter } from 'rxjs/operators';
 
 interface RouteMetadata {
@@ -43,41 +41,44 @@ const DEFAULT_META: RouteMetadata = { title: 'Expense Tracker', icon: 'pi pi-hom
   styleUrls: ['./main-layout.component.scss'],
 })
 export class MainLayoutComponent implements OnInit {
+  @ViewChild('sidebarToggle') private sidebarToggle?: ElementRef<HTMLButtonElement>;
+  @ViewChild('firstNavLink') private firstNavLink?: ElementRef<HTMLAnchorElement>;
+
   sidebarVisible = false;
   currentRoute = '';
 
   // Use Angular's inject() to satisfy @angular-eslint/prefer-inject
   private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
 
   ngOnInit(): void {
+    this.updateCurrentRoute(this.router.url);
+
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event) => {
-        this.currentRoute = event.urlAfterRedirects;
+        this.updateCurrentRoute(event.urlAfterRedirects);
       });
-  }
-
-  get currentUser(): User | null {
-    return this.authService.currentUser;
-  }
-
-  getUserInitials(): string {
-    const user = this.currentUser;
-    if (!user) return '?';
-
-    const firstInitial = user.firstName?.charAt(0) || '';
-    const lastInitial = user.lastName?.charAt(0) || '';
-    return (firstInitial + lastInitial).toUpperCase();
   }
 
   toggleSidebar(): void {
     this.sidebarVisible = !this.sidebarVisible;
   }
 
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/auth/login']);
+  onSidebarShow(): void {
+    queueMicrotask(() => this.firstNavLink?.nativeElement.focus());
+  }
+
+  onSidebarHide(): void {
+    this.sidebarToggle?.nativeElement.focus();
+  }
+
+  closeSidebar(): void {
+    this.sidebarVisible = false;
+  }
+
+  private updateCurrentRoute(url: string): void {
+    this.currentRoute = url.split(/[?#]/, 1)[0] || '/dashboard';
+    document.title = `${this.getRouteMeta().title} | Expense Tracker`;
   }
 
   private getRouteMeta(): RouteMetadata {

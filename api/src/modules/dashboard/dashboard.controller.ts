@@ -1,14 +1,11 @@
-import { Controller, Get, UseGuards, Param, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { JwtOrApiKeyAuthGuard } from '../../common/guards/jwt-or-api-key-auth.guard';
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { DashboardService, DashboardStats, MonthlyNavigationStats, BudgetGoalItem } from './dashboard.service';
 import { User } from '../users/entities/user.entity';
 
 @ApiTags('Dashboard')
 @Controller('dashboard')
-@UseGuards(JwtOrApiKeyAuthGuard)
-@ApiBearerAuth('JWT-auth')
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 

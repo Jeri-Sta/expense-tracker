@@ -6,42 +6,18 @@
         <h2 class="text-2xl font-bold text-color m-0">Transações</h2>
         <p class="text-color-secondary m-0">Gerencie suas receitas e despesas de forma eficiente</p>
       </div>
-      <div class="flex gap-2">
-        <p-button
-          label="Filtros de Projeção"
-          icon="pi pi-filter"
-          [text]="true"
-          size="small"
-          (onClick)="toggleProjectionFilters()"
-          [badge]="showProjectionFilters ? 'ON' : 'OFF'"
-          badgeClass="p-badge-info"
-        ></p-button>
-        <p-button
-          label="Gerenciar Projeções"
-          icon="pi pi-cog"
-          [text]="true"
-          size="small"
-          (onClick)="toggleProjectionManager()"
-          [badge]="showProjectionManager ? 'ON' : 'OFF'"
-          badgeClass="p-badge-warning"
-        ></p-button>
-        <p-button
-          label="Nova Projeção"
-          icon="pi pi-clock"
-          [outlined]="true"
-          size="small"
-          (onClick)="openProjectionDialog()"
-          styleClass="p-button-info"
-        ></p-button>
-        <p-button
-          label="Nova Transação"
-          icon="pi pi-plus"
-          size="small"
-          (onClick)="openNew()"
-          styleClass="p-button-primary"
-        ></p-button>
-      </div>
+      <app-responsive-actions
+        [primaryAction]="primaryPageAction"
+        [secondaryActions]="secondaryPageActions"
+      ></app-responsive-actions>
     </div>
+
+    <app-inline-alert
+      *ngIf="supportDataError"
+      class="block mb-3"
+      [message]="supportDataError"
+      (retry)="loadCategories()"
+    ></app-inline-alert>
 
     <!-- Period Filter -->
     <div class="flex flex-column md:flex-row gap-3 align-items-end mb-4">
@@ -84,7 +60,7 @@
       [toggleable]="false"
       styleClass="mb-3"
     >
-      <form [formGroup]="filterForm" class="grid">
+      <form [formGroup]="filterForm" class="grid" novalidate>
         <div class="col-12 md:col-3">
           <label for="includeProjections" class="block text-sm font-medium mb-2"
             >Incluir Projeções</label
@@ -237,160 +213,238 @@
 
   <!-- Transactions Table -->
   <div class="card">
-    <p-table
-      [value]="transactions"
-      [loading]="loading"
-      [paginator]="true"
-      [rows]="rows"
-      [first]="first"
-      [totalRecords]="totalRecords"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [lazy]="true"
-      (onLazyLoad)="onLazyLoad($event)"
-      [sortField]="sortField"
-      [sortOrder]="sortOrder"
-      responsiveLayout="scroll"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th pSortableColumn="transactionDate">
-            Data <p-sortIcon field="transactionDate"></p-sortIcon>
-          </th>
-          <th pSortableColumn="description">
-            Descrição <p-sortIcon field="description"></p-sortIcon>
-          </th>
-          <th>Categoria</th>
-          <th>Tipo</th>
-          <th>Status</th>
-          <th pSortableColumn="amount">Valor <p-sortIcon field="amount"></p-sortIcon></th>
-          <th class="table-actions-header">Ações</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-transaction>
-        <tr [class]="getProjectionClass(transaction)">
-          <td>
-            <div class="flex align-items-center gap-2">
-              <span>{{ transaction.transactionDate | date: 'dd/MM/yyyy' }}</span>
-              <i
-                *ngIf="isProjectedTransaction(transaction)"
-                [class]="'pi ' + getProjectionIcon(transaction) + ' text-blue-500'"
-                [pTooltip]="getProjectionTooltip(transaction)"
-                class="text-xs"
-              ></i>
-            </div>
-          </td>
-          <td>
-            <div class="flex flex-column">
-              <div class="flex align-items-center gap-2">
-                <span class="font-semibold">{{ transaction.description }}</span>
-                <p-tag
-                  *ngIf="isProjectedTransaction(transaction)"
-                  value="PROJEÇÃO"
-                  severity="info"
-                  [style]="{ 'font-size': '0.7rem', padding: '0.2rem 0.4rem' }"
-                ></p-tag>
-              </div>
-              <span class="text-sm text-600" *ngIf="transaction.notes">{{
-                transaction.notes
-              }}</span>
-              <div
-                *ngIf="isProjectedTransaction(transaction) && transaction.confidenceScore"
-                class="text-xs mt-1"
-              >
-                <span>Confiança: </span>
-                <span [style]="{ color: getConfidenceColor(transaction.confidenceScore) }">
-                  {{ transaction.confidenceScore }}%
+    <app-inline-alert
+      *ngIf="loadError"
+      class="block mb-3"
+      [message]="loadError"
+      (retry)="retryLoad()"
+    ></app-inline-alert>
+
+    <app-loading-region [loading]="pageLoading" label="Carregando transações" minimumHeight="14rem">
+      <app-responsive-data-view [items]="transactions" mobileLabel="Transações">
+        <ng-template #desktopView>
+          <p-table
+            [value]="transactions"
+            [paginator]="true"
+            [rows]="rows"
+            [first]="first"
+            [totalRecords]="totalRecords"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [lazy]="true"
+            (onLazyLoad)="onLazyLoad($event)"
+            [sortField]="sortField"
+            [sortOrder]="sortOrder"
+            responsiveLayout="scroll"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="transactionDate">
+                  Data <p-sortIcon field="transactionDate"></p-sortIcon>
+                </th>
+                <th pSortableColumn="description">
+                  Descrição <p-sortIcon field="description"></p-sortIcon>
+                </th>
+                <th>Categoria</th>
+                <th>Tipo</th>
+                <th>Status</th>
+                <th pSortableColumn="amount">Valor <p-sortIcon field="amount"></p-sortIcon></th>
+                <th class="table-actions-header">Ações</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-transaction>
+              <tr [class]="getProjectionClass(transaction)">
+                <td>
+                  <div class="flex align-items-center gap-2">
+                    <span>{{ transaction.transactionDate | date: 'dd/MM/yyyy' }}</span>
+                    <i
+                      *ngIf="isProjectedTransaction(transaction)"
+                      [class]="'pi ' + getProjectionIcon(transaction) + ' text-blue-500'"
+                      [pTooltip]="getProjectionTooltip(transaction)"
+                      class="text-xs"
+                    ></i>
+                  </div>
+                </td>
+                <td>
+                  <div class="flex flex-column">
+                    <div class="flex align-items-center gap-2">
+                      <span class="font-semibold">{{ transaction.description }}</span>
+                      <p-tag
+                        *ngIf="isProjectedTransaction(transaction)"
+                        value="PROJEÇÃO"
+                        severity="info"
+                        [style]="{ 'font-size': '0.7rem', padding: '0.2rem 0.4rem' }"
+                      ></p-tag>
+                    </div>
+                    <div
+                      *ngIf="isProjectedTransaction(transaction) && transaction.confidenceScore"
+                      class="text-xs mt-1"
+                    >
+                      <span>Confiança: </span>
+                      <span [style]="{ color: getConfidenceColor(transaction.confidenceScore) }">
+                        {{ transaction.confidenceScore }}%
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="flex align-items-center gap-2" *ngIf="transaction.category">
+                    <i
+                      [class]="normalizeIcon(transaction.category.icon)"
+                      [style.color]="transaction.category.color"
+                    ></i>
+                    <span>{{ transaction.category.name }}</span>
+                  </div>
+                </td>
+                <td>
+                  <p-tag
+                    [value]="transaction.type === 'income' ? 'Receita' : 'Despesa'"
+                    [severity]="transaction.type === 'income' ? 'success' : 'danger'"
+                  ></p-tag>
+                </td>
+                <td>
+                  <p-tag
+                    *ngIf="!isProjectedTransaction(transaction)"
+                    [value]="getPaymentStatusLabel(transaction.paymentStatus)"
+                    [severity]="getPaymentStatusSeverity(transaction)"
+                    [pTooltip]="getPaymentStatusTooltip(transaction)"
+                  ></p-tag>
+                  <span *ngIf="isProjectedTransaction(transaction)" class="text-500 text-sm"
+                    >-</span
+                  >
+                </td>
+                <td>
+                  <span
+                    [class]="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
+                    class="font-semibold"
+                  >
+                    {{ transaction.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <p-button
+                      *ngIf="canMarkAsPaid(transaction)"
+                      icon="pi pi-check"
+                      (click)="confirmPayTransaction(transaction)"
+                      styleClass="p-button-text p-button-success p-button-sm"
+                      pTooltip="Marcar como Pago"
+                    ></p-button>
+                    <p-button
+                      *ngIf="canRevertPayment(transaction)"
+                      icon="pi pi-undo"
+                      (click)="confirmRevertPayment(transaction)"
+                      styleClass="p-button-text p-button-warning p-button-sm"
+                      pTooltip="Reverter Pagamento"
+                    ></p-button>
+                    <p-button
+                      icon="pi pi-clone"
+                      (click)="cloneTransaction(transaction)"
+                      styleClass="p-button-text p-button-sm"
+                      pTooltip="Duplicar"
+                    ></p-button>
+                    <p-button
+                      icon="pi pi-pencil"
+                      (click)="editTransaction(transaction)"
+                      styleClass="p-button-text p-button-sm"
+                      pTooltip="Editar"
+                    ></p-button>
+                    <p-button
+                      icon="pi pi-trash"
+                      (click)="deleteTransaction(transaction)"
+                      styleClass="p-button-text p-button-danger p-button-sm"
+                      pTooltip="Excluir"
+                    ></p-button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7">
+                  <div class="table-empty-state">
+                    <i class="pi pi-inbox table-empty-icon"></i>
+                    <span class="table-empty-title">Nenhuma transação encontrada</span>
+                    <p-button
+                      label="Adicionar Primeira Transação"
+                      icon="pi pi-plus"
+                      (click)="openNew()"
+                      styleClass="p-button-primary table-empty-action"
+                    ></p-button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </ng-template>
+
+        <ng-template #mobileView let-transaction>
+          <article class="transaction-mobile-card" [ngClass]="getProjectionClass(transaction)">
+            <div class="transaction-mobile-main">
+              <div class="transaction-mobile-heading">
+                <strong>{{ transaction.description }}</strong>
+                <span
+                  class="transaction-mobile-amount"
+                  [class.is-income]="transaction.type === 'income'"
+                >
+                  {{ transaction.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
                 </span>
               </div>
+              <div class="transaction-mobile-meta">
+                <span
+                  ><i class="pi pi-calendar"></i
+                  >{{ transaction.transactionDate | date: 'dd/MM/yyyy' }}</span
+                >
+                <span *ngIf="transaction.category">
+                  <i [class]="normalizeIcon(transaction.category.icon)"></i
+                  >{{ transaction.category.name }}
+                </span>
+              </div>
+              <div class="transaction-mobile-status">
+                <p-tag
+                  [value]="transaction.type === 'income' ? 'Receita' : 'Despesa'"
+                  [severity]="transaction.type === 'income' ? 'success' : 'danger'"
+                ></p-tag>
+                <p-tag
+                  *ngIf="!isProjectedTransaction(transaction)"
+                  [value]="getPaymentStatusLabel(transaction.paymentStatus)"
+                  [severity]="getPaymentStatusSeverity(transaction)"
+                ></p-tag>
+                <p-tag
+                  *ngIf="isProjectedTransaction(transaction)"
+                  value="Projeção"
+                  severity="info"
+                ></p-tag>
+              </div>
             </div>
-          </td>
-          <td>
-            <div class="flex align-items-center gap-2" *ngIf="transaction.category">
-              <i
-                [class]="normalizeIcon(transaction.category.icon)"
-                [style.color]="transaction.category.color"
-              ></i>
-              <span>{{ transaction.category.name }}</span>
-            </div>
-          </td>
-          <td>
-            <p-tag
-              [value]="transaction.type === 'income' ? 'Receita' : 'Despesa'"
-              [severity]="transaction.type === 'income' ? 'success' : 'danger'"
-            ></p-tag>
-          </td>
-          <td>
-            <p-tag
-              *ngIf="!isProjectedTransaction(transaction)"
-              [value]="getPaymentStatusLabel(transaction.paymentStatus)"
-              [severity]="getPaymentStatusSeverity(transaction)"
-              [pTooltip]="getPaymentStatusTooltip(transaction)"
-            ></p-tag>
-            <span *ngIf="isProjectedTransaction(transaction)" class="text-500 text-sm">-</span>
-          </td>
-          <td>
-            <span
-              [class]="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
-              class="font-semibold"
-            >
-              {{ transaction.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
-            </span>
-          </td>
-          <td>
-            <div class="table-actions">
-              <p-button
-                *ngIf="canMarkAsPaid(transaction)"
-                icon="pi pi-check"
-                (click)="confirmPayTransaction(transaction)"
-                styleClass="p-button-text p-button-success p-button-sm"
-                pTooltip="Marcar como Pago"
-              ></p-button>
-              <p-button
-                *ngIf="canRevertPayment(transaction)"
-                icon="pi pi-undo"
-                (click)="confirmRevertPayment(transaction)"
-                styleClass="p-button-text p-button-warning p-button-sm"
-                pTooltip="Reverter Pagamento"
-              ></p-button>
-              <p-button
-                icon="pi pi-clone"
-                (click)="cloneTransaction(transaction)"
-                styleClass="p-button-text p-button-sm"
-                pTooltip="Duplicar"
-              ></p-button>
-              <p-button
-                icon="pi pi-pencil"
-                (click)="editTransaction(transaction)"
-                styleClass="p-button-text p-button-sm"
-                pTooltip="Editar"
-              ></p-button>
-              <p-button
-                icon="pi pi-trash"
-                (click)="deleteTransaction(transaction)"
-                styleClass="p-button-text p-button-danger p-button-sm"
-                pTooltip="Excluir"
-              ></p-button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="7">
-            <div class="table-empty-state">
-              <i class="pi pi-inbox table-empty-icon"></i>
-              <span class="table-empty-title">Nenhuma transação encontrada</span>
-              <p-button
-                label="Adicionar Primeira Transação"
-                icon="pi pi-plus"
-                (click)="openNew()"
-                styleClass="p-button-primary table-empty-action"
-              ></p-button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+            <app-responsive-actions
+              align="start"
+              [primaryAction]="getMobilePrimaryAction(transaction)"
+              [secondaryActions]="getMobileSecondaryActions(transaction)"
+              [moreLabel]="'Mais ações para ' + transaction.description"
+            ></app-responsive-actions>
+          </article>
+        </ng-template>
+      </app-responsive-data-view>
+
+      <div
+        class="mobile-empty-state"
+        *ngIf="!pageLoading && !loadError && transactions.length === 0"
+      >
+        <i class="pi pi-inbox" aria-hidden="true"></i>
+        <strong>Nenhuma transação encontrada</strong>
+        <span>Registre uma transação para começar a acompanhar o período.</span>
+        <p-button icon="pi pi-plus" label="Nova Transação" (onClick)="openNew()"></p-button>
+      </div>
+
+      <p-paginator
+        styleClass="mobile-paginator"
+        [first]="first"
+        [rows]="rows"
+        [totalRecords]="totalRecords"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        (onPageChange)="onPageChange($event)"
+      ></p-paginator>
+    </app-loading-region>
   </div>
 
   <!-- Transaction Dialog -->
@@ -404,7 +458,7 @@
     styleClass="p-dialog-maximized md:p-dialog-default"
     [style]="{ width: '500px' }"
   >
-    <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()">
+    <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()" novalidate>
       <!-- Type Selection -->
       <div class="field mb-4">
         <label class="block text-sm font-medium mb-2">
@@ -539,19 +593,6 @@
         >
           Período de competência é obrigatório
         </small>
-      </div>
-
-      <!-- Notes -->
-      <div class="field mb-4">
-        <label for="notes" class="block text-sm font-medium mb-2"> Observações </label>
-        <textarea
-          id="notes"
-          pInputTextarea
-          formControlName="notes"
-          placeholder="Observações adicionais (opcional)"
-          rows="3"
-          class="w-full"
-        ></textarea>
       </div>
 
       <!-- Projection Settings -->

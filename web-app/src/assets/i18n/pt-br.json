@@ -34,10 +34,6 @@
   "weekHeader": "Sem",
   "firstDayOfWeek": 0,
   "dateFormat": "dd/mm/yy",
-  "weak": "Fraco",
-  "medium": "Médio",
-  "strong": "Forte",
-  "passwordPrompt": "Digite uma senha",
   "emptyMessage": "Nenhum resultado encontrado",
   "emptyFilterMessage": "Nenhum resultado encontrado"
 }

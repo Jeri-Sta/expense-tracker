@@ -11,7 +11,6 @@ registerLocaleData(localePt);
 // PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -39,6 +38,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 // Services
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { AppMessageService } from './core/services/app-message.service';
 
 // App Components
 import { AppRoutingModule } from './app-routing.module';
@@ -63,7 +63,6 @@ import { SharedModule } from './shared/shared.module';
     // PrimeNG Modules
     ButtonModule,
     InputTextModule,
-    PasswordModule,
     CardModule,
     ToastModule,
     ConfirmDialogModule,
@@ -93,7 +92,11 @@ import { SharedModule } from './shared/shared.module';
     CoreModule,
     SharedModule,
   ],
-  providers: [MessageService, ConfirmationService, { provide: LOCALE_ID, useValue: 'pt-BR' }],
+  providers: [
+    { provide: MessageService, useClass: AppMessageService },
+    ConfirmationService,
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

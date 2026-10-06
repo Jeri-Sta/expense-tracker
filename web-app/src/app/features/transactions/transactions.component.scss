@@ -52,15 +52,15 @@
   }
 
   &.projection-ai td:first-child::before {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    background: linear-gradient(135deg, var(--chart-5), var(--chart-5-strong));
   }
 }
 
 // Projection filters panel
 .p-panel.projection-filters {
   .p-panel-header {
-    background: var(--blue-50, #eff6ff); // Fallback to light blue
-    color: var(--blue-900, #1e3a8a); // Fallback to dark blue
+    background: var(--info-color-soft);
+    color: var(--text-color);
   }
 
   .p-panel-content {
@@ -147,10 +147,95 @@
 }
 
 // Responsive improvements
-@include respond-to(md) {
+@include respond-to($breakpoint-md) {
   .p-datatable {
     .p-datatable-wrapper {
       overflow-x: auto;
     }
+  }
+}
+
+.transaction-mobile-card {
+  display: grid;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px solid var(--surface-border);
+  border-radius: $border-radius-md;
+  background: var(--surface-card);
+}
+
+.transaction-mobile-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.transaction-mobile-amount {
+  color: $color-danger;
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+
+  &.is-income {
+    color: $color-success;
+  }
+}
+
+.transaction-mobile-meta,
+.transaction-mobile-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm $spacing-md;
+  margin-top: $spacing-sm;
+}
+
+.transaction-mobile-meta {
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+  }
+}
+
+.mobile-empty-state {
+  display: none;
+}
+
+:host ::ng-deep .mobile-paginator {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .transactions-container > .card {
+    padding: $spacing-md;
+  }
+
+  .mobile-empty-state {
+    min-height: 14rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: $spacing-sm;
+    text-align: center;
+    color: var(--text-color-secondary);
+
+    > i {
+      font-size: 2rem;
+    }
+
+    button {
+      min-height: 44px;
+      margin-top: $spacing-sm;
+    }
+  }
+
+  :host ::ng-deep .mobile-paginator {
+    display: flex;
+    margin-top: $spacing-md;
   }
 }

@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { suppressGlobalErrorNotification } from '../interceptors/http-feedback.context';
 
 export type CategoryType = 'income' | 'expense';
 
@@ -51,12 +52,15 @@ export class CategoryService {
 
   private readonly http = inject(HttpClient);
 
-  getCategories(type?: CategoryType): Observable<Category[]> {
+  getCategories(type?: CategoryType, suppressGlobalError = false): Observable<Category[]> {
     let params = new HttpParams();
     if (type) {
       params = params.set('type', type);
     }
-    return this.http.get<Category[]>(this.apiUrl, { params });
+    return this.http.get<Category[]>(this.apiUrl, {
+      params,
+      context: suppressGlobalError ? suppressGlobalErrorNotification() : undefined,
+    });
   }
 
   getCategoryById(id: string): Observable<Category> {

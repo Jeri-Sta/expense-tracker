@@ -7,11 +7,9 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { JwtOrApiKeyAuthGuard } from '../../common/guards/jwt-or-api-key-auth.guard';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { TransactionsService, PaginatedResult } from './transactions.service';
 import { ProjectionsService, ProjectionResult } from './projections.service';
@@ -25,8 +23,6 @@ import { User } from '../users/entities/user.entity';
 
 @ApiTags('Transactions')
 @Controller('transactions')
-@UseGuards(JwtOrApiKeyAuthGuard)
-@ApiBearerAuth('JWT-auth')
 export class TransactionsController {
   constructor(
     private readonly transactionsService: TransactionsService,

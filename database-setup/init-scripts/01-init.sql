@@ -19,12 +19,10 @@ END $$;
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
     "firstName" VARCHAR(255) NOT NULL,
     "lastName" VARCHAR(255) NOT NULL,
     role VARCHAR(50) DEFAULT 'user',
     "isActive" BOOLEAN DEFAULT TRUE,
-    "lastLoginAt" TIMESTAMP,
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "deletedAt" TIMESTAMP
@@ -87,7 +85,6 @@ CREATE TABLE IF NOT EXISTS transactions (
     "transactionDate" DATE NOT NULL,
     "competencyPeriod" VARCHAR(7) NOT NULL,
     metadata JSONB,
-    notes TEXT,
     "isRecurring" BOOLEAN DEFAULT FALSE,
     "recurringTransactionId" UUID,
     "isProjected" BOOLEAN DEFAULT FALSE,

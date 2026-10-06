@@ -8,25 +8,22 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../services/auth.service';
+import { SUPPRESS_GLOBAL_ERROR_NOTIFICATION } from './http-feedback.context';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-  private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
-  private readonly authService = inject(AuthService);
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
+        if (req.context.get(SUPPRESS_GLOBAL_ERROR_NOTIFICATION)) {
+          return throwError(() => error);
+        }
+
         if (error.status === 401) {
-          // Unauthorized - redirect to login
-          this.authService.logout().subscribe(() => {
-            this.router.navigate(['/auth/login']);
-          });
-          this.showErrorMessage('Sessão expirada. Faça login novamente.');
+          this.showErrorMessage('Chave de API inválida ou expirada.');
         } else if (error.status === 403) {
           // Forbidden
           this.showErrorMessage('Acesso negado.');

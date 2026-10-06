@@ -16,7 +16,7 @@
 
   <!-- Form -->
   <div class="form-container" *ngIf="!loading">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
       <div class="form-grid">
         <!-- Basic Information -->
         <div class="form-section">
@@ -38,22 +38,35 @@
                 [filter]="true"
                 filterBy="name"
                 appendTo="body"
-                [class.ng-invalid]="form.get('categoryId')?.invalid && form.get('categoryId')?.touched"
+                [class.ng-invalid]="
+                  form.get('categoryId')?.invalid && form.get('categoryId')?.touched
+                "
               >
                 <ng-template pTemplate="selectedItem" let-cat>
                   <span *ngIf="cat">
-                    <i [class]="cat.icon" [style.color]="cat.color" style="margin-right:0.5rem"></i>
+                    <i
+                      [class]="cat.icon"
+                      [style.color]="cat.color"
+                      style="margin-right: 0.5rem"
+                    ></i>
                     {{ cat.name }}
                   </span>
                 </ng-template>
                 <ng-template pTemplate="item" let-cat>
                   <span>
-                    <i [class]="cat.icon" [style.color]="cat.color" style="margin-right:0.5rem"></i>
+                    <i
+                      [class]="cat.icon"
+                      [style.color]="cat.color"
+                      style="margin-right: 0.5rem"
+                    ></i>
                     {{ cat.name }}
                   </span>
                 </ng-template>
               </p-dropdown>
-              <small class="error-message" *ngIf="form.get('categoryId')?.invalid && form.get('categoryId')?.touched">
+              <small
+                class="error-message"
+                *ngIf="form.get('categoryId')?.invalid && form.get('categoryId')?.touched"
+              >
                 Categoria é obrigatória
               </small>
             </div>
@@ -76,6 +89,7 @@
             <div class="field">
               <label for="description">Descrição</label>
               <textarea
+                class="resize-none"
                 id="description"
                 pInputTextarea
                 formControlName="description"

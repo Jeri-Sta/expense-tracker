@@ -1,0 +1,68 @@
+@import 'variables';
+
+.inline-alert {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px solid var(--surface-border);
+  border-left-width: 4px;
+  border-radius: $border-radius-md;
+  background: var(--surface-section);
+  color: var(--text-color);
+
+  > i {
+    font-size: 1.25rem;
+  }
+}
+
+.alert-copy {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  span {
+    color: var(--text-color-secondary);
+  }
+}
+
+.is-error {
+  border-left-color: $color-danger;
+
+  > i {
+    color: $color-danger;
+  }
+}
+
+.is-warning {
+  border-left-color: $color-warning;
+
+  > i {
+    color: $color-warning;
+  }
+}
+
+.is-info {
+  border-left-color: $color-info;
+
+  > i {
+    color: $color-info;
+  }
+}
+
+@media (max-width: 639px) {
+  .inline-alert {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .retry-action {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  :host ::ng-deep .retry-action .p-button {
+    min-height: 44px;
+    width: 100%;
+  }
+}

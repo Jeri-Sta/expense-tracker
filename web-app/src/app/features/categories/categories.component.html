@@ -5,21 +5,10 @@
       <h2 class="text-2xl font-bold text-color m-0">Categorias</h2>
       <p class="text-color-secondary m-0">Gerencie as categorias de receitas e despesas</p>
     </div>
-    <div class="flex gap-2">
-      <p-button
-        label="Categorias Padrão"
-        icon="pi pi-plus-circle"
-        severity="secondary"
-        size="small"
-        (onClick)="createDefaultCategories()"
-      ></p-button>
-      <p-button
-        label="Nova Categoria"
-        icon="pi pi-plus"
-        size="small"
-        (onClick)="openNew()"
-      ></p-button>
-    </div>
+    <app-responsive-actions
+      [primaryAction]="primaryPageAction"
+      [secondaryActions]="secondaryPageActions"
+    ></app-responsive-actions>
   </div>
 
   <!-- Type Filter -->
@@ -49,113 +38,113 @@
     </div>
   </div>
 
-  <!-- Categories Grid -->
-  <div class="grid" *ngIf="!loading && categories.length > 0">
-    <div class="col-12 sm:col-6 lg:col-4 xl:col-3" *ngFor="let category of categories">
-      <div class="category-card surface-card border-round-lg shadow-2 p-3 h-full">
-        <div class="flex flex-column h-full">
-          <!-- Category Header -->
-          <div class="flex align-items-center justify-content-between mb-3">
-            <div class="flex align-items-center gap-2">
-              <i
-                [class]="normalizeIcon(category.icon)"
-                [style.color]="category.color"
-                class="text-xl"
-              ></i>
-              <span class="font-bold text-lg">{{ category.name }}</span>
-            </div>
-            <p-tag
-              [value]="getStatusLabel(category.isActive)"
-              [severity]="getStatusSeverity(category.isActive)"
-              [rounded]="true"
-            ></p-tag>
-          </div>
+  <app-inline-alert
+    *ngIf="loadError"
+    class="block mb-3"
+    [message]="loadError"
+    (retry)="retryLoad()"
+  ></app-inline-alert>
 
-          <!-- Category Info -->
-          <div class="flex-grow-1">
-            <div class="mb-2">
+  <app-loading-region [loading]="pageLoading" label="Carregando categorias" minimumHeight="14rem">
+    <!-- Categories Grid -->
+    <div class="grid" *ngIf="categories.length > 0">
+      <div class="col-12 sm:col-6 lg:col-4 xl:col-3" *ngFor="let category of categories">
+        <div class="category-card surface-card border-round-lg shadow-2 p-3 h-full">
+          <div class="flex flex-column h-full">
+            <!-- Category Header -->
+            <div class="flex align-items-center justify-content-between mb-3">
+              <div class="flex align-items-center gap-2">
+                <i
+                  [class]="normalizeIcon(category.icon)"
+                  [style.color]="category.color"
+                  class="text-xl"
+                ></i>
+                <span class="font-bold text-lg">{{ category.name }}</span>
+              </div>
               <p-tag
-                [value]="getCategoryTypeLabel(category.type)"
-                [severity]="category.type === 'income' ? 'success' : 'danger'"
+                [value]="getStatusLabel(category.isActive)"
+                [severity]="getStatusSeverity(category.isActive)"
                 [rounded]="true"
               ></p-tag>
             </div>
 
-            <p class="text-color-secondary text-sm mb-2" *ngIf="category.description">
-              {{ category.description }}
-            </p>
-
-            <div class="text-xs text-color-secondary mb-3">
-              <div *ngIf="category.transactionCount !== undefined">
-                {{ category.transactionCount }} transação(ões)
+            <!-- Category Info -->
+            <div class="flex-grow-1">
+              <div class="mb-2">
+                <p-tag
+                  [value]="getCategoryTypeLabel(category.type)"
+                  [severity]="category.type === 'income' ? 'success' : 'danger'"
+                  [rounded]="true"
+                ></p-tag>
               </div>
-              <div>Ordem: {{ category.sortOrder }}</div>
-              <div *ngIf="category.monthlyBudget" class="mt-1">
-                <i class="pi pi-target mr-1"></i>Meta: {{ formatCurrencyValue(category.monthlyBudget) }}
+
+              <p class="text-color-secondary text-sm mb-2" *ngIf="category.description">
+                {{ category.description }}
+              </p>
+
+              <div class="text-xs text-color-secondary mb-3">
+                <div *ngIf="category.transactionCount !== undefined">
+                  {{ category.transactionCount }} transação(ões)
+                </div>
+                <div>Ordem: {{ category.sortOrder }}</div>
+                <div *ngIf="category.monthlyBudget" class="mt-1">
+                  <i class="pi pi-target mr-1"></i>Meta:
+                  {{ formatCurrencyValue(category.monthlyBudget) }}
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Actions -->
-          <div class="flex justify-content-between align-items-center">
-            <div class="flex gap-1">
-              <p-button
-                icon="pi pi-pencil"
-                severity="secondary"
-                size="small"
-                [text]="true"
-                (onClick)="editCategory(category)"
-                pTooltip="Editar"
-              ></p-button>
-              <p-button
-                *ngIf="!category.isActive"
-                icon="pi pi-check"
-                severity="success"
-                size="small"
-                [text]="true"
-                (onClick)="reactivateCategory(category)"
-                pTooltip="Reativar"
-              ></p-button>
-              <p-button
-                icon="pi pi-trash"
-                severity="danger"
-                size="small"
-                [text]="true"
-                (onClick)="deleteCategory(category)"
-                pTooltip="Excluir"
-              ></p-button>
+            <!-- Actions -->
+            <div class="flex justify-content-between align-items-center">
+              <div class="flex gap-1">
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  size="small"
+                  [text]="true"
+                  (onClick)="editCategory(category)"
+                  pTooltip="Editar"
+                ></p-button>
+                <p-button
+                  *ngIf="!category.isActive"
+                  icon="pi pi-check"
+                  severity="success"
+                  size="small"
+                  [text]="true"
+                  (onClick)="reactivateCategory(category)"
+                  pTooltip="Reativar"
+                ></p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  size="small"
+                  [text]="true"
+                  (onClick)="deleteCategory(category)"
+                  pTooltip="Excluir"
+                ></p-button>
+              </div>
+              <div class="color-preview" [style.background-color]="category.color"></div>
             </div>
-            <div class="color-preview" [style.background-color]="category.color"></div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Loading State -->
-  <div class="flex justify-content-center py-8" *ngIf="loading">
-    <p-progressSpinner></p-progressSpinner>
-  </div>
-
-  <!-- Empty State -->
-  <div class="text-center py-8" *ngIf="!loading && categories.length === 0">
-    <div class="flex flex-column align-items-center gap-3">
-      <i class="pi pi-info-circle text-6xl text-color-secondary"></i>
-      <h3 class="text-color-secondary m-0">Nenhuma categoria encontrada</h3>
-      <p class="text-color-secondary mb-4">
-        Crie sua primeira categoria ou use as categorias padrão para começar
-      </p>
-      <div class="flex gap-2">
-        <p-button
-          label="Categorias Padrão"
-          icon="pi pi-plus-circle"
-          severity="secondary"
-          (onClick)="createDefaultCategories()"
-        ></p-button>
-        <p-button label="Nova Categoria" icon="pi pi-plus" (onClick)="openNew()"></p-button>
+    <!-- Empty State -->
+    <div class="text-center py-8" *ngIf="!pageLoading && !loadError && categories.length === 0">
+      <div class="flex flex-column align-items-center gap-3">
+        <i class="pi pi-info-circle text-6xl text-color-secondary"></i>
+        <h3 class="text-color-secondary m-0">Nenhuma categoria encontrada</h3>
+        <p class="text-color-secondary mb-4">
+          Crie sua primeira categoria ou use as categorias padrão para começar
+        </p>
+        <app-responsive-actions
+          [primaryAction]="primaryPageAction"
+          [secondaryActions]="secondaryPageActions"
+        ></app-responsive-actions>
       </div>
     </div>
-  </div>
+  </app-loading-region>
 </div>
 
 <!-- Category Dialog -->
@@ -168,7 +157,7 @@
   [maximizable]="false"
   [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
 >
-  <form [formGroup]="categoryForm" class="grid">
+  <form [formGroup]="categoryForm" class="grid" novalidate>
     <div class="field col-12 md:col-8">
       <label for="name" class="font-bold"> Nome <span class="required-asterisk">*</span> </label>
       <input
@@ -203,7 +192,7 @@
         pInputTextarea
         formControlName="description"
         rows="2"
-        class="w-full"
+        class="w-full resize-none"
         placeholder="Descrição opcional da categoria"
       ></textarea>
     </div>

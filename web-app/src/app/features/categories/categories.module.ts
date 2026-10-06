@@ -23,6 +23,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 // Components
 import { CategoriesComponent } from './categories.component';
 import { CategoriesRoutingModule } from './categories-routing.module';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   declarations: [CategoriesComponent],
@@ -49,6 +50,7 @@ import { CategoriesRoutingModule } from './categories-routing.module';
     ProgressSpinnerModule,
     ToggleButtonModule,
     InputNumberModule,
+    SharedModule,
   ],
 })
 export class CategoriesModule {}

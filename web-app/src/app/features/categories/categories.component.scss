@@ -4,13 +4,7 @@
 // Category card styling
 .category-card {
   @include card-base;
-  transition: all 0.3s ease;
   height: 100%;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $shadow-md !important;
-  }
 }
 
 // Color preview in cards
@@ -32,7 +26,10 @@
 
 .icon-option {
   border: 2px solid transparent;
-  transition: all 0.2s ease;
+  transition:
+    background-color $motion-base $ease-standard,
+    border-color $motion-base $ease-standard,
+    color $motion-base $ease-standard;
   min-height: 40px;
   display: flex;
   align-items: center;
@@ -85,7 +82,9 @@
   border-radius: $border-radius-md;
   background: var(--surface-card);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    border-color $motion-base $ease-standard,
+    box-shadow $motion-base $ease-standard;
   min-height: 48px;
   width: 100%;
   text-align: left;
@@ -105,13 +104,13 @@
   width: 24px;
   height: 24px;
   border-radius: $border-radius-sm;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--swatch-border);
   flex-shrink: 0;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 0 1px var(--swatch-inset);
 }
 
 .color-preview-text {
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-data);
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-color);
@@ -127,7 +126,7 @@
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: var(--z-dropdown);
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
   border-radius: $border-radius-md;
@@ -172,7 +171,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
+  transition:
+    background-color $motion-fast $ease-standard,
+    color $motion-fast $ease-standard;
 
   &:hover {
     background: var(--surface-hover);
@@ -195,7 +196,10 @@
   height: 32px;
   border-radius: $border-radius-md;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition:
+    border-color $motion-fast $ease-standard,
+    box-shadow $motion-fast $ease-standard,
+    transform $motion-fast $ease-standard;
   border: 2px solid transparent;
   display: flex;
   align-items: center;
@@ -213,16 +217,16 @@
   }
 
   &.selected {
-    border-color: rgba(255, 255, 255, 0.8);
+    border-color: var(--paper-50);
     transform: scale(1.05);
     box-shadow: 0 0 0 2px var(--primary-color);
   }
 }
 
 .color-check {
-  color: white;
+  color: var(--text-on-color);
   font-size: 0.75rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 2px var(--swatch-inset);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -247,7 +251,7 @@
 }
 
 // Responsive adjustments
-@include respond-to(md) {
+@include respond-to($breakpoint-md) {
   .category-card {
     margin-bottom: $spacing-md;
   }
@@ -265,7 +269,7 @@
   }
 }
 
-@include respond-to(sm) {
+@include respond-to($breakpoint-sm) {
   .icon-grid {
     .col-2 {
       width: 20% !important;
@@ -310,7 +314,7 @@
 
 // Dialog responsive
 .p-dialog {
-  @include respond-to(sm) {
+  @include respond-to($breakpoint-sm) {
     width: 95vw !important;
     margin: $spacing-md;
   }
@@ -318,7 +322,7 @@
 
 // Text shadow utility
 .text-shadow {
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  text-shadow: 1px 1px 2px var(--swatch-inset);
 }
 
 // Hover effects
@@ -335,28 +339,6 @@
   }
 }
 
-// Custom scrollbar for grids
-.icon-grid,
-.color-grid {
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--surface-ground);
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--surface-border);
-    border-radius: 3px;
-
-    &:hover {
-      background: var(--surface-300);
-    }
-  }
-}
-
 .text-green-600 {
   color: $color-success !important;
 }
@@ -366,7 +348,7 @@
 }
 
 // Responsive improvements for color grid
-@include respond-to(sm) {
+@include respond-to($breakpoint-sm) {
   .color-grid {
     grid-template-columns: repeat(6, 1fr);
   }
@@ -374,7 +356,7 @@
 
 // Transition classes
 .transition-transform {
-  transition: transform 0.2s ease;
+  transition: transform $motion-base $ease-standard;
 }
 
 // Accessibility improvements

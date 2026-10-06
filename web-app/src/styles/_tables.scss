@@ -40,10 +40,10 @@
 
       &.p-highlight {
         background: var(--primary-color);
-        color: #ffffff;
+        color: var(--primary-color-text);
 
         .p-sortable-column-icon {
-          color: #ffffff;
+          color: var(--primary-color-text);
         }
       }
 
@@ -96,7 +96,7 @@
 
       &.p-highlight {
         background: var(--primary-color);
-        color: #ffffff;
+        color: var(--primary-color-text);
       }
     }
   }
@@ -216,8 +216,7 @@ th.table-actions-header {
 // Loading State Enhancement
 // =============================================================================
 .p-datatable-loading-overlay {
-  background: rgba(var(--surface-card), 0.8);
-  backdrop-filter: blur(2px);
+  background: color-mix(in srgb, var(--surface-card) 88%, transparent);
 }
 
 // =============================================================================

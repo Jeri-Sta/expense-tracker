@@ -1,0 +1,14 @@
+.mobile-data-view {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .desktop-data-view {
+    display: none;
+  }
+
+  .mobile-data-view {
+    display: grid;
+    gap: 0.75rem;
+  }
+}

@@ -159,7 +159,6 @@ export class RecurringTransactionsService {
       categoryId: recurringTransaction.categoryId,
       transactionDate: formatDateToString(executionDate),
       competencyPeriod: formatCompetencyPeriod(executionDate),
-      notes: `Auto-generated from recurring transaction: ${recurringTransaction.id}`,
       metadata: {
         ...recurringTransaction.metadata,
         recurringTransactionId: recurringTransaction.id,

@@ -18,8 +18,8 @@
   height: 60px;
   background: var(--surface-card);
   border-bottom: 1px solid var(--surface-border);
-  z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: var(--z-header);
+  box-shadow: $shadow-sm;
 
   .topbar-content {
     display: flex;
@@ -39,8 +39,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: transparent;
       border: none;
@@ -56,13 +56,16 @@
     .app-logo {
       display: flex;
       align-items: center;
+      min-height: 44px;
+      color: inherit;
+      text-decoration: none;
 
       .app-title {
         font-size: 1.25rem;
         font-weight: 600;
         color: var(--text-color);
 
-        @include respond-to(md) {
+        @include respond-to($breakpoint-md) {
           display: none;
         }
       }
@@ -78,21 +81,13 @@
       display: flex;
       align-items: center;
 
-      @include respond-to(sm) {
+      @include respond-to($breakpoint-sm) {
         display: none;
       }
 
       .page-title {
         font-weight: 500;
         color: var(--text-color-secondary);
-      }
-    }
-
-    .user-menu-btn {
-      @media (max-width: 480px) {
-        span {
-          display: none;
-        }
       }
     }
   }
@@ -108,37 +103,18 @@
     padding: $spacing-lg;
     min-height: calc(100vh - 60px);
 
-    @include respond-to(md) {
+    @include respond-to($breakpoint-md) {
       padding: $spacing-md;
     }
 
-    @include respond-to(sm) {
+    @include respond-to($breakpoint-sm) {
       padding: $spacing-sm;
     }
   }
 }
 
-// Overlay for mobile
-.layout-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-
-  &.overlay-visible {
-    opacity: 1;
-    visibility: visible;
-  }
-}
-
 // Responsive Design
-@include respond-to(lg) {
+@include respond-to($breakpoint-lg) {
   .layout-topbar {
     .topbar-content {
       padding: 0 $spacing-xl;
@@ -164,7 +140,7 @@
   }
 
   .p-sidebar-mask {
-    background: rgba(0, 0, 0, 0.6) !important;
+    background: var(--backdrop-color) !important;
   }
 }
 
@@ -180,7 +156,7 @@
 
     &.active {
       color: var(--primary-color) !important;
-      background: rgba(100, 181, 246, 0.1) !important;
+      background: var(--surface-active) !important;
     }
   }
 }
@@ -210,9 +186,7 @@
   outline-offset: 2px;
 }
 
-.sidebar-toggle-btn:focus,
-.user-menu-btn:focus,
-.logout-btn:focus {
+.sidebar-toggle-btn:focus {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
 }

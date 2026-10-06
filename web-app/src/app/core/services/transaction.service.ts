@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { formatDateToString } from '../../shared/utils/date.utils';
 import { formatPeriod, getAvailablePeriods } from '../../shared/utils/format.utils';
+import { suppressGlobalErrorNotification } from '../interceptors/http-feedback.context';
 import {
   TransactionType,
   PaymentStatus,
@@ -56,7 +57,6 @@ export interface Transaction extends BaseEntity {
   category: Category;
   transactionDate: string;
   competencyPeriod: string;
-  notes?: string;
   metadata?: Record<string, any>;
   isProjected?: boolean;
   projectionSource?: string;
@@ -73,7 +73,6 @@ export interface CreateTransactionDto {
   categoryId: string;
   transactionDate: string;
   competencyPeriod: string;
-  notes?: string;
   metadata?: Record<string, any>;
   isProjected?: boolean;
   projectionSource?: 'recurring' | 'manual' | 'ai';
@@ -87,7 +86,6 @@ export interface UpdateTransactionDto {
   categoryId?: string;
   transactionDate?: string;
   competencyPeriod?: string;
-  notes?: string;
   metadata?: Record<string, any>;
   isProjected?: boolean;
   projectionSource?: 'recurring' | 'manual' | 'ai';
@@ -207,7 +205,10 @@ export class TransactionService {
 
   private readonly http = inject(HttpClient);
 
-  getTransactions(filters?: TransactionFilters): Observable<PaginatedResponse<Transaction>> {
+  getTransactions(
+    filters?: TransactionFilters,
+    suppressGlobalError = false,
+  ): Observable<PaginatedResponse<Transaction>> {
     let params = new HttpParams();
 
     if (filters) {
@@ -222,7 +223,10 @@ export class TransactionService {
       }
     }
 
-    return this.http.get<PaginatedResponse<Transaction>>(this.apiUrl, { params });
+    return this.http.get<PaginatedResponse<Transaction>>(this.apiUrl, {
+      params,
+      context: suppressGlobalError ? suppressGlobalErrorNotification() : undefined,
+    });
   }
 
   getTransactionById(id: string): Observable<Transaction> {
@@ -287,14 +291,21 @@ export class TransactionService {
     return this.http.get<Transaction[]>(`${this.apiUrl}/projections/monthly/${year}/${month}`);
   }
 
-  getStatsWithProjections(year: number, month?: number): Observable<MonthlyStatsWithProjections[]> {
+  getStatsWithProjections(
+    year: number,
+    month?: number,
+    suppressGlobalError = false,
+  ): Observable<MonthlyStatsWithProjections[]> {
     let params = new HttpParams();
     if (month) {
       params = params.set('month', month.toString());
     }
     return this.http.get<MonthlyStatsWithProjections[]>(
       `${this.apiUrl}/projections/stats/${year}`,
-      { params },
+      {
+        params,
+        context: suppressGlobalError ? suppressGlobalErrorNotification() : undefined,
+      },
     );
   }
 
@@ -313,6 +324,7 @@ export class TransactionService {
 
   getTransactionsWithProjectionFilters(
     filters?: ProjectionFilters,
+    suppressGlobalError = false,
   ): Observable<PaginatedResponse<Transaction>> {
     let params = new HttpParams();
 
@@ -330,6 +342,7 @@ export class TransactionService {
 
     return this.http.get<PaginatedResponse<Transaction>>(`${this.apiUrl}/projections/filter`, {
       params,
+      context: suppressGlobalError ? suppressGlobalErrorNotification() : undefined,
     });
   }
 

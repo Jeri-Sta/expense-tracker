@@ -16,11 +16,10 @@ import { CardTransactionService } from '../credit-cards/services/card-transactio
 import { CardTransaction } from '../credit-cards/models/card-transaction.model';
 import { InstallmentService } from '../installments/services';
 import { InstallmentPlanSummary } from '../installments/models';
-import { MessageService } from 'primeng/api';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
 import { parseLocalDate } from '../../shared/utils/date.utils';
 import { formatCurrency } from '../../shared/utils/format.utils';
-import { of } from 'rxjs';
+import { of, timeout } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import {
   BudgetGoalItem,
@@ -37,6 +36,7 @@ import {
 })
 export class DashboardComponent implements OnInit {
   loading = false;
+  loadError: string | null = null;
 
   // Current month stats
   currentStats: DashboardStats = {
@@ -120,7 +120,6 @@ export class DashboardComponent implements OnInit {
   private readonly recurringTransactionService = inject(RecurringTransactionService);
   private readonly cardTransactionService = inject(CardTransactionService);
   private readonly installmentService = inject(InstallmentService);
-  private readonly messageService = inject(MessageService);
 
   readonly formatCurrency = formatCurrency;
 
@@ -200,110 +199,115 @@ export class DashboardComponent implements OnInit {
 
   loadDashboardData(): void {
     this.loading = true;
+    this.loadError = null;
 
     if (this.isCurrentMonth) {
       // Load comprehensive dashboard data for current view
-      this.dashboardService.getDashboard(this.selectedYear).subscribe({
-        next: (dashboardData) => {
-          this.updateCurrentStatsFromDashboard(dashboardData.currentMonth);
-          this.updateChartsFromYearlyData(dashboardData.yearlyOverview || []);
-          this.recentTransactions = dashboardData.recentTransactions || [];
-          this.updateCategoryData(dashboardData.topCategories || []);
+      this.dashboardService
+        .getDashboard(this.selectedYear, true)
+        .pipe(timeout(15000))
+        .subscribe({
+          next: (dashboardData) => {
+            this.updateCurrentStatsFromDashboard(dashboardData.currentMonth);
+            this.updateChartsFromYearlyData(dashboardData.yearlyOverview || []);
+            this.recentTransactions = dashboardData.recentTransactions || [];
+            this.updateCategoryData(dashboardData.topCategories || []);
 
-          // Update installment stats
-          if (dashboardData.installments) {
-            this.installmentStats = {
-              ...dashboardData.installments,
-              paidInMonth: dashboardData.installments.paidInMonth || [],
-            };
-          }
+            // Update installment stats
+            if (dashboardData.installments) {
+              this.installmentStats = {
+                ...dashboardData.installments,
+                paidInMonth: dashboardData.installments.paidInMonth || [],
+              };
+            }
 
-          // Update credit cards and card installments from backend (uses invoice due date logic)
-          if (dashboardData.creditCards) {
-            this.creditCards = dashboardData.creditCards;
-          }
-          if (dashboardData.cardInstallments) {
-            this.cardInstallments = dashboardData.cardInstallments;
-          }
-          if (dashboardData.invoices) {
-            this.invoices = dashboardData.invoices;
-          }
+            // Update credit cards and card installments from backend (uses invoice due date logic)
+            if (dashboardData.creditCards) {
+              this.creditCards = dashboardData.creditCards;
+            }
+            if (dashboardData.cardInstallments) {
+              this.cardInstallments = dashboardData.cardInstallments;
+            }
+            if (dashboardData.invoices) {
+              this.invoices = dashboardData.invoices;
+            }
 
-          // Update expense breakdown
-          if (dashboardData.expenseBreakdown) {
-            this.expenseBreakdown = dashboardData.expenseBreakdown;
-          }
+            // Update expense breakdown
+            if (dashboardData.expenseBreakdown) {
+              this.expenseBreakdown = dashboardData.expenseBreakdown;
+            }
 
-          this.loadUpcomingRecurring(); // Still load recurring transactions
-          this.loadCardTransactionsForPeriod(); // Load card transactions for display
-          this.loading = false;
-          this.loadBudgetGoals();
-        },
-        error: (error) => {
-          console.error('Error loading dashboard data:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Erro ao carregar dados do dashboard',
-          });
-          this.loading = false;
-        },
-      });
+            this.loadUpcomingRecurring(); // Still load recurring transactions
+            this.loadCardTransactionsForPeriod(); // Load card transactions for display
+            this.loading = false;
+            this.loadError = null;
+            this.loadBudgetGoals();
+          },
+          error: (error) => {
+            console.error('Error loading dashboard data:', error);
+            this.loadError = 'Verifique sua conexão e tente carregar o dashboard novamente.';
+            this.loading = false;
+          },
+        });
     } else {
       // Load specific month data
-      this.dashboardService.getMonthlyStats(this.selectedYear, this.selectedMonth).subscribe({
-        next: (monthlyData) => {
-          this.updateCurrentStatsFromDashboard(monthlyData.stats);
-          this.recentTransactions = monthlyData.recentTransactions || [];
-          this.updateCategoryData(monthlyData.topCategories || []);
+      this.dashboardService
+        .getMonthlyStats(this.selectedYear, this.selectedMonth, true)
+        .pipe(timeout(15000))
+        .subscribe({
+          next: (monthlyData) => {
+            this.updateCurrentStatsFromDashboard(monthlyData.stats);
+            this.recentTransactions = monthlyData.recentTransactions || [];
+            this.updateCategoryData(monthlyData.topCategories || []);
 
-          // Update installment stats for the selected month
-          if (monthlyData.installments) {
-            this.installmentStats = {
-              ...monthlyData.installments,
-              paidInMonth: monthlyData.installments.paidInMonth || [],
-            };
-          }
+            // Update installment stats for the selected month
+            if (monthlyData.installments) {
+              this.installmentStats = {
+                ...monthlyData.installments,
+                paidInMonth: monthlyData.installments.paidInMonth || [],
+              };
+            }
 
-          // Update credit cards and card installments from backend (uses invoice due date logic)
-          if (monthlyData.creditCards) {
-            this.creditCards = monthlyData.creditCards;
-          }
-          if (monthlyData.cardInstallments) {
-            this.cardInstallments = monthlyData.cardInstallments;
-          }
-          if (monthlyData.invoices) {
-            this.invoices = monthlyData.invoices;
-          }
+            // Update credit cards and card installments from backend (uses invoice due date logic)
+            if (monthlyData.creditCards) {
+              this.creditCards = monthlyData.creditCards;
+            }
+            if (monthlyData.cardInstallments) {
+              this.cardInstallments = monthlyData.cardInstallments;
+            }
+            if (monthlyData.invoices) {
+              this.invoices = monthlyData.invoices;
+            }
 
-          // Update expense breakdown
-          if (monthlyData.expenseBreakdown) {
-            this.expenseBreakdown = monthlyData.expenseBreakdown;
-          }
+            // Update expense breakdown
+            if (monthlyData.expenseBreakdown) {
+              this.expenseBreakdown = monthlyData.expenseBreakdown;
+            }
 
-          // Load yearly trend for context
-          this.loadYearlyTrend();
-          this.loadCardTransactionsForPeriod(); // Load card transactions for display
-          this.loading = false;
-          this.loadBudgetGoals();
-        },
-        error: (error) => {
-          console.error('Error loading monthly data:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Erro ao carregar dados mensais',
-          });
-          this.loading = false;
-        },
-      });
+            // Load yearly trend for context
+            this.loadYearlyTrend();
+            this.loadCardTransactionsForPeriod(); // Load card transactions for display
+            this.loading = false;
+            this.loadError = null;
+            this.loadBudgetGoals();
+          },
+          error: (error) => {
+            console.error('Error loading monthly data:', error);
+            this.loadError = 'Verifique sua conexão e tente carregar os dados mensais novamente.';
+            this.loading = false;
+          },
+        });
     }
+  }
+
+  retryLoad(): void {
+    this.loadDashboardData();
   }
 
   loadBudgetGoals(): void {
     this.budgetGoalsLoading = true;
     this.dashboardService
-      .getBudgetGoals(this.selectedYear, this.selectedMonth)
+      .getBudgetGoals(this.selectedYear, this.selectedMonth, true)
       .pipe(catchError(() => of([])))
       .subscribe((goals) => {
         this.budgetGoals = goals;
@@ -313,26 +317,29 @@ export class DashboardComponent implements OnInit {
   }
 
   async loadUpcomingRecurring(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.recurringTransactionService.getRecurringTransactions().subscribe({
-        next: (transactions) => {
-          this.upcomingRecurring = transactions
-            .filter((t) => t.isActive && !t.isCompleted && t.nextExecution)
-            .sort(
-              (a, b) =>
-                parseLocalDate(a.nextExecution).getTime() -
-                parseLocalDate(b.nextExecution).getTime(),
-            )
-            .slice(0, 5);
-          resolve();
-        },
-        error: reject,
-      });
+    return new Promise((resolve) => {
+      this.recurringTransactionService
+        .getRecurringTransactions(true)
+        .pipe(timeout(15000))
+        .subscribe({
+          next: (transactions) => {
+            this.upcomingRecurring = transactions
+              .filter((t) => t.isActive && !t.isCompleted && t.nextExecution)
+              .sort(
+                (a, b) =>
+                  parseLocalDate(a.nextExecution).getTime() -
+                  parseLocalDate(b.nextExecution).getTime(),
+              )
+              .slice(0, 5);
+            resolve();
+          },
+          error: () => resolve(),
+        });
     });
   }
 
   loadInstallmentPlans(): void {
-    this.installmentService.getAll().subscribe({
+    this.installmentService.getAll(true).subscribe({
       next: (plans) => {
         this.installmentPlans = plans;
         this.validateActiveTabIndex();
@@ -354,7 +361,7 @@ export class DashboardComponent implements OnInit {
 
     // Load card transactions for invoices due in the selected month
     this.cardTransactionService
-      .getByDueMonth(this.selectedYear, this.selectedMonth)
+      .getByDueMonth(this.selectedYear, this.selectedMonth, undefined, true)
       .pipe(catchError(() => of([])))
       .subscribe({
         next: (transactions) => {
@@ -387,24 +394,24 @@ export class DashboardComponent implements OnInit {
         {
           label: 'Receitas',
           data: incomeData,
-          borderColor: '#10B981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          borderColor: this.getThemeColor('--success-color'),
+          backgroundColor: this.getThemeColor('--success-color-soft'),
           tension: 0.4,
           fill: true,
         },
         {
           label: 'Despesas',
           data: expenseData,
-          borderColor: '#EF4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          borderColor: this.getThemeColor('--danger-color'),
+          backgroundColor: this.getThemeColor('--danger-color-soft'),
           tension: 0.4,
           fill: true,
         },
         {
           label: 'Saldo',
           data: balanceData,
-          borderColor: '#3B82F6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderColor: this.getThemeColor('--info-color'),
+          backgroundColor: this.getThemeColor('--info-color-soft'),
           tension: 0.4,
           fill: false,
           type: 'line',
@@ -422,8 +429,14 @@ export class DashboardComponent implements OnInit {
       datasets: [
         {
           data: [totalIncome, totalExpenses],
-          backgroundColor: ['#10B981', '#EF4444'],
-          borderColor: ['#059669', '#DC2626'],
+          backgroundColor: [
+            this.getThemeColor('--success-color'),
+            this.getThemeColor('--danger-color'),
+          ],
+          borderColor: [
+            this.getThemeColor('--success-color'),
+            this.getThemeColor('--danger-color'),
+          ],
           borderWidth: 2,
         },
       ],
@@ -441,7 +454,7 @@ export class DashboardComponent implements OnInit {
           data: categories.map((c) => c.amount),
           backgroundColor: categories.map((c) => c.categoryColor),
           borderWidth: 2,
-          borderColor: '#ffffff',
+          borderColor: this.getThemeColor('--surface-ground'),
         },
       ],
     };
@@ -816,24 +829,24 @@ export class DashboardComponent implements OnInit {
         {
           label: 'Receitas',
           data: incomeData,
-          borderColor: '#10B981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          borderColor: this.getThemeColor('--success-color'),
+          backgroundColor: this.getThemeColor('--success-color-soft'),
           tension: 0.4,
           fill: true,
         },
         {
           label: 'Despesas',
           data: expenseData,
-          borderColor: '#EF4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          borderColor: this.getThemeColor('--danger-color'),
+          backgroundColor: this.getThemeColor('--danger-color-soft'),
           tension: 0.4,
           fill: true,
         },
         {
           label: 'Saldo',
           data: balanceData,
-          borderColor: '#3B82F6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderColor: this.getThemeColor('--info-color'),
+          backgroundColor: this.getThemeColor('--info-color-soft'),
           tension: 0.4,
           fill: false,
           type: 'line',
@@ -856,8 +869,14 @@ export class DashboardComponent implements OnInit {
       datasets: [
         {
           data: [totalIncome, totalExpenses],
-          backgroundColor: ['#10B981', '#EF4444'],
-          borderColor: ['#059669', '#DC2626'],
+          backgroundColor: [
+            this.getThemeColor('--success-color'),
+            this.getThemeColor('--danger-color'),
+          ],
+          borderColor: [
+            this.getThemeColor('--success-color'),
+            this.getThemeColor('--danger-color'),
+          ],
           borderWidth: 2,
         },
       ],
@@ -883,8 +902,12 @@ export class DashboardComponent implements OnInit {
     this.updateCategoryCharts();
   }
 
+  private getThemeColor(token: string): string {
+    return getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  }
+
   loadYearlyTrend(): void {
-    this.transactionService.getStatsWithProjections(this.selectedYear).subscribe({
+    this.transactionService.getStatsWithProjections(this.selectedYear, undefined, true).subscribe({
       next: (stats) => {
         this.updateChartsFromYearlyData(stats);
       },

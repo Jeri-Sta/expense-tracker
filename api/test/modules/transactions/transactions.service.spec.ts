@@ -42,7 +42,6 @@ describe('TransactionsService', () => {
         type: 'expense',
         transactionDate: '2023-01-01',
         competencyPeriod: '2023-01',
-        notes: '',
         metadata: {},
         isRecurring: false,
         paymentStatus: PaymentStatus.PAID,

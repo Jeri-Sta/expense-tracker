@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { suppressGlobalErrorNotification } from '../../../core/interceptors/http-feedback.context';
 import {
   InstallmentPlan,
   InstallmentPlanSummary,
@@ -18,8 +19,10 @@ export class InstallmentService {
 
   private readonly http = inject(HttpClient);
 
-  getAll(): Observable<InstallmentPlanSummary[]> {
-    return this.http.get<InstallmentPlanSummary[]>(this.apiUrl);
+  getAll(suppressGlobalError = false): Observable<InstallmentPlanSummary[]> {
+    return this.http.get<InstallmentPlanSummary[]>(this.apiUrl, {
+      context: suppressGlobalError ? suppressGlobalErrorNotification() : undefined,
+    });
   }
 
   getById(id: string): Observable<InstallmentPlan> {

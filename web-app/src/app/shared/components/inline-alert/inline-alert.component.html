@@ -1,0 +1,21 @@
+<section
+  class="inline-alert"
+  [class]="'is-' + severity"
+  role="alert"
+  aria-live="polite"
+  aria-atomic="true"
+>
+  <i [class]="icon" aria-hidden="true"></i>
+  <div class="alert-copy">
+    <strong>{{ title }}</strong>
+    <span>{{ message }}</span>
+  </div>
+  <p-button
+    *ngIf="showRetry"
+    class="retry-action"
+    styleClass="p-button-sm p-button-outlined"
+    icon="pi pi-refresh"
+    [label]="retryLabel"
+    (onClick)="retry.emit()"
+  ></p-button>
+</section>

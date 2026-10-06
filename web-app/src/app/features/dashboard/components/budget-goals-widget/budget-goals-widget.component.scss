@@ -27,7 +27,7 @@
     transition: border-color 0.2s;
 
     &.over-budget {
-      border-color: #EF444466;
+      border-color: var(--danger-color);
     }
   }
 
@@ -93,7 +93,7 @@
     color: var(--text-color);
 
     &.over {
-      color: #EF4444;
+      color: var(--danger-color);
     }
   }
 
@@ -125,7 +125,7 @@
   }
 
   .over-label {
-    color: #EF4444;
+    color: var(--danger-color);
   }
 
   .breakdown {
@@ -160,11 +160,11 @@
 
   :host ::ng-deep {
     .progress-success .p-progressbar-value {
-      background: #10B981;
+      background: var(--success-color);
     }
 
     .progress-danger .p-progressbar-value {
-      background: #EF4444;
+      background: var(--danger-color);
     }
   }
 }

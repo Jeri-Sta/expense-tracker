@@ -13,6 +13,8 @@ import { normalizeIcon } from '../../shared/utils/icon.utils';
 import { parseLocalDate } from '../../shared/utils/date.utils';
 import { formatCurrency } from '../../shared/utils/format.utils';
 import { getTransactionTypeLabel, getTransactionTypeClass } from '../../shared/utils/ui.utils';
+import { ResponsiveAction } from '../../shared/components/responsive-actions/responsive-actions.component';
+import { timeout } from 'rxjs';
 
 @Component({
   selector: 'app-recurring-transactions',
@@ -27,6 +29,9 @@ export class RecurringTransactionsComponent implements OnInit {
   recurringTransactions: RecurringTransaction[] = [];
   categories: Category[] = [];
   loading = false;
+  pageLoading = false;
+  loadError: string | null = null;
+  supportDataError: string | null = null;
 
   // Dialog states
   transactionDialog = false;
@@ -54,6 +59,14 @@ export class RecurringTransactionsComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+
+  get primaryPageAction(): ResponsiveAction {
+    return {
+      label: 'Nova Recorrência',
+      icon: 'pi pi-plus',
+      command: () => this.openNew(),
+    };
+  }
 
   ngOnInit(): void {
     this.initializeForm();
@@ -83,46 +96,54 @@ export class RecurringTransactionsComponent implements OnInit {
   }
 
   loadCategories(): void {
-    this.categoryService.getCategories().subscribe({
-      next: (categories) => {
-        this.categories = categories.filter((cat) => cat.isActive);
-      },
-      error: (error) => {
-        console.error('Error loading categories:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao carregar categorias',
-        });
-      },
-    });
+    this.supportDataError = null;
+    this.categoryService
+      .getCategories(undefined, true)
+      .pipe(timeout(15000))
+      .subscribe({
+        next: (categories) => {
+          this.categories = categories.filter((cat) => cat.isActive);
+          this.supportDataError = null;
+        },
+        error: (error) => {
+          console.error('Error loading categories:', error);
+          this.supportDataError =
+            'As categorias não puderam ser carregadas. Tente novamente antes de criar uma recorrência.';
+        },
+      });
   }
 
   loadRecurringTransactions(): void {
-    this.loading = true;
-    this.recurringTransactionService.getRecurringTransactions().subscribe({
-      next: (transactions) => {
-        this.recurringTransactions = transactions.sort((a, b) => {
-          // Sort by next execution date, then by creation date
-          if (a.nextExecution && b.nextExecution) {
-            return (
-              parseLocalDate(a.nextExecution).getTime() - parseLocalDate(b.nextExecution).getTime()
-            );
-          }
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        });
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading recurring transactions:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao carregar transações recorrentes',
-        });
-        this.loading = false;
-      },
-    });
+    this.pageLoading = true;
+    this.loadError = null;
+    this.recurringTransactionService
+      .getRecurringTransactions(true)
+      .pipe(timeout(15000))
+      .subscribe({
+        next: (transactions) => {
+          this.recurringTransactions = transactions.sort((a, b) => {
+            // Sort by next execution date, then by creation date
+            if (a.nextExecution && b.nextExecution) {
+              return (
+                parseLocalDate(a.nextExecution).getTime() -
+                parseLocalDate(b.nextExecution).getTime()
+              );
+            }
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+          this.pageLoading = false;
+          this.loadError = null;
+        },
+        error: (error) => {
+          console.error('Error loading recurring transactions:', error);
+          this.loadError = 'Verifique sua conexão e tente carregar as recorrências novamente.';
+          this.pageLoading = false;
+        },
+      });
+  }
+
+  retryLoad(): void {
+    this.loadRecurringTransactions();
   }
 
   openNew(): void {

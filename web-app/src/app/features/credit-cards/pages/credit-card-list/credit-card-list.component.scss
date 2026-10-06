@@ -3,20 +3,14 @@
 
 .credit-card-item {
   @include card-base;
-  transition: all 0.3s ease;
   height: 100%;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $shadow-md !important;
-  }
 }
 
 .card-color-indicator {
   width: 24px;
   height: 24px;
   border-radius: $border-radius-sm;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: $shadow-sm;
 }
 
 .color-option {
@@ -27,7 +21,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition:
+    border-color $motion-base $ease-standard,
+    box-shadow $motion-base $ease-standard,
+    transform $motion-base $ease-standard;
 
   &:hover {
     transform: scale(1.1);
@@ -47,15 +44,15 @@
 // Progress bar severity classes
 :host ::ng-deep {
   .usage-success .p-progressbar-value {
-    background: #10b981 !important;
+    background: var(--success-color) !important;
   }
 
   .usage-warning .p-progressbar-value {
-    background: #f59e0b !important;
+    background: var(--warning-color) !important;
   }
 
   .usage-danger .p-progressbar-value {
-    background: #ef4444 !important;
+    background: var(--danger-color) !important;
   }
 
   .p-progressbar {

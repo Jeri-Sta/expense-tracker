@@ -7,7 +7,12 @@ import { PrimeNGConfig } from 'primeng/api';
     <div class="layout-wrapper">
       <router-outlet></router-outlet>
     </div>
-    <p-toast></p-toast>
+    <p-toast
+      position="top-right"
+      [preventDuplicates]="true"
+      [preventOpenDuplicates]="true"
+      [breakpoints]="{ '640px': { width: 'calc(100vw - 2rem)', left: '1rem', right: '1rem' } }"
+    ></p-toast>
     <p-confirmDialog></p-confirmDialog>
   `,
   styleUrls: ['./app.component.scss'],
@@ -96,12 +101,6 @@ export class AppComponent implements OnInit {
       matchAny: 'Corresponder qualquer',
       addRule: 'Adicionar regra',
       removeRule: 'Remover regra',
-
-      // Senhas
-      weak: 'Fraco',
-      medium: 'Médio',
-      strong: 'Forte',
-      passwordPrompt: 'Digite uma senha',
 
       // Mensagens vazias
       emptyMessage: 'Nenhum resultado encontrado',

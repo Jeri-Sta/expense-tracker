@@ -39,6 +39,7 @@ import { InvoicesWidgetComponent } from './components/invoices-widget/invoices-w
 import { UpcomingPaymentsWidgetComponent } from './components/upcoming-payments-widget/upcoming-payments-widget.component';
 import { PaidInstallmentsWidgetComponent } from './components/paid-installments-widget/paid-installments-widget.component';
 import { BudgetGoalsWidgetComponent } from './components/budget-goals-widget/budget-goals-widget.component';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -83,6 +84,7 @@ import { BudgetGoalsWidgetComponent } from './components/budget-goals-widget/bud
     TagModule,
     TabViewModule,
     SkeletonModule,
+    SharedModule,
   ],
 })
 export class DashboardModule {}

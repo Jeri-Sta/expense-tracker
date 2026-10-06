@@ -67,14 +67,6 @@ export class CreateTransactionDto {
   categoryId?: string;
 
   @ApiProperty({
-    description: 'Additional notes',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  notes?: string;
-
-  @ApiProperty({
     description: 'Additional metadata',
     required: false,
   })

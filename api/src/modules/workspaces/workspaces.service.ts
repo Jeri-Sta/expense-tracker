@@ -25,7 +25,7 @@ export class WorkspacesService {
 
     const savedWorkspace = await this.workspacesRepository.save(workspace);
 
-    // Add owner as member
+    // Link the user to their private workspace
     await this.usersRepository.update(userId, {
       workspaceId: savedWorkspace.id,
     });
@@ -36,16 +36,14 @@ export class WorkspacesService {
   async getWorkspace(userId: string): Promise<WorkspaceResponseDto> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
-      relations: ['workspace'],
     });
 
-    if (!user || !user.workspace) {
+    if (!user?.workspaceId) {
       throw new NotFoundException('User does not have a workspace');
     }
 
     const workspace = await this.workspacesRepository.findOne({
       where: { id: user.workspaceId },
-      relations: ['members'],
     });
 
     if (!workspace) {
@@ -55,37 +53,10 @@ export class WorkspacesService {
     return this.mapToResponseDto(workspace);
   }
 
-  async getMembers(workspaceId: string): Promise<any[]> {
-    const workspace = await this.workspacesRepository.findOne({
-      where: { id: workspaceId },
-      relations: ['members'],
-    });
-
-    if (!workspace) {
-      throw new NotFoundException('Workspace not found');
-    }
-
-    return workspace.members.map((member) => this.mapMember(member));
-  }
-
-  async addMember(workspaceId: string, userId: string): Promise<void> {
-    const workspace = await this.workspacesRepository.findOne({
-      where: { id: workspaceId },
-    });
-
-    if (!workspace) {
-      throw new NotFoundException('Workspace not found');
-    }
-
-    await this.usersRepository.update(userId, {
-      workspaceId: workspaceId,
-    });
-  }
-
   async findWorkspaceById(workspaceId: string): Promise<Workspace> {
     const workspace = await this.workspacesRepository.findOne({
       where: { id: workspaceId },
-      relations: ['owner', 'members'],
+      relations: ['owner'],
     });
 
     if (!workspace) {
@@ -107,30 +78,11 @@ export class WorkspacesService {
     return user.workspaceId === workspaceId;
   }
 
-  private mapMember(member: User): {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    isInvitedUser: boolean;
-    createdAt: Date;
-  } {
-    return {
-      id: member.id,
-      email: member.email,
-      firstName: member.firstName,
-      lastName: member.lastName,
-      isInvitedUser: member.isInvitedUser,
-      createdAt: member.createdAt,
-    };
-  }
-
   private mapToResponseDto(workspace: Workspace): WorkspaceResponseDto {
     return {
       id: workspace.id,
       name: workspace.name,
       ownerId: workspace.ownerId,
-      members: workspace.members ? workspace.members.map((member) => this.mapMember(member)) : [],
       createdAt: workspace.createdAt,
     };
   }

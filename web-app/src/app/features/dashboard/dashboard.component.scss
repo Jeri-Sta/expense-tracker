@@ -11,6 +11,30 @@
   }
 }
 
+@media (max-width: $breakpoint-sm) {
+  .dashboard-controls {
+    width: 100%;
+    align-items: stretch !important;
+  }
+
+  .month-navigation {
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) 44px 44px;
+    gap: $spacing-xs !important;
+    width: 100%;
+  }
+
+  .period-selectors {
+    min-width: 0;
+    gap: $spacing-xs !important;
+  }
+
+  :host ::ng-deep .period-selectors .p-dropdown {
+    width: 100%;
+    min-width: 0 !important;
+  }
+}
+
 // Dashboard Tabs Styling
 ::ng-deep .dashboard-tabs {
   &.p-tabview {
@@ -33,7 +57,9 @@
           padding: $spacing-sm $spacing-md;
           color: var(--text-color-secondary);
           font-weight: 500;
-          transition: all 0.2s ease;
+          transition:
+            background-color $motion-base $ease-standard,
+            color $motion-base $ease-standard;
 
           .p-tabview-left-icon {
             margin-right: $spacing-xs;
@@ -66,34 +92,14 @@
     }
 
     .p-tabview-panels {
-      background: var(--surface-card);
-      border: 1px solid var(--surface-border);
-      border-top: none;
-      border-radius: 0 0 $border-radius-md $border-radius-md;
-      padding: $spacing-md;
+      background: transparent;
+      border: none;
+      padding: $spacing-md 0 0;
 
       @include respond-to($breakpoint-md) {
         padding: $spacing-sm;
       }
     }
-  }
-}
-
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-
-  ::ng-deep .p-progress-spinner-circle {
-    stroke: var(--primary-500);
   }
 }
 
@@ -116,11 +122,6 @@
     right: 0;
     height: 3px;
     background: linear-gradient(90deg, var(--primary-500) 0%, var(--primary-600) 100%);
-  }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
   }
 
   .text-green-600 {
@@ -146,11 +147,6 @@
   @include card-base;
   height: 100%;
   padding: 0;
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: $shadow-md !important;
-  }
 }
 
 .data-card .card-content {
@@ -294,7 +290,7 @@
 }
 
 // Chart Responsiveness
-@include respond-to(xl) {
+@include respond-to($breakpoint-xl) {
   .chart-content {
     min-height: 250px;
   }
@@ -304,7 +300,7 @@
   }
 }
 
-@include respond-to(md) {
+@include respond-to($breakpoint-md) {
   .chart-content {
     min-height: 200px;
     padding: $spacing-md !important;
@@ -327,15 +323,8 @@
   overflow-x: hidden;
 
   .transaction-item {
-    transition: all 0.2s ease;
     border: 1px solid transparent;
     margin-bottom: $spacing-sm;
-
-    &:hover {
-      background: var(--surface-hover) !important;
-      border-color: var(--primary-200);
-      transform: translateX(4px);
-    }
 
     &:last-child {
       margin-bottom: 0;
@@ -371,15 +360,8 @@
   overflow-x: hidden;
 
   .recurring-item {
-    transition: all 0.2s ease;
     border: 1px solid transparent;
     margin-bottom: $spacing-sm;
-
-    &:hover {
-      background: var(--surface-hover) !important;
-      border-color: var(--primary-200);
-      transform: translateX(4px);
-    }
 
     &:last-child {
       margin-bottom: 0;
@@ -416,15 +398,8 @@
 // Category Stats
 .category-stat-card {
   border: 1px solid var(--surface-border);
-  transition: all 0.3s ease;
   background: var(--surface-card);
   min-width: 200px;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $shadow-md;
-    border-color: var(--primary-300);
-  }
 
   i {
     width: 32px;
@@ -474,19 +449,19 @@
 }
 
 .text-purple-600 {
-  color: #9333ea !important;
+  color: var(--chart-5) !important;
 }
 
 .text-yellow-600 {
-  color: #eab308 !important;
+  color: var(--warning-color) !important;
 }
 
 .text-pink-600 {
-  color: #ec4899 !important;
+  color: var(--chart-6) !important;
 }
 
 .text-indigo-600 {
-  color: #6366f1 !important;
+  color: var(--chart-7) !important;
 }
 
 // Utility Classes
@@ -495,32 +470,17 @@
 }
 
 .border-round-lg {
-  border-radius: 12px;
+  border-radius: $border-radius-lg;
 }
 
 .shadow-2 {
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: none;
 }
 
 // Mobile Optimizations
-@include respond-to(sm) {
+@include respond-to($breakpoint-sm) {
   .dashboard {
     padding: $spacing-xs;
-  }
-
-  .kpi-card {
-    &:hover {
-      transform: none;
-    }
-  }
-
-  .chart-card,
-  .data-card {
-    &:hover {
-      transform: none;
-    }
   }
 
   .chart-wrapper {
@@ -547,19 +507,6 @@
   .chart-header,
   .card-header {
     padding: 0.75rem !important;
-  }
-
-  .transaction-item,
-  .recurring-item {
-    &:hover {
-      transform: none;
-    }
-  }
-
-  .category-stat-card {
-    &:hover {
-      transform: none;
-    }
   }
 
   // Simplify layout for mobile
@@ -602,17 +549,6 @@
   .data-card,
   .category-stat-card {
     border-color: var(--surface-border);
-
-    &:hover {
-      border-color: var(--primary-400);
-    }
-  }
-
-  .transaction-item,
-  .recurring-item {
-    &:hover {
-      border-color: var(--primary-400);
-    }
   }
 
   // Ensure proper contrast for icons in dark mode
@@ -624,28 +560,6 @@
   .transaction-item i,
   .recurring-item i {
     background: transparent;
-  }
-}
-
-// Scrollbar Styling
-.transaction-list,
-.recurring-list {
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--surface-100);
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--surface-300);
-    border-radius: 3px;
-
-    &:hover {
-      background: var(--surface-400);
-    }
   }
 }
 
@@ -672,34 +586,12 @@
   }
 
   .installment-kpi {
-    transition: all 0.3s ease;
     border: 1px solid transparent;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      border-color: var(--primary-200);
-    }
-
-    i {
-      transition: transform 0.3s ease;
-    }
-
-    &:hover i {
-      transform: scale(1.1);
-    }
   }
 
   .progress-section,
   .savings-section {
-    transition: all 0.3s ease;
     border: 1px solid transparent;
-
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      border-color: var(--primary-200);
-    }
   }
 
   .progress-bar-custom {
@@ -714,46 +606,21 @@
   }
 
   .payment-item {
-    transition: all 0.2s ease;
     border: 1px solid transparent;
-
-    &:hover {
-      background: var(--surface-hover) !important;
-      border-color: var(--primary-200);
-      transform: translateX(4px);
-    }
 
     .payment-number {
       background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-700) 100%);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: $shadow-sm;
     }
   }
 
   .upcoming-payments {
     max-height: 300px;
     overflow-y: auto;
-
-    &::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: var(--surface-100);
-      border-radius: 2px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: var(--surface-300);
-      border-radius: 2px;
-
-      &:hover {
-        background: var(--surface-400);
-      }
-    }
   }
 }
 
-@include respond-to(md) {
+@include respond-to($breakpoint-md) {
   .installments-section {
     .installments-content {
       padding: $spacing-md !important;

@@ -172,7 +172,9 @@
     border: 1px solid var(--surface-300) !important;
     color: var(--text-color) !important;
     border-radius: $border-radius-sm;
-    transition: all 0.2s;
+    transition:
+      border-color $motion-base $ease-standard,
+      box-shadow $motion-base $ease-standard;
 
     &:enabled:focus {
       outline: 0;

@@ -1,0 +1,11 @@
+<div class="desktop-data-view">
+  <ng-container *ngTemplateOutlet="desktopView || null"></ng-container>
+</div>
+
+<div class="mobile-data-view" role="list" [attr.aria-label]="mobileLabel">
+  <div class="mobile-record" role="listitem" *ngFor="let item of items; let index = index">
+    <ng-container
+      *ngTemplateOutlet="mobileView || null; context: { $implicit: item, index: index }"
+    ></ng-container>
+  </div>
+</div>

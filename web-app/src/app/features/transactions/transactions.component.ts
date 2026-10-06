@@ -11,7 +11,6 @@ import {
   PaymentStatus,
 } from '../../core/services/transaction.service';
 import { CategoryService, Category } from '../../core/services/category.service';
-import { StorageService } from '../../core/services/storage.service';
 import { TransactionType } from '../../core/types/common.types';
 import { normalizeIcon } from '../../shared/utils/icon.utils';
 import {
@@ -22,6 +21,7 @@ import {
 } from '../../shared/utils/date.utils';
 import { formatCurrency } from '../../shared/utils/format.utils';
 import { getTransactionTypeLabel, getTransactionTypeClass } from '../../shared/utils/ui.utils';
+import { ResponsiveAction } from '../../shared/components/responsive-actions/responsive-actions.component';
 
 @Component({
   selector: 'app-transactions',
@@ -32,6 +32,9 @@ export class TransactionsComponent implements OnInit {
   transactions: Transaction[] = [];
   categories: Category[] = [];
   loading = false;
+  pageLoading = false;
+  loadError: string | null = null;
+  supportDataError: string | null = null;
 
   // Pagination
   totalRecords = 0;
@@ -93,19 +96,48 @@ export class TransactionsComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
-  private readonly storageService = inject(StorageService);
 
   readonly formatCurrency = formatCurrency;
   readonly getTransactionTypeLabel = getTransactionTypeLabel;
   readonly getTransactionTypeClass = getTransactionTypeClass;
+
+  get primaryPageAction(): ResponsiveAction {
+    return {
+      label: 'Nova Transação',
+      icon: 'pi pi-plus',
+      command: () => this.openNew(),
+    };
+  }
+
+  get secondaryPageActions(): ResponsiveAction[] {
+    return [
+      {
+        label: this.showProjectionFilters ? 'Ocultar filtros de projeção' : 'Filtros de projeção',
+        icon: 'pi pi-filter',
+        command: () => this.toggleProjectionFilters(),
+        intent: 'secondary',
+      },
+      {
+        label: this.showProjectionManager ? 'Ocultar projeções' : 'Gerenciar projeções',
+        icon: 'pi pi-cog',
+        command: () => this.toggleProjectionManager(),
+        intent: 'secondary',
+      },
+      {
+        label: 'Nova Projeção',
+        icon: 'pi pi-clock',
+        command: () => this.openProjectionDialog(),
+        intent: 'secondary',
+      },
+    ];
+  }
 
   ngOnInit(): void {
     this.initializeForms();
     this.loadCategories();
     this.loadPeriodOptions();
 
-    // Verificar se estamos autenticados antes de carregar transações
-    this.checkAuthAndLoadData();
+    this.loadTransactionsInitial();
   }
 
   loadPeriodOptions(): void {
@@ -134,28 +166,9 @@ export class TransactionsComponent implements OnInit {
     this.loadTransactions();
   }
 
-  private checkAuthAndLoadData(): void {
-    const hasToken = this.storageService.has('auth_token');
-
-    if (!hasToken) {
-      this.loading = false;
-      this.transactions = [];
-      this.totalRecords = 0;
-
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Informação',
-        detail: 'Faça login para visualizar suas transações',
-      });
-      return;
-    }
-
-    // Carregar transações
-    this.loadTransactionsInitial();
-  }
-
   private loadTransactionsInitial(): void {
-    this.loading = true;
+    this.pageLoading = true;
+    this.loadError = null;
 
     // Configurar filtros iniciais (sem filtro de período para mostrar tudo)
     this.currentFilters = {
@@ -164,7 +177,7 @@ export class TransactionsComponent implements OnInit {
       competencyPeriod: this.selectedPeriod || undefined,
     };
 
-    this.transactionService.getTransactions(this.currentFilters).subscribe({
+    this.transactionService.getTransactions(this.currentFilters, true).subscribe({
       next: (response) => {
         if (response?.data && Array.isArray(response.data)) {
           this.transactions = response.data;
@@ -174,26 +187,12 @@ export class TransactionsComponent implements OnInit {
           this.totalRecords = 0;
         }
 
-        this.loading = false;
+        this.pageLoading = false;
+        this.loadError = null;
       },
-      error: (error) => {
-        this.transactions = [];
-        this.totalRecords = 0;
-        this.loading = false;
-
-        if (error.status === 401) {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro de Autenticação',
-            detail: 'Sessão expirada. Faça login novamente.',
-          });
-        } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Erro ao carregar transações',
-          });
-        }
+      error: (_error) => {
+        this.pageLoading = false;
+        this.loadError = 'Verifique sua conexão e tente carregar as transações novamente.';
       },
     });
   }
@@ -206,7 +205,6 @@ export class TransactionsComponent implements OnInit {
       categoryId: ['', Validators.required],
       transactionDate: [new Date(), Validators.required],
       competencyPeriod: [new Date(), Validators.required],
-      notes: ['', Validators.maxLength(500)],
       isProjected: [false],
       projectionSource: ['manual'],
       confidenceScore: [80, [Validators.min(0), Validators.max(100)]],
@@ -227,23 +225,26 @@ export class TransactionsComponent implements OnInit {
   }
 
   loadCategories(): void {
-    this.categoryService.getCategories().subscribe({
-      next: (categories) => {
-        this.categories = categories.filter((cat) => cat.isActive);
-      },
-      error: (error) => {
-        console.error('Error loading categories:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao carregar categorias',
-        });
-      },
-    });
+    this.supportDataError = null;
+    this.categoryService
+      .getCategories(undefined, true)
+      .pipe(timeout(15000))
+      .subscribe({
+        next: (categories) => {
+          this.categories = categories.filter((cat) => cat.isActive);
+          this.supportDataError = null;
+        },
+        error: (error) => {
+          console.error('Error loading categories:', error);
+          this.supportDataError =
+            'As categorias não puderam ser carregadas. Tente novamente antes de criar uma transação.';
+        },
+      });
   }
 
   loadTransactions(event?: any): void {
-    this.loading = true;
+    this.pageLoading = true;
+    this.loadError = null;
 
     // Se há um evento de lazy loading, atualizar os filtros
     if (event) {
@@ -275,8 +276,8 @@ export class TransactionsComponent implements OnInit {
     this.currentFilters.competencyPeriod = this.selectedPeriod || undefined;
 
     const serviceCall = hasProjectionFilters
-      ? this.transactionService.getTransactionsWithProjectionFilters(this.currentFilters)
-      : this.transactionService.getTransactions(this.currentFilters);
+      ? this.transactionService.getTransactionsWithProjectionFilters(this.currentFilters, true)
+      : this.transactionService.getTransactions(this.currentFilters, true);
 
     serviceCall.pipe(timeout(15000)).subscribe({
       next: (response) => {
@@ -287,38 +288,73 @@ export class TransactionsComponent implements OnInit {
         } else {
           this.transactions = [];
           this.totalRecords = 0;
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Aviso',
-            detail: 'Estrutura de resposta inválida',
-          });
+          this.loadError = 'A resposta recebida não pôde ser exibida. Tente novamente.';
         }
 
-        this.loading = false;
+        this.pageLoading = false;
+        if (response?.data && Array.isArray(response.data)) {
+          this.loadError = null;
+        }
       },
       error: (error) => {
-        this.transactions = [];
-        this.totalRecords = 0;
-        this.loading = false;
+        this.pageLoading = false;
 
         if (error instanceof TimeoutError) {
-          console.warn('Loading timeout reached, stopping loading indicator');
-        } else if (error.status === 401) {
-          // Verificar se é erro de autenticação
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro de Autenticação',
-            detail: 'Sessão expirada. Faça login novamente.',
-          });
+          this.loadError = 'O carregamento demorou mais que o esperado. Tente novamente.';
         } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Erro ao carregar transações',
-          });
+          this.loadError = 'Verifique sua conexão e tente carregar as transações novamente.';
         }
       },
     });
+  }
+
+  retryLoad(): void {
+    this.loadTransactions();
+  }
+
+  getMobilePrimaryAction(transaction: Transaction): ResponsiveAction {
+    return {
+      label: 'Editar',
+      icon: 'pi pi-pencil',
+      command: () => this.editTransaction(transaction),
+      intent: 'secondary',
+    };
+  }
+
+  getMobileSecondaryActions(transaction: Transaction): ResponsiveAction[] {
+    const actions: ResponsiveAction[] = [];
+
+    if (this.canMarkAsPaid(transaction)) {
+      actions.push({
+        label: 'Marcar como pago',
+        icon: 'pi pi-check',
+        command: () => this.confirmPayTransaction(transaction),
+      });
+    }
+
+    if (this.canRevertPayment(transaction)) {
+      actions.push({
+        label: 'Reverter pagamento',
+        icon: 'pi pi-undo',
+        command: () => this.confirmRevertPayment(transaction),
+      });
+    }
+
+    actions.push(
+      {
+        label: 'Duplicar',
+        icon: 'pi pi-clone',
+        command: () => this.cloneTransaction(transaction),
+      },
+      {
+        label: 'Excluir',
+        icon: 'pi pi-trash',
+        command: () => this.deleteTransaction(transaction),
+        intent: 'danger',
+      },
+    );
+
+    return actions;
   }
 
   applyFilters(): void {
@@ -418,11 +454,11 @@ export class TransactionsComponent implements OnInit {
   }
 
   getConfidenceColor(confidenceScore?: number): string {
-    if (!confidenceScore) return '#6B7280';
+    if (!confidenceScore) return 'var(--text-color-secondary)';
 
-    if (confidenceScore >= 80) return '#10B981'; // High confidence - green
-    if (confidenceScore >= 60) return '#F59E0B'; // Medium confidence - yellow
-    return '#EF4444'; // Low confidence - red
+    if (confidenceScore >= 80) return 'var(--success-color)';
+    if (confidenceScore >= 60) return 'var(--warning-color)';
+    return 'var(--danger-color)';
   }
 
   // Projection Management Methods
@@ -578,7 +614,6 @@ export class TransactionsComponent implements OnInit {
       categoryId: transaction.category.id,
       transactionDate: parseLocalDate(transaction.transactionDate),
       competencyPeriod: parseCompetencyPeriod(transaction.competencyPeriod),
-      notes: transaction.notes || '',
       isProjected: transaction.isProjected || false,
       projectionSource: transaction.projectionSource || 'manual',
       confidenceScore: transaction.confidenceScore || 80,
@@ -600,7 +635,6 @@ export class TransactionsComponent implements OnInit {
       categoryId: transaction.category.id,
       transactionDate: parseLocalDate(transaction.transactionDate),
       competencyPeriod: parseCompetencyPeriod(transaction.competencyPeriod),
-      notes: transaction.notes || '',
       isProjected: transaction.isProjected || false,
       projectionSource: transaction.projectionSource || 'manual',
       confidenceScore: transaction.confidenceScore || 80,
@@ -627,7 +661,6 @@ export class TransactionsComponent implements OnInit {
       projectionSource: 'manual',
       confidenceScore: 80,
       description: '',
-      notes: '',
     });
     this.transactionDialog = true;
   }
@@ -704,7 +737,6 @@ export class TransactionsComponent implements OnInit {
           categoryId: formValue.categoryId,
           transactionDate: transactionDateStr,
           competencyPeriod: competencyPeriod,
-          notes: formValue.notes,
           isProjected: formValue.isProjected || false,
           projectionSource: formValue.isProjected ? formValue.projectionSource : undefined,
           confidenceScore: formValue.isProjected ? formValue.confidenceScore : undefined,
@@ -739,7 +771,6 @@ export class TransactionsComponent implements OnInit {
           categoryId: formValue.categoryId,
           transactionDate: transactionDateStr,
           competencyPeriod: competencyPeriod,
-          notes: formValue.notes,
           isProjected: formValue.isProjected || false,
           projectionSource: formValue.isProjected ? formValue.projectionSource : undefined,
           confidenceScore: formValue.isProjected ? formValue.confidenceScore : undefined,

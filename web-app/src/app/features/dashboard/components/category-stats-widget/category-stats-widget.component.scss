@@ -10,11 +10,6 @@
     padding: 0;
     overflow: hidden;
     border-radius: $border-radius-lg;
-
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: $shadow-md !important;
-    }
   }
 }
 
@@ -42,11 +37,6 @@
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $shadow-sm;
-  }
 }
 
 :host ::ng-deep {

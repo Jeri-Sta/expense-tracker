@@ -50,12 +50,12 @@ docker-compose up -d       # starts PostgreSQL (dev)
 
 Each feature module is self-contained: `*.module.ts`, `*.controller.ts`, `*.service.ts`, `entities/`, `dto/`. Key modules:
 
-- **auth** — JWT + Passport strategy; `JwtAuthGuard` and `JwtOrApiKeyAuthGuard` protect routes
+- **users** — resolves the single application user automatically; no interactive login
 - **transactions** — core CRUD + projections; `projections.service.ts` handles financial forecasting
 - **recurring-transactions** — `*.scheduler.ts` runs via `@nestjs/schedule` to auto-create transactions
 - **credit-cards** + **card-transactions** — credit card management with invoice cycle logic (`invoice.utils.ts`)
 - **installments** — installment plans linked to card transactions
-- **workspaces** + **invitations** — multi-user workspace sharing with email invitations
+- **workspaces** — private per-user workspace and data isolation
 - **api-keys** — programmatic access via API key auth strategy
 
 Common utilities in `api/src/common/`: `BaseEntity`, shared guards, decorators (`@GetUser()`), and date/invoice utils.
@@ -64,14 +64,14 @@ Configuration loaded from `.env` → `api/src/config/app.config.ts` and `databas
 
 ### Frontend structure (`web-app/src/app/`)
 
-- `core/` — singleton services (`auth`, `api`, `transaction`, `category`, `dashboard`, `workspace`, `loading`), HTTP interceptors, route guards
-- `features/` — lazy-loaded feature modules: `auth`, `transactions`, `categories`, `credit-cards`, `recurring-transactions`, `dashboard`, `settings`
-- `layout/` — `MainLayoutComponent` wraps authenticated routes with sidebar/navbar
+- `core/` — singleton services (`api`, `transaction`, `category`, `dashboard`, `workspace`, `loading`) and HTTP interceptors
+- `features/` — lazy-loaded feature modules: `transactions`, `categories`, `credit-cards`, `recurring-transactions`, `dashboard`, `settings`
+- `layout/` — `MainLayoutComponent` wraps application routes with sidebar/navbar
 - `shared/` — reusable components (`MaskedCalendarComponent`), directives, and utils (date, form, format, icon, UI)
 
 API base URL comes from `src/environments/environment.ts` → `environment.apiUrl`. Angular path aliases: `@core/*`, `@shared/*`, `@features/*`, `@layout/*`, `@env/*`.
 
-Auth flow: `AuthInterceptor` attaches JWT from `StorageService` to every request; `ErrorInterceptor` handles 401s globally. `AuthGuard`/`GuestGuard` protect routes.
+The backend resolves the single active user automatically. Optional `X-API-Key` authentication remains available for integrations.
 
 ## Code Conventions
 

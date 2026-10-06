@@ -23,10 +23,6 @@
 .invoice-card {
   @include card-base;
   border-left: 4px solid transparent;
-
-  &:hover {
-    transform: translateY(-2px);
-  }
 }
 
 .child-transaction {

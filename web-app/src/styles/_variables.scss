@@ -1,15 +1,18 @@
+// Runtime token owner. Keep accepted values mapped in /DESIGN.md.
+// PrimeNG theme adaptation is documented in /DESIGN.md and UX-CONTRACT.md.
+
 // Breakpoints
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
 $breakpoint-lg: 992px;
 $breakpoint-xl: 1200px;
 
-// Colors (Semantic Palette - SCSS variables for usage in mixins/functions)
-$color-primary: #3b82f6;
-$color-success: #10b981;
-$color-danger: #ef4444;
-$color-warning: #f59e0b;
-$color-info: #3b82f6;
+// Semantic colors. CSS custom properties in _theme.scss are the runtime owner.
+$color-primary: #38bdf8;
+$color-success: #2dd4a7;
+$color-danger: #fb7185;
+$color-warning: #fbbf24;
+$color-info: #38bdf8;
 
 // Spacing
 $spacing-xs: 0.25rem; // 4px
@@ -19,12 +22,19 @@ $spacing-lg: 1.5rem; // 24px
 $spacing-xl: 2rem; // 32px
 $spacing-2xl: 3rem; // 48px
 
-// Shadows
-$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-$shadow-md: 0 6px 20px rgba(0, 0, 0, 0.1);
-$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
-
 // Borders
+$border-width: 1px;
 $border-radius-sm: 4px;
 $border-radius-md: 8px;
 $border-radius-lg: 12px;
+
+// Elevation is reserved for floating or interactive surfaces.
+$shadow-sm: 0 1px 2px rgba(2, 8, 23, 0.3);
+$shadow-md: 0 10px 28px rgba(2, 8, 23, 0.28);
+$shadow-lg: 0 20px 48px rgba(2, 8, 23, 0.42);
+
+// Motion
+$motion-fast: 150ms;
+$motion-base: 200ms;
+$motion-slow: 300ms;
+$ease-standard: cubic-bezier(0.2, 0, 0, 1);

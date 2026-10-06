@@ -7,11 +7,6 @@
   padding: 0;
   overflow: hidden;
   border-radius: $border-radius-lg;
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: $shadow-md !important;
-  }
 }
 
 .card-header {
@@ -45,15 +40,15 @@
 // Progress bar severity classes
 :host ::ng-deep {
   .usage-success .p-progressbar-value {
-    background: #10b981 !important;
+    background: var(--success-color) !important;
   }
 
   .usage-warning .p-progressbar-value {
-    background: #f59e0b !important;
+    background: var(--warning-color) !important;
   }
 
   .usage-danger .p-progressbar-value {
-    background: #ef4444 !important;
+    background: var(--danger-color) !important;
   }
 
   .p-progressbar {

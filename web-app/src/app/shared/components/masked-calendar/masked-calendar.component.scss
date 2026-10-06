@@ -30,7 +30,7 @@
   ::ng-deep .ng-invalid.ng-dirty,
   ::ng-deep .ng-invalid.ng-touched {
     .p-inputtext {
-      border-color: var(--red-500, #ef4444);
+      border-color: var(--danger-color);
     }
   }
 }

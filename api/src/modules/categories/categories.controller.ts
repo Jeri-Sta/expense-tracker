@@ -7,11 +7,9 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { JwtOrApiKeyAuthGuard } from '../../common/guards/jwt-or-api-key-auth.guard';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -22,8 +20,6 @@ import { CategoryType } from '../../common/enums';
 
 @ApiTags('Categories')
 @Controller('categories')
-@UseGuards(JwtOrApiKeyAuthGuard)
-@ApiBearerAuth('JWT-auth')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 

@@ -7,11 +7,6 @@
   padding: 0;
   overflow: hidden;
   border-radius: $border-radius-lg;
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: $shadow-md !important;
-  }
 }
 
 .chart-header {

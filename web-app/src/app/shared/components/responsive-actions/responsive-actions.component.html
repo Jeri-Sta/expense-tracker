@@ -1,0 +1,34 @@
+<div class="responsive-actions" [class.align-start]="align === 'start'">
+  <p-button
+    class="responsive-action primary-action"
+    [styleClass]="buttonClass(primaryAction)"
+    [icon]="primaryAction.icon || ''"
+    [label]="primaryAction.label"
+    [disabled]="primaryAction.disabled"
+    (onClick)="run(primaryAction)"
+  ></p-button>
+
+  <div class="desktop-secondary-actions" *ngIf="secondaryActions.length">
+    <p-button
+      *ngFor="let action of secondaryActions"
+      class="responsive-action"
+      [styleClass]="buttonClass(action)"
+      [icon]="action.icon || ''"
+      [label]="action.label"
+      [disabled]="action.disabled"
+      (onClick)="run(action)"
+    ></p-button>
+  </div>
+
+  <ng-container *ngIf="secondaryActions.length">
+    <p-button
+      class="mobile-more-action"
+      styleClass="p-button-secondary p-button-outlined"
+      icon="pi pi-ellipsis-h"
+      label="Mais"
+      [ariaLabel]="moreLabel"
+      (onClick)="toggleMore($event)"
+    ></p-button>
+    <p-menu #moreMenu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+  </ng-container>
+</div>

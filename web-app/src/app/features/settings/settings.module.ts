@@ -1,44 +1,24 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 
-import { WorkspaceManagementComponent } from './components/workspace-management/workspace-management.component';
-import { InviteUserComponent } from './components/invite-user/invite-user.component';
-import { MembersListComponent } from './components/members-list/members-list.component';
 import { ApiKeyManagementComponent } from './components/api-key-management/api-key-management.component';
 import { SettingsComponent } from './settings.component';
 import { SettingsRoutingModule } from './settings-routing.module';
 
 @NgModule({
-  declarations: [
-    SettingsComponent,
-    WorkspaceManagementComponent,
-    InviteUserComponent,
-    MembersListComponent,
-    ApiKeyManagementComponent,
-  ],
+  declarations: [SettingsComponent, ApiKeyManagementComponent],
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
     ButtonModule,
     CardModule,
-    InputTextModule,
-    InputGroupModule,
-    InputGroupAddonModule,
-    TableModule,
     ToastModule,
     ConfirmDialogModule,
     DialogModule,
@@ -46,6 +26,6 @@ import { SettingsRoutingModule } from './settings-routing.module';
     TooltipModule,
     SettingsRoutingModule,
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
 })
 export class SettingsModule {}

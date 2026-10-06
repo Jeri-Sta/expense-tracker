@@ -6,12 +6,10 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
-import { JwtOrApiKeyAuthGuard } from '../../common/guards/jwt-or-api-key-auth.guard';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { InstallmentsService } from './installments.service';
 import {
   CreateInstallmentPlanDto,
@@ -25,8 +23,6 @@ import { User } from '../users/entities/user.entity';
 
 @ApiTags('Installments')
 @Controller('installments')
-@UseGuards(JwtOrApiKeyAuthGuard)
-@ApiBearerAuth('JWT-auth')
 export class InstallmentsController {
   constructor(private readonly installmentsService: InstallmentsService) {}
 
