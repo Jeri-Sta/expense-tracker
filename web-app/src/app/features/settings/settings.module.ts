@@ -12,6 +12,7 @@ import { ConfirmationService } from 'primeng/api';
 import { ApiKeyManagementComponent } from './components/api-key-management/api-key-management.component';
 import { SettingsComponent } from './settings.component';
 import { SettingsRoutingModule } from './settings-routing.module';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   declarations: [SettingsComponent, ApiKeyManagementComponent],
@@ -25,6 +26,7 @@ import { SettingsRoutingModule } from './settings-routing.module';
     TagModule,
     TooltipModule,
     SettingsRoutingModule,
+    SharedModule,
   ],
   providers: [ConfirmationService],
 })

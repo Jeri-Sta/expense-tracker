@@ -1,21 +1,20 @@
-<div class="card">
-  <!-- Page Header -->
-  <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
-    <div class="mb-2 md:mb-0">
-      <h2 class="text-2xl font-bold text-color m-0">Cartões de Crédito</h2>
-      <p class="text-color-secondary m-0">
-        Gerencie seus cartões de crédito e acompanhe seus limites
-      </p>
-    </div>
-    <div class="flex gap-2">
-      <p-button label="Novo Cartão" icon="pi pi-plus" size="small" (onClick)="openNew()"></p-button>
-    </div>
-  </div>
+<div class="content-panel content-panel--outlined p-4">
+  <app-page-header
+    title="Cartões de Crédito"
+    subtitle="Gerencie seus cartões de crédito e acompanhe seus limites"
+  >
+    <app-responsive-actions [primaryAction]="primaryPageAction"></app-responsive-actions>
+  </app-page-header>
+  <app-inline-alert
+    *ngIf="loadError"
+    [message]="loadError"
+    (retry)="loadCreditCards()"
+  ></app-inline-alert>
 
   <!-- Credit Cards Grid -->
   <div class="grid" *ngIf="!loading && creditCards.length > 0">
     <div class="col-12 sm:col-6 lg:col-4 xl:col-3" *ngFor="let card of creditCards">
-      <div class="credit-card-item surface-card border-round-lg shadow-2 p-3 h-full">
+      <div class="credit-card-item content-panel content-panel--outlined p-3 h-full">
         <div class="flex flex-column h-full">
           <!-- Card Header -->
           <div class="flex align-items-center justify-content-between mb-3">
@@ -75,6 +74,7 @@
               [text]="true"
               (onClick)="editCard(card)"
               pTooltip="Editar"
+              ariaLabel="Editar cartão"
             ></p-button>
             <p-button
               icon="pi pi-trash"
@@ -83,6 +83,7 @@
               [text]="true"
               (onClick)="deleteCard(card)"
               pTooltip="Excluir"
+              ariaLabel="Excluir cartão"
             ></p-button>
           </div>
         </div>
@@ -96,7 +97,7 @@
   </div>
 
   <!-- Empty State -->
-  <div class="text-center py-8" *ngIf="!loading && creditCards.length === 0">
+  <div class="text-center py-8" *ngIf="!loading && !loadError && creditCards.length === 0">
     <div class="flex flex-column align-items-center gap-3">
       <i class="pi pi-credit-card text-6xl text-color-secondary"></i>
       <h3 class="text-color-secondary m-0">Nenhum cartão cadastrado</h3>
@@ -119,7 +120,7 @@
   styleClass="p-fluid"
 >
   <ng-template pTemplate="content">
-    <form [formGroup]="cardForm" novalidate>
+    <form #cardFormElement [formGroup]="cardForm" novalidate>
       <!-- Name -->
       <div class="field">
         <label for="name" class="required-field">Nome do Cartão</label>
@@ -210,6 +211,8 @@
         [label]="editMode ? 'Atualizar' : 'Salvar'"
         icon="pi pi-check"
         (onClick)="saveCard()"
+        [loading]="saving"
+        [disabled]="saving"
       ></p-button>
     </div>
   </ng-template>

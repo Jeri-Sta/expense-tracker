@@ -1,4 +1,9 @@
 <div class="api-key-management">
+  <app-inline-alert
+    *ngIf="loadError"
+    [message]="loadError"
+    (retry)="loadApiKeyInfo()"
+  ></app-inline-alert>
   <p-card class="api-key-card">
     <ng-template pTemplate="header">
       <div class="card-header">
@@ -10,21 +15,18 @@
       <p>Carregando...</p>
     </div>
 
-    <div *ngIf="!isLoading && !apiKeyInfo" class="no-key-state">
+    <div *ngIf="!isLoading && !loadError && !apiKeyInfo" class="no-key-state">
       <div class="empty-state">
         <i class="pi pi-key text-muted"></i>
         <p>Nenhuma chave de API gerada</p>
-        <p class="description">
-          Gere uma chave para acessar seus dados via API externa.
-        </p>
-        <button
-          pButton
-          type="button"
+        <p class="description">Gere uma chave para acessar seus dados via API externa.</p>
+        <p-button
           label="Gerar Chave de API"
           icon="pi pi-plus"
-          class="p-button-primary"
-          (click)="generateKey()"
-        ></button>
+          [loading]="isLoading"
+          [disabled]="isLoading"
+          (onClick)="generateKey()"
+        ></p-button>
       </div>
     </div>
 
@@ -36,14 +38,14 @@
         </div>
         <div class="key-value-row">
           <code class="key-text">{{ generatedKey }}</code>
-          <button
-            pButton
-            type="button"
+          <p-button
             [icon]="copiedKey ? 'pi pi-check' : 'pi pi-copy'"
-            class="p-button-rounded p-button-text"
+            [text]="true"
+            [rounded]="true"
+            ariaLabel="Copiar chave"
             pTooltip="Copiar chave"
-            (click)="copyToClipboard(generatedKey)"
-          ></button>
+            (onClick)="copyToClipboard(generatedKey)"
+          ></p-button>
         </div>
       </div>
 
@@ -70,22 +72,22 @@
       </div>
 
       <div class="actions-row">
-        <button
-          pButton
-          type="button"
+        <p-button
           label="Revogar Chave"
           icon="pi pi-ban"
-          class="p-button-danger p-button-outlined"
-          (click)="revokeKey()"
-        ></button>
-        <button
-          pButton
-          type="button"
+          severity="danger"
+          [outlined]="true"
+          [loading]="isLoading"
+          [disabled]="isLoading"
+          (onClick)="revokeKey()"
+        ></p-button>
+        <p-button
           label="Gerar Nova Chave"
           icon="pi pi-refresh"
-          class="p-button-primary"
-          (click)="generateKey()"
-        ></button>
+          [loading]="isLoading"
+          [disabled]="isLoading"
+          (onClick)="generateKey()"
+        ></p-button>
       </div>
     </div>
   </p-card>

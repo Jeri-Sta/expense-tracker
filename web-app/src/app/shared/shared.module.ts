@@ -20,6 +20,7 @@ import { InlineAlertComponent } from './components/inline-alert/inline-alert.com
 import { LoadingRegionComponent } from './components/loading-region/loading-region.component';
 import { ResponsiveActionsComponent } from './components/responsive-actions/responsive-actions.component';
 import { ResponsiveDataViewComponent } from './components/responsive-data-view/responsive-data-view.component';
+import { PageHeaderComponent } from './components/page-header/page-header.component';
 
 // Shared Directives
 import { DateMaskDirective } from './directives/date-mask.directive';
@@ -32,6 +33,7 @@ import { DateMaskDirective } from './directives/date-mask.directive';
     LoadingRegionComponent,
     ResponsiveActionsComponent,
     ResponsiveDataViewComponent,
+    PageHeaderComponent,
   ],
   imports: [
     CommonModule,
@@ -68,6 +70,7 @@ import { DateMaskDirective } from './directives/date-mask.directive';
     LoadingRegionComponent,
     ResponsiveActionsComponent,
     ResponsiveDataViewComponent,
+    PageHeaderComponent,
   ],
 })
 export class SharedModule {}

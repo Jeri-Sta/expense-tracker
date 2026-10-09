@@ -1,47 +1,117 @@
 @import 'src/styles/variables';
-@import 'src/styles/mixins';
 
 :host {
   display: block;
-
-  > .surface-card {
-    @include card-base;
-    height: 100%;
-    padding: 0;
-    overflow: hidden;
-    border-radius: $border-radius-lg;
-  }
+  min-width: 0;
 }
 
-.card-header {
-  background: var(--surface-section);
-  border-bottom: 1px solid var(--surface-border);
+.category-summary {
+  height: 100%;
+  padding: $spacing-lg;
+}
 
-  h5 {
-    color: var(--text-color);
-    font-size: 1.1rem;
-    font-weight: 600;
+.category-summary-header {
+  padding-bottom: $spacing-md;
+  border-bottom: $border-width solid var(--surface-border);
+
+  h2 {
+    margin-bottom: $spacing-xs;
+    font-size: var(--text-section-title);
   }
 
   p {
+    margin: 0;
     color: var(--text-color-secondary);
-    font-size: 0.875rem;
+    font-size: var(--text-caption);
   }
 }
 
-.card-content {
-  background: var(--surface-card);
+.panel-eyebrow {
+  display: block;
+  margin-bottom: $spacing-xs;
+  color: var(--primary-color);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.category-stat-card {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+.category-list {
+  padding-top: $spacing-sm;
 }
 
-:host ::ng-deep {
-  .p-progressbar {
-    background: var(--surface-200);
-    border-radius: $border-radius-sm;
+.category-stat-row {
+  padding: $spacing-sm 0;
+  border-bottom: $border-width solid var(--surface-border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.category-stat-topline,
+.category-progress-row,
+.category-name {
+  display: flex;
+  align-items: center;
+}
+
+.category-stat-topline,
+.category-progress-row {
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.category-name {
+  min-width: 0;
+  gap: $spacing-sm;
+
+  strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    color: var(--text-color-secondary);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+}
+
+.category-amount {
+  flex: 0 0 auto;
+  color: var(--text-color);
+}
+
+.category-progress-row {
+  margin-top: $spacing-xs;
+
+  p-progressBar {
+    flex: 1;
+    min-width: 0;
+  }
+
+  span {
+    min-width: 3rem;
+    color: var(--text-color-secondary);
+    font-size: var(--text-caption);
+    text-align: right;
+  }
+}
+
+:host ::ng-deep .p-progressbar {
+  background: var(--surface-200);
+  border-radius: $border-radius-sm;
+}
+
+@media (max-width: $breakpoint-sm) {
+  .category-summary {
+    padding: $spacing-md;
+  }
+
+  .category-name {
+    gap: $spacing-xs;
   }
 }

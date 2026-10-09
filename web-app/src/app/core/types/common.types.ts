@@ -86,7 +86,7 @@ export interface DashboardStats {
   balance: number;
   transactionCount: number;
   averageTransaction: number;
-  monthlyGrowth: number;
+  monthlyGrowth: number | null;
   projectedIncome: number;
   projectedExpenses: number;
   projectedBalance: number;

@@ -408,7 +408,7 @@
   background: $color-success;
 }
 
-@include respond-to(xl) {
+@include respond-to($breakpoint-xl) {
   .summary-grid {
     grid-template-columns: 1fr;
   }
@@ -419,7 +419,7 @@
   }
 }
 
-@include respond-to(md) {
+@include respond-to($breakpoint-md) {
   .installment-details-container {
     padding: $spacing-md;
   }

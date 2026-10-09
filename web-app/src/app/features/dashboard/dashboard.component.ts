@@ -2,7 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   TransactionService,
-  MonthlyStats,
+  MonthlyStatsWithProjections,
+  Transaction,
   CreditCardSummary,
   CardInstallmentSummary,
   InvoiceSummary,
@@ -45,7 +46,7 @@ export class DashboardComponent implements OnInit {
     balance: 0,
     transactionCount: 0,
     averageTransaction: 0,
-    monthlyGrowth: 0,
+    monthlyGrowth: null,
     projectedIncome: 0,
     projectedExpenses: 0,
     projectedBalance: 0,
@@ -54,21 +55,15 @@ export class DashboardComponent implements OnInit {
   };
 
   // Chart data
-  incomeVsExpenseData: any;
-  incomeVsExpenseOptions: any;
-
   monthlyTrendData: any;
   monthlyTrendOptions: any;
-
-  categoryPieData: any;
-  categoryPieOptions: any;
-
-  expenseCategoryData: any;
-  expenseCategoryOptions: any;
+  monthlyTrendSummary = 'Não há dados disponíveis para o gráfico.';
 
   // Recent data
-  recentTransactions: any[] = [];
+  recentTransactions: Transaction[] = [];
   upcomingRecurring: RecurringTransaction[] = [];
+  upcomingRecurringLoading = false;
+  upcomingRecurringFailed = false;
   topCategories: CategoryStats[] = [];
 
   // Credit Cards data
@@ -103,12 +98,10 @@ export class DashboardComponent implements OnInit {
   availableYears: number[] = [];
 
   // Projection settings
-  showProjections = true;
   includeProjections = true;
 
   // Navigation mode
   isCurrentMonth = true;
-  navigationDate: Date = new Date();
 
   // Tab navigation
   activeTabIndex: number = 0;
@@ -144,6 +137,20 @@ export class DashboardComponent implements OnInit {
   // Getter to check if there are budget goals to display
   get hasBudgetGoals(): boolean {
     return this.budgetGoals.length > 0;
+  }
+
+  get upcomingRecurringExpenses(): RecurringTransaction[] {
+    return this.upcomingRecurring.filter((transaction) => transaction.type === 'expense');
+  }
+
+  get upcomingPayments() {
+    return this.installmentStats.upcomingPayments.filter((payment) =>
+      this.isWithinNext30Days(payment.dueDate),
+    );
+  }
+
+  get hasUpcomingCommitments(): boolean {
+    return this.upcomingRecurringExpenses.length > 0 || this.upcomingPayments.length > 0;
   }
 
   // Get the total number of visible tabs
@@ -200,6 +207,7 @@ export class DashboardComponent implements OnInit {
   loadDashboardData(): void {
     this.loading = true;
     this.loadError = null;
+    this.loadUpcomingRecurring();
 
     if (this.isCurrentMonth) {
       // Load comprehensive dashboard data for current view
@@ -237,7 +245,6 @@ export class DashboardComponent implements OnInit {
               this.expenseBreakdown = dashboardData.expenseBreakdown;
             }
 
-            this.loadUpcomingRecurring(); // Still load recurring transactions
             this.loadCardTransactionsForPeriod(); // Load card transactions for display
             this.loading = false;
             this.loadError = null;
@@ -316,26 +323,34 @@ export class DashboardComponent implements OnInit {
       });
   }
 
-  async loadUpcomingRecurring(): Promise<void> {
-    return new Promise((resolve) => {
-      this.recurringTransactionService
-        .getRecurringTransactions(true)
-        .pipe(timeout(15000))
-        .subscribe({
-          next: (transactions) => {
-            this.upcomingRecurring = transactions
-              .filter((t) => t.isActive && !t.isCompleted && t.nextExecution)
-              .sort(
-                (a, b) =>
-                  parseLocalDate(a.nextExecution).getTime() -
-                  parseLocalDate(b.nextExecution).getTime(),
-              )
-              .slice(0, 5);
-            resolve();
-          },
-          error: () => resolve(),
-        });
-    });
+  loadUpcomingRecurring(): void {
+    this.upcomingRecurringLoading = true;
+    this.upcomingRecurringFailed = false;
+    this.recurringTransactionService
+      .getRecurringTransactions(true)
+      .pipe(timeout(15000))
+      .subscribe({
+        next: (transactions) => {
+          this.upcomingRecurring = transactions
+            .filter(
+              (transaction) =>
+                transaction.isActive &&
+                !transaction.isCompleted &&
+                transaction.nextExecution &&
+                this.isWithinNext30Days(transaction.nextExecution),
+            )
+            .sort(
+              (first, second) =>
+                parseLocalDate(first.nextExecution).getTime() -
+                parseLocalDate(second.nextExecution).getTime(),
+            );
+          this.upcomingRecurringLoading = false;
+        },
+        error: () => {
+          this.upcomingRecurringLoading = false;
+          this.upcomingRecurringFailed = true;
+        },
+      });
   }
 
   loadInstallmentPlans(): void {
@@ -380,111 +395,6 @@ export class DashboardComponent implements OnInit {
    */
   loadCreditCardData(): void {
     this.loadCardTransactionsForPeriod();
-  }
-
-  updateMonthlyTrendChart(stats: MonthlyStats[]): void {
-    const months = stats.map((s) => this.getMonthName(s.period));
-    const incomeData = stats.map((s) => s.totalIncome);
-    const expenseData = stats.map((s) => s.totalExpenses);
-    const balanceData = stats.map((s) => s.balance);
-
-    this.monthlyTrendData = {
-      labels: months,
-      datasets: [
-        {
-          label: 'Receitas',
-          data: incomeData,
-          borderColor: this.getThemeColor('--success-color'),
-          backgroundColor: this.getThemeColor('--success-color-soft'),
-          tension: 0.4,
-          fill: true,
-        },
-        {
-          label: 'Despesas',
-          data: expenseData,
-          borderColor: this.getThemeColor('--danger-color'),
-          backgroundColor: this.getThemeColor('--danger-color-soft'),
-          tension: 0.4,
-          fill: true,
-        },
-        {
-          label: 'Saldo',
-          data: balanceData,
-          borderColor: this.getThemeColor('--info-color'),
-          backgroundColor: this.getThemeColor('--info-color-soft'),
-          tension: 0.4,
-          fill: false,
-          type: 'line',
-        },
-      ],
-    };
-  }
-
-  updateIncomeVsExpenseChart(stats: MonthlyStats[]): void {
-    const totalIncome = stats.reduce((sum, s) => sum + s.totalIncome, 0);
-    const totalExpenses = stats.reduce((sum, s) => sum + s.totalExpenses, 0);
-
-    this.incomeVsExpenseData = {
-      labels: ['Receitas', 'Despesas'],
-      datasets: [
-        {
-          data: [totalIncome, totalExpenses],
-          backgroundColor: [
-            this.getThemeColor('--success-color'),
-            this.getThemeColor('--danger-color'),
-          ],
-          borderColor: [
-            this.getThemeColor('--success-color'),
-            this.getThemeColor('--danger-color'),
-          ],
-          borderWidth: 2,
-        },
-      ],
-    };
-  }
-
-  updateCategoryCharts(): void {
-    const categories = this.topCategories || [];
-
-    // Category pie chart
-    this.categoryPieData = {
-      labels: categories.map((c) => c.categoryName),
-      datasets: [
-        {
-          data: categories.map((c) => c.amount),
-          backgroundColor: categories.map((c) => c.categoryColor),
-          borderWidth: 2,
-          borderColor: this.getThemeColor('--surface-ground'),
-        },
-      ],
-    };
-
-    // Expense categories horizontal bar
-    const expenseCategories = categories.filter((c) => c.amount > 0);
-    this.expenseCategoryData = {
-      labels: expenseCategories.map((c) => c.categoryName),
-      datasets: [
-        {
-          label: 'Valor Gasto',
-          data: expenseCategories.map((c) => c.amount),
-          backgroundColor: expenseCategories.map((c) => c.categoryColor),
-          borderColor: expenseCategories.map((c) => c.categoryColor),
-          borderWidth: 1,
-        },
-      ],
-    };
-  }
-
-  calculateGrowthRate(stats: MonthlyStats[]): void {
-    if (stats.length >= 2) {
-      const currentMonth = stats[stats.length - 1];
-      const previousMonth = stats[stats.length - 2];
-
-      if (previousMonth.balance !== 0) {
-        this.currentStats.monthlyGrowth =
-          ((currentMonth.balance - previousMonth.balance) / Math.abs(previousMonth.balance)) * 100;
-      }
-    }
   }
 
   setupChartOptions(): void {
@@ -547,123 +457,6 @@ export class DashboardComponent implements OnInit {
         },
       },
     };
-
-    this.categoryPieOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      aspectRatio: 1,
-      layout: {
-        padding: {
-          top: 10,
-          right: 10,
-          bottom: 10,
-          left: 10,
-        },
-      },
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            color: textColor,
-            padding: 15,
-            usePointStyle: true,
-          },
-        },
-        tooltip: {
-          callbacks: {
-            label: (context: any) => {
-              const category = this.topCategories[context.dataIndex];
-              return `${category.categoryName}: ${this.formatCurrency(category.amount)} (${(category.percentage || 0).toFixed(1)}%)`;
-            },
-          },
-        },
-      },
-    };
-
-    this.expenseCategoryOptions = {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      aspectRatio: 0.8,
-      layout: {
-        padding: {
-          top: 20,
-          right: 30,
-          bottom: 20,
-          left: 20,
-        },
-      },
-      plugins: {
-        legend: {
-          display: false,
-        },
-        tooltip: {
-          callbacks: {
-            label: (context: any) => this.formatCurrency(context.parsed.x),
-          },
-        },
-      },
-      scales: {
-        x: {
-          display: true,
-          beginAtZero: true,
-          ticks: {
-            color: textColor,
-            callback: (value: any) => this.formatCurrency(value),
-            maxTicksLimit: 6,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-        y: {
-          display: true,
-          ticks: {
-            color: textColor,
-            autoSkip: false,
-            padding: 10,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-      },
-    };
-
-    this.incomeVsExpenseOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      aspectRatio: 1,
-      layout: {
-        padding: {
-          top: 10,
-          right: 10,
-          bottom: 10,
-          left: 10,
-        },
-      },
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            color: textColor,
-            padding: 15,
-            usePointStyle: true,
-          },
-        },
-        tooltip: {
-          callbacks: {
-            label: (context: any) => {
-              const label = context.label;
-              const value = context.parsed;
-              return `${label}: ${this.formatCurrency(value)}`;
-            },
-          },
-        },
-      },
-    };
   }
 
   onYearChange(): void {
@@ -686,8 +479,6 @@ export class DashboardComponent implements OnInit {
     const current = new Date();
     this.isCurrentMonth =
       this.selectedYear === current.getFullYear() && this.selectedMonth === current.getMonth() + 1;
-
-    this.navigationDate = new Date(this.selectedYear, this.selectedMonth - 1, 1);
   }
 
   navigateToPreviousMonth(): void {
@@ -724,43 +515,13 @@ export class DashboardComponent implements OnInit {
   }
 
   formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('pt-BR');
+    return parseLocalDate(date).toLocaleDateString('pt-BR');
   }
 
   getMonthName(monthString: string): string {
     const [year, month] = monthString.split('-');
     const date = new Date(Number.parseInt(year), Number.parseInt(month) - 1);
     return date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
-  }
-
-  getBalanceClass(): string {
-    const balance = this.includeProjections
-      ? this.currentStats.balance + this.currentStats.projectedBalance
-      : this.currentStats.balance;
-    return balance >= 0 ? 'text-green-600' : 'text-red-600';
-  }
-
-  getGrowthClass(): string {
-    return this.currentStats.monthlyGrowth >= 0 ? 'text-green-600' : 'text-red-600';
-  }
-
-  getGrowthIcon(): string {
-    return this.currentStats.monthlyGrowth >= 0 ? 'pi-trending-up' : 'pi-trending-down';
-  }
-
-  getDaysUntilExecution(transaction: RecurringTransaction): number {
-    if (!transaction.nextExecution) return 0;
-    const today = new Date();
-    const nextExecution = parseLocalDate(transaction.nextExecution);
-    const diffTime = nextExecution.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  }
-
-  isOverdue(transaction: RecurringTransaction): boolean {
-    if (!transaction.nextExecution || !transaction.isActive || transaction.isCompleted) {
-      return false;
-    }
-    return parseLocalDate(transaction.nextExecution) < new Date();
   }
 
   // Auxiliary methods for template
@@ -786,7 +547,7 @@ export class DashboardComponent implements OnInit {
   }
 
   // New helper methods for projections and navigation
-  updateCurrentStatsFromDashboard(monthStats: any): void {
+  updateCurrentStatsFromDashboard(monthStats: MonthlyStatsWithProjections): void {
     this.currentStats = {
       totalIncome: monthStats.totalIncome || 0,
       totalExpenses: monthStats.totalExpenses || 0,
@@ -796,7 +557,7 @@ export class DashboardComponent implements OnInit {
         monthStats.transactionCount > 0
           ? (monthStats.totalIncome + monthStats.totalExpenses) / monthStats.transactionCount
           : 0,
-      monthlyGrowth: 0, // Will be calculated separately
+      monthlyGrowth: null,
       projectedIncome: monthStats.projectedIncome || 0,
       projectedExpenses: monthStats.projectedExpenses || 0,
       projectedBalance: monthStats.projectedBalance || 0,
@@ -805,8 +566,13 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  updateChartsFromYearlyData(yearlyData: any[]): void {
-    if (!yearlyData || yearlyData.length === 0) return;
+  updateChartsFromYearlyData(yearlyData: MonthlyStatsWithProjections[]): void {
+    if (!yearlyData?.length) {
+      this.monthlyTrendData = { labels: [], datasets: [] };
+      this.monthlyTrendSummary = 'Não há dados disponíveis para o gráfico neste período.';
+      this.currentStats.monthlyGrowth = null;
+      return;
+    }
 
     // Update monthly trend chart
     const months = yearlyData.map((s) => this.getMonthName(s.period));
@@ -854,33 +620,34 @@ export class DashboardComponent implements OnInit {
       ],
     };
 
-    // Update income vs expense chart
-    const totalIncome = yearlyData.reduce(
-      (sum, s) => sum + s.totalIncome + (this.includeProjections ? s.projectedIncome : 0),
-      0,
-    );
-    const totalExpenses = yearlyData.reduce(
-      (sum, s) => sum + s.totalExpenses + (this.includeProjections ? s.projectedExpenses : 0),
-      0,
-    );
+    this.monthlyTrendSummary =
+      'Dados do gráfico, por mês: ' +
+      yearlyData
+        .map(
+          (_, index) =>
+            `${months[index]}: entradas ${this.formatCurrency(incomeData[index])}, ` +
+            `saídas ${this.formatCurrency(expenseData[index])}, saldo ${this.formatCurrency(balanceData[index])}`,
+        )
+        .join('. ');
 
-    this.incomeVsExpenseData = {
-      labels: ['Receitas', 'Despesas'],
-      datasets: [
-        {
-          data: [totalIncome, totalExpenses],
-          backgroundColor: [
-            this.getThemeColor('--success-color'),
-            this.getThemeColor('--danger-color'),
-          ],
-          borderColor: [
-            this.getThemeColor('--success-color'),
-            this.getThemeColor('--danger-color'),
-          ],
-          borderWidth: 2,
-        },
-      ],
-    };
+    const currentPeriod = `${this.selectedYear}-${String(this.selectedMonth).padStart(2, '0')}`;
+    const previousDate = new Date(this.selectedYear, this.selectedMonth - 2, 1);
+    const previousPeriod = `${previousDate.getFullYear()}-${String(previousDate.getMonth() + 1).padStart(2, '0')}`;
+    const currentMonth = yearlyData.find((month) => month.period === currentPeriod);
+    const previousMonth = yearlyData.find((month) => month.period === previousPeriod);
+
+    if (currentMonth && previousMonth) {
+      const currentBalance =
+        currentMonth.balance + (this.includeProjections ? currentMonth.projectedBalance : 0);
+      const previousBalance =
+        previousMonth.balance + (this.includeProjections ? previousMonth.projectedBalance : 0);
+      this.currentStats.monthlyGrowth =
+        previousBalance === 0
+          ? null
+          : ((currentBalance - previousBalance) / Math.abs(previousBalance)) * 100;
+    } else {
+      this.currentStats.monthlyGrowth = null;
+    }
   }
 
   updateCategoryData(categoriesData: any[]): void {
@@ -899,7 +666,6 @@ export class DashboardComponent implements OnInit {
       transactionCount: Number(category.count) || 0,
       percentage: totalAmount > 0 ? ((Number(category.total) || 0) / totalAmount) * 100 : 0,
     }));
-    this.updateCategoryCharts();
   }
 
   private getThemeColor(token: string): string {
@@ -935,74 +701,29 @@ export class DashboardComponent implements OnInit {
     return months[this.selectedMonth - 1];
   }
 
-  getTotalProjectedIncome(): number {
-    return this.currentStats.totalIncome + this.currentStats.projectedIncome;
-  }
-
-  getTotalProjectedExpenses(): number {
-    return this.currentStats.totalExpenses + this.currentStats.projectedExpenses;
-  }
-
-  getTotalProjectedBalance(): number {
-    return this.currentStats.balance + this.currentStats.projectedBalance;
-  }
-
-  // Installment helper methods
-  getDaysUntilDue(date: string | Date): number {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(date);
-    dueDate.setHours(0, 0, 0, 0);
-    const diffTime = dueDate.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  }
-
-  getInstallmentProgress(): number {
-    if (this.installmentStats.totalPlans === 0) return 0;
-    return (
-      (this.installmentStats.totalPaid /
-        (this.installmentStats.totalFinanced + this.installmentStats.totalPaid)) *
-      100
-    );
-  }
-
   navigateToInstallments(): void {
     this.router.navigate(['/installments']);
   }
 
-  getProjectionClass(value: number): string {
-    return value >= 0 ? 'text-blue-600' : 'text-orange-600';
+  getUpcomingObligationsTotal(): number {
+    return [
+      ...this.upcomingRecurringExpenses.map((transaction) => transaction.amount),
+      ...this.upcomingPayments.map((payment) => payment.amount),
+    ].reduce((total, amount) => total + Number(amount || 0), 0);
   }
 
-  /**
-   * Gets the actual total expenses from the breakdown data if available,
-   * otherwise falls back to currentStats.totalExpenses.
-   * This ensures consistency with the "Totais do Mês" widget.
-   */
-  getActualTotalExpenses(): number {
-    return this.dashboardService.getActualTotalExpenses(this.currentStats, this.expenseBreakdown);
+  getUpcomingObligationsCount(): number {
+    return this.upcomingRecurringExpenses.length + this.upcomingPayments.length;
   }
 
-  /**
-   * Gets the actual balance calculated using the correct expenses from breakdown.
-   * Balance = totalIncome - actualTotalExpenses
-   */
-  getActualBalance(): number {
-    return this.dashboardService.getActualBalance(this.currentStats, this.expenseBreakdown);
-  }
-
-  /**
-   * Gets the actual projected total expenses.
-   */
-  getActualTotalProjectedExpenses(): number {
-    return this.getActualTotalExpenses() + this.currentStats.projectedExpenses;
-  }
-
-  /**
-   * Gets the actual projected balance.
-   */
-  getActualTotalProjectedBalance(): number {
-    return this.getActualBalance() + this.currentStats.projectedBalance;
+  private isWithinNext30Days(date: string | Date): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const lastDay = new Date(today);
+    lastDay.setDate(lastDay.getDate() + 30);
+    lastDay.setHours(23, 59, 59, 999);
+    const dueDate = parseLocalDate(date);
+    return dueDate >= today && dueDate <= lastDay;
   }
 
   normalizeIcon(icon: string): string {

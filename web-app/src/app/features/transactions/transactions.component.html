@@ -1,16 +1,14 @@
 <div class="transactions-container">
-  <!-- Header with Actions -->
-  <div class="card">
-    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
-      <div class="mb-2 md:mb-0">
-        <h2 class="text-2xl font-bold text-color m-0">Transações</h2>
-        <p class="text-color-secondary m-0">Gerencie suas receitas e despesas de forma eficiente</p>
-      </div>
+  <div class="card content-panel content-panel--outlined">
+    <app-page-header
+      title="Transações"
+      subtitle="Gerencie suas receitas e despesas de forma eficiente"
+    >
       <app-responsive-actions
         [primaryAction]="primaryPageAction"
         [secondaryActions]="secondaryPageActions"
       ></app-responsive-actions>
-    </div>
+    </app-page-header>
 
     <app-inline-alert
       *ngIf="supportDataError"
@@ -212,7 +210,7 @@
   </div>
 
   <!-- Transactions Table -->
-  <div class="card">
+  <div class="card content-panel content-panel--outlined">
     <app-inline-alert
       *ngIf="loadError"
       class="block mb-3"
@@ -328,6 +326,7 @@
                       (click)="confirmPayTransaction(transaction)"
                       styleClass="p-button-text p-button-success p-button-sm"
                       pTooltip="Marcar como Pago"
+                      ariaLabel="Marcar transação como paga"
                     ></p-button>
                     <p-button
                       *ngIf="canRevertPayment(transaction)"
@@ -335,24 +334,28 @@
                       (click)="confirmRevertPayment(transaction)"
                       styleClass="p-button-text p-button-warning p-button-sm"
                       pTooltip="Reverter Pagamento"
+                      ariaLabel="Reverter pagamento da transação"
                     ></p-button>
                     <p-button
                       icon="pi pi-clone"
                       (click)="cloneTransaction(transaction)"
                       styleClass="p-button-text p-button-sm"
                       pTooltip="Duplicar"
+                      ariaLabel="Duplicar transação"
                     ></p-button>
                     <p-button
                       icon="pi pi-pencil"
                       (click)="editTransaction(transaction)"
                       styleClass="p-button-text p-button-sm"
                       pTooltip="Editar"
+                      ariaLabel="Editar transação"
                     ></p-button>
                     <p-button
                       icon="pi pi-trash"
                       (click)="deleteTransaction(transaction)"
                       styleClass="p-button-text p-button-danger p-button-sm"
                       pTooltip="Excluir"
+                      ariaLabel="Excluir transação"
                     ></p-button>
                   </div>
                 </td>
@@ -458,7 +461,12 @@
     styleClass="p-dialog-maximized md:p-dialog-default"
     [style]="{ width: '500px' }"
   >
-    <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()" novalidate>
+    <form
+      #transactionFormElement
+      [formGroup]="transactionForm"
+      (ngSubmit)="saveTransaction()"
+      novalidate
+    >
       <!-- Type Selection -->
       <div class="field mb-4">
         <label class="block text-sm font-medium mb-2">
@@ -668,7 +676,8 @@
           [label]="editingTransaction ? 'Atualizar' : 'Salvar'"
           icon="pi pi-check"
           type="submit"
-          [loading]="loading"
+          [loading]="saving"
+          [disabled]="saving"
         ></p-button>
       </div>
     </form>

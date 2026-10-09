@@ -1,18 +1,13 @@
-<div class="card">
-  <!-- Page Header -->
-  <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
-    <div class="mb-2 md:mb-0">
-      <h2 class="text-2xl font-bold text-color m-0">Categorias</h2>
-      <p class="text-color-secondary m-0">Gerencie as categorias de receitas e despesas</p>
-    </div>
+<div class="content-panel content-panel--outlined p-4">
+  <app-page-header title="Categorias" subtitle="Gerencie as categorias de receitas e despesas">
     <app-responsive-actions
       [primaryAction]="primaryPageAction"
       [secondaryActions]="secondaryPageActions"
     ></app-responsive-actions>
-  </div>
+  </app-page-header>
 
   <!-- Type Filter -->
-  <div class="card mb-4">
+  <div class="content-panel content-panel--outlined p-4 mb-4">
     <h5>Filtros</h5>
     <div class="flex gap-2 flex-wrap">
       <p-button
@@ -49,7 +44,7 @@
     <!-- Categories Grid -->
     <div class="grid" *ngIf="categories.length > 0">
       <div class="col-12 sm:col-6 lg:col-4 xl:col-3" *ngFor="let category of categories">
-        <div class="category-card surface-card border-round-lg shadow-2 p-3 h-full">
+        <div class="category-card content-panel content-panel--outlined p-3 h-full">
           <div class="flex flex-column h-full">
             <!-- Category Header -->
             <div class="flex align-items-center justify-content-between mb-3">
@@ -103,6 +98,7 @@
                   size="small"
                   [text]="true"
                   (onClick)="editCategory(category)"
+                  ariaLabel="Editar categoria"
                   pTooltip="Editar"
                 ></p-button>
                 <p-button
@@ -112,6 +108,7 @@
                   size="small"
                   [text]="true"
                   (onClick)="reactivateCategory(category)"
+                  ariaLabel="Reativar categoria"
                   pTooltip="Reativar"
                 ></p-button>
                 <p-button
@@ -120,6 +117,7 @@
                   size="small"
                   [text]="true"
                   (onClick)="deleteCategory(category)"
+                  ariaLabel="Excluir categoria"
                   pTooltip="Excluir"
                 ></p-button>
               </div>
@@ -157,7 +155,7 @@
   [maximizable]="false"
   [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
 >
-  <form [formGroup]="categoryForm" class="grid" novalidate>
+  <form #categoryFormElement [formGroup]="categoryForm" class="grid" novalidate>
     <div class="field col-12 md:col-8">
       <label for="name" class="font-bold"> Nome <span class="required-asterisk">*</span> </label>
       <input
@@ -251,7 +249,12 @@
         <div class="color-picker-dropdown" *ngIf="showColorPicker">
           <div class="color-picker-header">
             <span class="color-picker-title">Selecione uma cor</span>
-            <button type="button" class="color-picker-close" (click)="showColorPicker = false">
+            <button
+              type="button"
+              class="color-picker-close"
+              aria-label="Fechar seleção de cor"
+              (click)="showColorPicker = false"
+            >
               <i class="pi pi-times"></i>
             </button>
           </div>

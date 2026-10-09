@@ -17,6 +17,7 @@ export class ApiKeyManagementComponent implements OnInit {
   showGeneratedKey = false;
   generatedKey = '';
   copiedKey = false;
+  loadError: string | null = null;
 
   private readonly workspaceService = inject(WorkspaceService);
   private readonly messageService = inject(MessageService);
@@ -26,7 +27,9 @@ export class ApiKeyManagementComponent implements OnInit {
     this.loadApiKeyInfo();
   }
 
-  private loadApiKeyInfo(): void {
+  loadApiKeyInfo(): void {
+    this.loadError = null;
+    this.isLoading = true;
     this.workspaceService.getApiKeyInfo().subscribe({
       next: (info) => {
         this.apiKeyInfo = info;
@@ -34,11 +37,13 @@ export class ApiKeyManagementComponent implements OnInit {
       },
       error: () => {
         this.isLoading = false;
+        this.loadError = 'Não foi possível carregar a chave de API. Tente novamente.';
       },
     });
   }
 
   generateKey(): void {
+    if (this.isLoading) return;
     this.isLoading = true;
     this.workspaceService.generateApiKey().subscribe({
       next: (response: GeneratedApiKey) => {
@@ -69,6 +74,7 @@ export class ApiKeyManagementComponent implements OnInit {
   }
 
   revokeKey(): void {
+    if (this.isLoading) return;
     this.confirmationService.confirm({
       message:
         'Tem certeza que deseja revogar esta chave de API? Ela deixará de funcionar imediatamente.',

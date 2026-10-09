@@ -15,7 +15,7 @@ export class KpiCardsWidgetComponent {
     balance: 0,
     transactionCount: 0,
     averageTransaction: 0,
-    monthlyGrowth: 0,
+    monthlyGrowth: null,
     projectedIncome: 0,
     projectedExpenses: 0,
     projectedBalance: 0,
@@ -23,10 +23,11 @@ export class KpiCardsWidgetComponent {
     hasProjections: false,
   };
   @Input() showProjections = false;
-  @Input() isLoading = false;
-  @Input() isCurrentMonth = true;
   @Input() selectedMonthName = '';
+  @Input() selectedYear = new Date().getFullYear();
   @Input() expenseBreakdown: MonthlyExpenseBreakdownItem[] = [];
+  @Input() upcomingObligationsTotal = 0;
+  @Input() upcomingObligationsCount = 0;
 
   readonly formatCurrency = formatCurrency;
   private readonly dashboardService = inject(DashboardService);
@@ -36,10 +37,6 @@ export class KpiCardsWidgetComponent {
       ? this.getTotalProjectedBalance()
       : this.getActualBalance();
     return balance >= 0 ? 'text-green-600' : 'text-red-600';
-  }
-
-  getProjectionClass(value: number): string {
-    return value >= 0 ? 'text-blue-600' : 'text-orange-600';
   }
 
   getTotalProjectedIncome(): number {
@@ -68,40 +65,7 @@ export class KpiCardsWidgetComponent {
       : this.dashboardData.transactionCount;
   }
 
-  getMonthLabel(): string {
-    return this.isCurrentMonth ? 'do Mês' : 'de ' + this.selectedMonthName;
-  }
-
-  getExpenseBreakdownTooltip(): string {
-    if (!this.expenseBreakdown || this.expenseBreakdown.length === 0) {
-      return '';
-    }
-
-    // Group items by type (excluding 'total')
-    const transactionItems = this.expenseBreakdown.filter((item) => item.type === 'transaction');
-    const creditCardItems = this.expenseBreakdown.filter((item) => item.type === 'credit-card');
-    const financingItems = this.expenseBreakdown.filter((item) => item.type === 'financing');
-
-    const lines: string[] = [];
-
-    // Sum transactions
-    const transactionTotal = transactionItems.reduce((sum, item) => sum + item.amount, 0);
-    if (transactionTotal > 0) {
-      lines.push(`Transações: ${this.formatCurrency(transactionTotal)}`);
-    }
-
-    // Sum credit cards
-    const creditCardTotal = creditCardItems.reduce((sum, item) => sum + item.amount, 0);
-    if (creditCardTotal > 0) {
-      lines.push(`Cartões de Crédito: ${this.formatCurrency(creditCardTotal)}`);
-    }
-
-    // Sum financing
-    const financingTotal = financingItems.reduce((sum, item) => sum + item.amount, 0);
-    if (financingTotal > 0) {
-      lines.push(`Financiamentos: ${this.formatCurrency(financingTotal)}`);
-    }
-
-    return lines.length > 0 ? lines.join('\n') : '';
+  getPeriodLabel(): string {
+    return `${this.selectedMonthName} de ${this.selectedYear}`;
   }
 }

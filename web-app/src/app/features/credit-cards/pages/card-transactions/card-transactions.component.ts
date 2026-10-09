@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CardTransactionService } from '../../services/card-transaction.service';
@@ -16,6 +16,7 @@ import { parseLocalDate } from '../../../../shared/utils/date.utils';
 import { normalizeIcon } from '../../../../shared/utils/icon.utils';
 import { TransactionType } from '../../../../core/types/common.types';
 import { formatCurrency, formatPeriod } from '../../../../shared/utils/format.utils';
+import { focusFirstInvalidControl } from '../../../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-card-transactions',
@@ -23,12 +24,26 @@ import { formatCurrency, formatPeriod } from '../../../../shared/utils/format.ut
   styleUrls: ['./card-transactions.component.scss'],
 })
 export class CardTransactionsComponent implements OnInit {
+  @ViewChild('cardTransactionFormElement')
+  private cardTransactionFormElement?: ElementRef<HTMLFormElement>;
   transactions: CardTransaction[] = [];
   creditCards: CreditCard[] = [];
   categories: Category[] = [];
   invoices: Invoice[] = [];
   allInvoices: Invoice[] = [];
   loading = false;
+  saving = false;
+  loadError: string | null = null;
+  invoiceLoadError: string | null = null;
+  supportDataError: string | null = null;
+  get primaryPageAction() {
+    return {
+      label: 'Nova Transação',
+      icon: 'pi pi-plus',
+      disabled: this.creditCards.length === 0,
+      command: () => this.openNew(),
+    };
+  }
 
   // Pagination
   totalRecords = 0;
@@ -120,6 +135,7 @@ export class CardTransactionsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading credit cards:', error);
+        this.supportDataError = 'Não foi possível carregar os cartões. Tente novamente.';
       },
     });
   }
@@ -131,12 +147,20 @@ export class CardTransactionsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading categories:', error);
+        this.supportDataError = 'Não foi possível carregar as categorias. Tente novamente.';
       },
     });
   }
 
+  retrySupportData(): void {
+    this.supportDataError = null;
+    this.loadCreditCards();
+    this.loadCategories();
+  }
+
   loadTransactions(event?: any): void {
     this.loading = true;
+    this.loadError = null;
 
     // Handle lazy load event
     if (event) {
@@ -172,6 +196,7 @@ export class CardTransactionsComponent implements OnInit {
           this.transactions = response.data;
           this.totalRecords = response.total;
           this.loading = false;
+          this.loadError = null;
           this.loadInvoices();
         },
         error: (error) => {
@@ -182,6 +207,7 @@ export class CardTransactionsComponent implements OnInit {
             detail: 'Erro ao carregar transações',
           });
           this.loading = false;
+          this.loadError = 'Não foi possível carregar as transações. Tente novamente.';
         },
       });
   }
@@ -191,6 +217,7 @@ export class CardTransactionsComponent implements OnInit {
   }
 
   loadInvoices(): void {
+    this.invoiceLoadError = null;
     // Parse year and month from selectedPeriod (e.g., "2024-12")
     const [year, month] = this.selectedPeriod.split('-').map(Number);
 
@@ -200,9 +227,11 @@ export class CardTransactionsComponent implements OnInit {
       .subscribe({
         next: (invoices) => {
           this.invoices = invoices;
+          this.invoiceLoadError = null;
         },
         error: (error) => {
           console.error('Error loading invoices:', error);
+          this.invoiceLoadError = 'Não foi possível atualizar as faturas.';
         },
       });
   }
@@ -363,13 +392,17 @@ export class CardTransactionsComponent implements OnInit {
   }
 
   saveTransaction(): void {
+    if (this.saving) return;
     this.submitted = true;
 
     if (this.transactionForm.invalid) {
+      this.cardTransactionFormElement &&
+        focusFirstInvalidControl(this.cardTransactionFormElement.nativeElement);
       return;
     }
 
     const formValue = this.transactionForm.getRawValue();
+    this.saving = true;
 
     if (this.editMode) {
       const updateData: UpdateCardTransactionDto = {
@@ -392,6 +425,7 @@ export class CardTransactionsComponent implements OnInit {
             detail: 'Transação atualizada com sucesso',
           });
           this.transactionDialog = false;
+          this.saving = false;
           this.loadTransactions();
         },
         error: (error) => {
@@ -401,6 +435,7 @@ export class CardTransactionsComponent implements OnInit {
             summary: 'Erro',
             detail: 'Erro ao atualizar transação',
           });
+          this.saving = false;
         },
       });
     } else {
@@ -425,6 +460,7 @@ export class CardTransactionsComponent implements OnInit {
               : 'Transação criada com sucesso',
           });
           this.transactionDialog = false;
+          this.saving = false;
           this.loadTransactions();
         },
         error: (error) => {
@@ -434,6 +470,7 @@ export class CardTransactionsComponent implements OnInit {
             summary: 'Erro',
             detail: 'Erro ao criar transação',
           });
+          this.saving = false;
         },
       });
     }

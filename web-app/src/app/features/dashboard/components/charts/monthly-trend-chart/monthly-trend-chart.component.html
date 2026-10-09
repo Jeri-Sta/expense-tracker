@@ -1,14 +1,15 @@
 <div class="chart-card surface-card shadow-2 border-round-lg">
   <div class="chart-header p-4 border-bottom-1 surface-border">
-    <h5 class="font-bold text-color m-0">Tendência Mensal</h5>
+    <h2 class="font-bold text-color m-0">Fluxo financeiro</h2>
     <p class="text-color-secondary text-sm m-0">
-      Evolução de receitas, despesas e saldo ao longo do ano
+      Entradas, saídas e saldo por mês no ano selecionado
     </p>
   </div>
   <div class="chart-content p-4">
     <div
+      *ngIf="chartData?.labels?.length; else emptyTrend"
       class="chart-wrapper monthly-trend-chart"
-      style="position: relative; height: 450px; width: 100%"
+      style="position: relative; height: 340px; width: 100%"
     >
       <p-chart
         type="line"
@@ -17,5 +18,11 @@
         [style]="{ height: '100%', width: '100%' }"
       ></p-chart>
     </div>
+    <ng-template #emptyTrend>
+      <div class="chart-empty" role="status">
+        <i class="pi pi-chart-line" aria-hidden="true"></i>
+        <span>Sem movimentações para exibir neste ano.</span>
+      </div>
+    </ng-template>
   </div>
 </div>

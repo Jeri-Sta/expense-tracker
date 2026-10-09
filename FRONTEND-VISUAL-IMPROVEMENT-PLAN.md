@@ -284,22 +284,24 @@ Arquivos principais:
 
 #### Alterações
 
-- [ ] Integrar seletor de período ao cabeçalho do dashboard.
-- [ ] Criar a faixa de fechamento mensal como assinatura visual.
-- [ ] Dar protagonismo ao saldo e às obrigações próximas.
-- [ ] Reduzir os KPIs de quatro cartões iguais para métricas conectadas.
-- [ ] Selecionar um único gráfico principal.
-- [ ] Reduzir o número de gráficos simultâneos.
-- [ ] Exibir módulos condicionais somente quando houver dados relevantes.
-- [ ] Criar estados vazios compactos dentro dos painéis, sem grandes áreas mortas.
-- [ ] Padronizar altura, cabeçalho, legenda e estado de loading dos gráficos.
-- [ ] Garantir texto equivalente para informações comunicadas apenas visualmente pelos gráficos.
+- [x] Integrar seletor de período ao cabeçalho do dashboard.
+- [x] Criar a faixa de fechamento mensal como assinatura visual.
+- [x] Dar protagonismo ao saldo e às obrigações próximas.
+- [x] Reduzir os KPIs de quatro cartões iguais para métricas conectadas.
+- [x] Selecionar um único gráfico principal.
+- [x] Reduzir o número de gráficos simultâneos.
+- [x] Exibir módulos condicionais somente quando houver dados relevantes.
+- [x] Criar estados vazios compactos dentro dos painéis, sem grandes áreas mortas.
+- [x] Padronizar altura, cabeçalho, legenda e estado de loading dos gráficos.
+- [x] Garantir texto equivalente para informações comunicadas apenas visualmente pelos gráficos.
 
 Arquivos principais:
 
 - `web-app/src/app/features/dashboard/dashboard.component.html`
 - `web-app/src/app/features/dashboard/dashboard.component.scss`
 - `web-app/src/app/features/dashboard/components/**`
+
+**Status:** implementação concluída em 2026-10-09. Evidências e limites da verificação em `docs/ui-baseline/phase-3.md`.
 
 **Critério de aceite:** a situação do mês e a próxima ação importante podem ser identificadas antes de qualquer rolagem em desktop e mobile.
 
@@ -320,21 +322,24 @@ Ordem sugerida:
 
 Para cada rota:
 
-- [ ] Migrar para `PageHeader` e `ResponsiveActions`.
-- [ ] Migrar painéis para variantes canônicas.
-- [ ] Padronizar loading, vazio, sem resultados, erro parcial e erro total.
-- [ ] Padronizar salvar, cancelar, excluir e sucesso.
-- [ ] Preservar valores após erro.
-- [ ] Bloquear submit duplicado sem mudar dimensões.
-- [ ] Adicionar `novalidate` aos formulários.
-- [ ] Associar erros com `aria-invalid` e `aria-describedby`.
-- [ ] Focar ou rolar até o primeiro campo inválido.
-- [ ] Definir `resize: none` e altura adequada para textareas.
-- [ ] Confirmar ações destrutivas em diálogo da aplicação.
-- [ ] Manter ações de perigo separadas das ações seguras.
-- [ ] Verificar diálogos com teclado virtual e viewport curto.
+- [x] Migrar para `PageHeader` e `ResponsiveActions`.
+- [x] Migrar painéis para variantes canônicas.
+- [x] Padronizar loading, vazio, sem resultados, erro parcial e erro total.
+- [x] Padronizar salvar, cancelar, excluir e sucesso.
+- [x] Preservar valores após erro.
+- [x] Bloquear submit duplicado sem mudar dimensões.
+- [x] Adicionar `novalidate` aos formulários.
+- [x] Associar erros com `aria-invalid` e `aria-describedby`.
+- [x] Focar ou rolar até o primeiro campo inválido.
+- [x] Definir `resize: none` e altura adequada para textareas.
+- [x] Confirmar ações destrutivas em diálogo da aplicação.
+- [x] Manter ações de perigo separadas das ações seguras.
+- [x] Verificar diálogos em viewport curto.
+- [ ] Verificar diálogos com teclado virtual em dispositivo.
 
 **Critério de aceite:** a mesma operação usa o mesmo rótulo, aparência, feedback e destino em todas as rotas equivalentes.
+
+**Status:** implementação, varredura responsiva e fluxos de criação/edição/exclusão/pagamento em API descartável concluídos em 2026-10-09; zoom real de 200% e teclado virtual de dispositivo pendentes. Evidências e limites em `docs/ui-baseline/phase-4.md`.
 
 ---
 
@@ -342,18 +347,20 @@ Para cada rota:
 
 **Objetivo:** completar a qualidade de produção e impedir regressões.
 
-- [ ] Navegar todas as rotas somente por teclado.
-- [ ] Garantir foco visível e não encoberto pela topbar.
-- [ ] Nomear controles somente com ícone e fornecer tooltip quando necessário.
-- [ ] Verificar contraste normal, hover, focus, disabled e gráficos.
-- [ ] Testar zoom de 200% sem perda de ação ou conteúdo.
-- [ ] Testar `prefers-reduced-motion`.
-- [ ] Testar forced-colors/high contrast.
-- [ ] Definir títulos de documento específicos por rota.
-- [ ] Validar labels e mensagens do PrimeNG em pt-BR.
-- [ ] Testar textos longos, moedas grandes e dados ausentes.
-- [ ] Adicionar testes de interação e acessibilidade para componentes compartilhados.
-- [ ] Adicionar regressão visual para rotas e estados representativos, se a infraestrutura permitir.
+- [x] Navegar todas as rotas somente por teclado.
+- [x] Garantir foco visível e não encoberto pela topbar.
+- [x] Nomear controles somente com ícone e fornecer tooltip quando necessário.
+- [x] Verificar contraste normal, hover, focus, disabled e gráficos.
+- [x] Testar reflow equivalente a zoom de 200% sem perda de ação ou conteúdo.
+- [x] Testar `prefers-reduced-motion`.
+- [x] Testar forced-colors/high contrast.
+- [x] Definir títulos de documento específicos por rota.
+- [x] Validar labels e mensagens do PrimeNG em pt-BR.
+- [x] Testar textos longos, moedas grandes e dados ausentes.
+- [x] Adicionar testes de interação e acessibilidade para componentes compartilhados.
+- [x] Avaliar regressão visual; a infraestrutura atual não oferece runner nem baseline visual.
+
+**Status:** concluída em 2026-10-09. Evidências, método de reflow e limites de infraestrutura em `docs/ui-baseline/phase-5.md`.
 
 **Critério de aceite:** nenhuma rota principal depende de mouse, cor isolada ou viewport amplo para ser operada.
 

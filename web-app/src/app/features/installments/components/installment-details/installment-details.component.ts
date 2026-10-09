@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { InstallmentService } from '../../services';
@@ -6,6 +7,7 @@ import { InstallmentPlan, Installment, InstallmentStatus, PayInstallment } from 
 import { formatCurrency } from '../../../../shared/utils/format.utils';
 import { getDaysUntilDate } from '../../../../shared/utils/date.utils';
 import { getProgressBarClass } from '../../../../shared/utils/ui.utils';
+import { ResponsiveAction } from '../../../../shared/components/responsive-actions/responsive-actions.component';
 
 @Component({
   selector: 'app-installment-details',
@@ -15,13 +17,17 @@ import { getProgressBarClass } from '../../../../shared/utils/ui.utils';
 export class InstallmentDetailsComponent implements OnInit {
   installmentPlan?: InstallmentPlan;
   loading = false;
+  loadError: string | null = null;
+  private planId = '';
   paymentDialogVisible = false;
+  paymentSaving = false;
   selectedInstallment?: Installment;
   paymentForm: PayInstallment = {
     paidAmount: 0,
     paidDate: new Date(),
     notes: '',
   };
+  @ViewChild('paymentNgForm') private paymentNgForm?: NgForm;
 
   // Enum for template
   InstallmentStatus = InstallmentStatus;
@@ -29,6 +35,22 @@ export class InstallmentDetailsComponent implements OnInit {
   formatCurrency = formatCurrency;
   getProgressBarClass = getProgressBarClass;
   readonly Math = Math;
+
+  get primaryPageAction(): ResponsiveAction {
+    return { label: 'Editar', icon: 'pi pi-pencil', command: () => this.onEdit() };
+  }
+
+  get secondaryPageActions(): ResponsiveAction[] {
+    return [
+      {
+        label: 'Voltar',
+        icon: 'pi pi-arrow-left',
+        intent: 'secondary',
+        command: () => this.onBack(),
+      },
+      { label: 'Excluir', icon: 'pi pi-trash', intent: 'danger', command: () => this.onDelete() },
+    ];
+  }
 
   formatDate(date: Date | string): string {
     return new Date(date).toLocaleDateString('pt-BR');
@@ -44,26 +66,28 @@ export class InstallmentDetailsComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.params['id'];
     if (id) {
+      this.planId = id;
       this.loadInstallmentPlan(id);
     }
   }
 
-  private loadInstallmentPlan(id: string): void {
+  loadInstallmentPlan(id: string): void {
     this.loading = true;
+    this.loadError = null;
     this.installmentService.getById(id).subscribe({
       next: (plan) => {
         this.installmentPlan = plan;
         this.loading = false;
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao carregar financiamento',
-        });
-        this.router.navigate(['/installments']);
+        this.loading = false;
+        this.loadError = 'Não foi possível carregar este financiamento. Tente novamente.';
       },
     });
+  }
+
+  retryLoad(): void {
+    if (this.planId) this.loadInstallmentPlan(this.planId);
   }
 
   onPayInstallment(installment: Installment): void {
@@ -86,8 +110,18 @@ export class InstallmentDetailsComponent implements OnInit {
   }
 
   onConfirmPayment(): void {
-    if (!this.selectedInstallment) return;
+    if (!this.selectedInstallment || this.paymentSaving || !this.paymentNgForm) return;
+    this.paymentNgForm.form.markAllAsTouched();
+    if (this.paymentNgForm.invalid) {
+      const invalidControl = document.querySelector<HTMLElement>(
+        '.payment-form .ng-invalid input, .payment-form .ng-invalid[tabindex]',
+      );
+      invalidControl?.focus();
+      invalidControl?.scrollIntoView({ block: 'center', behavior: 'auto' });
+      return;
+    }
 
+    this.paymentSaving = true;
     this.installmentService
       .payInstallment(this.selectedInstallment.id, this.paymentForm)
       .subscribe({
@@ -98,9 +132,11 @@ export class InstallmentDetailsComponent implements OnInit {
             detail: 'Parcela paga com sucesso',
           });
           this.paymentDialogVisible = false;
+          this.paymentSaving = false;
           this.loadInstallmentPlan(this.installmentPlan!.id);
         },
         error: (error) => {
+          this.paymentSaving = false;
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',

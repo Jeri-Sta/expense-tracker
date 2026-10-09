@@ -8,5 +8,4 @@ import { Component, Input } from '@angular/core';
 export class MonthlyTrendChartComponent {
   @Input() chartData: any;
   @Input() chartOptions: any;
-  @Input() isLoading = false;
 }

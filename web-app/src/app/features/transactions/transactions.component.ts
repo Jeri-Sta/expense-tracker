@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { timeout, TimeoutError } from 'rxjs';
@@ -22,6 +22,7 @@ import {
 import { formatCurrency } from '../../shared/utils/format.utils';
 import { getTransactionTypeLabel, getTransactionTypeClass } from '../../shared/utils/ui.utils';
 import { ResponsiveAction } from '../../shared/components/responsive-actions/responsive-actions.component';
+import { focusFirstInvalidControl } from '../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-transactions',
@@ -29,9 +30,11 @@ import { ResponsiveAction } from '../../shared/components/responsive-actions/res
   styleUrls: ['./transactions.component.scss'],
 })
 export class TransactionsComponent implements OnInit {
+  @ViewChild('transactionFormElement') private transactionFormElement?: ElementRef<HTMLFormElement>;
   transactions: Transaction[] = [];
   categories: Category[] = [];
   loading = false;
+  saving = false;
   pageLoading = false;
   loadError: string | null = null;
   supportDataError: string | null = null;
@@ -109,28 +112,26 @@ export class TransactionsComponent implements OnInit {
     };
   }
 
-  get secondaryPageActions(): ResponsiveAction[] {
-    return [
-      {
-        label: this.showProjectionFilters ? 'Ocultar filtros de projeção' : 'Filtros de projeção',
-        icon: 'pi pi-filter',
-        command: () => this.toggleProjectionFilters(),
-        intent: 'secondary',
-      },
-      {
-        label: this.showProjectionManager ? 'Ocultar projeções' : 'Gerenciar projeções',
-        icon: 'pi pi-cog',
-        command: () => this.toggleProjectionManager(),
-        intent: 'secondary',
-      },
-      {
-        label: 'Nova Projeção',
-        icon: 'pi pi-clock',
-        command: () => this.openProjectionDialog(),
-        intent: 'secondary',
-      },
-    ];
-  }
+  readonly secondaryPageActions: ResponsiveAction[] = [
+    {
+      label: 'Filtros de projeção',
+      icon: 'pi pi-filter',
+      command: () => this.toggleProjectionFilters(),
+      intent: 'secondary',
+    },
+    {
+      label: 'Gerenciar projeções',
+      icon: 'pi pi-cog',
+      command: () => this.toggleProjectionManager(),
+      intent: 'secondary',
+    },
+    {
+      label: 'Nova Projeção',
+      icon: 'pi pi-clock',
+      command: () => this.openProjectionDialog(),
+      intent: 'secondary',
+    },
+  ];
 
   ngOnInit(): void {
     this.initializeForms();
@@ -394,6 +395,9 @@ export class TransactionsComponent implements OnInit {
 
   toggleProjectionFilters(): void {
     this.showProjectionFilters = !this.showProjectionFilters;
+    this.secondaryPageActions[0].label = this.showProjectionFilters
+      ? 'Ocultar filtros de projeção'
+      : 'Filtros de projeção';
   }
 
   onProjectionFilterChange(): void {
@@ -464,6 +468,9 @@ export class TransactionsComponent implements OnInit {
   // Projection Management Methods
   toggleProjectionManager(): void {
     this.showProjectionManager = !this.showProjectionManager;
+    this.secondaryPageActions[1].label = this.showProjectionManager
+      ? 'Ocultar projeções'
+      : 'Gerenciar projeções';
   }
 
   generateProjectionsFromRecurring(): void {
@@ -710,9 +717,11 @@ export class TransactionsComponent implements OnInit {
   }
 
   saveTransaction(): void {
+    if (this.saving) return;
     this.submitted = true;
 
     if (this.transactionForm.valid) {
+      this.saving = true;
       const formValue = this.transactionForm.value;
 
       // Format competencyPeriod from Date to YYYY-MM string using local timezone
@@ -752,6 +761,7 @@ export class TransactionsComponent implements OnInit {
                 detail: 'Transação atualizada com sucesso',
               });
               this.hideDialog();
+              this.saving = false;
               this.loadTransactions();
             },
             error: (error) => {
@@ -761,6 +771,7 @@ export class TransactionsComponent implements OnInit {
                 summary: 'Erro',
                 detail: 'Erro ao atualizar transação',
               });
+              this.saving = false;
             },
           });
       } else {
@@ -784,6 +795,7 @@ export class TransactionsComponent implements OnInit {
               detail: 'Transação criada com sucesso',
             });
             this.hideDialog();
+            this.saving = false;
             this.loadTransactions();
           },
           error: (error) => {
@@ -793,9 +805,12 @@ export class TransactionsComponent implements OnInit {
               summary: 'Erro',
               detail: 'Erro ao criar transação',
             });
+            this.saving = false;
           },
         });
       }
+    } else if (this.transactionFormElement) {
+      focusFirstInvalidControl(this.transactionFormElement.nativeElement);
     }
   }
 

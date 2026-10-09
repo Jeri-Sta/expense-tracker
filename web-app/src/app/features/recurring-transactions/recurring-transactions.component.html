@@ -1,12 +1,10 @@
-<div class="card">
-  <!-- Page Header -->
-  <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
-    <div class="mb-2 md:mb-0">
-      <h2 class="text-2xl font-bold text-color m-0">Transações Recorrentes</h2>
-      <p class="text-color-secondary m-0">Gerencie transações automáticas e recorrentes</p>
-    </div>
+<div class="content-panel content-panel--outlined p-4">
+  <app-page-header
+    title="Transações Recorrentes"
+    subtitle="Gerencie transações automáticas e recorrentes"
+  >
     <app-responsive-actions [primaryAction]="primaryPageAction"></app-responsive-actions>
-  </div>
+  </app-page-header>
 
   <app-inline-alert
     *ngIf="supportDataError"
@@ -26,7 +24,7 @@
     <!-- Recurring Transactions Cards -->
     <div class="grid" *ngIf="recurringTransactions.length > 0">
       <div class="col-12 lg:col-6 xl:col-4" *ngFor="let transaction of recurringTransactions">
-        <div class="recurring-card surface-card border-round-lg shadow-2 p-4 h-full">
+        <div class="recurring-card content-panel content-panel--outlined p-4 h-full">
           <div class="flex flex-column h-full">
             <!-- Card Header -->
             <div class="flex align-items-start justify-content-between mb-3">
@@ -176,6 +174,7 @@
                   size="small"
                   [text]="true"
                   (onClick)="editTransaction(transaction)"
+                  ariaLabel="Editar recorrência"
                   pTooltip="Editar"
                 ></p-button>
                 <p-button
@@ -185,6 +184,7 @@
                   [text]="true"
                   (onClick)="toggleActive(transaction)"
                   [title]="transaction.isActive ? 'Pausar' : 'Ativar'"
+                  [ariaLabel]="transaction.isActive ? 'Pausar recorrência' : 'Ativar recorrência'"
                   [disabled]="transaction.isCompleted"
                 ></p-button>
                 <p-button
@@ -194,6 +194,7 @@
                   [text]="true"
                   (onClick)="executeTransaction(transaction)"
                   pTooltip="Executar Agora"
+                  ariaLabel="Executar recorrência agora"
                   [disabled]="!transaction.isActive || transaction.isCompleted"
                 ></p-button>
                 <p-button
@@ -203,6 +204,7 @@
                   [text]="true"
                   (onClick)="skipTransaction(transaction)"
                   pTooltip="Pular Próxima Execução"
+                  ariaLabel="Pular próxima execução da recorrência"
                   [disabled]="!transaction.isActive || transaction.isCompleted"
                 ></p-button>
                 <p-button
@@ -212,6 +214,7 @@
                   [text]="true"
                   (onClick)="deleteTransaction(transaction)"
                   pTooltip="Excluir"
+                  ariaLabel="Excluir recorrência"
                 ></p-button>
               </div>
 
@@ -262,7 +265,7 @@
   [maximizable]="false"
   [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
 >
-  <form [formGroup]="transactionForm" class="grid" novalidate>
+  <form #recurringFormElement [formGroup]="transactionForm" class="grid" novalidate>
     <!-- Basic Information -->
     <div class="col-12">
       <h5 class="text-primary mb-3">Informações Básicas</h5>

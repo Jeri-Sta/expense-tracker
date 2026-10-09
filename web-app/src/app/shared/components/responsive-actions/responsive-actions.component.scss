@@ -1,4 +1,4 @@
-@import 'variables';
+@import 'src/styles/variables';
 
 .responsive-actions,
 .desktop-secondary-actions {
@@ -22,7 +22,7 @@
   display: none;
 }
 
-@media (max-width: 639px) {
+@media (max-width: 1023px) {
   .responsive-actions {
     width: 100%;
     display: grid;

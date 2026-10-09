@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CreditCardService } from '../../services/credit-card.service';
@@ -8,6 +8,7 @@ import {
   UpdateCreditCardDto,
 } from '../../models/credit-card.model';
 import { formatCurrency } from '../../../../shared/utils/format.utils';
+import { focusFirstInvalidControl } from '../../../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-credit-card-list',
@@ -15,13 +16,21 @@ import { formatCurrency } from '../../../../shared/utils/format.utils';
   styleUrls: ['./credit-card-list.component.scss'],
 })
 export class CreditCardListComponent implements OnInit {
+  @ViewChild('cardFormElement') private cardFormElement?: ElementRef<HTMLFormElement>;
   creditCards: CreditCard[] = [];
   loading = false;
+  saving = false;
 
   // Dialog states
   cardDialog = false;
   editMode = false;
   submitted = false;
+  loadError: string | null = null;
+  readonly primaryPageAction = {
+    label: 'Novo Cartão',
+    icon: 'pi pi-plus',
+    command: () => this.openNew(),
+  };
 
   // Forms
   cardForm!: FormGroup;
@@ -67,6 +76,7 @@ export class CreditCardListComponent implements OnInit {
 
   loadCreditCards(): void {
     this.loading = true;
+    this.loadError = null;
     this.creditCardService.getAll().subscribe({
       next: (cards) => {
         this.creditCards = cards;
@@ -80,6 +90,7 @@ export class CreditCardListComponent implements OnInit {
           detail: 'Erro ao carregar cartões de crédito',
         });
         this.loading = false;
+        this.loadError = 'Não foi possível carregar os cartões. Tente novamente.';
       },
     });
   }
@@ -146,11 +157,14 @@ export class CreditCardListComponent implements OnInit {
   }
 
   saveCard(): void {
+    if (this.saving) return;
     this.submitted = true;
 
     if (this.cardForm.invalid) {
+      this.cardFormElement && focusFirstInvalidControl(this.cardFormElement.nativeElement);
       return;
     }
+    this.saving = true;
 
     const formValue = this.cardForm.value;
 
@@ -171,6 +185,7 @@ export class CreditCardListComponent implements OnInit {
             detail: 'Cartão atualizado com sucesso',
           });
           this.cardDialog = false;
+          this.saving = false;
           this.loadCreditCards();
         },
         error: (error) => {
@@ -180,6 +195,7 @@ export class CreditCardListComponent implements OnInit {
             summary: 'Erro',
             detail: 'Erro ao atualizar cartão',
           });
+          this.saving = false;
         },
       });
     } else {
@@ -199,6 +215,7 @@ export class CreditCardListComponent implements OnInit {
             detail: 'Cartão criado com sucesso',
           });
           this.cardDialog = false;
+          this.saving = false;
           this.loadCreditCards();
         },
         error: (error) => {
@@ -208,6 +225,7 @@ export class CreditCardListComponent implements OnInit {
             summary: 'Erro',
             detail: 'Erro ao criar cartão',
           });
+          this.saving = false;
         },
       });
     }

@@ -2,7 +2,6 @@
 @import 'mixins';
 
 .credit-card-item {
-  @include card-base;
   height: 100%;
 }
 

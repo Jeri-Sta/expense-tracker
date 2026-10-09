@@ -268,7 +268,7 @@
   font-weight: bold;
 }
 
-@include respond-to(md) {
+@include respond-to($breakpoint-md) {
   .installment-form-container {
     padding: $spacing-md;
   }

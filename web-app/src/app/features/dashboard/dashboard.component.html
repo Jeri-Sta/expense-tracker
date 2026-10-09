@@ -1,84 +1,88 @@
-<div class="dashboard">
-  <!-- Page Header -->
-  <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
-    <div class="mb-2 md:mb-0">
-      <h2 class="text-2xl font-bold text-color m-0">Dashboard Financeiro</h2>
-      <p class="text-color-secondary m-0">
+<main class="dashboard">
+  <header class="dashboard-header">
+    <div class="dashboard-heading">
+      <span class="dashboard-eyebrow">Visão mensal</span>
+      <h1>Dashboard financeiro</h1>
+      <p>
         {{
           isCurrentMonth
-            ? 'Visão geral das suas finanças'
-            : getSelectedMonthName() + ' de ' + selectedYear
+            ? 'Acompanhe o fechamento do mês e o que exige atenção agora.'
+            : 'Revise o fechamento de ' + getSelectedMonthName() + ' de ' + selectedYear + '.'
         }}
       </p>
     </div>
 
-    <!-- Navigation and Controls -->
-    <div class="dashboard-controls flex flex-column sm:flex-row gap-3 align-items-center">
-      <!-- Month Navigation -->
-      <div class="month-navigation flex align-items-center gap-2">
-        <p-button
-          icon="pi pi-chevron-left"
-          [rounded]="true"
-          [text]="true"
-          size="small"
-          (onClick)="navigateToPreviousMonth()"
-          pTooltip="Mês anterior"
-        ></p-button>
+    <div class="dashboard-controls" role="group" aria-label="Controles do período do dashboard">
+      <div class="period-control">
+        <span class="control-label">Período</span>
+        <div class="month-navigation">
+          <p-button
+            icon="pi pi-chevron-left"
+            [rounded]="true"
+            [text]="true"
+            size="small"
+            ariaLabel="Mês anterior"
+            (onClick)="navigateToPreviousMonth()"
+            pTooltip="Mês anterior"
+          ></p-button>
 
-        <div class="period-selectors flex gap-2">
-          <p-dropdown
-            [(ngModel)]="selectedYear"
-            [options]="getYearOptions()"
-            placeholder="Ano"
-            (onChange)="onYearChange()"
-            styleClass="w-full"
-            [style]="{ 'min-width': '100px' }"
-          ></p-dropdown>
+          <div class="period-selectors">
+            <p-dropdown
+              [(ngModel)]="selectedMonth"
+              [options]="getMonthOptions()"
+              placeholder="Mês"
+              ariaLabel="Selecionar mês"
+              (onChange)="onMonthChange()"
+              styleClass="month-selector"
+            ></p-dropdown>
 
-          <p-dropdown
-            [(ngModel)]="selectedMonth"
-            [options]="getMonthOptions()"
-            placeholder="Mês"
-            (onChange)="onMonthChange()"
-            styleClass="w-full"
-            [style]="{ 'min-width': '120px' }"
-          ></p-dropdown>
+            <p-dropdown
+              [(ngModel)]="selectedYear"
+              [options]="getYearOptions()"
+              placeholder="Ano"
+              ariaLabel="Selecionar ano"
+              (onChange)="onYearChange()"
+              styleClass="year-selector"
+            ></p-dropdown>
+          </div>
+
+          <p-button
+            icon="pi pi-chevron-right"
+            [rounded]="true"
+            [text]="true"
+            size="small"
+            ariaLabel="Próximo mês"
+            (onClick)="navigateToNextMonth()"
+            pTooltip="Próximo mês"
+          ></p-button>
+
+          <p-button
+            icon="pi pi-calendar"
+            [rounded]="true"
+            [text]="true"
+            size="small"
+            ariaLabel="Voltar ao mês atual"
+            (onClick)="navigateToCurrentMonth()"
+            pTooltip="Voltar ao mês atual"
+            [disabled]="isCurrentMonth"
+          ></p-button>
         </div>
-
-        <p-button
-          icon="pi pi-chevron-right"
-          [rounded]="true"
-          [text]="true"
-          size="small"
-          (onClick)="navigateToNextMonth()"
-          pTooltip="Próximo mês"
-        ></p-button>
-
-        <p-button
-          icon="pi pi-home"
-          [rounded]="true"
-          [text]="true"
-          size="small"
-          (onClick)="navigateToCurrentMonth()"
-          pTooltip="Voltar ao mês atual"
-          [disabled]="isCurrentMonth"
-        ></p-button>
       </div>
 
-      <!-- Projection Toggle -->
-      <div class="flex align-items-center gap-2">
-        <label for="projectionToggle" class="text-sm font-semibold">Incluir Projeções:</label>
+      <div class="projection-control">
+        <label for="projectionToggle">Projeções</label>
         <p-toggleButton
           id="projectionToggle"
           [(ngModel)]="includeProjections"
-          onLabel="Sim"
-          offLabel="Não"
+          onLabel="Incluídas"
+          offLabel="Ignoradas"
+          onIcon="pi pi-eye"
+          offIcon="pi pi-eye-slash"
           (onChange)="onProjectionToggle()"
-          [style]="{ 'min-width': '80px' }"
         ></p-toggleButton>
       </div>
     </div>
-  </div>
+  </header>
 
   <app-inline-alert
     *ngIf="loadError"
@@ -92,198 +96,234 @@
     label="Atualizando visão financeira"
     minimumHeight="22rem"
   >
-    <!-- KPI Cards (visible on all tabs) -->
-    <div class="mb-4">
-      <app-kpi-cards-widget
-        [dashboardData]="currentStats"
-        [showProjections]="includeProjections"
-        [isLoading]="loading"
-        [isCurrentMonth]="isCurrentMonth"
-        [selectedMonthName]="getSelectedMonthName()"
-        [expenseBreakdown]="expenseBreakdown"
-      ></app-kpi-cards-widget>
-    </div>
+    <app-kpi-cards-widget
+      [dashboardData]="currentStats"
+      [showProjections]="includeProjections"
+      [selectedMonthName]="getSelectedMonthName()"
+      [selectedYear]="selectedYear"
+      [expenseBreakdown]="expenseBreakdown"
+      [upcomingObligationsTotal]="getUpcomingObligationsTotal()"
+      [upcomingObligationsCount]="getUpcomingObligationsCount()"
+    ></app-kpi-cards-widget>
 
-    <!-- Tab Navigation -->
     <p-tabView
       [(activeIndex)]="activeTabIndex"
       (onChange)="onTabChange($event)"
       styleClass="dashboard-tabs"
     >
-      <!-- Tab: Visão Geral -->
-      <p-tabPanel header="Visão Geral" leftIcon="pi pi-chart-line">
-        <!-- Main Charts Row -->
-        <div class="grid mb-4">
-          <!-- Monthly Trend Chart -->
-          <div class="col-12 xl:col-8">
+      <p-tabPanel header="Visão geral" leftIcon="pi pi-chart-line">
+        <div class="overview-grid">
+          <section
+            class="primary-chart"
+            aria-label="Fluxo financeiro do ano"
+            aria-describedby="monthly-trend-summary"
+          >
             <app-monthly-trend-chart
               [chartData]="monthlyTrendData"
               [chartOptions]="monthlyTrendOptions"
-              [isLoading]="loading"
             ></app-monthly-trend-chart>
-          </div>
+            <p id="monthly-trend-summary" class="p-sr-only">{{ monthlyTrendSummary }}</p>
+          </section>
 
-          <!-- Income vs Expense Pie -->
-          <div class="col-12 xl:col-4">
-            <app-income-expense-chart
-              [chartData]="incomeVsExpenseData"
-              [chartOptions]="incomeVsExpenseOptions"
-              [isLoading]="loading"
-              [monthlyIncome]="currentStats.totalIncome"
-              [monthlyExpenses]="getActualTotalExpenses()"
-              [projectedMonthlyIncome]="currentStats.projectedIncome"
-              [projectedMonthlyExpenses]="currentStats.projectedExpenses"
-              [showProjections]="includeProjections"
-              [selectedMonthName]="getSelectedMonthName()"
-              [selectedYear]="selectedYear"
-            ></app-income-expense-chart>
-          </div>
+          <section class="commitments-panel content-panel content-panel--outlined">
+            <div class="panel-heading">
+              <div>
+                <span class="panel-eyebrow">Próxima ação</span>
+                <h2>Compromissos a vencer</h2>
+                <p>
+                  {{ getUpcomingObligationsCount() }}
+                  {{
+                    getUpcomingObligationsCount() === 1
+                      ? 'compromisso nos próximos 30 dias'
+                      : 'compromissos nos próximos 30 dias'
+                  }}
+                  · até 3 por tipo.
+                </p>
+              </div>
+              <strong class="commitment-total data-value">
+                {{ formatCurrency(getUpcomingObligationsTotal()) }}
+              </strong>
+            </div>
+
+            <div class="commitment-groups" *ngIf="hasUpcomingCommitments; else noCommitments">
+              <div class="commitment-group" *ngIf="upcomingRecurringExpenses.length > 0">
+                <div class="group-heading">
+                  <h3>Recorrências</h3>
+                  <a routerLink="/recurring-transactions">Ver todas</a>
+                </div>
+                <a
+                  class="commitment-row"
+                  routerLink="/recurring-transactions"
+                  *ngFor="let recurring of upcomingRecurringExpenses | slice: 0 : 3"
+                >
+                  <span class="commitment-icon" aria-hidden="true">
+                    <i [class]="normalizeIcon(recurring.category.icon)"></i>
+                  </span>
+                  <span class="commitment-copy">
+                    <strong>{{ recurring.description }}</strong>
+                    <small>{{ formatDate(recurring.nextExecution) }}</small>
+                  </span>
+                  <strong class="data-value">{{ formatCurrency(recurring.amount) }}</strong>
+                </a>
+              </div>
+
+              <div class="commitment-group" *ngIf="upcomingPayments.length > 0">
+                <div class="group-heading">
+                  <h3>Parcelas</h3>
+                  <a routerLink="/installments">Ver todas</a>
+                </div>
+                <a
+                  class="commitment-row"
+                  routerLink="/installments"
+                  *ngFor="let payment of upcomingPayments | slice: 0 : 3"
+                >
+                  <span class="commitment-icon" aria-hidden="true">
+                    <i class="pi pi-calendar"></i>
+                  </span>
+                  <span class="commitment-copy">
+                    <strong>{{ payment.planName }}</strong>
+                    <small>
+                      Parcela {{ payment.installmentNumber }} · {{ formatDate(payment.dueDate) }}
+                    </small>
+                  </span>
+                  <strong class="data-value">{{ formatCurrency(payment.amount) }}</strong>
+                </a>
+              </div>
+            </div>
+
+            <ng-template #noCommitments>
+              <div class="compact-empty" role="status" *ngIf="upcomingRecurringLoading">
+                <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+                <div>
+                  <strong>Buscando compromissos</strong>
+                  <span>Carregando recorrências dos próximos 30 dias.</span>
+                </div>
+              </div>
+              <div class="compact-empty" role="status" *ngIf="upcomingRecurringFailed">
+                <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+                <div>
+                  <strong>Não foi possível carregar recorrências</strong>
+                  <p-button
+                    label="Tentar novamente"
+                    [text]="true"
+                    size="small"
+                    (onClick)="loadUpcomingRecurring()"
+                  ></p-button>
+                </div>
+              </div>
+              <div
+                class="compact-empty"
+                role="status"
+                *ngIf="!upcomingRecurringLoading && !upcomingRecurringFailed"
+              >
+                <i class="pi pi-check-circle" aria-hidden="true"></i>
+                <div>
+                  <strong>Nada urgente por aqui</strong>
+                  <span>Não há recorrências ou parcelas nos próximos 30 dias.</span>
+                </div>
+              </div>
+            </ng-template>
+          </section>
         </div>
 
-        <!-- Secondary Charts Row -->
-        <div class="grid mb-4">
-          <!-- Category Distribution -->
-          <div class="col-12 lg:col-6">
-            <app-category-distribution-chart
-              [chartData]="categoryPieData"
-              [chartOptions]="categoryPieOptions"
-              [isLoading]="loading"
-            ></app-category-distribution-chart>
-          </div>
+        <div
+          class="supporting-grid"
+          *ngIf="
+            topCategories.length > 0 || expenseBreakdown.length > 0 || recentTransactions.length > 0
+          "
+        >
+          <app-category-stats-widget
+            *ngIf="topCategories.length > 0"
+            [categoryStats]="topCategories"
+            [isLoading]="loading"
+          ></app-category-stats-widget>
 
-          <!-- Top Expense Categories -->
-          <div class="col-12 lg:col-6">
-            <app-top-categories-chart
-              [chartData]="expenseCategoryData"
-              [chartOptions]="expenseCategoryOptions"
-              [isLoading]="loading"
-            ></app-top-categories-chart>
-          </div>
-        </div>
+          <app-recent-transactions-widget
+            *ngIf="recentTransactions.length > 0"
+            [transactions]="recentTransactions"
+            [isLoading]="loading"
+            [selectedMonthName]="getSelectedMonthName()"
+            [selectedYear]="selectedYear"
+          ></app-recent-transactions-widget>
 
-        <!-- Monthly Expense Breakdown Widget -->
-        <div class="grid mb-4" *ngIf="expenseBreakdown.length > 0">
-          <div class="col-12 lg:col-6">
-            <app-monthly-expense-breakdown-widget
-              [breakdownItems]="expenseBreakdown"
-              [isLoading]="loading"
-              [selectedMonthName]="getSelectedMonthName()"
-              [selectedYear]="selectedYear"
-            ></app-monthly-expense-breakdown-widget>
-          </div>
-          <div class="col-12 lg:col-6">
-            <app-recent-transactions-widget
-              [transactions]="recentTransactions"
-              [isLoading]="loading"
-              [selectedMonthName]="getSelectedMonthName()"
-              [selectedYear]="selectedYear"
-            ></app-recent-transactions-widget>
-          </div>
-        </div>
-
-        <!-- Category Stats -->
-        <div class="grid">
-          <div class="col-12">
-            <app-category-stats-widget
-              [categoryStats]="topCategories"
-              [isLoading]="loading"
-            ></app-category-stats-widget>
-          </div>
+          <app-monthly-expense-breakdown-widget
+            *ngIf="expenseBreakdown.length > 0"
+            [breakdownItems]="expenseBreakdown"
+            [isLoading]="loading"
+            [selectedMonthName]="getSelectedMonthName()"
+            [selectedYear]="selectedYear"
+          ></app-monthly-expense-breakdown-widget>
         </div>
       </p-tabPanel>
 
-      <!-- Tab: Cartões de Crédito -->
-      <p-tabPanel header="Cartões de Crédito" leftIcon="pi pi-credit-card" *ngIf="hasCardData">
-        <!-- Credit Cards Section -->
-        <div class="grid">
-          <!-- Card Limits Widget -->
-          <div class="col-12 lg:col-6" *ngIf="creditCards.length > 0">
-            <app-card-limits-widget [creditCards]="creditCards"></app-card-limits-widget>
-          </div>
+      <p-tabPanel header="Cartões de crédito" leftIcon="pi pi-credit-card" *ngIf="hasCardData">
+        <div class="module-grid">
+          <app-card-limits-widget
+            *ngIf="creditCards.length > 0"
+            [creditCards]="creditCards"
+          ></app-card-limits-widget>
 
-          <!-- Invoices Widget -->
-          <div class="col-12 lg:col-6" *ngIf="invoices.length > 0">
-            <app-invoices-widget
-              [invoices]="invoices"
-              [isLoading]="loading"
-              [selectedMonthName]="getSelectedMonthName()"
-              [selectedYear]="selectedYear"
-            ></app-invoices-widget>
-          </div>
+          <app-invoices-widget
+            *ngIf="invoices.length > 0"
+            [invoices]="invoices"
+            [isLoading]="loading"
+            [selectedMonthName]="getSelectedMonthName()"
+            [selectedYear]="selectedYear"
+          ></app-invoices-widget>
 
-          <!-- Card Transactions Widget -->
-          <div
-            class="col-12 lg:col-6"
+          <app-card-transactions-widget
             *ngIf="cardTransactions.length > 0 || creditCards.length > 0"
-          >
-            <app-card-transactions-widget
-              [transactions]="cardTransactions"
-              [currentPeriod]="currentCardPeriod"
-            ></app-card-transactions-widget>
-          </div>
+            [transactions]="cardTransactions"
+            [currentPeriod]="currentCardPeriod"
+          ></app-card-transactions-widget>
 
-          <!-- Installments Widget -->
-          <div class="col-12 lg:col-6" *ngIf="cardInstallments.length > 0">
-            <app-installments-widget [installments]="cardInstallments"></app-installments-widget>
-          </div>
+          <app-installments-widget
+            *ngIf="cardInstallments.length > 0"
+            [installments]="cardInstallments"
+          ></app-installments-widget>
         </div>
       </p-tabPanel>
 
-      <!-- Tab: Financiamentos -->
       <p-tabPanel header="Financiamentos" leftIcon="pi pi-wallet" *ngIf="hasFinancingData">
-        <!-- Financings Summary Section -->
-        <div class="grid mb-4">
-          <div class="col-12">
-            <app-financings-summary-widget
-              [installmentStats]="installmentStats"
-              [isLoading]="loading"
-              (navigateToInstallments)="navigateToInstallments()"
-            ></app-financings-summary-widget>
-          </div>
-        </div>
+        <div class="module-stack">
+          <app-financings-summary-widget
+            [installmentStats]="installmentStats"
+            [isLoading]="loading"
+            (navigateToInstallments)="navigateToInstallments()"
+          ></app-financings-summary-widget>
 
-        <!-- Upcoming Payments and Paid Installments Widgets -->
-        <div class="grid mb-4">
-          <div class="col-12 lg:col-6">
+          <div class="module-grid">
             <app-upcoming-payments-widget
+              *ngIf="installmentStats.upcomingPayments.length > 0"
               [upcomingPayments]="installmentStats.upcomingPayments"
               [isLoading]="loading"
             ></app-upcoming-payments-widget>
-          </div>
-          <div class="col-12 lg:col-6">
+
             <app-paid-installments-widget
+              *ngIf="installmentStats.paidInMonth.length > 0"
               [paidInstallments]="installmentStats.paidInMonth"
               [isLoading]="loading"
               [selectedMonthName]="getSelectedMonthName()"
               [selectedYear]="selectedYear"
             ></app-paid-installments-widget>
           </div>
-        </div>
 
-        <!-- Installment Plans List -->
-        <div class="grid">
-          <div class="col-12">
-            <app-installment-plans-widget
-              [installmentPlans]="installmentPlans"
-              [isLoading]="loading"
-              [selectedMonth]="selectedMonth"
-              [selectedYear]="selectedYear"
-            ></app-installment-plans-widget>
-          </div>
+          <app-installment-plans-widget
+            *ngIf="installmentPlans.length > 0"
+            [installmentPlans]="installmentPlans"
+            [isLoading]="loading"
+            [selectedMonth]="selectedMonth"
+            [selectedYear]="selectedYear"
+          ></app-installment-plans-widget>
         </div>
       </p-tabPanel>
 
-      <!-- Metas -->
       <p-tabPanel header="Metas" leftIcon="pi pi-check-circle" *ngIf="hasBudgetGoals">
-        <div class="grid">
-          <div class="col-12">
-            <app-budget-goals-widget
-              [goals]="budgetGoals"
-              [isLoading]="budgetGoalsLoading"
-            ></app-budget-goals-widget>
-          </div>
-        </div>
+        <app-budget-goals-widget
+          [goals]="budgetGoals"
+          [isLoading]="budgetGoalsLoading"
+        ></app-budget-goals-widget>
       </p-tabPanel>
     </p-tabView>
   </app-loading-region>
-</div>
+</main>

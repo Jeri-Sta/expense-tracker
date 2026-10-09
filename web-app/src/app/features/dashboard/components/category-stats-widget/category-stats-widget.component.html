@@ -1,49 +1,37 @@
-<div class="surface-card shadow-2 border-round-lg">
-  <div class="card-header p-4 border-bottom-1 surface-border">
-    <h5 class="font-bold text-color m-0">Estatísticas por Categoria</h5>
-    <p class="text-color-secondary text-sm m-0">Detalhamento dos gastos do mês atual</p>
-  </div>
-  <div class="card-content p-4">
-    <div class="grid" *ngIf="categoryStats.length > 0">
-      <div
-        class="col-12 sm:col-6 lg:col-4 xl:col-3"
-        *ngFor="let category of categoryStats.slice(0, 8)"
-      >
-        <div class="category-stat-card p-3 border-round surface-hover h-full">
-          <div class="flex align-items-center gap-3 mb-2">
-            <i
-              [class]="normalizeIcon(category.categoryIcon)"
-              [style.color]="category.categoryColor"
-              class="text-xl"
-            ></i>
-            <div class="flex-grow-1 overflow-hidden">
-              <div
-                class="font-semibold text-color white-space-nowrap overflow-hidden text-overflow-ellipsis"
-                [title]="category.categoryName"
-              >
-                {{ category.categoryName }}
-              </div>
-              <div class="text-color-secondary text-sm white-space-nowrap">
-                {{ category.transactionCount }} transação(ões)
-              </div>
-            </div>
-          </div>
-          <div class="mb-2">
-            <div class="font-bold text-lg">{{ formatCurrency(category.amount) }}</div>
-            <div class="text-color-secondary text-sm">
-              {{ (category.percentage || 0).toFixed(1) }}% do total
-            </div>
-          </div>
-          <p-progressBar
-            [value]="category.percentage || 0"
-            [showValue]="false"
-            [style]="{ height: '6px' }"
-          ></p-progressBar>
-        </div>
+<section class="category-summary content-panel content-panel--outlined">
+  <header class="category-summary-header">
+    <div>
+      <span class="panel-eyebrow">Onde saíram</span>
+      <h2>Maiores despesas</h2>
+      <p>As categorias com maior participação no período.</p>
+    </div>
+  </header>
+
+  <div class="category-list">
+    <div class="category-stat-row" *ngFor="let category of categoryStats.slice(0, 5)">
+      <div class="category-stat-topline">
+        <span class="category-name">
+          <i
+            [class]="normalizeIcon(category.categoryIcon)"
+            [style.color]="category.categoryColor"
+            aria-hidden="true"
+          ></i>
+          <strong [title]="category.categoryName">{{ category.categoryName }}</strong>
+          <small>{{ category.transactionCount }} lanç.</small>
+        </span>
+        <strong class="category-amount data-value">{{ formatCurrency(category.amount) }}</strong>
+      </div>
+      <div class="category-progress-row">
+        <p-progressBar
+          [value]="category.percentage || 0"
+          [showValue]="false"
+          [style]="{ height: '5px' }"
+          [attr.aria-label]="
+            category.categoryName + ': ' + (category.percentage || 0).toFixed(1) + '% das despesas'
+          "
+        ></p-progressBar>
+        <span>{{ (category.percentage || 0).toFixed(1) }}%</span>
       </div>
     </div>
-    <div class="text-center py-4 text-color-secondary" *ngIf="categoryStats.length === 0">
-      Nenhum gasto registrado neste período
-    </div>
   </div>
-</div>
+</section>

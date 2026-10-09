@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -7,6 +7,7 @@ import { InstallmentPlan, CreateInstallmentPlan } from '../../models';
 import { CategoryService, Category } from '../../../../core/services/category.service';
 import { formatCurrency } from '../../../../shared/utils/format.utils';
 import { markFormGroupTouched } from '../../../../shared/utils/form.utils';
+import { focusFirstInvalidControl } from '../../../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-installment-form',
@@ -14,11 +15,15 @@ import { markFormGroupTouched } from '../../../../shared/utils/form.utils';
   styleUrl: './installment-form.component.scss',
 })
 export class InstallmentFormComponent implements OnInit {
+  @ViewChild('installmentFormElement') private installmentFormElement?: ElementRef<HTMLFormElement>;
   form!: FormGroup;
   loading = false;
+  loadError: string | null = null;
+  categoriesError: string | null = null;
   isEditMode = false;
   installmentPlan?: InstallmentPlan;
   expenseCategories: Category[] = [];
+  private planId = '';
 
   // Use Angular's `inject()` to satisfy @angular-eslint/prefer-inject
   private readonly fb = inject(FormBuilder);
@@ -37,21 +42,19 @@ export class InstallmentFormComponent implements OnInit {
     const id = this.route.snapshot.params['id'];
     if (id) {
       this.isEditMode = true;
+      this.planId = id;
       this.loadInstallmentPlan(id);
     }
   }
 
-  private loadExpenseCategories(): void {
+  loadExpenseCategories(): void {
+    this.categoriesError = null;
     this.categoryService.getCategories('expense').subscribe({
       next: (categories) => {
         this.expenseCategories = categories;
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao carregar categorias',
-        });
+        this.categoriesError = 'Não foi possível carregar as categorias. Tente novamente.';
       },
     });
   }
@@ -73,6 +76,7 @@ export class InstallmentFormComponent implements OnInit {
 
   private loadInstallmentPlan(id: string): void {
     this.loading = true;
+    this.loadError = null;
     this.installmentService.getById(id).subscribe({
       next: (plan) => {
         this.installmentPlan = plan;
@@ -88,14 +92,14 @@ export class InstallmentFormComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao carregar financiamento',
-        });
-        this.router.navigate(['/installments']);
+        this.loading = false;
+        this.loadError = 'Não foi possível carregar os dados do financiamento. Tente novamente.';
       },
     });
+  }
+
+  retryLoad(): void {
+    if (this.planId) this.loadInstallmentPlan(this.planId);
   }
 
   getTotalAmount(): number {
@@ -147,6 +151,7 @@ export class InstallmentFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    if (this.loading) return;
     if (this.form.valid) {
       const formData = this.form.value;
       const data: CreateInstallmentPlan = {
@@ -210,6 +215,8 @@ export class InstallmentFormComponent implements OnInit {
       }
     } else {
       markFormGroupTouched(this.form);
+      this.installmentFormElement &&
+        focusFirstInvalidControl(this.installmentFormElement.nativeElement);
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import {
@@ -12,6 +12,7 @@ import { normalizeIcon } from '../../shared/utils/icon.utils';
 import { formatCurrency } from '../../shared/utils/format.utils';
 import { ResponsiveAction } from '../../shared/components/responsive-actions/responsive-actions.component';
 import { timeout } from 'rxjs';
+import { focusFirstInvalidControl } from '../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-categories',
@@ -19,6 +20,7 @@ import { timeout } from 'rxjs';
   styleUrls: ['./categories.component.scss'],
 })
 export class CategoriesComponent implements OnInit {
+  @ViewChild('categoryFormElement') private categoryFormElement?: ElementRef<HTMLFormElement>;
   categories: Category[] = [];
   loading = false;
   pageLoading = false;
@@ -232,9 +234,11 @@ export class CategoriesComponent implements OnInit {
   }
 
   saveCategory(): void {
+    if (this.loading) return;
     this.submitted = true;
 
     if (this.categoryForm.valid) {
+      this.loading = true;
       const formValue = this.categoryForm.value;
 
       if (this.editMode) {
@@ -256,6 +260,7 @@ export class CategoriesComponent implements OnInit {
               detail: 'Categoria atualizada com sucesso',
             });
             this.hideDialog();
+            this.loading = false;
             this.loadCategories();
           },
           error: (error) => {
@@ -265,6 +270,7 @@ export class CategoriesComponent implements OnInit {
               summary: 'Erro',
               detail: 'Erro ao atualizar categoria',
             });
+            this.loading = false;
           },
         });
       } else {
@@ -285,6 +291,7 @@ export class CategoriesComponent implements OnInit {
               detail: 'Categoria criada com sucesso',
             });
             this.hideDialog();
+            this.loading = false;
             this.loadCategories();
           },
           error: (error) => {
@@ -294,9 +301,12 @@ export class CategoriesComponent implements OnInit {
               summary: 'Erro',
               detail: 'Erro ao criar categoria',
             });
+            this.loading = false;
           },
         });
       }
+    } else if (this.categoryFormElement) {
+      focusFirstInvalidControl(this.categoryFormElement.nativeElement);
     }
   }
 

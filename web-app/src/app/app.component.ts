@@ -105,6 +105,17 @@ export class AppComponent implements OnInit {
       // Mensagens vazias
       emptyMessage: 'Nenhum resultado encontrado',
       emptyFilterMessage: 'Nenhum resultado encontrado',
+      aria: {
+        pageLabel: 'Página {page}',
+        firstPageLabel: 'Primeira página',
+        lastPageLabel: 'Última página',
+        nextPageLabel: 'Próxima página',
+        prevPageLabel: 'Página anterior',
+        previousPageLabel: 'Página anterior',
+        rowsPerPageLabel: 'Linhas por página',
+        jumpToPageDropdownLabel: 'Ir para a página',
+        jumpToPageInputLabel: 'Digite a página',
+      },
     });
   }
 }

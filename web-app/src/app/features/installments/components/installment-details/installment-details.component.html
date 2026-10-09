@@ -1,41 +1,14 @@
+<app-inline-alert *ngIf="loadError" [message]="loadError" (retry)="retryLoad()"></app-inline-alert>
 <div class="installment-details-container" *ngIf="installmentPlan && !loading">
-  <!-- Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="title-section">
-        <div class="breadcrumb">
-          <p-button
-            icon="pi pi-arrow-left"
-            [text]="true"
-            (onClick)="onBack()"
-            pTooltip="Voltar"
-          ></p-button>
-          <span>Financiamentos</span>
-          <i class="pi pi-angle-right"></i>
-          <span>{{ installmentPlan.name }}</span>
-        </div>
-        <h1 class="page-title">{{ installmentPlan.name }}</h1>
-        <p class="page-subtitle" *ngIf="installmentPlan.description">
-          {{ installmentPlan.description }}
-        </p>
-      </div>
-      <div class="header-actions">
-        <p-button
-          label="Editar"
-          icon="pi pi-pencil"
-          severity="secondary"
-          (onClick)="onEdit()"
-        ></p-button>
-        <p-button
-          label="Excluir"
-          icon="pi pi-trash"
-          severity="danger"
-          [text]="true"
-          (onClick)="onDelete()"
-        ></p-button>
-      </div>
-    </div>
-  </div>
+  <app-page-header
+    [title]="installmentPlan.name"
+    [subtitle]="installmentPlan.description || 'Detalhes do financiamento'"
+  >
+    <app-responsive-actions
+      [primaryAction]="primaryPageAction"
+      [secondaryActions]="secondaryPageActions"
+    ></app-responsive-actions>
+  </app-page-header>
 
   <!-- Summary Cards -->
   <div class="summary-section">
@@ -222,6 +195,7 @@
                 size="small"
                 [text]="true"
                 pTooltip="Pagar parcela"
+                ariaLabel="Pagar parcela"
                 (onClick)="onPayInstallment(installment)"
                 [disabled]="installment.status === InstallmentStatus.PAID"
               ></p-button>
@@ -231,6 +205,7 @@
                 [text]="true"
                 severity="danger"
                 pTooltip="Excluir pagamento"
+                ariaLabel="Excluir pagamento da parcela"
                 (onClick)="onDeletePayment(installment)"
                 *ngIf="installment.status === InstallmentStatus.PAID"
               ></p-button>
@@ -259,7 +234,7 @@
   [draggable]="false"
   [resizable]="false"
 >
-  <div class="payment-form" *ngIf="selectedInstallment">
+  <form #paymentNgForm="ngForm" class="payment-form" *ngIf="selectedInstallment" novalidate>
     <div class="installment-info">
       <h4>Parcela {{ selectedInstallment.installmentNumber }}</h4>
       <p>Vencimento: {{ formatDate(selectedInstallment.dueDate) }}</p>
@@ -271,12 +246,28 @@
         <label for="paidAmount">Valor Pago *</label>
         <p-inputNumber
           id="paidAmount"
+          name="paidAmount"
           [(ngModel)]="paymentForm.paidAmount"
           mode="currency"
           currency="BRL"
           locale="pt-BR"
           [min]="0.01"
+          required
+          [attr.aria-invalid]="
+            paymentNgForm?.controls?.['paidAmount']?.invalid &&
+            paymentNgForm?.controls?.['paidAmount']?.touched
+          "
+          aria-describedby="paidAmount-error"
         ></p-inputNumber>
+        <small
+          id="paidAmount-error"
+          class="p-error"
+          *ngIf="
+            paymentNgForm?.controls?.['paidAmount']?.invalid &&
+            paymentNgForm?.controls?.['paidAmount']?.touched
+          "
+          >Informe um valor maior que zero.</small
+        >
       </div>
 
       <div class="field">
@@ -284,11 +275,27 @@
         <p-calendar
           appDateMask="date"
           id="paidDate"
+          name="paidDate"
           [(ngModel)]="paymentForm.paidDate"
           dateFormat="dd/mm/yy"
           [showIcon]="true"
           appendTo="body"
+          required
+          [attr.aria-invalid]="
+            paymentNgForm?.controls?.['paidDate']?.invalid &&
+            paymentNgForm?.controls?.['paidDate']?.touched
+          "
+          aria-describedby="paidDate-error"
         ></p-calendar>
+        <small
+          id="paidDate-error"
+          class="p-error"
+          *ngIf="
+            paymentNgForm?.controls?.['paidDate']?.invalid &&
+            paymentNgForm?.controls?.['paidDate']?.touched
+          "
+          >Informe a data do pagamento.</small
+        >
       </div>
 
       <div class="field">
@@ -296,6 +303,7 @@
         <textarea
           class="resize-none"
           id="notes"
+          name="notes"
           pInputTextarea
           [(ngModel)]="paymentForm.notes"
           placeholder="Observações sobre o pagamento"
@@ -320,7 +328,7 @@
         <span>{{ formatCurrency(paymentForm.paidAmount) }}</span>
       </div>
     </div>
-  </div>
+  </form>
 
   <ng-template pTemplate="footer">
     <div class="dialog-actions">
@@ -334,7 +342,8 @@
         label="Confirmar Pagamento"
         icon="pi pi-check"
         (onClick)="onConfirmPayment()"
-        [disabled]="!paymentForm.paidAmount || paymentForm.paidAmount <= 0"
+        [loading]="paymentSaving"
+        [disabled]="paymentSaving || !paymentForm.paidAmount || paymentForm.paidAmount <= 0"
       ></p-button>
     </div>
   </ng-template>

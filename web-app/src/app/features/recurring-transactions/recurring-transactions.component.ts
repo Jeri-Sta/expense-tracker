@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import {
@@ -15,6 +15,7 @@ import { formatCurrency } from '../../shared/utils/format.utils';
 import { getTransactionTypeLabel, getTransactionTypeClass } from '../../shared/utils/ui.utils';
 import { ResponsiveAction } from '../../shared/components/responsive-actions/responsive-actions.component';
 import { timeout } from 'rxjs';
+import { focusFirstInvalidControl } from '../../shared/utils/form.utils';
 
 @Component({
   selector: 'app-recurring-transactions',
@@ -22,6 +23,7 @@ import { timeout } from 'rxjs';
   styleUrls: ['./recurring-transactions.component.scss'],
 })
 export class RecurringTransactionsComponent implements OnInit {
+  @ViewChild('recurringFormElement') private recurringFormElement?: ElementRef<HTMLFormElement>;
   normalizeIcon = normalizeIcon;
   formatCurrency = formatCurrency;
   getTransactionTypeLabel = getTransactionTypeLabel;
@@ -271,9 +273,11 @@ export class RecurringTransactionsComponent implements OnInit {
   }
 
   saveTransaction(): void {
+    if (this.loading) return;
     this.submitted = true;
 
     if (this.transactionForm.valid) {
+      this.loading = true;
       const formValue = this.transactionForm.value;
 
       if (this.editMode) {
@@ -301,6 +305,7 @@ export class RecurringTransactionsComponent implements OnInit {
                 detail: 'Transação recorrente atualizada com sucesso',
               });
               this.hideDialog();
+              this.loading = false;
               this.loadRecurringTransactions();
             },
             error: (error) => {
@@ -310,6 +315,7 @@ export class RecurringTransactionsComponent implements OnInit {
                 summary: 'Erro',
                 detail: 'Erro ao atualizar transação recorrente',
               });
+              this.loading = false;
             },
           });
       } else {
@@ -335,6 +341,7 @@ export class RecurringTransactionsComponent implements OnInit {
               detail: 'Transação recorrente criada com sucesso',
             });
             this.hideDialog();
+            this.loading = false;
             this.loadRecurringTransactions();
           },
           error: (error) => {
@@ -344,9 +351,12 @@ export class RecurringTransactionsComponent implements OnInit {
               summary: 'Erro',
               detail: 'Erro ao criar transação recorrente',
             });
+            this.loading = false;
           },
         });
       }
+    } else if (this.recurringFormElement) {
+      focusFirstInvalidControl(this.recurringFormElement.nativeElement);
     }
   }
 

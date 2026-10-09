@@ -1,22 +1,25 @@
 <div class="installment-form-container">
-  <!-- Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="title-section">
-        <h1 class="page-title">
-          <i class="pi pi-credit-card"></i>
-          {{ isEditMode ? 'Editar' : 'Novo' }} Financiamento
-        </h1>
-        <p class="page-subtitle">
-          {{ isEditMode ? 'Edite as informações do' : 'Crie um novo plano de' }} financiamento
-        </p>
-      </div>
-    </div>
-  </div>
+  <app-page-header
+    [title]="(isEditMode ? 'Editar' : 'Novo') + ' Financiamento'"
+    [subtitle]="
+      isEditMode ? 'Edite as informações do financiamento' : 'Crie um novo plano de financiamento'
+    "
+  ></app-page-header>
 
   <!-- Form -->
-  <div class="form-container" *ngIf="!loading">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+  <app-inline-alert
+    *ngIf="loadError"
+    [message]="loadError"
+    (retry)="retryLoad()"
+  ></app-inline-alert>
+  <app-inline-alert
+    *ngIf="categoriesError"
+    severity="warning"
+    [message]="categoriesError"
+    (retry)="loadExpenseCategories()"
+  ></app-inline-alert>
+  <div class="form-container" *ngIf="!loading && !loadError">
+    <form #installmentFormElement [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
       <div class="form-grid">
         <!-- Basic Information -->
         <div class="form-section">
@@ -274,7 +277,7 @@
           icon="pi pi-{{ isEditMode ? 'check' : 'plus' }}"
           type="submit"
           [loading]="loading"
-          [disabled]="form.invalid"
+          [disabled]="loading"
         ></p-button>
       </div>
     </form>

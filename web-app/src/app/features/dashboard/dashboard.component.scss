@@ -2,642 +2,416 @@
 @import 'mixins';
 
 .dashboard {
-  padding: $spacing-md;
-  min-height: 100vh;
+  min-height: 100%;
+  padding: $spacing-lg;
   background: var(--surface-ground);
+}
 
-  @include respond-to($breakpoint-md) {
-    padding: $spacing-sm;
+.dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $spacing-xl;
+  margin-bottom: $spacing-lg;
+}
+
+.dashboard-heading {
+  min-width: 0;
+
+  h1 {
+    margin-bottom: $spacing-xs;
+    font-size: var(--text-page-title);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+    overflow-wrap: anywhere;
+  }
+}
+
+.dashboard-eyebrow,
+.panel-eyebrow,
+.control-label {
+  display: block;
+  margin-bottom: $spacing-xs;
+  color: var(--primary-color);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dashboard-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: $spacing-md;
+  padding: $spacing-sm;
+  background: var(--surface-card);
+  border: $border-width solid var(--surface-border);
+  border-radius: $border-radius-md;
+}
+
+.month-navigation,
+.period-selectors,
+.projection-control {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.projection-control {
+  align-items: flex-end;
+  flex-direction: column;
+
+  label {
+    color: var(--text-color-secondary);
+    font-size: var(--text-caption);
+    font-weight: 650;
+  }
+}
+
+:host ::ng-deep {
+  .month-selector {
+    width: 9rem;
+  }
+
+  .year-selector {
+    width: 6.5rem;
+  }
+
+  .projection-control .p-togglebutton {
+    min-width: 7.5rem;
+  }
+
+  .dashboard-tabs {
+    margin-top: $spacing-lg;
+    background: transparent;
+
+    .p-tabview-nav {
+      gap: $spacing-xs;
+      padding: $spacing-xs;
+      background: var(--surface-card);
+      border: $border-width solid var(--surface-border);
+      border-radius: $border-radius-md;
+
+      li {
+        margin: 0;
+      }
+
+      .p-tabview-nav-link {
+        padding: $spacing-sm $spacing-md;
+        color: var(--text-color-secondary);
+        background: transparent;
+        border: 0;
+        border-radius: $border-radius-sm;
+        transition:
+          color $motion-fast $ease-standard,
+          background-color $motion-fast $ease-standard;
+      }
+
+      li:not(.p-highlight):not(.p-disabled) .p-tabview-nav-link:hover {
+        color: var(--text-color);
+        background: var(--surface-hover);
+      }
+
+      li.p-highlight .p-tabview-nav-link {
+        color: var(--primary-color-text);
+        background: var(--primary-color);
+      }
+    }
+
+    .p-tabview-panels {
+      padding: $spacing-lg 0 0;
+      background: transparent;
+      border: 0;
+    }
+  }
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(20rem, 1fr);
+  gap: $spacing-lg;
+  align-items: stretch;
+}
+
+.primary-chart,
+.commitments-panel {
+  min-width: 0;
+}
+
+.primary-chart {
+  order: 1;
+}
+
+.commitments-panel {
+  order: 2;
+}
+
+.supporting-grid,
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-lg;
+  align-items: stretch;
+}
+
+.supporting-grid,
+.module-grid,
+.module-stack {
+  margin-top: $spacing-lg;
+}
+
+.module-stack {
+  display: grid;
+  gap: $spacing-lg;
+}
+
+.overview-grid > *,
+.supporting-grid > *,
+.module-grid > * {
+  min-width: 0;
+}
+
+.commitments-panel {
+  padding: $spacing-lg;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: $border-width solid var(--surface-border);
+
+  h2 {
+    margin-bottom: $spacing-xs;
+    font-size: var(--text-section-title);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: var(--text-caption);
+  }
+}
+
+.commitment-total {
+  color: var(--warning-color);
+  white-space: nowrap;
+}
+
+.commitment-groups {
+  display: grid;
+  gap: $spacing-lg;
+  padding-top: $spacing-md;
+}
+
+.group-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xs;
+
+  h3 {
+    margin: 0;
+    font-size: var(--text-card-title);
+  }
+
+  a {
+    color: var(--primary-color);
+    font-size: var(--text-caption);
+    font-weight: 650;
+    text-decoration: none;
+  }
+}
+
+.commitment-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: $spacing-sm;
+  min-height: 3.5rem;
+  padding: $spacing-sm 0;
+  color: var(--text-color);
+  text-decoration: none;
+  border-bottom: $border-width solid var(--surface-border);
+  transition: background-color $motion-fast $ease-standard;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &:hover {
+    background: var(--surface-hover);
+  }
+}
+
+.commitment-icon {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  color: var(--warning-color);
+  background: var(--warning-color-soft);
+  border-radius: $border-radius-sm;
+  place-items: center;
+}
+
+.commitment-copy {
+  min-width: 0;
+
+  strong,
+  small {
+    display: block;
+    overflow-wrap: anywhere;
+  }
+
+  small {
+    margin-top: 0.125rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+.compact-empty {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  min-height: 5rem;
+  padding-top: $spacing-md;
+  color: var(--text-color-secondary);
+
+  > i {
+    color: var(--success-color);
+    font-size: 1.5rem;
+  }
+
+  strong,
+  span {
+    display: block;
+  }
+
+  strong {
+    color: var(--text-color);
+  }
+
+  span {
+    margin-top: $spacing-xs;
+    font-size: var(--text-caption);
+  }
+}
+
+@media (max-width: $breakpoint-lg) {
+  .dashboard-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dashboard-controls {
+    justify-content: space-between;
+  }
+
+  .overview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .commitments-panel {
+    order: 1;
+  }
+
+  .primary-chart {
+    order: 2;
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .dashboard {
+    padding: $spacing-md;
+  }
+
+  .supporting-grid,
+  .module-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (max-width: $breakpoint-sm) {
+  .dashboard {
+    padding: $spacing-sm;
+  }
+
+  .dashboard-header,
+  .primary-chart,
+  .supporting-grid,
+  .module-grid,
+  .module-stack {
+    margin-bottom: $spacing-md;
+  }
+
   .dashboard-controls {
-    width: 100%;
-    align-items: stretch !important;
+    align-items: stretch;
+    flex-direction: column;
+    padding: $spacing-xs;
   }
 
   .month-navigation {
-    display: grid !important;
+    display: grid;
     grid-template-columns: 44px minmax(0, 1fr) 44px 44px;
-    gap: $spacing-xs !important;
     width: 100%;
   }
 
   .period-selectors {
     min-width: 0;
-    gap: $spacing-xs !important;
   }
 
-  :host ::ng-deep .period-selectors .p-dropdown {
-    width: 100%;
-    min-width: 0 !important;
-  }
-}
-
-// Dashboard Tabs Styling
-::ng-deep .dashboard-tabs {
-  &.p-tabview {
-    background: transparent;
-
-    .p-tabview-nav {
-      background: var(--surface-card);
-      border: 1px solid var(--surface-border);
-      border-radius: $border-radius-md $border-radius-md 0 0;
-      padding: $spacing-xs $spacing-sm;
-      gap: $spacing-xs;
-
-      li {
-        margin-right: $spacing-xs;
-
-        .p-tabview-nav-link {
-          background: transparent;
-          border: none;
-          border-radius: $border-radius-sm;
-          padding: $spacing-sm $spacing-md;
-          color: var(--text-color-secondary);
-          font-weight: 500;
-          transition:
-            background-color $motion-base $ease-standard,
-            color $motion-base $ease-standard;
-
-          .p-tabview-left-icon {
-            margin-right: $spacing-xs;
-          }
-
-          &:hover {
-            background: var(--surface-hover);
-            color: var(--text-color);
-          }
-
-          &:focus {
-            box-shadow: none;
-          }
-        }
-
-        &.p-highlight .p-tabview-nav-link {
-          background: var(--primary-color);
-          color: var(--primary-color-text);
-
-          &:hover {
-            background: var(--primary-600);
-          }
-        }
-
-        &:not(.p-highlight):not(.p-disabled):hover .p-tabview-nav-link {
-          background: var(--surface-hover);
-          color: var(--text-color);
-        }
-      }
-    }
-
-    .p-tabview-panels {
-      background: transparent;
-      border: none;
-      padding: $spacing-md 0 0;
-
-      @include respond-to($breakpoint-md) {
-        padding: $spacing-sm;
-      }
-    }
-  }
-}
-
-// KPI Cards
-.kpi-card {
-  @include card-base;
-  position: relative;
-  overflow: hidden;
-  min-height: 120px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: $spacing-md;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary-500) 0%, var(--primary-600) 100%);
-  }
-
-  .text-green-600 {
-    color: $color-success !important;
-  }
-
-  .text-red-600 {
-    color: $color-danger !important;
-  }
-
-  .text-blue-600 {
-    color: $color-primary !important;
-  }
-
-  .text-orange-600 {
-    color: $color-warning !important;
-  }
-}
-
-// Chart Cards
-.chart-card,
-.data-card {
-  @include card-base;
-  height: 100%;
-  padding: 0;
-}
-
-.data-card .card-content {
-  display: block !important;
-  min-height: auto !important;
-}
-
-.chart-header,
-.card-header {
-  background: var(--surface-section);
-  border-bottom: 1px solid var(--surface-border);
-
-  h5 {
-    color: var(--text-color);
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-
-  p {
-    color: var(--text-color-secondary);
-    font-size: 0.875rem;
-  }
-}
-
-.chart-content,
-.card-content {
-  background: var(--surface-card);
-  min-height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden; // Prevent chart overflow
-
-  p-chart {
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-
-    ::ng-deep {
-      canvas {
-        max-width: 100% !important;
-        max-height: 100% !important;
-        width: auto !important;
-        height: auto !important;
-      }
-
-      .p-chart {
-        width: 100% !important;
-        height: 100% !important;
-        overflow: hidden;
-      }
-    }
-  }
-}
-
-// Specific chart container fixes
-.chart-wrapper {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-
-  p-chart {
-    display: block;
-    width: 100% !important;
-    height: 100% !important;
-
-    ::ng-deep {
-      .p-chart {
-        width: 100% !important;
-        height: 100% !important;
-
-        canvas {
-          width: 100% !important;
-          height: 100% !important;
-          max-width: 100% !important;
-          max-height: 100% !important;
-          object-fit: contain;
-        }
-      }
-    }
-  }
-}
-
-// Specific fixes for horizontal bar chart (Top Categorias)
-.chart-card .chart-content:has(p-chart[type='bar']) {
-  .chart-wrapper {
-    padding: $spacing-sm;
-
-    ::ng-deep {
-      .p-chart canvas {
-        padding: $spacing-xs;
-      }
-    }
-  }
-}
-
-// Specific fixes for monthly trend chart
-.monthly-trend-chart {
-  min-height: 450px !important;
-
-  ::ng-deep {
-    .p-chart {
-      height: 100% !important;
-
-      canvas {
-        width: 100% !important;
-        height: 100% !important;
-        max-width: 100% !important;
-        max-height: 100% !important;
-        padding-bottom: $spacing-sm;
-      }
-    }
-  }
-}
-
-.chart-card {
-  overflow: hidden;
-
-  .chart-content {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-
-    ::ng-deep {
-      .p-chart {
-        position: relative;
-        width: 100% !important;
-        height: 100% !important;
-
-        canvas {
-          width: 100% !important;
-          height: 100% !important;
-          max-width: 100% !important;
-          max-height: 100% !important;
-          object-fit: contain;
-        }
-      }
-    }
-  }
-}
-
-// Chart Responsiveness
-@include respond-to($breakpoint-xl) {
-  .chart-content {
-    min-height: 250px;
-  }
-
-  .monthly-trend-chart {
-    min-height: 400px !important;
-  }
-}
-
-@include respond-to($breakpoint-md) {
-  .chart-content {
-    min-height: 200px;
-    padding: $spacing-md !important;
-  }
-
-  .chart-header,
-  .card-header {
-    padding: $spacing-md !important;
-  }
-
-  .monthly-trend-chart {
-    min-height: 350px !important;
-  }
-}
-
-// Transaction List Styling
-.transaction-list {
-  max-height: 400px;
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  .transaction-item {
-    border: 1px solid transparent;
-    margin-bottom: $spacing-sm;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    /* i {
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface-100);
-      border-radius: 50%;
-      font-size: 0.875rem;
-    } */
-
-    .font-semibold {
-      font-weight: 600;
-      line-height: 1.2;
-    }
-
-    .text-sm {
-      font-size: 0.875rem;
-      line-height: 1.2;
-    }
-  }
-}
-
-// Recurring List Styling
-.recurring-list {
-  max-height: 400px;
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  .recurring-item {
-    border: 1px solid transparent;
-    margin-bottom: $spacing-sm;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    i {
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface-100);
-      border-radius: 50%;
-      font-size: 0.875rem;
-    }
-
-    .font-semibold {
-      font-weight: 600;
-      line-height: 1.2;
-    }
-
-    .text-sm {
-      font-size: 0.875rem;
-      line-height: 1.2;
-    }
-
-    .text-xs {
-      font-size: 0.75rem;
-      line-height: 1.2;
-    }
-  }
-}
-
-// Category Stats
-.category-stat-card {
-  border: 1px solid var(--surface-border);
-  background: var(--surface-card);
-  min-width: 200px;
-
-  i {
-    width: 32px;
-    height: 32px;
-    display: flex;
+  .projection-control {
     align-items: center;
-    justify-content: center;
-    background: var(--surface-100);
-    border-radius: 50%;
-    font-size: 1rem;
-  }
-
-  .font-semibold {
-    font-weight: 600;
-    line-height: 1.2;
-  }
-
-  .font-bold {
-    font-weight: 700;
-  }
-
-  .text-lg {
-    font-size: 1.125rem;
-  }
-
-  .text-sm {
-    font-size: 0.875rem;
-    line-height: 1.2;
-  }
-}
-
-// Color Classes
-.text-green-600 {
-  color: $color-success !important;
-}
-
-.text-red-600 {
-  color: $color-danger !important;
-}
-
-.text-blue-600 {
-  color: $color-primary !important;
-}
-
-.text-orange-600 {
-  color: $color-warning !important;
-}
-
-.text-purple-600 {
-  color: var(--chart-5) !important;
-}
-
-.text-yellow-600 {
-  color: var(--warning-color) !important;
-}
-
-.text-pink-600 {
-  color: var(--chart-6) !important;
-}
-
-.text-indigo-600 {
-  color: var(--chart-7) !important;
-}
-
-// Utility Classes
-.hover\:surface-hover:hover {
-  background-color: var(--surface-hover) !important;
-}
-
-.border-round-lg {
-  border-radius: $border-radius-lg;
-}
-
-.shadow-2 {
-  box-shadow: none;
-}
-
-// Mobile Optimizations
-@include respond-to($breakpoint-sm) {
-  .dashboard {
+    justify-content: space-between;
+    flex-direction: row;
     padding: $spacing-xs;
   }
 
-  .chart-wrapper {
-    height: 250px !important;
-
-    // Specific height for Top Categorias chart
-    &:has(p-chart[type='bar']) {
-      height: 300px !important;
-      padding: 5px;
+  :host ::ng-deep {
+    .month-selector,
+    .year-selector {
+      width: 100%;
+      min-width: 0;
     }
 
-    // Specific height for monthly trend chart on mobile
-    &.monthly-trend-chart {
-      height: 350px !important;
-      min-height: 350px !important;
-    }
-  }
+    .dashboard-tabs {
+      margin-top: $spacing-md;
 
-  .chart-content {
-    min-height: 200px !important;
-    padding: $spacing-sm !important;
-  }
-
-  .chart-header,
-  .card-header {
-    padding: 0.75rem !important;
-  }
-
-  // Simplify layout for mobile
-  .grid {
-    margin: 0;
-  }
-
-  .col-12 {
-    padding: $spacing-xs;
-  }
-}
-
-// Tablet Optimizations
-@media (min-width: 577px) and (max-width: 992px) {
-  .chart-wrapper {
-    height: 300px !important;
-
-    // Specific height for Top Categorias chart on tablet
-    &:has(p-chart[type='bar']) {
-      height: 350px !important;
-    }
-
-    // Specific height for monthly trend chart on tablet
-    &.monthly-trend-chart {
-      height: 400px !important;
-      min-height: 400px !important;
-    }
-  }
-
-  .chart-content {
-    min-height: 250px !important;
-    padding: 0.75rem !important;
-  }
-}
-
-// Dark Theme Adjustments
-.dark {
-  .kpi-card,
-  .chart-card,
-  .data-card,
-  .category-stat-card {
-    border-color: var(--surface-border);
-  }
-
-  // Ensure proper contrast for icons in dark mode
-  .category-stat-card i {
-    background: var(--surface-200);
-    color: var(--text-color);
-  }
-
-  .transaction-item i,
-  .recurring-item i {
-    background: transparent;
-  }
-}
-
-// Animation Classes
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in-up {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-// Installments Section Styling
-.installments-section {
-  .section-header {
-    background: linear-gradient(135deg, var(--surface-card) 0%, var(--surface-hover) 100%);
-  }
-
-  .installment-kpi {
-    border: 1px solid transparent;
-  }
-
-  .progress-section,
-  .savings-section {
-    border: 1px solid transparent;
-  }
-
-  .progress-bar-custom {
-    height: 8px;
-    border-radius: 4px;
-    overflow: hidden;
-
-    ::ng-deep .p-progressbar-value {
-      background: linear-gradient(90deg, var(--green-400) 0%, var(--green-600) 100%);
-      transition: width 1s ease;
-    }
-  }
-
-  .payment-item {
-    border: 1px solid transparent;
-
-    .payment-number {
-      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-700) 100%);
-      box-shadow: $shadow-sm;
-    }
-  }
-
-  .upcoming-payments {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-}
-
-@include respond-to($breakpoint-md) {
-  .installments-section {
-    .installments-content {
-      padding: $spacing-md !important;
-    }
-
-    .installment-kpi {
-      margin-bottom: 0.75rem;
-    }
-
-    .section-header {
-      padding: $spacing-md !important;
-
-      .flex {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: $spacing-md;
+      .p-tabview-nav {
+        flex-wrap: nowrap;
+        overflow-x: auto;
       }
+
+      .p-tabview-nav-link {
+        white-space: nowrap;
+      }
+
+      .p-tabview-panels {
+        padding-top: $spacing-md;
+      }
+    }
+  }
+
+  .commitments-panel {
+    padding: $spacing-md;
+  }
+
+  .panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .commitment-row {
+    grid-template-columns: auto minmax(0, 1fr);
+
+    > .data-value {
+      grid-column: 2;
     }
   }
 }

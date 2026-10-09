@@ -15,9 +15,15 @@ import { getProgressBarClass } from '../../../../shared/utils/ui.utils';
 export class InstallmentListComponent implements OnInit {
   installmentPlans: InstallmentPlanSummary[] = [];
   loading = false;
+  loadError: string | null = null;
 
   formatCurrency = formatCurrency;
   getProgressBarClass = getProgressBarClass;
+  readonly primaryPageAction = {
+    label: 'Novo Financiamento',
+    icon: 'pi pi-plus',
+    command: () => this.onNewInstallmentPlan(),
+  };
   readonly Math = Math;
 
   formatDate(date: Date | string): string {
@@ -36,6 +42,7 @@ export class InstallmentListComponent implements OnInit {
 
   loadInstallmentPlans(): void {
     this.loading = true;
+    this.loadError = null;
     this.installmentService.getAll().subscribe({
       next: (plans) => {
         this.installmentPlans = plans;
@@ -48,6 +55,7 @@ export class InstallmentListComponent implements OnInit {
           detail: 'Erro ao carregar financiamentos',
         });
         this.loading = false;
+        this.loadError = 'Não foi possível carregar os financiamentos. Tente novamente.';
       },
     });
   }

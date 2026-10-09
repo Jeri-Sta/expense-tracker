@@ -4,6 +4,7 @@
     [styleClass]="buttonClass(primaryAction)"
     [icon]="primaryAction.icon || ''"
     [label]="primaryAction.label"
+    [ariaLabel]="primaryAction.label"
     [disabled]="primaryAction.disabled"
     (onClick)="run(primaryAction)"
   ></p-button>
@@ -15,6 +16,7 @@
       [styleClass]="buttonClass(action)"
       [icon]="action.icon || ''"
       [label]="action.label"
+      [ariaLabel]="action.label"
       [disabled]="action.disabled"
       (onClick)="run(action)"
     ></p-button>

@@ -3,7 +3,6 @@
 
 .installment-list-container {
   padding: $spacing-xl;
-  min-height: 100vh;
   background: var(--surface-ground);
 }
 
@@ -19,7 +18,7 @@
   align-items: center;
   gap: $spacing-xl;
 
-  @include respond-to(md) {
+  @include respond-to($breakpoint-md) {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -215,7 +214,7 @@
   }
 }
 
-@include respond-to(md) {
+@include respond-to($breakpoint-md) {
   .installment-list-container {
     padding: $spacing-md;
   }
@@ -229,7 +228,7 @@
   }
 
   .installment-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .card-header {

@@ -1,23 +1,29 @@
-<div class="card">
-  <!-- Page Header -->
-  <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
-    <div class="mb-2 md:mb-0">
-      <h2 class="text-2xl font-bold text-color m-0">Faturas de Cartão</h2>
-      <p class="text-color-secondary m-0">Gerencie as transações dos seus cartões de crédito</p>
-    </div>
-    <div class="flex gap-2">
-      <p-button
-        label="Nova Transação"
-        icon="pi pi-plus"
-        size="small"
-        (onClick)="openNew()"
-        [disabled]="creditCards.length === 0"
-      ></p-button>
-    </div>
-  </div>
+<div class="content-panel content-panel--outlined p-4">
+  <app-page-header
+    title="Faturas de Cartão"
+    subtitle="Gerencie as transações dos seus cartões de crédito"
+  >
+    <app-responsive-actions [primaryAction]="primaryPageAction"></app-responsive-actions>
+  </app-page-header>
+  <app-inline-alert
+    *ngIf="supportDataError"
+    [message]="supportDataError"
+    (retry)="retrySupportData()"
+  ></app-inline-alert>
+  <app-inline-alert
+    *ngIf="loadError"
+    [message]="loadError"
+    (retry)="loadTransactions()"
+  ></app-inline-alert>
+  <app-inline-alert
+    *ngIf="invoiceLoadError"
+    severity="warning"
+    [message]="invoiceLoadError"
+    (retry)="loadInvoices()"
+  ></app-inline-alert>
 
   <!-- Filters -->
-  <div class="card mb-4">
+  <div class="content-panel content-panel--outlined p-4 mb-4">
     <div class="flex flex-column md:flex-row gap-3 align-items-end">
       <div class="flex-1">
         <label for="filterPeriod" class="block mb-2 font-medium">Mês de Vencimento</label>
@@ -68,13 +74,17 @@
           [text]="true"
           (onClick)="loadTransactions()"
           pTooltip="Atualizar"
+          ariaLabel="Atualizar transações do cartão"
         ></p-button>
       </div>
     </div>
   </div>
 
   <!-- Period Summary -->
-  <div class="card mb-4 summary-card" *ngIf="!loading && transactions.length > 0">
+  <div
+    class="content-panel content-panel--outlined p-4 mb-4 summary-card"
+    *ngIf="!loading && transactions.length > 0"
+  >
     <div
       class="flex flex-column md:flex-row justify-content-between align-items-start md:align-items-center"
     >
@@ -93,7 +103,7 @@
   <!-- Invoice Cards -->
   <div class="grid mb-4" *ngIf="!loading && invoices.length > 0">
     <div class="col-12 md:col-6 lg:col-4" *ngFor="let invoice of invoices">
-      <div class="invoice-card surface-card border-round-lg shadow-1 p-3">
+      <div class="invoice-card content-panel content-panel--outlined p-3">
         <div class="flex justify-content-between align-items-start mb-2">
           <div class="flex align-items-center gap-2">
             <div class="color-dot-lg" [style.background-color]="invoice.creditCardColor"></div>
@@ -205,6 +215,7 @@
               [text]="true"
               (onClick)="cloneTransaction(transaction)"
               pTooltip="Duplicar"
+              ariaLabel="Duplicar compra no cartão"
               [disabled]="transaction.parentTransactionId"
             ></p-button>
             <p-button
@@ -214,6 +225,7 @@
               [text]="true"
               (onClick)="editTransaction(transaction)"
               pTooltip="Editar"
+              ariaLabel="Editar compra no cartão"
               [disabled]="transaction.parentTransactionId"
             ></p-button>
             <p-button
@@ -223,6 +235,7 @@
               [text]="true"
               (onClick)="deleteTransaction(transaction)"
               pTooltip="Excluir"
+              ariaLabel="Excluir compra no cartão"
               [disabled]="transaction.parentTransactionId"
             ></p-button>
           </div>
@@ -250,7 +263,10 @@
   </div>
 
   <!-- Empty State -->
-  <div class="card" *ngIf="!loading && transactions.length === 0 && creditCards.length > 0">
+  <div
+    class="content-panel content-panel--outlined p-4"
+    *ngIf="!loading && !loadError && transactions.length === 0 && creditCards.length > 0"
+  >
     <div class="table-empty-state">
       <i class="pi pi-file table-empty-icon"></i>
       <span class="table-empty-title">Nenhuma transação encontrada</span>
@@ -265,7 +281,7 @@
   </div>
 
   <!-- No Cards State -->
-  <div class="text-center py-8" *ngIf="!loading && creditCards.length === 0">
+  <div class="text-center py-8" *ngIf="!loading && !supportDataError && creditCards.length === 0">
     <div class="flex flex-column align-items-center gap-3">
       <i class="pi pi-credit-card text-6xl text-color-secondary"></i>
       <h3 class="text-color-secondary m-0">Nenhum cartão cadastrado</h3>
@@ -292,7 +308,7 @@
   styleClass="p-fluid"
 >
   <ng-template pTemplate="content">
-    <form [formGroup]="transactionForm" novalidate>
+    <form #cardTransactionFormElement [formGroup]="transactionForm" novalidate>
       <!-- Credit Card -->
       <div class="field">
         <label for="creditCardId">Cartão <span class="required-asterisk">*</span></label>
@@ -488,6 +504,8 @@
         [label]="editMode ? 'Atualizar' : 'Salvar'"
         icon="pi pi-check"
         (onClick)="saveTransaction()"
+        [loading]="saving"
+        [disabled]="saving"
       ></p-button>
     </div>
   </ng-template>

@@ -1,26 +1,18 @@
 <div class="installment-list-container">
-  <!-- Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="title-section">
-        <h1 class="page-title">
-          <i class="pi pi-credit-card"></i>
-          Financiamentos
-        </h1>
-        <p class="page-subtitle">Gerencie seus planos de financiamento e parcelas</p>
-      </div>
-      <p-button
-        label="Novo Financiamento"
-        icon="pi pi-plus"
-        (onClick)="onNewInstallmentPlan()"
-        styleClass="p-button-primary"
-      >
-      </p-button>
-    </div>
-  </div>
+  <app-page-header
+    title="Financiamentos"
+    subtitle="Gerencie seus planos de financiamento e parcelas"
+  >
+    <app-responsive-actions [primaryAction]="primaryPageAction"></app-responsive-actions>
+  </app-page-header>
+  <app-inline-alert
+    *ngIf="loadError"
+    [message]="loadError"
+    (retry)="loadInstallmentPlans()"
+  ></app-inline-alert>
 
   <!-- Content -->
-  <div class="content-container" *ngIf="!loading">
+  <div class="content-container" *ngIf="!loading && !loadError">
     <div class="installment-grid" *ngIf="installmentPlans.length > 0; else noData">
       <div class="installment-card" *ngFor="let plan of installmentPlans">
         <div class="card-header">
@@ -38,6 +30,7 @@
               [text]="true"
               [rounded]="true"
               pTooltip="Ver detalhes"
+              ariaLabel="Ver detalhes do financiamento"
               (onClick)="onViewDetails(plan.id)"
             >
             </p-button>
@@ -46,6 +39,7 @@
               [text]="true"
               [rounded]="true"
               pTooltip="Editar"
+              ariaLabel="Editar financiamento"
               (onClick)="onEdit(plan.id)"
             >
             </p-button>
@@ -55,6 +49,7 @@
               [rounded]="true"
               severity="danger"
               pTooltip="Excluir"
+              ariaLabel="Excluir financiamento"
               (onClick)="onDelete(plan)"
             >
             </p-button>
