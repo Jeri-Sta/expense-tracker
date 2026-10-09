@@ -14,6 +14,21 @@
 
 ---
 
+## [2.5.0] - 2026-10-06
+
+### ✨ Novas Funcionalidades
+
+
+### 🔧 Melhorias
+- Remoção de coisas inúteis e redefinição visual.
+
+### 🐛 Correções
+
+
+### 📦 Atualizações de Dependências
+
+---
+
 ## [2.4.2] - 2026-06-23
 
 ### ✨ Novas Funcionalidades
