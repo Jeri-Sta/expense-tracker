@@ -1,6 +1,6 @@
 {
   "name": "expense-tracker-api",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "Personal Expense Tracker API built with NestJS",
   "author": "Your Name",
   "private": true,

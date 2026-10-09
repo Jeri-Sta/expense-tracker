@@ -4,13 +4,28 @@
 - Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
-- Refatorações na UI.
+- Adicione melhorias e otimizações aqui
 
 ### 🐛 Correções
 - Adicione correções de bugs aqui
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
+
+---
+
+## [2.6.0] - 2026-10-09
+
+### ✨ Novas Funcionalidades
+
+
+### 🔧 Melhorias
+- Refatorações na UI.
+
+### 🐛 Correções
+
+
+### 📦 Atualizações de Dependências
 
 ---
 
