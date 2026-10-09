@@ -4,7 +4,7 @@
 - Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
-- Adicione melhorias e otimizações aqui
+- Refatorações na UI.
 
 ### 🐛 Correções
 - Adicione correções de bugs aqui
