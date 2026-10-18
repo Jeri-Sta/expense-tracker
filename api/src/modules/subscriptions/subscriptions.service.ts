@@ -32,7 +32,7 @@ export class SubscriptionsService {
     workspaceId: string,
     dto: CreateSubscriptionDto,
   ): Promise<SubscriptionResponseDto> {
-    const card = await this.findActiveCard(dto.creditCardId, workspaceId);
+    await this.findActiveCard(dto.creditCardId, workspaceId);
     const today = formatDateToString(parseLocalDate(new Date()));
     const firstDate = this.nextOccurrence(
       dto.startDate > today ? dto.startDate : today,
