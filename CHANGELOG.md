@@ -1,16 +1,16 @@
 ## [Em Desenvolvimento]
 
 ### ✨ Novas Funcionalidades
-- Adicione novas funcionalidades aqui
+- Adicionado gerenciamento de assinaturas vinculadas a cartões, com cobranças automáticas e projeção mensal no dashboard.
+- Adicionado card de assinaturas no dashboard com valores, datas e total previsto para o mês selecionado.
 
 ### 🔧 Melhorias
-- Adicione melhorias e otimizações aqui
+- Cobranças de assinaturas passam a atualizar a fatura de forma idempotente e preservar os lançamentos anteriores ao editar ou cancelar.
 
 ### 🐛 Correções
-- Adicione correções de bugs aqui
+- Corrigida a validação de valores monetários com duas casas decimais para evitar rejeição por imprecisão de ponto flutuante.
 
 ### 📦 Atualizações de Dependências
-- Adicione atualizações de dependências aqui
 
 ---
 
