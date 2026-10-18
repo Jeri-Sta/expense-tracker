@@ -18,6 +18,7 @@ const ROUTE_METADATA: { matcher: (route: string) => boolean; meta: RouteMetadata
     matcher: (r) => r === '/recurring-transactions',
     meta: { title: 'Transações Recorrentes', icon: 'pi pi-refresh' },
   },
+  { matcher: (r) => r === '/subscriptions', meta: { title: 'Assinaturas', icon: 'pi pi-sync' } },
   {
     matcher: (r) => r.startsWith('/installments'),
     meta: { title: 'Financiamentos', icon: 'pi pi-calculator' },

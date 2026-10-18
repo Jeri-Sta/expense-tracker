@@ -1,0 +1,56 @@
+.monthly-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: var(--surface-50);
+}
+
+.monthly-total strong {
+  font-size: 1.35rem;
+}
+
+.subscription-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.subscription-row {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(3, 1fr) auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 0.75rem;
+}
+
+.subscription-row h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+
+.subscription-row > div:not(.row-actions) span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-color-secondary);
+  font-size: 0.8rem;
+}
+
+.row-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.empty-state {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .subscription-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}

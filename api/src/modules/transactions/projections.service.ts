@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, MoreThanOrEqual, LessThanOrEqual, Not } from 'typeorm';
+import { Repository, Between, MoreThanOrEqual, LessThanOrEqual, Not, In } from 'typeorm';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { RecurringTransaction } from '../recurring-transactions/entities/recurring-transaction.entity';
 import { GenerateProjectionsDto } from '../transactions/dto/generate-projections.dto';
@@ -9,6 +9,8 @@ import { Installment } from '../installments/entities/installment.entity';
 import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
 import { RecurrenceFrequency, InstallmentStatus } from '../../common/enums';
 import { parseLocalDate } from '../../common/utils/date.utils';
+import { calculateInvoicePeriod } from '../../common/utils/invoice.utils';
+import { Subscription } from '../subscriptions/entities/subscription.entity';
 
 export interface ProjectionResult {
   generated: number;
@@ -28,6 +30,13 @@ export interface MonthlyStatsWithProjections {
   transactionCount: number;
   projectedTransactionCount: number;
   cardExpenses: number;
+  subscriptionProjections: SubscriptionProjection[];
+}
+
+export interface SubscriptionProjection {
+  name: string;
+  chargeDate: string;
+  amount: number;
 }
 
 @Injectable()
@@ -43,6 +52,8 @@ export class ProjectionsService {
     private readonly installmentRepository: Repository<Installment>,
     @InjectRepository(CardTransaction)
     private readonly cardTransactionRepository: Repository<CardTransaction>,
+    @InjectRepository(Subscription)
+    private readonly subscriptionRepository: Repository<Subscription>,
   ) {}
 
   async generateRecurringProjections(
@@ -316,6 +327,9 @@ export class ProjectionsService {
     const projectedExpenses = projectedTransactions
       .filter((t) => t.type === 'expense')
       .reduce((sum, t) => sum + Number(t.amount), 0);
+    const subscriptionProjections = await this.getSubscriptionProjections(workspaceId, year, month);
+    const totalProjectedExpenses =
+      projectedExpenses + subscriptionProjections.reduce((sum, item) => sum + item.amount, 0);
 
     return {
       period: competencyPeriod,
@@ -323,13 +337,75 @@ export class ProjectionsService {
       totalExpenses: totalRealExpenses,
       balance: realIncome - totalRealExpenses,
       projectedIncome,
-      projectedExpenses,
-      projectedBalance: projectedIncome - projectedExpenses,
-      hasProjections: projectedTransactions.length > 0,
+      projectedExpenses: totalProjectedExpenses,
+      projectedBalance: projectedIncome - totalProjectedExpenses,
+      hasProjections: projectedTransactions.length > 0 || subscriptionProjections.length > 0,
       transactionCount: realTransactions.length + installments.length,
-      projectedTransactionCount: projectedTransactions.length,
+      projectedTransactionCount: projectedTransactions.length + subscriptionProjections.length,
       cardExpenses,
+      subscriptionProjections,
     };
+  }
+
+  private async getSubscriptionProjections(
+    workspaceId: string,
+    year: number,
+    month: number,
+  ): Promise<SubscriptionProjection[]> {
+    const subscriptions = await this.subscriptionRepository.find({
+      where: { workspaceId, isActive: true },
+      relations: ['creditCard'],
+    });
+    if (!subscriptions.length) return [];
+
+    const firstChargeMonth = new Date(year, month - 2, 1);
+    const lastChargeMonth = new Date(year, month, 0);
+    const startDate = `${firstChargeMonth.getFullYear()}-${String(firstChargeMonth.getMonth() + 1).padStart(2, '0')}-01`;
+    const endDate = `${lastChargeMonth.getFullYear()}-${String(lastChargeMonth.getMonth() + 1).padStart(2, '0')}-${String(lastChargeMonth.getDate()).padStart(2, '0')}`;
+    const existingCharges = await this.cardTransactionRepository.find({
+      where: {
+        workspaceId,
+        subscriptionId: In(subscriptions.map(({ id }) => id)),
+        subscriptionChargeDate: Between(startDate, endDate),
+      },
+    });
+    const chargedOccurrences = new Set(
+      existingCharges.map((charge) => `${charge.subscriptionId}:${charge.subscriptionChargeDate}`),
+    );
+    const projections: SubscriptionProjection[] = [];
+
+    for (const subscription of subscriptions) {
+      const nextDate = parseLocalDate(subscription.nextChargeDate);
+      for (let monthOffset = -1; monthOffset <= 0; monthOffset++) {
+        const occurrenceMonth = new Date(year, month - 1 + monthOffset, 1);
+        const lastDay = new Date(
+          occurrenceMonth.getFullYear(),
+          occurrenceMonth.getMonth() + 1,
+          0,
+        ).getDate();
+        const chargeDate = new Date(
+          occurrenceMonth.getFullYear(),
+          occurrenceMonth.getMonth(),
+          Math.min(subscription.chargeDay, lastDay),
+          12,
+        );
+        const chargeDateString = `${chargeDate.getFullYear()}-${String(chargeDate.getMonth() + 1).padStart(2, '0')}-${String(chargeDate.getDate()).padStart(2, '0')}`;
+        if (
+          chargeDate < nextDate ||
+          calculateInvoicePeriod(chargeDate, subscription.creditCard.closingDay) !==
+            `${year}-${String(month).padStart(2, '0')}` ||
+          chargedOccurrences.has(`${subscription.id}:${chargeDateString}`)
+        ) {
+          continue;
+        }
+        projections.push({
+          name: subscription.name,
+          chargeDate: chargeDateString,
+          amount: Number(subscription.amount),
+        });
+      }
+    }
+    return projections;
   }
 
   async cleanupProjections(
@@ -375,7 +451,10 @@ export class ProjectionsService {
       .createQueryBuilder('transaction')
       .select('SUM(transaction.amount)', 'total')
       .where('transaction.workspaceId = :workspaceId', { workspaceId })
-      .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+      .andWhere(
+        '((transaction.subscriptionId IS NOT NULL AND transaction.invoicePeriod = :competencyPeriod) OR (transaction.subscriptionId IS NULL AND transaction.competencyPeriod = :competencyPeriod))',
+        { competencyPeriod },
+      )
       .getRawOne();
 
     return Number(result?.total || 0);

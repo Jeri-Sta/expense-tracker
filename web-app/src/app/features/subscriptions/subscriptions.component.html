@@ -1,0 +1,171 @@
+<div class="content-panel content-panel--outlined p-4">
+  <app-page-header title="Assinaturas" subtitle="Gerencie cobranças recorrentes no cartão">
+    <p-button label="Nova assinatura" icon="pi pi-plus" (onClick)="openNew()"></p-button>
+  </app-page-header>
+
+  <section class="monthly-total mb-4" aria-label="Total mensal de assinaturas ativas">
+    <span class="text-color-secondary">Total mensal ativo</span>
+    <strong>{{ formatCurrency(activeMonthlyTotal) }}</strong>
+  </section>
+
+  <app-inline-alert
+    *ngIf="loadError"
+    [message]="loadError"
+    (retry)="loadSubscriptions()"
+  ></app-inline-alert>
+  <app-inline-alert
+    *ngIf="cardsError"
+    [message]="cardsError"
+    (retry)="loadCards()"
+  ></app-inline-alert>
+  <p *ngIf="!cardsError && !hasActiveCard" class="text-color-secondary" role="status">
+    Nenhum cartão ativo disponível. Cadastre ou ative um cartão para criar assinaturas.
+  </p>
+
+  <app-loading-region [loading]="loading" label="Carregando assinaturas" minimumHeight="12rem">
+    <div class="subscription-list" *ngIf="subscriptions.length; else emptyState">
+      <article class="subscription-row" *ngFor="let subscription of subscriptions">
+        <div>
+          <h2>{{ subscription.name }}</h2>
+          <strong>{{ formatCurrency(subscription.amount) }}</strong>
+        </div>
+        <div>
+          <span>Dia da cobrança</span><b>{{ subscription.chargeDay }}</b>
+        </div>
+        <div>
+          <span>Cartão</span><b>{{ subscription.creditCardName }}</b>
+        </div>
+        <div>
+          <span>Próxima cobrança</span><b>{{ formatDate(subscription.nextChargeDate) }}</b>
+        </div>
+        <p-tag
+          [value]="subscription.isActive ? 'Ativa' : 'Cancelada'"
+          [severity]="subscription.isActive ? 'success' : 'secondary'"
+        ></p-tag>
+        <div class="row-actions" *ngIf="subscription.isActive">
+          <p-button
+            label="Editar"
+            icon="pi pi-pencil"
+            [text]="true"
+            (onClick)="edit(subscription)"
+          ></p-button>
+          <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="danger"
+            [text]="true"
+            (onClick)="cancel(subscription)"
+          ></p-button>
+        </div>
+      </article>
+    </div>
+    <ng-template #emptyState>
+      <div class="empty-state" *ngIf="subscriptionsLoaded && !loading && !loadError">
+        <h2>Nenhuma assinatura cadastrada</h2>
+        <p>Cadastre uma assinatura para acompanhar suas cobranças no cartão.</p>
+        <p-button label="Cadastrar assinatura" icon="pi pi-plus" (onClick)="openNew()"></p-button>
+      </div>
+    </ng-template>
+  </app-loading-region>
+</div>
+
+<p-dialog
+  [(visible)]="dialogVisible"
+  [header]="editMode ? 'Editar assinatura' : 'Nova assinatura'"
+  [modal]="true"
+  [style]="{ width: '34rem' }"
+  [breakpoints]="{ '640px': '95vw' }"
+>
+  <form [formGroup]="form" class="grid" novalidate (ngSubmit)="save()">
+    <div class="field col-12">
+      <label for="subscription-name">Nome</label>
+      <input
+        id="subscription-name"
+        pInputText
+        formControlName="name"
+        class="w-full"
+        autocomplete="off"
+      />
+      <small class="p-error" *ngIf="submitted && form.controls.name.invalid"
+        >Informe o nome da assinatura.</small
+      >
+    </div>
+    <div class="field col-12 md:col-6">
+      <label for="subscription-amount">Valor mensal</label>
+      <p-inputNumber
+        inputId="subscription-amount"
+        formControlName="amount"
+        mode="currency"
+        currency="BRL"
+        locale="pt-BR"
+        [min]="0.01"
+        [maxFractionDigits]="2"
+        styleClass="w-full"
+      ></p-inputNumber>
+      <small class="p-error" *ngIf="submitted && form.controls.amount.invalid"
+        >Informe um valor positivo com até duas casas decimais.</small
+      >
+    </div>
+    <div class="field col-12 md:col-6">
+      <label for="subscription-day">Dia da cobrança</label>
+      <p-inputNumber
+        inputId="subscription-day"
+        formControlName="chargeDay"
+        [min]="1"
+        [max]="31"
+        [maxFractionDigits]="0"
+        styleClass="w-full"
+      ></p-inputNumber>
+      <small class="p-error" *ngIf="submitted && form.controls.chargeDay.invalid"
+        >Informe um dia entre 1 e 31.</small
+      >
+    </div>
+    <div class="field col-12" *ngIf="!editMode">
+      <label for="subscription-start">Data de início</label>
+      <p-calendar
+        inputId="subscription-start"
+        formControlName="startDate"
+        placeholder="dd/mm/aaaa"
+        dateFormat="dd/mm/yy"
+        styleClass="w-full"
+        [showIcon]="true"
+        iconAriaLabel="Abrir calendário"
+        appendTo="body"
+      ></p-calendar>
+    </div>
+    <div class="field col-12">
+      <label for="subscription-card">Cartão ativo</label>
+      <select id="subscription-card" formControlName="creditCardId" class="w-full p-inputtext">
+        <option value="">Selecione um cartão</option>
+        <option *ngFor="let card of cardOptions" [value]="card.id" [disabled]="!card.isActive">
+          {{ card.name }}{{ !card.isActive ? ' (inativo)' : '' }}
+        </option>
+      </select>
+      <small class="p-error" *ngIf="submitted && form.controls.creditCardId.invalid"
+        >Selecione um cartão.</small
+      >
+      <small class="text-color-secondary" *ngIf="!cardsError && cardOptions.length === 0"
+        >Cadastre um cartão ativo antes de criar uma assinatura.</small
+      >
+    </div>
+    <p class="col-12 text-color-secondary m-0">
+      Uma data de início no passado começa pela próxima cobrança. Cobranças anteriores são
+      preservadas ao editar ou cancelar.
+    </p>
+  </form>
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Fechar"
+      severity="secondary"
+      [text]="true"
+      (onClick)="dialogVisible = false"
+    ></p-button>
+    <p-button
+      label="Salvar"
+      icon="pi pi-check"
+      [loading]="saving"
+      [disabled]="saving || cardOptions.length === 0"
+      (onClick)="save()"
+    ></p-button>
+  </ng-template>
+</p-dialog>

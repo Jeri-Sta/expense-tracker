@@ -112,6 +112,18 @@
 
             <li class="nav-item">
               <a
+                routerLink="/subscriptions"
+                routerLinkActive="active"
+                class="nav-link"
+                (click)="closeSidebar()"
+              >
+                <i class="pi pi-sync nav-icon"></i>
+                <span class="nav-label">Assinaturas</span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a
                 routerLink="/installments"
                 routerLinkActive="active"
                 class="nav-link"

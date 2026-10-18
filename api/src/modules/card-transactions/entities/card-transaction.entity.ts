@@ -1,10 +1,19 @@
-import { Entity, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
 import { CreditCard } from '../../credit-cards/entities/credit-card.entity';
 import { Category } from '../../categories/entities/category.entity';
+import { Subscription } from '../../subscriptions/entities/subscription.entity';
 
 @Entity('card_transactions')
+@Index(
+  'UQ_card_transactions_subscription_charge_date',
+  ['subscriptionId', 'subscriptionChargeDate'],
+  {
+    unique: true,
+    where: '"subscriptionId" IS NOT NULL AND "subscriptionChargeDate" IS NOT NULL',
+  },
+)
 export class CardTransaction extends BaseEntity {
   @Column({ length: 255 })
   description: string;
@@ -67,6 +76,16 @@ export class CardTransaction extends BaseEntity {
 
   @Column()
   workspaceId: string;
+
+  @ManyToOne(() => Subscription, { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'subscriptionId' })
+  subscription: Subscription | null;
+
+  @Column({ type: 'uuid', nullable: true })
+  subscriptionId: string | null;
+
+  @Column({ type: 'date', nullable: true })
+  subscriptionChargeDate: string | null;
 
   // Computed property for display
   get installmentLabel(): string {

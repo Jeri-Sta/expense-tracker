@@ -899,6 +899,8 @@ export class CardTransactionsService {
         : undefined,
       parentTransactionId: transaction.parentTransactionId,
       creditCardId: transaction.creditCardId,
+      subscriptionId: transaction.subscriptionId,
+      subscriptionChargeDate: transaction.subscriptionChargeDate,
       creditCardName: creditCard?.name,
       creditCardColor: creditCard?.color,
       categoryId: transaction.categoryId,

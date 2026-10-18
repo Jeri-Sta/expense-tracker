@@ -37,6 +37,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'subscriptions',
+        loadChildren: () =>
+          import('../../features/subscriptions/subscriptions.module').then(
+            (m) => m.SubscriptionsModule,
+          ),
+      },
+      {
         path: 'installments',
         loadChildren: () =>
           import('../../features/installments/installments.module').then(

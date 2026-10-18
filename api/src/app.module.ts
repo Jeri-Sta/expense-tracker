@@ -17,6 +17,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { InstallmentsModule } from './modules/installments/installments.module';
 import { CreditCardsModule } from './modules/credit-cards/credit-cards.module';
 import { CardTransactionsModule } from './modules/card-transactions/card-transactions.module';
+import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { WorkspacesModule } from './modules/workspaces/workspaces.module';
 import { ApiKeysModule } from './modules/api-keys/api-keys.module';
 import { ApplicationContextGuard } from './common/guards/application-context.guard';
@@ -51,6 +52,7 @@ import { ApplicationContextGuard } from './common/guards/application-context.gua
     InstallmentsModule,
     CreditCardsModule,
     CardTransactionsModule,
+    SubscriptionsModule,
     WorkspacesModule,
     ApiKeysModule,
   ],

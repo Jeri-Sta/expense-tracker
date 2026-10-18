@@ -226,12 +226,72 @@
           </section>
         </div>
 
-        <div
-          class="supporting-grid"
-          *ngIf="
-            topCategories.length > 0 || expenseBreakdown.length > 0 || recentTransactions.length > 0
-          "
-        >
+        <div class="supporting-grid">
+          <section
+            class="subscriptions-panel content-panel content-panel--outlined"
+            aria-labelledby="subscription-projections-title"
+          >
+            <div class="panel-heading">
+              <div>
+                <span class="panel-eyebrow">Previsão do mês</span>
+                <h2 id="subscription-projections-title">Assinaturas</h2>
+                <p *ngIf="subscriptionProjections !== null">
+                  {{ subscriptionProjections.length }}
+                  {{
+                    subscriptionProjections.length === 1
+                      ? 'cobrança prevista'
+                      : 'cobranças previstas'
+                  }}
+                  em {{ getSelectedMonthName() }}.
+                </p>
+                <p *ngIf="subscriptionProjections === null">
+                  Detalhes das cobranças não chegaram da API.
+                </p>
+              </div>
+              <strong
+                class="subscription-total data-value"
+                *ngIf="subscriptionProjections !== null"
+              >
+                {{ formatCurrency(getSubscriptionProjectionsTotal()) }}
+              </strong>
+            </div>
+            <div
+              class="subscription-list"
+              *ngIf="subscriptionProjections?.length; else noSubscriptionProjections"
+            >
+              <div class="commitment-row" *ngFor="let subscription of subscriptionProjections">
+                <span class="commitment-icon subscription-icon" aria-hidden="true">
+                  <i class="pi pi-refresh"></i>
+                </span>
+                <span class="commitment-copy">
+                  <strong>{{ subscription.name }}</strong>
+                  <small>{{ formatDate(subscription.chargeDate) }}</small>
+                </span>
+                <strong class="data-value">{{ formatCurrency(subscription.amount) }}</strong>
+              </div>
+            </div>
+            <ng-template #noSubscriptionProjections>
+              <div class="compact-empty" role="status" *ngIf="subscriptionProjections === null">
+                <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+                <div>
+                  <strong>Atualize a API para ver as assinaturas</strong>
+                  <span>A projeção mensal já inclui esses valores.</span>
+                </div>
+              </div>
+              <div
+                class="compact-empty"
+                role="status"
+                *ngIf="subscriptionProjections !== null && subscriptionProjections.length === 0"
+              >
+                <i class="pi pi-info-circle" aria-hidden="true"></i>
+                <div>
+                  <strong>Nenhuma cobrança prevista</strong>
+                  <span>Não há assinaturas pendentes para este mês.</span>
+                </div>
+              </div>
+            </ng-template>
+          </section>
+
           <app-category-stats-widget
             *ngIf="topCategories.length > 0"
             [categoryStats]="topCategories"

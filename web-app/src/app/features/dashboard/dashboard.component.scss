@@ -203,6 +203,42 @@
   white-space: nowrap;
 }
 
+.subscription-total {
+  color: var(--primary-color);
+  white-space: nowrap;
+  padding: $spacing-xs $spacing-sm;
+  background: var(--info-color-soft);
+  border: $border-width solid var(--primary-200);
+  border-radius: $border-radius-sm;
+}
+
+.subscription-list {
+  padding-top: $spacing-xs;
+}
+
+.subscriptions-panel {
+  align-self: start;
+  overflow: hidden;
+  padding: $spacing-lg;
+}
+
+.subscription-icon {
+  color: var(--info-color);
+  background: var(--info-color-soft);
+}
+
+.subscriptions-panel .compact-empty {
+  min-height: 4rem;
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: var(--surface-hover);
+  border-radius: $border-radius-sm;
+
+  > i {
+    color: var(--info-color);
+  }
+}
+
 .commitment-groups {
   display: grid;
   gap: $spacing-lg;
@@ -399,6 +435,10 @@
   }
 
   .commitments-panel {
+    padding: $spacing-md;
+  }
+
+  .subscriptions-panel {
     padding: $spacing-md;
   }
 

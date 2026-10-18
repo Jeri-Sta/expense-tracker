@@ -37,6 +37,12 @@ export class CardTransactionResponseDto {
   @ApiProperty()
   creditCardId: string;
 
+  @ApiProperty({ required: false, nullable: true })
+  subscriptionId?: string | null;
+
+  @ApiProperty({ required: false, nullable: true, format: 'date' })
+  subscriptionChargeDate?: string | null;
+
   @ApiProperty({ required: false })
   creditCardName?: string;
 

@@ -9,7 +9,7 @@ export default registerAs('database', () => ({
   password: process.env.DB_PASSWORD || 'admin123',
   database: process.env.DB_NAME || 'expense_tracker',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
+  migrations: [__dirname + '/../migrations/*{.ts,.js}'],
   synchronize: false,
   logging: process.env.DB_LOGGING === 'true',
   ssl: buildSslOptions(),

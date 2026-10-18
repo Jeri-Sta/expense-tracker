@@ -75,6 +75,7 @@ export interface DashboardStats {
     projectedTransactionCount: number;
     hasProjections: boolean;
     cardExpenses: number;
+    subscriptionProjections: { name: string; chargeDate: string; amount: number }[];
   };
   yearlyOverview: MonthlyStatsWithProjections[];
   recentTransactions: any[];
@@ -225,6 +226,7 @@ export class DashboardService {
       hasProjections: false,
       transactionCount: 0,
       projectedTransactionCount: 0,
+      subscriptionProjections: [],
     };
 
     return {
@@ -285,6 +287,7 @@ export class DashboardService {
       transactionCount: 0,
       projectedTransactionCount: 0,
       cardExpenses: 0,
+      subscriptionProjections: [],
     };
 
     // Get monthly expense breakdown
@@ -807,7 +810,10 @@ export class DashboardService {
       .createQueryBuilder('transaction')
       .select('SUM(transaction.amount)', 'total')
       .where('transaction.workspaceId = :workspaceId', { workspaceId })
-      .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+      .andWhere(
+        '((transaction.subscriptionId IS NOT NULL AND transaction.invoicePeriod = :competencyPeriod) OR (transaction.subscriptionId IS NULL AND transaction.competencyPeriod = :competencyPeriod))',
+        { competencyPeriod },
+      )
       .getRawOne();
 
     return Number(result?.total || 0);
@@ -831,7 +837,10 @@ export class DashboardService {
       ])
       .leftJoin('transaction.category', 'category')
       .where('transaction.workspaceId = :workspaceId', { workspaceId })
-      .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+      .andWhere(
+        '((transaction.subscriptionId IS NOT NULL AND transaction.invoicePeriod = :competencyPeriod) OR (transaction.subscriptionId IS NULL AND transaction.competencyPeriod = :competencyPeriod))',
+        { competencyPeriod },
+      )
       .groupBy('category.id, category.name, category.color, category.icon')
       .getRawMany();
 
@@ -888,7 +897,10 @@ export class DashboardService {
         .createQueryBuilder('transaction')
         .select('SUM(transaction.amount)', 'total')
         .where('transaction.creditCardId = :cardId', { cardId: card.id })
-        .andWhere('transaction.competencyPeriod = :competencyPeriod', { competencyPeriod })
+        .andWhere(
+          '((transaction.subscriptionId IS NOT NULL AND transaction.invoicePeriod = :competencyPeriod) OR (transaction.subscriptionId IS NULL AND transaction.competencyPeriod = :competencyPeriod))',
+          { competencyPeriod },
+        )
         .getRawOne();
       const amount = Number(result?.total || 0);
       if (amount > 0) {

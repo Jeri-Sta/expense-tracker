@@ -7,11 +7,18 @@ import { Transaction } from './entities/transaction.entity';
 import { RecurringTransaction } from '../recurring-transactions/entities/recurring-transaction.entity';
 import { Installment } from '../installments/entities/installment.entity';
 import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
+import { Subscription } from '../subscriptions/entities/subscription.entity';
 import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Transaction, RecurringTransaction, Installment, CardTransaction]),
+    TypeOrmModule.forFeature([
+      Transaction,
+      RecurringTransaction,
+      Installment,
+      CardTransaction,
+      Subscription,
+    ]),
     CategoriesModule,
   ],
   controllers: [TransactionsController],

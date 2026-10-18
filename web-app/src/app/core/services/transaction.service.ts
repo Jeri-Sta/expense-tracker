@@ -112,6 +112,13 @@ export interface MonthlyStatsWithProjections {
   transactionCount: number;
   projectedTransactionCount: number;
   cardExpenses?: number;
+  subscriptionProjections?: SubscriptionProjection[];
+}
+
+export interface SubscriptionProjection {
+  name: string;
+  chargeDate: string;
+  amount: number;
 }
 
 export interface DashboardApiResponse {

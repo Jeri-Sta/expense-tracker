@@ -7,6 +7,7 @@ import {
   CreditCardSummary,
   CardInstallmentSummary,
   InvoiceSummary,
+  SubscriptionProjection,
 } from '../../core/services/transaction.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import {
@@ -87,6 +88,7 @@ export class DashboardComponent implements OnInit {
 
   // Expense breakdown data
   expenseBreakdown: MonthlyExpenseBreakdownItem[] = [];
+  subscriptionProjections: SubscriptionProjection[] | null = null;
 
   // Budget goals data
   budgetGoals: BudgetGoalItem[] = [];
@@ -153,6 +155,15 @@ export class DashboardComponent implements OnInit {
     return this.upcomingRecurringExpenses.length > 0 || this.upcomingPayments.length > 0;
   }
 
+  getSubscriptionProjectionsTotal(): number {
+    return (
+      this.subscriptionProjections?.reduce(
+        (total, projection) => total + projection.amount,
+        0,
+      ) ?? 0
+    );
+  }
+
   // Get the total number of visible tabs
   private getVisibleTabCount(): number {
     let count = 1; // Visão Geral is always visible
@@ -217,6 +228,7 @@ export class DashboardComponent implements OnInit {
         .subscribe({
           next: (dashboardData) => {
             this.updateCurrentStatsFromDashboard(dashboardData.currentMonth);
+            this.subscriptionProjections = dashboardData.currentMonth.subscriptionProjections ?? null;
             this.updateChartsFromYearlyData(dashboardData.yearlyOverview || []);
             this.recentTransactions = dashboardData.recentTransactions || [];
             this.updateCategoryData(dashboardData.topCategories || []);
@@ -264,6 +276,7 @@ export class DashboardComponent implements OnInit {
         .subscribe({
           next: (monthlyData) => {
             this.updateCurrentStatsFromDashboard(monthlyData.stats);
+            this.subscriptionProjections = monthlyData.stats.subscriptionProjections ?? null;
             this.recentTransactions = monthlyData.recentTransactions || [];
             this.updateCategoryData(monthlyData.topCategories || []);
 
