@@ -1,6 +1,22 @@
 ## [Em Desenvolvimento]
 
 ### ✨ Novas Funcionalidades
+- Adicione novas funcionalidades aqui
+
+### 🔧 Melhorias
+- Adicione melhorias e otimizações aqui
+
+### 🐛 Correções
+- Adicione correções de bugs aqui
+
+### 📦 Atualizações de Dependências
+- Adicione atualizações de dependências aqui
+
+---
+
+## [2.7.0] - 2026-10-19
+
+### ✨ Novas Funcionalidades
 - Adicionado gerenciamento de assinaturas vinculadas a cartões, com cobranças automáticas e projeção mensal no dashboard.
 - Adicionado card de assinaturas no dashboard com valores, datas e total previsto para o mês selecionado.
 

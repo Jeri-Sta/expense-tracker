@@ -1,8 +1,8 @@
 {
-  "oldVersion": "2.5.0",
-  "newVersion": "2.6.0",
+  "oldVersion": "2.6.0",
+  "newVersion": "2.7.0",
   "versionType": "minor",
-  "releaseNotes": "### ✨ Novas Funcionalidades\n### 🔧 Melhorias\n- Refatorações na UI.\n### 🐛 Correções\n### 📦 Atualizações de Dependências",
-  "backupBranch": "backup/release-2026-10-09T15-43-07-659Z",
-  "timestamp": "2026-10-09T15:43:07.707Z"
+  "releaseNotes": "### ✨ Novas Funcionalidades\n- Adicionado gerenciamento de assinaturas vinculadas a cartões, com cobranças automáticas e projeção mensal no dashboard.\n- Adicionado card de assinaturas no dashboard com valores, datas e total previsto para o mês selecionado.\n### 🔧 Melhorias\n- Cobranças de assinaturas passam a atualizar a fatura de forma idempotente e preservar os lançamentos anteriores ao editar ou cancelar.\n### 🐛 Correções\n- Corrigida a validação de valores monetários com duas casas decimais para evitar rejeição por imprecisão de ponto flutuante.\n### 📦 Atualizações de Dependências",
+  "backupBranch": "backup/release-2026-10-19T01-17-56-744Z",
+  "timestamp": "2026-10-19T01:17:56.788Z"
 }
