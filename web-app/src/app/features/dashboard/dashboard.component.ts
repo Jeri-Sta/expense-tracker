@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import type { TabViewChangeEvent } from 'primeng/tabview';
 import {
   TransactionService,
   MonthlyStatsWithProjections,
@@ -157,10 +158,7 @@ export class DashboardComponent implements OnInit {
 
   getSubscriptionProjectionsTotal(): number {
     return (
-      this.subscriptionProjections?.reduce(
-        (total, projection) => total + projection.amount,
-        0,
-      ) ?? 0
+      this.subscriptionProjections?.reduce((total, projection) => total + projection.amount, 0) ?? 0
     );
   }
 
@@ -192,7 +190,7 @@ export class DashboardComponent implements OnInit {
   }
 
   // Handle tab change and persist to localStorage
-  onTabChange(event: any): void {
+  onTabChange(event: TabViewChangeEvent): void {
     this.activeTabIndex = event.index;
     localStorage.setItem(this.TAB_STORAGE_KEY, event.index.toString());
   }
@@ -228,7 +226,8 @@ export class DashboardComponent implements OnInit {
         .subscribe({
           next: (dashboardData) => {
             this.updateCurrentStatsFromDashboard(dashboardData.currentMonth);
-            this.subscriptionProjections = dashboardData.currentMonth.subscriptionProjections ?? null;
+            this.subscriptionProjections =
+              dashboardData.currentMonth.subscriptionProjections ?? null;
             this.updateChartsFromYearlyData(dashboardData.yearlyOverview || []);
             this.recentTransactions = dashboardData.recentTransactions || [];
             this.updateCategoryData(dashboardData.topCategories || []);
