@@ -140,6 +140,7 @@ describe('ProjectionsService', () => {
         find: jest.fn(async () => [
           {
             id: 'sub-31',
+            name: 'Subscription 31',
             amount: 12,
             chargeDay: 31,
             nextChargeDate: '2025-12-31',
@@ -152,10 +153,10 @@ describe('ProjectionsService', () => {
       workspaceId: string,
       year: number,
       month: number,
-    ) => Promise<{ amount: number }[]>;
+    ) => Promise<{ name: string; chargeDate: string; amount: number }[]>;
 
     await expect(getSubscriptionProjections.call(service, 'workspace-1', 2026, 1)).resolves.toEqual(
-      [{ amount: 12 }],
+      [{ name: 'Subscription 31', chargeDate: '2025-12-31', amount: 12 }],
     );
   });
 });
