@@ -3,7 +3,6 @@ import { describe, expect, it, jest } from '@jest/globals';
 import { InvoiceStatus } from '../../common/enums';
 import { CardTransaction } from '../card-transactions/entities/card-transaction.entity';
 import { Invoice } from '../card-transactions/entities/invoice.entity';
-import { CreditCard } from '../credit-cards/entities/credit-card.entity';
 import { Subscription } from './entities/subscription.entity';
 import { SubscriptionsService } from './subscriptions.service';
 
