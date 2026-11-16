@@ -14,6 +14,13 @@ import { Subscription } from '../../subscriptions/entities/subscription.entity';
     where: '"subscriptionId" IS NOT NULL AND "subscriptionChargeDate" IS NOT NULL',
   },
 )
+@Index('UQ_card_transactions_import_fingerprint', ['creditCardId', 'importFingerprint'], {
+  unique: true,
+  where: '"importFingerprint" IS NOT NULL',
+})
+@Index('IDX_card_transactions_import_series', ['creditCardId', 'importSeriesKey'], {
+  where: '"importSeriesKey" IS NOT NULL',
+})
 export class CardTransaction extends BaseEntity {
   @Column({ length: 255 })
   description: string;
@@ -86,6 +93,16 @@ export class CardTransaction extends BaseEntity {
 
   @Column({ type: 'date', nullable: true })
   subscriptionChargeDate: string | null;
+
+  // Statement import provenance (kept so re-imports are idempotent)
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  importSource: string | null;
+
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  importFingerprint: string | null;
+
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  importSeriesKey: string | null;
 
   // Computed property for display
   get installmentLabel(): string {

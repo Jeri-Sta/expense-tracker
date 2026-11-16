@@ -41,6 +41,10 @@ export class ResponsiveActionsComponent {
     }
   }
 
+  trackByAction(_index: number, action: ResponsiveAction): string {
+    return `${action.label}|${action.icon ?? ''}`;
+  }
+
   toggleMore(event: Event): void {
     this.moreMenu?.toggle(event);
   }

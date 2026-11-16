@@ -25,12 +25,13 @@ import { CreditCardsRoutingModule } from './credit-cards-routing.module';
 // Components
 import { CreditCardListComponent } from './pages/credit-card-list/credit-card-list.component';
 import { CardTransactionsComponent } from './pages/card-transactions/card-transactions.component';
+import { InvoiceImportDialogComponent } from './pages/card-transactions/invoice-import-dialog/invoice-import-dialog.component';
 
 // Shared Module
 import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
-  declarations: [CreditCardListComponent, CardTransactionsComponent],
+  declarations: [CreditCardListComponent, CardTransactionsComponent, InvoiceImportDialogComponent],
   imports: [
     CommonModule,
     FormsModule,

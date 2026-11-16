@@ -798,6 +798,31 @@ export class CardTransactionsService {
   }
 
   // Helper methods
+  /**
+   * Recalculates the cached totalAmount of the given invoice periods.
+   * Used by flows that write card transactions directly (e.g. statement
+   * imports). Unlike the regular CRUD methods, it also refreshes paid/closed
+   * invoices because importing an old statement is a reconciliation action.
+   */
+  async recalculateInvoiceTotals(
+    creditCardId: string,
+    periods: Iterable<string>,
+    userId: string,
+    workspaceId: string,
+  ): Promise<void> {
+    const creditCard = await this.creditCardRepository.findOne({
+      where: { id: creditCardId, workspaceId },
+    });
+
+    if (!creditCard) {
+      throw new NotFoundException('Credit card not found');
+    }
+
+    for (const period of new Set(periods)) {
+      await this.updateInvoiceTotal(creditCardId, period, userId, workspaceId, creditCard);
+    }
+  }
+
   private addMonthsToInvoicePeriod(invoicePeriod: string, months: number): string {
     const [yearStr, monthStr] = invoicePeriod.split('-');
     let year = parseInt(yearStr);
