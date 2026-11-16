@@ -1,8 +1,7 @@
 ## [Em Desenvolvimento]
 
 ### ✨ Novas Funcionalidades
-- Adicionado importador de faturas do Nubank (CSV), com pré-visualização, classificação por categoria, criação automática de parcelas futuras e vínculo mercador → categoria para importações futuras.
-- Importação idempotente: reimportar a mesma fatura não duplica nem altera lançamentos já existentes.
+- Adicione novas funcionalidades aqui
 
 ### 🔧 Melhorias
 - Adicione melhorias e otimizações aqui
@@ -12,6 +11,22 @@
 
 ### 📦 Atualizações de Dependências
 - Adicione atualizações de dependências aqui
+
+---
+
+## [2.8.0] - 2026-11-16
+
+### ✨ Novas Funcionalidades
+- Adicionado importador de faturas do Nubank (CSV), com pré-visualização, classificação por categoria, criação automática de parcelas futuras e vínculo mercador → categoria para importações futuras.
+- Importação idempotente: reimportar a mesma fatura não duplica nem altera lançamentos já existentes.
+
+### 🔧 Melhorias
+
+
+### 🐛 Correções
+
+
+### 📦 Atualizações de Dependências
 
 ---
 
