@@ -1,0 +1,62 @@
+.import-intro {
+  color: var(--text-color-secondary);
+  font-size: 0.925rem;
+  line-height: 1.5;
+}
+
+.import-table {
+  max-height: 46vh;
+  overflow: auto;
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+}
+
+.check-col {
+  width: 3rem;
+  text-align: center;
+}
+
+.actions-col {
+  width: 4rem;
+  text-align: center;
+}
+
+.import-row-disabled {
+  opacity: 0.65;
+}
+
+.import-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--surface-50);
+  font-size: 0.9rem;
+}
+
+.import-result {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--surface-50);
+  border-left: 4px solid var(--green-500);
+}
+
+.result-number {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--green-600);
+  line-height: 1;
+}
+
+.file-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+}

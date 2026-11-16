@@ -3,7 +3,10 @@
     title="Faturas de Cartão"
     subtitle="Gerencie as transações dos seus cartões de crédito"
   >
-    <app-responsive-actions [primaryAction]="primaryPageAction"></app-responsive-actions>
+    <app-responsive-actions
+      [primaryAction]="primaryPageAction"
+      [secondaryActions]="secondaryPageActions"
+    ></app-responsive-actions>
   </app-page-header>
   <app-inline-alert
     *ngIf="supportDataError"
@@ -512,3 +515,12 @@
 </p-dialog>
 
 <p-confirmDialog></p-confirmDialog>
+
+<app-invoice-import-dialog
+  [(visible)]="importDialog"
+  [creditCards]="creditCards"
+  [categories]="categories"
+  [defaultCardId]="selectedCardId"
+  [defaultPeriod]="selectedPeriod"
+  (imported)="onImportCompleted()"
+></app-invoice-import-dialog>

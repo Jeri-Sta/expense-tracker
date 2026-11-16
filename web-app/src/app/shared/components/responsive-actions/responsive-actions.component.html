@@ -11,7 +11,7 @@
 
   <div class="desktop-secondary-actions" *ngIf="secondaryActions.length">
     <p-button
-      *ngFor="let action of secondaryActions"
+      *ngFor="let action of secondaryActions; trackBy: trackByAction"
       class="responsive-action"
       [styleClass]="buttonClass(action)"
       [icon]="action.icon || ''"

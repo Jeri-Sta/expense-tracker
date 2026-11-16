@@ -1,0 +1,316 @@
+<p-dialog
+  [visible]="visible"
+  (visibleChange)="onDialogVisibility($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: 'min(1100px, 96vw)' }"
+  appendTo="body"
+  styleClass="invoice-import-dialog"
+>
+  <ng-template pTemplate="header">
+    <div class="flex align-items-center gap-2">
+      <i class="pi pi-upload"></i>
+      <span>Importar fatura do Nubank</span>
+      <p-tag
+        *ngIf="step === 2"
+        [value]="preview?.summary?.totalRows + ' linha(s)'"
+        severity="info"
+      ></p-tag>
+    </div>
+  </ng-template>
+
+  <!-- Step 1: card, invoice and file -->
+  <div *ngIf="step === 1" class="flex flex-column gap-4">
+    <div class="import-intro">
+      Selecione o cartão, a fatura correspondente e o CSV exportado pelo Nubank. Nada é salvo antes
+      de você revisar e confirmar.
+    </div>
+
+    <div class="grid formgrid p-fluid">
+      <div class="field col-12 md:col-6">
+        <label for="importCard" class="font-medium">Cartão</label>
+        <p-dropdown
+          inputId="importCard"
+          [options]="creditCards"
+          [(ngModel)]="selectedCardId"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Selecione o cartão"
+          appendTo="body"
+        ></p-dropdown>
+      </div>
+
+      <div class="field col-12 md:col-6">
+        <label for="importPeriod" class="font-medium">Fatura (mês de vencimento)</label>
+        <p-dropdown
+          inputId="importPeriod"
+          [options]="periodOptions"
+          [(ngModel)]="selectedPeriod"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione a fatura"
+          appendTo="body"
+        ></p-dropdown>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="font-medium">Arquivo CSV</label>
+      <div class="flex align-items-center gap-3 flex-wrap">
+        <input
+          #fileInput
+          type="file"
+          accept=".csv,text/csv"
+          hidden
+          (change)="onFileSelected($event)"
+        />
+        <p-button
+          label="Escolher CSV"
+          icon="pi pi-paperclip"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="fileInput.click()"
+        ></p-button>
+        <span *ngIf="fileName" class="file-name">
+          <i class="pi pi-file"></i>
+          {{ fileName }}
+        </span>
+        <span *ngIf="!fileName" class="text-color-secondary text-sm"
+          >Nenhum arquivo selecionado</span
+        >
+      </div>
+      <small class="text-color-secondary">
+        Dica: o nome do arquivo (ex.: Nubank_2026-12-09.csv) pré-seleciona a fatura de dezembro.
+        Também é possível escolher a fatura manualmente.
+      </small>
+    </div>
+
+    <div class="flex justify-content-between align-items-center gap-2 flex-wrap">
+      <p-button
+        label="Gerenciar regras"
+        icon="pi pi-cog"
+        severity="secondary"
+        [text]="true"
+        (onClick)="openRules()"
+      ></p-button>
+      <p-button
+        label="Analisar CSV"
+        icon="pi pi-search"
+        [loading]="loading"
+        [disabled]="!canAnalyze"
+        (onClick)="analyze()"
+      ></p-button>
+    </div>
+  </div>
+
+  <!-- Step 2: review and classify -->
+  <div *ngIf="step === 2 && preview" class="flex flex-column gap-3">
+    <div class="flex gap-2 flex-wrap">
+      <p-tag [value]="preview.summary.newCount + ' nova(s)'" severity="success"></p-tag>
+      <p-tag
+        *ngIf="preview.summary.duplicateCount"
+        [value]="preview.summary.duplicateCount + ' possível(is) duplicata(s)'"
+        severity="warning"
+      ></p-tag>
+      <p-tag
+        *ngIf="preview.summary.importedCount"
+        [value]="preview.summary.importedCount + ' já importada(s)'"
+        severity="secondary"
+      ></p-tag>
+      <p-tag
+        *ngIf="preview.summary.paymentCount"
+        [value]="preview.summary.paymentCount + ' pagamento(s)'"
+        severity="info"
+      ></p-tag>
+      <p-tag
+        *ngIf="preview.summary.mismatchCount"
+        [value]="preview.summary.mismatchCount + ' em outra fatura'"
+        severity="danger"
+      ></p-tag>
+    </div>
+
+    <div class="import-table">
+      <p-table [value]="preview.rows" responsiveLayout="scroll" [paginator]="false">
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="check-col"></th>
+            <th>Data</th>
+            <th>Descrição</th>
+            <th class="text-right">Valor</th>
+            <th>Categoria</th>
+            <th>Status</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr [class.import-row-disabled]="isRowDisabled(row)">
+            <td class="check-col">
+              <p-checkbox
+                [(ngModel)]="row.include"
+                [binary]="true"
+                [disabled]="isRowDisabled(row)"
+                ariaLabel="Incluir transação"
+              ></p-checkbox>
+            </td>
+            <td class="white-space-nowrap">{{ formatDateLabel(row.date) }}</td>
+            <td>
+              <input
+                pInputText
+                [(ngModel)]="row.description"
+                class="w-full"
+                maxlength="255"
+                [disabled]="row.status === 'imported'"
+              />
+              <div class="text-xs text-color-secondary mt-1" *ngIf="row.installmentNumber">
+                Parcela {{ row.installmentNumber }}/{{ row.totalInstallments }}
+                <span *ngIf="missingInstallmentsCount(row) > 0">
+                  · cria {{ missingInstallmentsCount(row) }} lançamento(s):
+                  {{ generatedInstallmentsLabel(row) }}
+                </span>
+              </div>
+            </td>
+            <td class="text-right font-semibold white-space-nowrap">
+              {{ formatCurrency(row.amount) }}
+            </td>
+            <td>
+              <p-dropdown
+                [options]="categoryOptions"
+                [(ngModel)]="row.categoryId"
+                placeholder="Classificar"
+                appendTo="body"
+                [showClear]="false"
+                [disabled]="isRowDisabled(row)"
+                styleClass="w-full"
+              ></p-dropdown>
+            </td>
+            <td>
+              <p-tag
+                [value]="getStatusLabel(row.status)"
+                [severity]="getStatusSeverity(row.status)"
+              ></p-tag>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <div class="import-summary">
+      <span>
+        {{ selectedCount }} selecionada(s) ·
+        <strong>{{ formatCurrency(selectedAmount) }}</strong> nesta fatura
+      </span>
+      <span class="text-color-secondary">
+        Serão criados {{ transactionsToCreate }} lançamento(s), incluindo parcelas futuras (total
+        {{ formatCurrency(projectedAmount) }}).
+      </span>
+    </div>
+
+    <div class="flex justify-content-between gap-2 flex-wrap">
+      <p-button
+        label="Voltar"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [text]="true"
+        (onClick)="backToSelection()"
+      ></p-button>
+      <p-button
+        label="Importar selecionadas"
+        icon="pi pi-check"
+        [loading]="saving"
+        [disabled]="selectedCount === 0"
+        (onClick)="confirmImport()"
+      ></p-button>
+    </div>
+  </div>
+
+  <!-- Step 3: result -->
+  <div *ngIf="step === 3 && result" class="flex flex-column gap-4">
+    <div class="import-result">
+      <div class="result-number">{{ result.created }}</div>
+      <div>
+        <div class="font-semibold">transação(ões) criada(s)</div>
+        <div class="text-color-secondary text-sm">
+          {{ result.skipped }} ignorada(s) · {{ result.rulesSaved }} regra(s) salva(s)
+        </div>
+      </div>
+    </div>
+
+    <p-table [value]="result.periods" responsiveLayout="scroll" [paginator]="false">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Fatura</th>
+          <th class="text-center">Criadas</th>
+          <th class="text-right">Novo total</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-period>
+        <tr>
+          <td>{{ formatPeriod(period.period) }}</td>
+          <td class="text-center">{{ period.created }}</td>
+          <td class="text-right font-semibold">{{ formatCurrency(period.totalAmount) }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="flex justify-content-end">
+      <p-button label="Concluir" icon="pi pi-check" (onClick)="close()"></p-button>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- Rules management -->
+<p-dialog
+  [(visible)]="rulesVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: 'min(760px, 94vw)' }"
+  appendTo="body"
+  header="Regras de categorização"
+>
+  <div class="flex flex-column gap-3">
+    <p class="m-0 text-color-secondary">
+      Ao importar, o mercador é vinculado automaticamente a estas categorias e descrições.
+    </p>
+
+    <div *ngIf="rulesLoading" class="flex justify-content-center p-4">
+      <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem"></i>
+    </div>
+
+    <p-table *ngIf="!rulesLoading" [value]="rules" responsiveLayout="scroll" [paginator]="false">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Mercador</th>
+          <th>Descrição</th>
+          <th>Categoria</th>
+          <th class="actions-col"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rule>
+        <tr>
+          <td>
+            <div class="font-medium">{{ rule.pattern }}</div>
+            <div class="text-xs text-color-secondary">{{ rule.merchantKey }}</div>
+          </td>
+          <td>{{ rule.defaultDescription || '-' }}</td>
+          <td>{{ rule.categoryName || '-' }}</td>
+          <td class="actions-col">
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              size="small"
+              ariaLabel="Remover regra"
+              (onClick)="deleteRule(rule)"
+            ></p-button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center text-color-secondary">Nenhuma regra salva ainda.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>

@@ -8,6 +8,10 @@ import {
   UpdateCardTransactionDto,
   Invoice,
   UpdateInvoiceStatusDto,
+  ImportPreviewResponse,
+  ConfirmImportRequest,
+  ImportConfirmResponse,
+  MerchantCategoryRule,
 } from '../models/card-transaction.model';
 import { formatPeriod, getAvailablePeriods } from '../../../shared/utils/format.utils';
 import { suppressGlobalErrorNotification } from '../../../core/interceptors/http-feedback.context';
@@ -173,6 +177,41 @@ export class CardTransactionService {
     }
     return this.http.get<Invoice[]>(`${this.apiUrl}/invoices/by-due-month/${year}/${month}`, {
       params,
+    });
+  }
+
+  // Nubank statement import
+
+  previewNubankImport(
+    file: File,
+    creditCardId: string,
+    invoicePeriod: string,
+  ): Observable<ImportPreviewResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('creditCardId', creditCardId);
+    formData.append('invoicePeriod', invoicePeriod);
+
+    return this.http.post<ImportPreviewResponse>(`${this.apiUrl}/import/nubank/preview`, formData, {
+      context: suppressGlobalErrorNotification(),
+    });
+  }
+
+  confirmNubankImport(payload: ConfirmImportRequest): Observable<ImportConfirmResponse> {
+    return this.http.post<ImportConfirmResponse>(`${this.apiUrl}/import/nubank/confirm`, payload, {
+      context: suppressGlobalErrorNotification(),
+    });
+  }
+
+  getImportRules(): Observable<MerchantCategoryRule[]> {
+    return this.http.get<MerchantCategoryRule[]>(`${this.apiUrl}/import/rules`, {
+      context: suppressGlobalErrorNotification(),
+    });
+  }
+
+  deleteImportRule(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/import/rules/${id}`, {
+      context: suppressGlobalErrorNotification(),
     });
   }
 }

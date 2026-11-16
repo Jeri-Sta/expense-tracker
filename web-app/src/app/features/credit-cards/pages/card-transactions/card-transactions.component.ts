@@ -17,6 +17,7 @@ import { normalizeIcon } from '../../../../shared/utils/icon.utils';
 import { TransactionType } from '../../../../core/types/common.types';
 import { formatCurrency, formatPeriod } from '../../../../shared/utils/format.utils';
 import { focusFirstInvalidControl } from '../../../../shared/utils/form.utils';
+import { ResponsiveAction } from '../../../../shared/components/responsive-actions/responsive-actions.component';
 
 @Component({
   selector: 'app-card-transactions',
@@ -44,6 +45,18 @@ export class CardTransactionsComponent implements OnInit {
       command: () => this.openNew(),
     };
   }
+
+  readonly importAction: ResponsiveAction = {
+    label: 'Importar fatura',
+    icon: 'pi pi-upload',
+    intent: 'secondary',
+    disabled: true,
+    command: () => this.openImportDialog(),
+  };
+
+  readonly secondaryPageActions: ResponsiveAction[] = [this.importAction];
+
+  importDialog = false;
 
   // Pagination
   totalRecords = 0;
@@ -132,6 +145,7 @@ export class CardTransactionsComponent implements OnInit {
     this.creditCardService.getAll().subscribe({
       next: (cards) => {
         this.creditCards = cards;
+        this.importAction.disabled = cards.length === 0;
       },
       error: (error) => {
         console.error('Error loading credit cards:', error);
@@ -268,6 +282,15 @@ export class CardTransactionsComponent implements OnInit {
     this.transactionForm.get('isInstallment')?.enable();
 
     this.transactionDialog = true;
+  }
+
+  openImportDialog(): void {
+    this.importDialog = true;
+  }
+
+  onImportCompleted(): void {
+    this.loadTransactions();
+    this.loadInvoiceOptions();
   }
 
   editTransaction(transaction: CardTransaction): void {
