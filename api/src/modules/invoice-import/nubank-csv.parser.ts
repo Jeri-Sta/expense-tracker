@@ -21,6 +21,12 @@ export class NubankCsvParseError extends Error {
 
 const EXPECTED_HEADER = ['date', 'title', 'amount'];
 
+/** Hard limits so a malformed/hostile CSV cannot consume unbounded work. */
+const MAX_CONTENT_LENGTH = 5 * 1024 * 1024;
+const MAX_LINE_LENGTH = 100_000;
+const MAX_TITLE_LENGTH = 255;
+const MAX_ROWS = 5_000;
+
 /**
  * Parses the CSV exported by Nubank (date,title,amount).
  *
@@ -31,6 +37,10 @@ const EXPECTED_HEADER = ['date', 'title', 'amount'];
 export function parseNubankCsv(content: string): ParsedNubankRow[] {
   if (!content || !content.trim()) {
     throw new NubankCsvParseError('CSV file is empty');
+  }
+
+  if (content.length > MAX_CONTENT_LENGTH) {
+    throw new NubankCsvParseError('CSV file is too large');
   }
 
   const lines = content
@@ -69,6 +79,17 @@ export function parseNubankCsv(content: string): ParsedNubankRow[] {
 
     if (!title) {
       throw new NubankCsvParseError('Missing transaction title', lineNumber);
+    }
+
+    if (title.length > MAX_TITLE_LENGTH) {
+      throw new NubankCsvParseError(
+        `Transaction title is too long (max ${MAX_TITLE_LENGTH} characters)`,
+        lineNumber,
+      );
+    }
+
+    if (rows.length >= MAX_ROWS) {
+      throw new NubankCsvParseError(`CSV has too many rows (max ${MAX_ROWS})`, lineNumber);
     }
 
     rows.push({
@@ -129,11 +150,18 @@ function assertIsoDate(value: string, line: number): string {
  * Splits one CSV line, honouring quoted fields and escaped quotes ("").
  */
 export function splitCsvLine(line: string): string[] {
+  if (line.length > MAX_LINE_LENGTH) {
+    throw new NubankCsvParseError('CSV line is too long');
+  }
+
   const fields: string[] = [];
   let current = '';
   let inQuotes = false;
 
-  for (let index = 0; index < line.length; index++) {
+  // The loop bound is a constant; the early check rejects oversized lines.
+  for (let index = 0; index < MAX_LINE_LENGTH; index++) {
+    if (index >= line.length) break;
+
     const character = line[index];
 
     if (inQuotes) {

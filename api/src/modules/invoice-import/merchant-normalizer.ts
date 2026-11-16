@@ -10,13 +10,21 @@ export interface InstallmentInfo {
  *  - "Service Garagem - Parcela 2/4"
  *  - "Compra qualquer Parcela 3 de 6"
  */
-const INSTALLMENT_SUFFIX = /\s*(?:[-–—]\s*)?parcela\s*(\d+)\s*(?:\/|de)\s*(\d+)\s*$/i;
+const MAX_TITLE_LENGTH = 255;
+
+/**
+ * Linear-time matcher for the installment suffix. Avoids nested quantifiers so
+ * a hostile (very repetitive) title cannot cause catastrophic backtracking.
+ */
+const INSTALLMENT_SUFFIX = /\bparcela\s*(\d+)\s*(?:\/|de)\s*(\d+)\s*$/i;
 
 /**
  * Extracts the installment metadata from a Nubank title. Returns null when the
  * title does not describe an installment purchase.
  */
 export function extractInstallment(title: string): InstallmentInfo | null {
+  if (title.length > MAX_TITLE_LENGTH) return null;
+
   const match = title.match(INSTALLMENT_SUFFIX);
   if (!match || match.index === undefined) return null;
 
@@ -33,7 +41,10 @@ export function extractInstallment(title: string): InstallmentInfo | null {
     return null;
   }
 
-  const baseTitle = title.slice(0, match.index).trim();
+  const baseTitle = title
+    .slice(0, match.index)
+    .replace(/[\s–—-]+$/, '')
+    .trim();
   if (!baseTitle) return null;
 
   return { baseTitle, installmentNumber, totalInstallments };

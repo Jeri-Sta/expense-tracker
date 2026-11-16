@@ -57,6 +57,17 @@ describe('parseNubankCsv', () => {
   it('throws for an empty file', () => {
     expect(() => parseNubankCsv('')).toThrow('CSV file is empty');
   });
+
+  it('rejects transaction titles longer than the column limit', () => {
+    const longTitle = 'A'.repeat(256);
+    expect(() => parseNubankCsv(`date,title,amount\n2026-11-16,${longTitle},"1,00"`)).toThrow(
+      'too long',
+    );
+  });
+
+  it('rejects lines above the safety limit', () => {
+    expect(() => splitCsvLine('A'.repeat(100_001))).toThrow('CSV line is too long');
+  });
 });
 
 describe('parseNubankAmount', () => {
